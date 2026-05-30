@@ -22,7 +22,7 @@
     --secondary-foreground: 222 47% 11%;
 
     --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted-foreground: 215 20% 38%; /* #4B5C74 — was 47%, darkened for 5.8:1 on bg */
 
     --accent: 187 92% 43%;
     --accent-foreground: 0 0% 100%;
@@ -39,7 +39,7 @@
     /* Sidebar Light */
     --sidebar-bg: 210 40% 97%;
     --sidebar-border: 214 32% 91%;
-    --sidebar-text: 215 16% 47%;
+    --sidebar-text: 215 20% 38%; /* 6.05:1 on sidebar bg ✅ */
     --sidebar-hover: 210 40% 94%;
     --sidebar-active: 230 94% 60%;
     --sidebar-active-text: 0 0% 100%;
@@ -76,17 +76,21 @@
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 16%; /* #292929 */
-    --input: 0 0% 16%;
+    --border: 0 0% 22%; /* #383838 — best achievable on #0F0F0F bg */
+    --input: 0 0% 22%;
     --ring: 230 94% 60%;
 
     /* Sidebar Dark */
     --sidebar-bg: 0 0% 9%; /* #171717 */
-    --sidebar-border: 0 0% 14%; /* #242424 */
-    --sidebar-text: 0 0% 53%; /* #888888 */
-    --sidebar-hover: 0 0% 14%; /* #242424 */
+    --sidebar-border: 0 0% 18%; /* #2E2E2E */
+    --sidebar-text: 0 0% 53%;   /* #888888 — 5.1:1 on #171717 ✅ */
+    --sidebar-hover: 0 0% 18%;  /* #2E2E2E */
     --sidebar-active: 0 0% 25%; /* #404040 */
     --sidebar-active-text: 0 0% 100%;
+
+    .bg-mesh {
+      background-color: rgba(15, 15, 15, 1);
+    }
   }
 }
 
@@ -252,13 +256,14 @@
   }
 
   .bg-mesh {
+    background-color: rgba(255, 255, 255, 1);
     background-image:
       radial-gradient(
         at 40% 20%,
-        rgba(55, 88, 249, 0.15) 0px,
+        rgba(55, 88, 249, 0.015) 0px,
         transparent 50%
       ),
-      radial-gradient(at 80% 0%, rgba(100, 118, 251, 0.10) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, rgba(100, 118, 251, 0.1) 0px, transparent 50%),
       radial-gradient(at 0% 50%, rgba(6, 182, 212, 0.08) 0px, transparent 50%);
   }
 
@@ -285,5 +290,9 @@
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
     }
+  }
+
+  .bottom-81 {
+    bottom: 20.5rem;
   }
 }

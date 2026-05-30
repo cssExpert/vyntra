@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   User,
@@ -16,6 +17,7 @@ import {
   LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
+import { useAuth } from "@/providers/AuthProvider";
 import { cn } from "@/lib/utils";
 
 // ─── Menu item definitions ───────────────────────────────
@@ -108,9 +110,17 @@ const itemVariants = {
 
 // ─── Component ───────────────────────────────────────────
 export function ProfileMenu() {
+  const { user, logout } = useAuth();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [activeItem, setActiveItem] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleLogout = () => {
+    setIsOpen(false);
+    logout();
+    router.replace("/");
+  };
 
   // Close on outside click
   useEffect(() => {
@@ -154,9 +164,11 @@ export function ProfileMenu() {
       >
         {/* Avatar */}
         <div className="h-6 w-6 flex-shrink-0 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-[10px] font-bold text-white">
-          RG
+          {user?.initials ?? "??"}
         </div>
-        <span className="hidden sm:block text-sm font-medium">Ravi</span>
+        <span className="hidden sm:block text-sm font-medium">
+          {user?.name?.split(" ")[0] ?? "Account"}
+        </span>
         <motion.div
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.2, ease: "easeInOut" }}
@@ -200,20 +212,20 @@ export function ProfileMenu() {
               >
                 <div className="relative flex-shrink-0">
                   <div className="h-11 w-11 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-sm font-bold text-white shadow-glow-brand">
-                    RG
+                    {user?.initials ?? "??"}
                   </div>
                   <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-success border-2 border-card" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold text-sm text-foreground truncate">
-                    Ravi Gupta
+                    {user?.name ?? "—"}
                   </p>
                   <p className="text-xs text-muted-foreground truncate">
-                    faisalfeas2@gmail.com
+                    {user?.email ?? "—"}
                   </p>
                   <div className="mt-1 inline-flex items-center rounded-full bg-brand-500/10 px-2 py-0.5">
                     <span className="text-[10px] font-semibold text-brand-400 uppercase tracking-wide">
-                      Pro Plan
+                      {user?.role ?? "User"}
                     </span>
                   </div>
                 </div>
@@ -263,7 +275,7 @@ export function ProfileMenu() {
                 className="border-t border-border mt-1 p-2"
               >
                 <button
-                  onClick={() => setIsOpen(false)}
+                  onClick={handleLogout}
                   className={cn(
                     "group flex w-full items-center gap-3 px-4 py-2.5 rounded-xl",
                     "text-sm font-medium text-error",

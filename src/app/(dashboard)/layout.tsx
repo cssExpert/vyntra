@@ -1,19 +1,33 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { useSidebar } from "@/hooks/useSidebar";
+import { useAuth } from "@/providers/AuthProvider";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { isCollapsed, isMobileOpen, isMobile, toggle, closeMobile } = useSidebar();
+  const { isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
+  const { isCollapsed, isMobileOpen, toggle, closeMobile } = useSidebar();
+
+  // Redirect unauthenticated users to login
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.replace("/");
+    }
+  }, [isAuthenticated, isLoading, router]);
+
+  // Show nothing while checking auth to avoid flash
+  if (isLoading || !isAuthenticated) return null;
 
   return (
     <div className="flex h-screen overflow-hidden bg-background bg-mesh">
-      {/* Sidebar */}
       <AppSidebar
         isCollapsed={isCollapsed}
         isMobileOpen={isMobileOpen}
@@ -21,15 +35,11 @@ export default function DashboardLayout({
         onClose={closeMobile}
       />
 
-      {/* Main content */}
       <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
         <Topbar onMenuClick={toggle} />
 
-        {/* Page content */}
         <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-[1600px] p-4 sm:p-6">
-            {children}
-          </div>
+          <div className="mx-auto max-w-[1600px] p-4 sm:p-6">{children}</div>
         </main>
       </div>
     </div>

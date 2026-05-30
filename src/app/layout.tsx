@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/providers/ThemeProvider";
+import { AuthProvider } from "@/providers/AuthProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -67,7 +68,9 @@ export default function RootLayout({
       className={`${inter.variable} ${plusJakarta.variable} ${jetbrainsMono.variable}`}
     >
       <body className="min-h-screen bg-background font-sans antialiased">
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

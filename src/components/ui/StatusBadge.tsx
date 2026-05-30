@@ -17,14 +17,16 @@ interface StatusBadgeProps {
   className?: string;
 }
 
+// Light-mode text uses darker semantic shades to pass WCAG AA (4.5:1) on tinted bg.
+// Dark-mode overrides restore the vivid color since the tinted bg is nearly black.
 const variantStyles: Record<BadgeVariant, string> = {
-  default: "bg-primary/12 text-primary border-primary/20",
-  success: "bg-success/12 text-success border-success/20",
-  warning: "bg-warning/12 text-warning border-warning/20",
-  error: "bg-error/12 text-error border-error/20",
-  info: "bg-info/12 text-info border-info/20",
-  purple: "bg-purple-500/12 text-purple-400 border-purple-500/20",
-  muted: "bg-muted text-muted-foreground border-border",
+  default: "bg-primary/12 text-blue-700   dark:text-primary    border-primary/20",
+  success: "bg-success/12 text-green-800  dark:text-success    border-success/20",
+  warning: "bg-warning/12 text-amber-800  dark:text-warning    border-warning/20",
+  error:   "bg-error/12   text-red-700    dark:text-error      border-error/20",
+  info:    "bg-info/12    text-cyan-800   dark:text-info       border-info/20",
+  purple:  "bg-purple-500/12 text-purple-800 dark:text-purple-400 border-purple-500/20",
+  muted:   "bg-muted text-muted-foreground border-border",
 };
 
 const dotStyles: Record<BadgeVariant, string> = {

@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { LoginPage } from "@/modules/auth/LoginPage";
 
 export default function RootPage() {
-  redirect("/dashboard");
+  return <LoginPage />;
 }
