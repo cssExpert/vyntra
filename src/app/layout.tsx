@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     "Vyntra",
   ],
   authors: [{ name: "Vyntra" }],
-  robots: { index: false, follow: false },
+  robots: { index: true, follow: true },
   icons: {
     icon: "/icons/favicon.svg",
     shortcut: "/icons/favicon-16x16.png",
