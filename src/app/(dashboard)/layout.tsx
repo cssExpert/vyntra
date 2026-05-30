@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { CommandPaletteProvider } from "@/components/layout/CommandPalette";
+import { PageTransition } from "@/components/layout/PageTransition";
 import { useSidebar } from "@/hooks/useSidebar";
 import { useAuth } from "@/providers/AuthProvider";
 
@@ -41,7 +42,9 @@ export default function DashboardLayout({
           <Topbar onMenuClick={toggle} />
 
           <main className="flex-1 overflow-y-auto">
-            <div className="mx-auto max-w-[1600px] p-4 sm:p-6">{children}</div>
+            <PageTransition>
+              <div className="mx-auto max-w-[1600px] p-4 sm:p-6">{children}</div>
+            </PageTransition>
           </main>
         </div>
       </div>
