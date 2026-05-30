@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   Users2,
-  FileEdit,
+  FileText,
   TrendingUp,
   Gauge,
   CreditCard,
@@ -17,7 +17,6 @@ import {
   Settings2,
   BarChart3,
   ChevronLeft,
-  Zap,
   LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -32,7 +31,7 @@ import Icon from "@/components/common/Icon";
 const ICON_MAP: Record<string, LucideIcon> = {
   LayoutDashboard,
   Users2,
-  FileEdit,
+  FileText,
   TrendingUp,
   Gauge,
   CreditCard,
@@ -72,17 +71,55 @@ function NavItemComponent({
       )}
       title={isCollapsed ? item.label : undefined}
     >
+      {/*
+       * Sliding background — layoutId="nav-active-bg" means Framer Motion
+       * animates this element from the previously-active item to this one
+       * whenever the active route changes. Kept inset-0 so it never escapes
+       * the Link's own bounds (no overflow-hidden clipping risk).
+       */}
+      {isActive && (
+        <motion.span
+          layoutId="nav-active-bg"
+          className="absolute inset-0 rounded-lg bg-primary/10 dark:bg-[#404040]"
+          transition={{
+            type: "tween",
+            duration: 0.22,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+        />
+      )}
+
+      {/*
+       * Left bar indicator — simple fade-in/out; the sliding feel comes from
+       * the background above. Correct position: top-1/2 -translate-y-1/2
+       * centres the bar on the item row.
+       */}
+      <AnimatePresence>
+        {isActive && (
+          <motion.span
+            key="bar"
+            initial={{ scaleY: 0, opacity: 0 }}
+            animate={{ scaleY: 1, opacity: 1 }}
+            exit={{ scaleY: 0, opacity: 0 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="absolute -left-2 top-0 -translate-y-1/2 h-10 w-1 rounded-r-full bg-primary origin-center"
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Icon — z-10 so it renders above the sliding background */}
       <span
         className={cn(
-          "nav-icon flex-shrink-0 transition-colors",
+          "relative z-10 nav-icon flex-shrink-0 transition-colors",
           isActive
-            ? "text-primary"
+            ? "text-primary dark:text-white"
             : "text-muted-foreground group-hover:text-foreground",
         )}
       >
         <Icon className="h-[18px] w-[18px]" />
       </span>
 
+      {/* Label — z-10 so it renders above the sliding background */}
       <AnimatePresence>
         {!isCollapsed && (
           <motion.span
@@ -90,18 +127,18 @@ function NavItemComponent({
             animate={{ opacity: 1, width: "auto" }}
             exit={{ opacity: 0, width: 0 }}
             transition={{ duration: 0.2 }}
-            className="flex-1 truncate text-sm"
+            className="relative z-10 flex-1 truncate text-sm"
           >
             {item.label}
           </motion.span>
         )}
       </AnimatePresence>
 
-      {/* Badges */}
+      {/* Badges — z-10 */}
       {!isCollapsed && item.badge && (
         <span
           className={cn(
-            "ml-auto flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-semibold",
+            "relative z-10 ml-auto flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-semibold",
             item.badgeVariant === "info"
               ? "bg-info/15 text-info"
               : "bg-primary/15 text-primary",
@@ -112,17 +149,9 @@ function NavItemComponent({
       )}
 
       {!isCollapsed && item.isNew && (
-        <span className="ml-auto rounded-full bg-success/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-success">
+        <span className="relative z-10 ml-auto rounded-full bg-success/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-success">
           New
         </span>
-      )}
-
-      {/* Active indicator */}
-      {isActive && (
-        <motion.span
-          layoutId="sidebar-active"
-          className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r-full bg-primary"
-        />
       )}
     </Link>
   );
@@ -155,7 +184,7 @@ export function AppSidebar({
           href="/dashboard"
           className="flex items-center gap-2.5 cursor-pointer"
         >
-          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-sm bg-gradient-brand shadow-glow-brand">
+          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-sm bg-primary shadow-glow-brand">
             <Icon name="Brand" size="24" className="h-6 w-6 text-white" />
           </div>
           <AnimatePresence>
@@ -176,7 +205,7 @@ export function AppSidebar({
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden py-3 no-scrollbar">
+      <nav className="flex-1 overflow-y-auto py-3 no-scrollbar">
         <div className="space-y-0.5 px-2">
           {NAV_SECTIONS.map((section) => (
             <div key={section.id} className="mb-1">
@@ -252,33 +281,31 @@ export function AppSidebar({
           )}
         </AnimatePresence>
       </div>
-
-      {/* Collapse toggle — desktop only */}
-      <button
-        onClick={onToggle}
-        className={cn(
-          "absolute -right-3 top-20 z-10 hidden lg:flex",
-          "h-6 w-6 items-center justify-center rounded-full",
-          "border border-border bg-card shadow-glass text-muted-foreground",
-          "hover:text-foreground hover:bg-muted transition-all duration-200 cursor-pointer",
-        )}
-        aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-      >
-        <motion.span
-          animate={{ rotate: isCollapsed ? 180 : 0 }}
-          transition={{ duration: 0.25 }}
-        >
-          <ChevronLeft className="h-3.5 w-3.5" />
-        </motion.span>
-      </button>
     </motion.aside>
   );
 
   return (
     <>
-      {/* Desktop sidebar */}
+      {/* Desktop sidebar — relative wrapper so toggle button can escape overflow-hidden aside */}
       <div className="hidden lg:flex h-screen sticky top-0 flex-shrink-0">
         {sidebarContent}
+        <button
+          onClick={onToggle}
+          className={cn(
+            "absolute -right-3 top-20 z-20 flex",
+            "h-6 w-6 items-center justify-center rounded-full",
+            "border border-border bg-card shadow-glass text-muted-foreground",
+            "hover:text-foreground hover:bg-muted transition-all duration-200 cursor-pointer",
+          )}
+          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          <motion.span
+            animate={{ rotate: isCollapsed ? 180 : 0 }}
+            transition={{ duration: 0.25 }}
+          >
+            <ChevronLeft className="h-3.5 w-3.5" />
+          </motion.span>
+        </button>
       </div>
 
       {/* Mobile overlay */}

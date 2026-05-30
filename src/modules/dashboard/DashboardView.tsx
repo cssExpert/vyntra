@@ -26,7 +26,12 @@ import {
   SAMPLE_CAMPAIGNS,
   INTEGRATIONS,
 } from "@/data/sampleData";
-import { formatCurrency, formatDate, formatPercent, formatNumber } from "@/lib/utils";
+import {
+  formatCurrency,
+  formatDate,
+  formatPercent,
+  formatNumber,
+} from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 const containerVariants = {
@@ -64,7 +69,9 @@ function SectionCard({
         <div>
           <h3 className="text-sm font-semibold text-foreground">{title}</h3>
           {description && (
-            <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {description}
+            </p>
           )}
         </div>
         {action && (
@@ -89,8 +96,7 @@ function LighthouseScoreRing({
   score: number;
   label: string;
 }) {
-  const color =
-    score >= 90 ? "#22c55e" : score >= 50 ? "#f59e0b" : "#ef4444";
+  const color = score >= 90 ? "#22c55e" : score >= 50 ? "#f59e0b" : "#ef4444";
   const radius = 20;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (score / 100) * circumference;
@@ -133,13 +139,41 @@ function LighthouseScoreRing({
 }
 
 const ACTIVITY_ICONS: Record<string, React.ReactNode> = {
-  crm_lead: <div className="h-7 w-7 rounded-full bg-info/15 flex items-center justify-center"><Zap className="h-3.5 w-3.5 text-info" /></div>,
-  payment: <div className="h-7 w-7 rounded-full bg-success/15 flex items-center justify-center"><CheckCircle2 className="h-3.5 w-3.5 text-success" /></div>,
-  lighthouse_report: <div className="h-7 w-7 rounded-full bg-warning/15 flex items-center justify-center"><Activity className="h-3.5 w-3.5 text-warning" /></div>,
-  email_campaign: <div className="h-7 w-7 rounded-full bg-brand-500/15 flex items-center justify-center"><Zap className="h-3.5 w-3.5 text-brand-400" /></div>,
-  store_order: <div className="h-7 w-7 rounded-full bg-purple-500/15 flex items-center justify-center"><CheckCircle2 className="h-3.5 w-3.5 text-purple-400" /></div>,
-  user_signup: <div className="h-7 w-7 rounded-full bg-cyan-500/15 flex items-center justify-center"><Zap className="h-3.5 w-3.5 text-cyan-400" /></div>,
-  seo_alert: <div className="h-7 w-7 rounded-full bg-error/15 flex items-center justify-center"><AlertCircle className="h-3.5 w-3.5 text-error" /></div>,
+  crm_lead: (
+    <div className="h-7 w-7 rounded-full bg-info/15 flex items-center justify-center">
+      <Zap className="h-3.5 w-3.5 text-info" />
+    </div>
+  ),
+  payment: (
+    <div className="h-7 w-7 rounded-full bg-success/15 flex items-center justify-center">
+      <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+    </div>
+  ),
+  lighthouse_report: (
+    <div className="h-7 w-7 rounded-full bg-warning/15 flex items-center justify-center">
+      <Activity className="h-3.5 w-3.5 text-warning" />
+    </div>
+  ),
+  email_campaign: (
+    <div className="h-7 w-7 rounded-full bg-brand-500/15 flex items-center justify-center">
+      <Zap className="h-3.5 w-3.5 text-brand-400" />
+    </div>
+  ),
+  store_order: (
+    <div className="h-7 w-7 rounded-full bg-purple-500/15 flex items-center justify-center">
+      <CheckCircle2 className="h-3.5 w-3.5 text-purple-400" />
+    </div>
+  ),
+  user_signup: (
+    <div className="h-7 w-7 rounded-full bg-cyan-500/15 flex items-center justify-center">
+      <Zap className="h-3.5 w-3.5 text-cyan-400" />
+    </div>
+  ),
+  seo_alert: (
+    <div className="h-7 w-7 rounded-full bg-error/15 flex items-center justify-center">
+      <AlertCircle className="h-3.5 w-3.5 text-error" />
+    </div>
+  ),
 };
 
 export function DashboardView() {
@@ -159,11 +193,11 @@ export function DashboardView() {
           title="Dashboard"
           description="Welcome back, Ravi. Here's your business overview."
         >
-          <button className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200 cursor-pointer">
+          <button className="flex items-center gap-2 rounded-sm border border-border bg-white px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200 cursor-pointer">
             <RefreshCw className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Refresh</span>
           </button>
-          <button className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all duration-200 cursor-pointer">
+          <button className="flex items-center gap-2 rounded-sm bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all duration-200 cursor-pointer">
             <Plus className="h-3.5 w-3.5" />
             Quick Add
           </button>
@@ -200,7 +234,9 @@ export function DashboardView() {
             </div>
             <div className="ml-auto text-right">
               <p className="text-xs text-muted-foreground">YTD Total</p>
-              <p className="text-sm font-bold text-foreground">{formatCurrency(124750)}</p>
+              <p className="text-sm font-bold text-foreground">
+                {formatCurrency(124750)}
+              </p>
             </div>
           </div>
         </SectionCard>
@@ -219,8 +255,12 @@ export function DashboardView() {
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-medium text-foreground leading-snug">{item.title}</p>
-                  <p className="text-[11px] text-muted-foreground leading-snug mt-0.5 truncate">{item.description}</p>
+                  <p className="text-xs font-medium text-foreground leading-snug">
+                    {item.title}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground leading-snug mt-0.5 truncate">
+                    {item.description}
+                  </p>
                 </div>
                 <span className="flex-shrink-0 text-[10px] text-muted-foreground whitespace-nowrap">
                   {formatDate(item.timestamp, "relative")}
@@ -244,22 +284,36 @@ export function DashboardView() {
             {SAMPLE_LEADS.slice(0, 4).map((lead) => (
               <div
                 key={lead.id}
-                className="flex items-center gap-3 rounded-lg p-2 hover:bg-muted/50 transition-colors duration-150 cursor-pointer group"
+                className="flex items-center gap-3 rounded-sm p-2 hover:bg-muted/50 transition-colors duration-150 cursor-pointer group"
               >
                 <div className="h-7 w-7 flex-shrink-0 rounded-full bg-gradient-brand flex items-center justify-center text-[10px] font-bold text-white">
-                  {lead.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                  {lead.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .slice(0, 2)}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-medium text-foreground truncate">{lead.name}</p>
-                  <p className="text-[10px] text-muted-foreground truncate">{lead.company}</p>
+                  <p className="text-xs font-medium text-foreground truncate">
+                    {lead.name}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground truncate">
+                    {lead.company}
+                  </p>
                 </div>
                 <div className="flex-shrink-0 text-right">
                   <StatusBadge
                     variant={
-                      lead.status === "won" ? "success" :
-                      lead.status === "lost" ? "error" :
-                      lead.status === "negotiation" || lead.status === "proposal" ? "warning" :
-                      lead.status === "new" ? "info" : "default"
+                      lead.status === "won"
+                        ? "success"
+                        : lead.status === "lost"
+                          ? "error"
+                          : lead.status === "negotiation" ||
+                              lead.status === "proposal"
+                            ? "warning"
+                            : lead.status === "new"
+                              ? "info"
+                              : "default"
                     }
                     label={lead.status}
                     size="sm"
@@ -280,25 +334,49 @@ export function DashboardView() {
             <div className="space-y-4">
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Desktop</span>
-                  <span className="text-[10px] text-muted-foreground">{formatDate(desktopReport.runAt, "relative")}</span>
+                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                    Desktop
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">
+                    {formatDate(desktopReport.runAt, "relative")}
+                  </span>
                 </div>
                 <div className="flex items-center justify-around">
-                  <LighthouseScoreRing score={desktopReport.performance} label="Perf" />
-                  <LighthouseScoreRing score={desktopReport.accessibility} label="A11y" />
-                  <LighthouseScoreRing score={desktopReport.bestPractices} label="Best" />
+                  <LighthouseScoreRing
+                    score={desktopReport.performance}
+                    label="Perf"
+                  />
+                  <LighthouseScoreRing
+                    score={desktopReport.accessibility}
+                    label="A11y"
+                  />
+                  <LighthouseScoreRing
+                    score={desktopReport.bestPractices}
+                    label="Best"
+                  />
                   <LighthouseScoreRing score={desktopReport.seo} label="SEO" />
                 </div>
               </div>
               {mobileReport && (
                 <div className="border-t border-border pt-4">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Mobile</span>
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      Mobile
+                    </span>
                   </div>
                   <div className="flex items-center justify-around">
-                    <LighthouseScoreRing score={mobileReport.performance} label="Perf" />
-                    <LighthouseScoreRing score={mobileReport.accessibility} label="A11y" />
-                    <LighthouseScoreRing score={mobileReport.bestPractices} label="Best" />
+                    <LighthouseScoreRing
+                      score={mobileReport.performance}
+                      label="Perf"
+                    />
+                    <LighthouseScoreRing
+                      score={mobileReport.accessibility}
+                      label="A11y"
+                    />
+                    <LighthouseScoreRing
+                      score={mobileReport.bestPractices}
+                      label="Best"
+                    />
                     <LighthouseScoreRing score={mobileReport.seo} label="SEO" />
                   </div>
                 </div>
@@ -315,18 +393,28 @@ export function DashboardView() {
         >
           <div className="space-y-3">
             {SAMPLE_CAMPAIGNS.map((campaign) => {
-              const openRate = campaign.sent > 0
-                ? ((campaign.opened / campaign.sent) * 100).toFixed(1)
-                : "0";
+              const openRate =
+                campaign.sent > 0
+                  ? ((campaign.opened / campaign.sent) * 100).toFixed(1)
+                  : "0";
               return (
-                <div key={campaign.id} className="rounded-lg border border-border/50 p-3 hover:border-border transition-colors">
+                <div
+                  key={campaign.id}
+                  className="rounded-sm border border-border/50 p-3 hover:border-border transition-colors"
+                >
                   <div className="flex items-start justify-between gap-2 mb-2">
-                    <p className="text-xs font-medium text-foreground truncate">{campaign.name}</p>
+                    <p className="text-xs font-medium text-foreground truncate">
+                      {campaign.name}
+                    </p>
                     <StatusBadge
                       variant={
-                        campaign.status === "sent" ? "success" :
-                        campaign.status === "scheduled" ? "info" :
-                        campaign.status === "sending" ? "default" : "muted"
+                        campaign.status === "sent"
+                          ? "success"
+                          : campaign.status === "scheduled"
+                            ? "info"
+                            : campaign.status === "sending"
+                              ? "default"
+                              : "muted"
                       }
                       label={campaign.status}
                       size="sm"
@@ -337,7 +425,9 @@ export function DashboardView() {
                     {campaign.status === "sent" && (
                       <>
                         <span className="text-success">{openRate}% open</span>
-                        <span className="text-primary">{formatNumber(campaign.clicked)} clicks</span>
+                        <span className="text-primary">
+                          {formatNumber(campaign.clicked)} clicks
+                        </span>
                       </>
                     )}
                   </div>
@@ -369,19 +459,27 @@ export function DashboardView() {
                 {SAMPLE_PAYMENTS.map((payment) => (
                   <tr key={payment.id}>
                     <td className="font-medium">{payment.customer}</td>
-                    <td className="font-mono text-xs">{formatCurrency(payment.amount)}</td>
+                    <td className="font-mono text-xs">
+                      {formatCurrency(payment.amount)}
+                    </td>
                     <td>
                       <StatusBadge
                         variant={
-                          payment.status === "completed" ? "success" :
-                          payment.status === "pending" ? "warning" :
-                          payment.status === "failed" ? "error" : "muted"
+                          payment.status === "completed"
+                            ? "success"
+                            : payment.status === "pending"
+                              ? "warning"
+                              : payment.status === "failed"
+                                ? "error"
+                                : "muted"
                         }
                         label={payment.status}
                         dot
                       />
                     </td>
-                    <td className="text-muted-foreground">{formatDate(payment.createdAt, "short")}</td>
+                    <td className="text-muted-foreground">
+                      {formatDate(payment.createdAt, "short")}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -399,25 +497,32 @@ export function DashboardView() {
             {INTEGRATIONS.map((integration) => (
               <div
                 key={integration.id}
-                className="flex items-center gap-2.5 rounded-lg border border-border/50 p-2.5 hover:border-border transition-colors cursor-pointer group"
+                className="flex items-center gap-2.5 rounded-sm border border-border/50 p-2.5 hover:border-border transition-colors cursor-pointer group"
               >
                 <div
-                  className="h-7 w-7 flex-shrink-0 rounded-lg flex items-center justify-center text-white text-[10px] font-bold"
+                  className="h-7 w-7 flex-shrink-0 rounded-sm flex items-center justify-center text-white text-[10px] font-bold"
                   style={{ backgroundColor: integration.color }}
                 >
                   {integration.name.slice(0, 2).toUpperCase()}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-medium text-foreground truncate">{integration.name}</p>
+                  <p className="text-xs font-medium text-foreground truncate">
+                    {integration.name}
+                  </p>
                   <div className="flex items-center gap-1 mt-0.5">
                     <span
                       className={cn(
                         "h-1.5 w-1.5 rounded-full",
-                        integration.status === "connected" ? "bg-success" :
-                        integration.status === "pending" ? "bg-warning" : "bg-muted-foreground"
+                        integration.status === "connected"
+                          ? "bg-success"
+                          : integration.status === "pending"
+                            ? "bg-warning"
+                            : "bg-muted-foreground",
                       )}
                     />
-                    <span className="text-[10px] capitalize text-muted-foreground">{integration.status}</span>
+                    <span className="text-[10px] capitalize text-muted-foreground">
+                      {integration.status}
+                    </span>
                   </div>
                 </div>
               </div>

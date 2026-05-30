@@ -73,38 +73,36 @@ const MENU_ITEMS: MenuItem[] = [
 ];
 
 // ─── Framer Motion variants ──────────────────────────────
-const dropdownVariants = {
-  hidden: {
-    opacity: 0,
-    scale: 0.95,
-    y: -8,
-    transformOrigin: "top right",
-  },
+
+// Outer layer: opacity ONLY — zero transforms so backdropFilter works
+const fadeVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.15, ease: "easeOut" } },
+  exit: { opacity: 0, transition: { duration: 0.12, ease: "easeIn" } },
+};
+
+// Inner layer: scale + slide for the visual pop, propagates stagger to children
+const panelVariants = {
+  hidden: { scale: 0.95, y: -8 },
   visible: {
-    opacity: 1,
     scale: 1,
     y: 0,
     transition: {
-      duration: 0.18,
+      duration: 0.2,
       ease: [0.16, 1, 0.3, 1],
       staggerChildren: 0.03,
-      delayChildren: 0.04,
+      delayChildren: 0.06,
     },
   },
-  exit: {
-    opacity: 0,
-    scale: 0.95,
-    y: -8,
-    transition: { duration: 0.14, ease: "easeIn" },
-  },
+  exit: { scale: 0.95, y: -8, transition: { duration: 0.14, ease: "easeIn" } },
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, x: -8 },
+  hidden: { opacity: 0, x: -6 },
   visible: {
     opacity: 1,
     x: 0,
-    transition: { duration: 0.18, ease: "easeOut" },
+    transition: { duration: 0.16, ease: "easeOut" },
   },
 };
 
@@ -170,8 +168,13 @@ export function ProfileMenu() {
       {/* ── Dropdown Panel ── */}
       <AnimatePresence>
         {isOpen && (
+          /**
+           * LAYER 1 — fade only (opacity), no CSS transform.
+           * backdropFilter must live here so the browser never composites
+           * this element inside a transform stacking context.
+           */
           <motion.div
-            variants={dropdownVariants}
+            variants={fadeVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
@@ -181,100 +184,99 @@ export function ProfileMenu() {
               WebkitBackdropFilter: "blur(20px)",
             }}
           >
-            {/* Inner shell: overflow-hidden clips child bg colours to rounded corners */}
-            <div className="rounded-2xl overflow-hidden border border-border bg-card/95 flex flex-col">
-
-            {/* ── User info header ── */}
+            {/**
+             * LAYER 2 — scale + slide animation + overflow-hidden clipping.
+             * bg-card/80 keeps 20% transparency so blur is visible.
+             * staggerChildren propagates down to itemVariants.
+             */}
             <motion.div
-              variants={itemVariants}
-              className="flex items-center gap-3 p-4 border-b border-border bg-muted/30"
+              variants={panelVariants}
+              className="rounded-2xl overflow-hidden border border-border bg-card flex flex-col origin-top-right"
             >
-              {/* Large avatar */}
-              <div className="relative flex-shrink-0">
-                <div className="h-11 w-11 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-sm font-bold text-white shadow-glow-brand">
-                  RG
+              {/* ── User info header ── */}
+              <motion.div
+                variants={itemVariants}
+                className="flex items-center gap-3 p-4 border-b border-border bg-muted/40"
+              >
+                <div className="relative flex-shrink-0">
+                  <div className="h-11 w-11 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-sm font-bold text-white shadow-glow-brand">
+                    RG
+                  </div>
+                  <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-success border-2 border-card" />
                 </div>
-                {/* Online dot */}
-                <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-success border-2 border-card" />
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <p className="font-semibold text-sm text-foreground truncate">
-                  Ravi Gupta
-                </p>
-                <p className="text-xs text-muted-foreground truncate">
-                  faisalfeas2@gmail.com
-                </p>
-                <div className="mt-1 inline-flex items-center rounded-full bg-brand-500/10 px-2 py-0.5">
-                  <span className="text-[10px] font-semibold text-brand-400 uppercase tracking-wide">
-                    Pro Plan
-                  </span>
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold text-sm text-foreground truncate">
+                    Ravi Gupta
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    faisalfeas2@gmail.com
+                  </p>
+                  <div className="mt-1 inline-flex items-center rounded-full bg-brand-500/10 px-2 py-0.5">
+                    <span className="text-[10px] font-semibold text-brand-400 uppercase tracking-wide">
+                      Pro Plan
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
 
-            {/* ── Menu items ── */}
-            <div className="py-1.5">
-              {MENU_ITEMS.map((item) => {
-                const Icon = item.icon;
-                const isActive = activeItem === item.id;
-
-                return (
-                  <motion.div key={item.id} variants={itemVariants}>
-                    <Link
-                      href={item.href}
-                      onClick={() => {
-                        setActiveItem(item.id);
-                        setIsOpen(false);
-                      }}
-                      className={cn(
-                        "group flex items-center gap-3 px-4 py-2.5 mx-1.5 rounded-xl",
-                        "text-sm transition-all duration-150 cursor-pointer",
-                        isActive
-                          ? "bg-primary/10 text-primary"
-                          : "text-foreground hover:bg-muted",
-                      )}
-                    >
-                      <span
+              {/* ── Menu items ── */}
+              <div className="py-1.5">
+                {MENU_ITEMS.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeItem === item.id;
+                  return (
+                    <motion.div key={item.id} variants={itemVariants}>
+                      <Link
+                        href={item.href}
+                        onClick={() => {
+                          setActiveItem(item.id);
+                          setIsOpen(false);
+                        }}
                         className={cn(
-                          "flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg transition-colors duration-150",
+                          "group flex items-center gap-3 px-4 py-2.5 mx-1.5 rounded-xl",
+                          "text-sm transition-all duration-150 cursor-pointer",
                           isActive
-                            ? "bg-primary/15 text-primary"
-                            : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
+                            ? "bg-primary/10 text-primary"
+                            : "text-foreground hover:bg-muted/80",
                         )}
                       >
-                        <Icon className="h-3.5 w-3.5" />
-                      </span>
-                      <span className="font-medium">{item.label}</span>
-                    </Link>
-                  </motion.div>
-                );
-              })}
-            </div>
+                        <span
+                          className={cn(
+                            "flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg transition-colors duration-150",
+                            isActive
+                              ? "bg-primary/15 text-primary"
+                              : "bg-muted/80 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
+                          )}
+                        >
+                          <Icon className="h-3.5 w-3.5" />
+                        </span>
+                        <span className="font-medium">{item.label}</span>
+                      </Link>
+                    </motion.div>
+                  );
+                })}
+              </div>
 
-            {/* ── Divider + Logout ── */}
-            <motion.div
-              variants={itemVariants}
-              className="border-t border-border mt-1 p-2"
-            >
-              <button
-                onClick={() => {
-                  setIsOpen(false);
-                  // sign-out logic here
-                }}
-                className={cn(
-                  "group flex w-full items-center gap-3 px-4 py-2.5 rounded-xl",
-                  "text-sm font-medium text-error",
-                  "hover:bg-error/8 transition-all duration-150 cursor-pointer",
-                )}
+              {/* ── Logout ── */}
+              <motion.div
+                variants={itemVariants}
+                className="border-t border-border mt-1 p-2"
               >
-                <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-error/10 text-error group-hover:bg-error/20 transition-colors duration-150">
-                  <LogOut className="h-3.5 w-3.5" />
-                </span>
-                Logout
-              </button>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className={cn(
+                    "group flex w-full items-center gap-3 px-4 py-2.5 rounded-xl",
+                    "text-sm font-medium text-error",
+                    "hover:bg-error/8 transition-all duration-150 cursor-pointer",
+                  )}
+                >
+                  <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-error/10 text-error group-hover:bg-error/20 transition-colors duration-150">
+                    <LogOut className="h-3.5 w-3.5" />
+                  </span>
+                  Logout
+                </button>
+              </motion.div>
             </motion.div>
-            </div> {/* /inner shell */}
           </motion.div>
         )}
       </AnimatePresence>

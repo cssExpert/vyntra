@@ -187,18 +187,16 @@
     @apply bg-sidebar-hover text-foreground;
   }
 
-  /* Light mode active: indigo tint */
+  /* Active text colours — background is handled by layoutId element in JSX */
   .nav-item.active {
-    @apply bg-primary/10 text-primary;
+    @apply text-primary;
   }
 
   .nav-item.active .nav-icon {
     @apply text-primary;
   }
 
-  /* Dark mode active: solid #404040 */
   .dark .nav-item.active {
-    background-color: #404040;
     @apply text-foreground;
   }
 

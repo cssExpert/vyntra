@@ -47,7 +47,7 @@ export const NAV_SECTIONS: NavSection[] = [
         id: "cms",
         label: "CMS / Editor",
         href: "/cms",
-        icon: "FileEdit",
+        icon: "FileText",
       },
       {
         id: "seo",
