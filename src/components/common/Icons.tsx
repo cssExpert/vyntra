@@ -5,6 +5,30 @@ const Icons = {
       d="m0 5 8.549 15 3.546-8.147L9.372 7.07C8.342 5.259 6.882 5.022 6.206 5zM14.881 7.845l-2.786 7.112h4.56c2.38 0 3.651-1.552 3.989-2.328L24 5h-4.686c-2.685 0-4.074 1.897-4.433 2.845"
     />
   ),
+  DashboardIcon: () => (
+    <path
+      fill="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"
+    />
+  ),
+  AutomationIcon: () => (
+    <path
+      fill="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+    />
+  ),
+  SparklesIcon: () => (
+    <path
+      fill="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+    />
+  ),
   GitHub: () => (
     <>
       <path

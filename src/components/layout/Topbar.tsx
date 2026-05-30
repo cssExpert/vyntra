@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import {
   Menu,
   Search,
-  Bell,
   Sun,
   Moon,
   Monitor,
@@ -15,6 +14,7 @@ import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import { ProfileMenu } from "@/components/layout/ProfileMenu";
 import { useCommandPalette } from "@/components/layout/CommandPalette";
+import { NotificationsDropdown } from "@/components/layout/NotificationsDropdown";
 
 const PAGE_TITLES: Record<string, string> = {
   "/dashboard": "Dashboard",
@@ -62,23 +62,6 @@ function ThemeToggle() {
         </button>
       ))}
     </div>
-  );
-}
-
-function NotificationButton() {
-  return (
-    <button
-      className={cn(
-        "relative flex h-9 w-9 items-center justify-center rounded-lg",
-        "border border-border bg-muted/50 text-muted-foreground",
-        "hover:bg-muted hover:text-foreground transition-all duration-200 cursor-pointer"
-      )}
-      aria-label="Notifications"
-    >
-      <Bell className="h-4 w-4" />
-      {/* unread dot */}
-      <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-error border-2 border-background" />
-    </button>
   );
 }
 
@@ -142,7 +125,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
       {/* Right actions */}
       <div className="flex items-center gap-2 ml-4">
         <ThemeToggle />
-        <NotificationButton />
+        <NotificationsDropdown />
         <ProfileMenu />
       </div>
     </motion.header>

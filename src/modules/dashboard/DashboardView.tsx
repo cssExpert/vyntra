@@ -193,7 +193,7 @@ export function DashboardView() {
           title="Dashboard"
           description="Welcome back, Ravi. Here's your business overview."
         >
-          <button className="flex items-center gap-2 rounded-sm border border-border bg-white px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200 cursor-pointer">
+          <button className="flex items-center gap-2 rounded-sm border border-border bg-white dark:bg-muted px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200 cursor-pointer">
             <RefreshCw className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Refresh</span>
           </button>
