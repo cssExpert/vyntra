@@ -247,6 +247,7 @@ export function WorkflowBuilder({
   const consoleEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    if (simReport.length === 0) return;
     consoleEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [simReport]);
 
