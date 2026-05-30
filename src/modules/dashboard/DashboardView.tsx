@@ -1,6 +1,8 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { usePageLoad } from "@/hooks/usePageLoad";
+import { DashboardPageSkeleton } from "@/components/common/DashboardSkeleton";
 import {
   RefreshCw,
   Plus,
@@ -179,8 +181,25 @@ const ACTIVITY_ICONS: Record<string, React.ReactNode> = {
 export function DashboardView() {
   const desktopReport = LIGHTHOUSE_REPORTS.find((r) => r.device === "desktop");
   const mobileReport = LIGHTHOUSE_REPORTS.find((r) => r.device === "mobile");
+  const isLoaded = usePageLoad(700);
 
   return (
+    <AnimatePresence mode="wait" initial={false}>
+      {!isLoaded ? (
+        <motion.div
+          key="skeleton"
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.12 }}
+        >
+          <DashboardPageSkeleton />
+        </motion.div>
+      ) : (
+        <motion.div
+          key="content"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
+        >
     <motion.div
       variants={containerVariants}
       initial="hidden"
@@ -531,5 +550,8 @@ export function DashboardView() {
         </SectionCard>
       </div>
     </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

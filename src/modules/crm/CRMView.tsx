@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { usePageLoad } from "@/hooks/usePageLoad";
+import { CRMPageSkeleton } from "@/components/common/DashboardSkeleton";
 import { CRMHeader } from "./components/CRMHeader";
 import { CRMToolbar } from "./components/CRMToolbar";
 import { CRMFilterBar } from "./components/CRMFilterBar";
@@ -31,6 +33,7 @@ export function CRMView() {
 
   // ── Local contacts (add new contacts) ───────────────────
   const [contacts, setContacts] = useState<CRMContact[]>(SAMPLE_CONTACTS);
+  const isLoaded = usePageLoad(700);
 
   const handleSortChange = (opt: SortOption) => {
     setActiveSort(opt.id);
@@ -108,6 +111,22 @@ export function CRMView() {
   }, [contacts, activeTab, selectedOwners, selectedStatuses, search, sortField, sortOrder]);
 
   return (
+    <AnimatePresence mode="wait" initial={false}>
+      {!isLoaded ? (
+        <motion.div
+          key="skeleton"
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.12 }}
+        >
+          <CRMPageSkeleton />
+        </motion.div>
+      ) : (
+        <motion.div
+          key="content"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.28, ease: "easeOut" }}
+        >
     <>
       <motion.div
         initial={{ opacity: 0 }}
@@ -191,5 +210,8 @@ export function CRMView() {
         onSave={handleAddContact}
       />
     </>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

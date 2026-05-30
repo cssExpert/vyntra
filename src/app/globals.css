@@ -299,4 +299,10 @@
   .preview-contact {
     margin-top: 0 !important;
   }
+  .search-cmd > input:where([type="text"]),
+  .search-cmd > input:where([type="text"]):focus,
+  .search-cmd > input:where([type="text"]):hover,
+  .search-cmd > input:where([type="text"]):focus-within {
+    border: 0 none !important;
+  }
 }

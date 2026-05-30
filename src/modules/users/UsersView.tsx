@@ -2,6 +2,8 @@
 
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePageLoad } from "@/hooks/usePageLoad";
+import { UsersPageSkeleton } from "@/components/common/DashboardSkeleton";
 import {
   Plus,
   Search,
@@ -143,6 +145,7 @@ export function UsersView() {
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
+  const isLoaded = usePageLoad(700);
 
   // Trigger Toast Notification
   const showToast = (message: string, type: Toast["type"] = "success") => {
@@ -274,6 +277,22 @@ export function UsersView() {
   };
 
   return (
+    <AnimatePresence mode="wait" initial={false}>
+      {!isLoaded ? (
+        <motion.div
+          key="skeleton"
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.12 }}
+        >
+          <UsersPageSkeleton />
+        </motion.div>
+      ) : (
+        <motion.div
+          key="content"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.28, ease: "easeOut" }}
+        >
     <>
       {/* Header Block matching visual layout */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
@@ -1022,6 +1041,9 @@ export function UsersView() {
         )}
       </AnimatePresence>
     </>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 

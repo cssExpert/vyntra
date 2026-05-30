@@ -89,7 +89,11 @@ function Palette({ onClose }: { onClose: () => void }) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   // Sliding highlight state
-  const [highlight, setHighlight] = useState({ top: 8, height: 40, opacity: 0 });
+  const [highlight, setHighlight] = useState({
+    top: 8,
+    height: 40,
+    opacity: 0,
+  });
 
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -114,16 +118,18 @@ function Palette({ onClose }: { onClose: () => void }) {
   const flatList = Object.values(groups).flat();
 
   /* Reset on query change */
-  useEffect(() => { setActiveIndex(0); }, [query]);
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [query]);
 
   /* Focus input on mount */
-  useEffect(() => { inputRef.current?.focus(); }, []);
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   /* Scroll active into view */
   useEffect(() => {
-    buttonRefs.current
-      .get(activeIndex)
-      ?.scrollIntoView({ block: "nearest" });
+    buttonRefs.current.get(activeIndex)?.scrollIntoView({ block: "nearest" });
   }, [activeIndex]);
 
   /*
@@ -143,7 +149,10 @@ function Palette({ onClose }: { onClose: () => void }) {
   }, [activeIndex, query]);
 
   const navigate = useCallback(
-    (item: CommandItem) => { onClose(); router.push(item.href); },
+    (item: CommandItem) => {
+      onClose();
+      router.push(item.href);
+    },
     [onClose, router],
   );
 
@@ -185,7 +194,7 @@ function Palette({ onClose }: { onClose: () => void }) {
       }}
     >
       {/* ── Search input ─────────────────────────────── */}
-      <div className="flex items-center gap-3 px-4 py-3.5 border-b border-border/50">
+      <div className="flex items-center gap-3 px-4 py-3.5 border-b search-cmd border-border/50">
         <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
         <input
           ref={inputRef}
@@ -195,8 +204,8 @@ function Palette({ onClose }: { onClose: () => void }) {
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           className={cn(
-            "flex-1 bg-transparent text-sm text-foreground",
-            "placeholder:text-muted-foreground/60 outline-none border-none",
+            "flex-1 bg-transparent border-transparent text-sm border-width-0 text-foreground",
+            "placeholder:text-muted-foreground/60 outline-none! border-none! ring-0 focus:ring-0",
           )}
         />
         {query && (
@@ -239,9 +248,18 @@ function Palette({ onClose }: { onClose: () => void }) {
                 height: highlight.height,
                 opacity: highlight.opacity,
               }}
-              transition={{ type: "spring", stiffness: 500, damping: 38, mass: 0.35 }}
+              transition={{
+                type: "spring",
+                stiffness: 500,
+                damping: 38,
+                mass: 0.35,
+              }}
               className="absolute left-2 right-2 rounded-lg bg-primary/10 pointer-events-none"
-              style={{ top: highlight.top, height: highlight.height, opacity: 0 }}
+              style={{
+                top: highlight.top,
+                height: highlight.height,
+                opacity: 0,
+              }}
             />
 
             {Object.entries(groups).map(([group, items]) => (
@@ -286,7 +304,9 @@ function Palette({ onClose }: { onClose: () => void }) {
                       </span>
 
                       {/* Label */}
-                      <span className="flex-1 text-sm font-medium">{item.label}</span>
+                      <span className="flex-1 text-sm font-medium">
+                        {item.label}
+                      </span>
 
                       {/* Arrow — simple opacity, no AnimatePresence */}
                       <span
@@ -320,7 +340,9 @@ function Palette({ onClose }: { onClose: () => void }) {
                 {k}
               </kbd>
             ))}
-            <span className="text-[10px] text-muted-foreground/55">{label}</span>
+            <span className="text-[10px] text-muted-foreground/55">
+              {label}
+            </span>
           </span>
         ))}
       </div>
@@ -329,7 +351,11 @@ function Palette({ onClose }: { onClose: () => void }) {
 }
 
 /* ─── Provider ──────────────────────────────────────────────── */
-export function CommandPaletteProvider({ children }: { children: React.ReactNode }) {
+export function CommandPaletteProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [isOpen, setIsOpen] = useState(false);
 
   const open = useCallback(() => setIsOpen(true), []);

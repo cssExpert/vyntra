@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePageLoad } from "@/hooks/usePageLoad";
+import { EmailPageSkeleton } from "@/components/common/DashboardSkeleton";
 import { Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -81,6 +83,7 @@ export function EmailView() {
   const [isAiGenerating, setIsAiGenerating] = useState(false);
   const [selectedTemplateForAi, setSelectedTemplateForAi] =
     useState("Welcome Series");
+  const isLoaded = usePageLoad(700);
 
   const handleUpdateStep = (stepId: string, fields: Partial<WorkflowStep>) => {
     const upd = (s: WorkflowStep[]) =>
@@ -249,6 +252,22 @@ export function EmailView() {
   };
 
   return (
+    <AnimatePresence mode="wait" initial={false}>
+      {!isLoaded ? (
+        <motion.div
+          key="skeleton"
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.12 }}
+        >
+          <EmailPageSkeleton />
+        </motion.div>
+      ) : (
+        <motion.div
+          key="content"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.28, ease: "easeOut" }}
+        >
     <>
       {/* Toasts */}
       <div className="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none">
@@ -386,5 +405,8 @@ export function EmailView() {
         </motion.div>
       </AnimatePresence>
     </>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
