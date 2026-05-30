@@ -91,11 +91,24 @@ function Sparkline({ data, positive }: { data: number[]; positive: boolean }) {
   const fillPath = `M ${first} L ${polyline} L ${last.split(",")[0]},${height} L ${first.split(",")[0]},${height} Z`;
 
   return (
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="overflow-visible">
+    <svg
+      width={width}
+      height={height}
+      viewBox={`0 0 ${width} ${height}`}
+      className="overflow-visible"
+    >
       <defs>
         <linearGradient id={`spark-${positive}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={positive ? "#22c55e" : "#ef4444"} stopOpacity="0.3" />
-          <stop offset="100%" stopColor={positive ? "#22c55e" : "#ef4444"} stopOpacity="0" />
+          <stop
+            offset="0%"
+            stopColor={positive ? "#22c55e" : "#ef4444"}
+            stopOpacity="0.3"
+          />
+          <stop
+            offset="100%"
+            stopColor={positive ? "#22c55e" : "#ef4444"}
+            stopOpacity="0"
+          />
         </linearGradient>
       </defs>
       <path d={fillPath} fill={`url(#spark-${positive})`} />
@@ -133,13 +146,18 @@ export function StatCard({ data, index = 0 }: StatCardProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.07, duration: 0.4, ease: "easeOut" }}
       className={cn(
-        "group stat-card border transition-all duration-300",
-        styles.border
+        "group stat-card border transition-all duration-300 h-auto lg:h-full",
+        styles.border,
       )}
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
-        <div className={cn("flex h-10 w-10 items-center justify-center rounded-xl", styles.icon)}>
+        <div
+          className={cn(
+            "flex h-10 w-10 items-center justify-center rounded-xl",
+            styles.icon,
+          )}
+        >
           <Icon className="h-5 w-5" />
         </div>
         {data.sparklineData && (
@@ -167,14 +185,16 @@ export function StatCard({ data, index = 0 }: StatCardProps) {
         <span
           className={cn(
             "flex items-center gap-0.5 text-xs font-medium",
-            isPositive ? "text-success" : "text-error"
+            isPositive ? "text-success" : "text-error",
           )}
         >
           <TrendIcon className="h-3 w-3" />
           {Math.abs(data.change)}%
         </span>
         {data.changeLabel && (
-          <span className="text-xs text-muted-foreground">{data.changeLabel}</span>
+          <span className="text-xs text-muted-foreground">
+            {data.changeLabel}
+          </span>
         )}
       </div>
     </motion.div>

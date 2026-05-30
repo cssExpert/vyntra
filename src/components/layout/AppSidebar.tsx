@@ -101,7 +101,11 @@ function NavItemComponent({
         <motion.span
           layoutId="nav-active-bg"
           className="absolute inset-0 rounded-lg bg-primary/10 dark:bg-[#404040]"
-          transition={{ type: "tween", duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+          transition={{
+            type: "tween",
+            duration: 0.22,
+            ease: [0.16, 1, 0.3, 1],
+          }}
         />
       )}
 
@@ -131,15 +135,14 @@ function NavItemComponent({
         <NavIcon className="h-[18px] w-[18px]" />
       </span>
 
-      {/* Label */}
+      {/* Label — opacity only; sidebar overflow-hidden clips it as width shrinks */}
       <AnimatePresence>
         {!isCollapsed && (
           <motion.span
-            initial={{ opacity: 0, width: 0 }}
-            animate={{ opacity: 1, width: "auto" }}
-            exit={{ opacity: 0, width: 0 }}
-            transition={{ duration: 0.2 }}
-            className="relative z-10 flex-1 truncate text-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1, transition: { delay: 0.1, duration: 0.15 } }}
+            exit={{ opacity: 0, transition: { duration: 0.07 } }}
+            className="relative z-10 truncate text-sm"
           >
             {item.label}
           </motion.span>
@@ -224,7 +227,11 @@ export function AppSidebar({
     const initial = new Set<string>();
     NAV_SECTIONS.forEach((section) =>
       section.items.forEach((item) => {
-        if (item.children?.some((c) => pathname.startsWith(c.href) || pathname === c.href)) {
+        if (
+          item.children?.some(
+            (c) => pathname.startsWith(c.href) || pathname === c.href,
+          )
+        ) {
           initial.add(item.id);
         }
         /* Also expand if the parent route itself is active and has children */
@@ -241,7 +248,9 @@ export function AppSidebar({
     NAV_SECTIONS.forEach((section) =>
       section.items.forEach((item) => {
         if (
-          item.children?.some((c) => pathname === c.href || pathname.startsWith(c.href)) ||
+          item.children?.some(
+            (c) => pathname === c.href || pathname.startsWith(c.href),
+          ) ||
           (item.children?.length && pathname.startsWith(item.href))
         ) {
           setExpandedItems((prev) => new Set(prev).add(item.id));
@@ -262,7 +271,7 @@ export function AppSidebar({
   const sidebarContent = (
     <motion.aside
       animate={{ width: isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH }}
-      transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+      transition={{ type: "spring", stiffness: 260, damping: 28, mass: 0.8 }}
       className="relative flex h-full flex-col bg-sidebar border-r border-sidebar-border overflow-hidden"
     >
       {/* Logo */}
@@ -272,17 +281,23 @@ export function AppSidebar({
           isCollapsed && "justify-center px-0",
         )}
       >
-        <Link href="/dashboard" className="flex items-center gap-2.5 cursor-pointer">
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-2.5 cursor-pointer"
+        >
           <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-sm bg-primary shadow-glow-brand">
             <Icon name="Brand" size="24" className="h-6 w-6 text-white" />
           </div>
           <AnimatePresence>
             {!isCollapsed && (
               <motion.div
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -8 }}
-                transition={{ duration: 0.2 }}
+                initial={{ opacity: 0, x: -6 }}
+                animate={{
+                  opacity: 1,
+                  x: 0,
+                  transition: { delay: 0.08, duration: 0.18 },
+                }}
+                exit={{ opacity: 0, x: -6, transition: { duration: 0.07 } }}
               >
                 <span className="text-base font-bold font-display text-foreground">
                   Vyntra
@@ -303,8 +318,11 @@ export function AppSidebar({
                 {!isCollapsed && section.label && (
                   <motion.div
                     initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
+                    animate={{
+                      opacity: 1,
+                      transition: { delay: 0.12, duration: 0.15 },
+                    }}
+                    exit={{ opacity: 0, transition: { duration: 0.07 } }}
                     className="mb-1 mt-3 px-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50"
                   >
                     {section.label}
@@ -350,7 +368,10 @@ export function AppSidebar({
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+                          transition={{
+                            duration: 0.22,
+                            ease: [0.4, 0, 0.2, 1],
+                          }}
                           className="overflow-hidden"
                         >
                           <div className="py-1">
@@ -389,16 +410,23 @@ export function AppSidebar({
           {!isCollapsed ? (
             <motion.div
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              animate={{
+                opacity: 1,
+                transition: { delay: 0.1, duration: 0.15 },
+              }}
+              exit={{ opacity: 0, transition: { duration: 0.07 } }}
               className="flex items-center gap-3 rounded-lg px-2 py-2"
             >
               <div className="h-8 w-8 flex-shrink-0 rounded-full bg-gradient-brand flex items-center justify-center text-xs font-bold text-white">
                 RG
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-xs font-semibold text-foreground">Ravi Gupta</p>
-                <p className="truncate text-[10px] text-muted-foreground">Admin</p>
+                <p className="truncate text-xs font-semibold text-foreground">
+                  Ravi Gupta
+                </p>
+                <p className="truncate text-[10px] text-muted-foreground">
+                  Admin
+                </p>
               </div>
             </motion.div>
           ) : (
