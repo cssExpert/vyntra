@@ -1,0 +1,283 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  User,
+  FileText,
+  Bell,
+  Star,
+  CreditCard,
+  Lock,
+  Cpu,
+  ScrollText,
+  LogOut,
+  ChevronDown,
+  LucideIcon,
+} from "lucide-react";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
+
+// ─── Menu item definitions ───────────────────────────────
+interface MenuItem {
+  id: string;
+  label: string;
+  href: string;
+  icon: LucideIcon;
+}
+
+const MENU_ITEMS: MenuItem[] = [
+  { id: "profile", label: "Profile", href: "/settings/profile", icon: User },
+  {
+    id: "billing",
+    label: "Billing Info",
+    href: "/settings/billing",
+    icon: FileText,
+  },
+  {
+    id: "notifications",
+    label: "Manage Notifications",
+    href: "/settings/notifications",
+    icon: Bell,
+  },
+  {
+    id: "subscription",
+    label: "Subscription",
+    href: "/settings/subscription",
+    icon: Star,
+  },
+  {
+    id: "payment-creds",
+    label: "Payment Credentials",
+    href: "/payments",
+    icon: CreditCard,
+  },
+  {
+    id: "password",
+    label: "Manage Password",
+    href: "/settings/password",
+    icon: Lock,
+  },
+  {
+    id: "configuration",
+    label: "Configuration",
+    href: "/settings/configuration",
+    icon: Cpu,
+  },
+  {
+    id: "system-logs",
+    label: "System Logs",
+    href: "/settings/logs",
+    icon: ScrollText,
+  },
+];
+
+// ─── Framer Motion variants ──────────────────────────────
+const dropdownVariants = {
+  hidden: {
+    opacity: 0,
+    scale: 0.95,
+    y: -8,
+    transformOrigin: "top right",
+  },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: {
+      duration: 0.18,
+      ease: [0.16, 1, 0.3, 1],
+      staggerChildren: 0.03,
+      delayChildren: 0.04,
+    },
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.95,
+    y: -8,
+    transition: { duration: 0.14, ease: "easeIn" },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, x: -8 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.18, ease: "easeOut" },
+  },
+};
+
+// ─── Component ───────────────────────────────────────────
+export function ProfileMenu() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeItem, setActiveItem] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!isOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
+
+  // Close on Escape
+  useEffect(() => {
+    if (!isOpen) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setIsOpen(false);
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
+
+  return (
+    <div ref={containerRef} className="relative">
+      {/* ── Trigger ── */}
+      <button
+        onClick={() => setIsOpen((prev) => !prev)}
+        aria-haspopup="true"
+        aria-expanded={isOpen}
+        className={cn(
+          "flex items-center gap-2 rounded-lg border px-3 py-1.5",
+          "transition-all duration-200 cursor-pointer",
+          isOpen
+            ? "border-primary/40 bg-primary/8 text-foreground"
+            : "border-border bg-muted/50 hover:bg-muted text-foreground",
+        )}
+      >
+        {/* Avatar */}
+        <div className="h-6 w-6 flex-shrink-0 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-[10px] font-bold text-white">
+          RG
+        </div>
+        <span className="hidden sm:block text-sm font-medium">Ravi</span>
+        <motion.div
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.2, ease: "easeInOut" }}
+        >
+          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+        </motion.div>
+      </button>
+
+      {/* ── Dropdown Panel ── */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            variants={dropdownVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="absolute right-0 top-full mt-2 z-50 w-72 rounded-2xl shadow-glass-lg"
+            style={{
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+            }}
+          >
+            {/* Inner shell: overflow-hidden clips child bg colours to rounded corners */}
+            <div className="rounded-2xl overflow-hidden border border-border bg-card/95 flex flex-col">
+
+            {/* ── User info header ── */}
+            <motion.div
+              variants={itemVariants}
+              className="flex items-center gap-3 p-4 border-b border-border bg-muted/30"
+            >
+              {/* Large avatar */}
+              <div className="relative flex-shrink-0">
+                <div className="h-11 w-11 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-sm font-bold text-white shadow-glow-brand">
+                  RG
+                </div>
+                {/* Online dot */}
+                <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-success border-2 border-card" />
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold text-sm text-foreground truncate">
+                  Ravi Gupta
+                </p>
+                <p className="text-xs text-muted-foreground truncate">
+                  faisalfeas2@gmail.com
+                </p>
+                <div className="mt-1 inline-flex items-center rounded-full bg-brand-500/10 px-2 py-0.5">
+                  <span className="text-[10px] font-semibold text-brand-400 uppercase tracking-wide">
+                    Pro Plan
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* ── Menu items ── */}
+            <div className="py-1.5">
+              {MENU_ITEMS.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeItem === item.id;
+
+                return (
+                  <motion.div key={item.id} variants={itemVariants}>
+                    <Link
+                      href={item.href}
+                      onClick={() => {
+                        setActiveItem(item.id);
+                        setIsOpen(false);
+                      }}
+                      className={cn(
+                        "group flex items-center gap-3 px-4 py-2.5 mx-1.5 rounded-xl",
+                        "text-sm transition-all duration-150 cursor-pointer",
+                        isActive
+                          ? "bg-primary/10 text-primary"
+                          : "text-foreground hover:bg-muted",
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg transition-colors duration-150",
+                          isActive
+                            ? "bg-primary/15 text-primary"
+                            : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
+                        )}
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                      </span>
+                      <span className="font-medium">{item.label}</span>
+                    </Link>
+                  </motion.div>
+                );
+              })}
+            </div>
+
+            {/* ── Divider + Logout ── */}
+            <motion.div
+              variants={itemVariants}
+              className="border-t border-border mt-1 p-2"
+            >
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  // sign-out logic here
+                }}
+                className={cn(
+                  "group flex w-full items-center gap-3 px-4 py-2.5 rounded-xl",
+                  "text-sm font-medium text-error",
+                  "hover:bg-error/8 transition-all duration-150 cursor-pointer",
+                )}
+              >
+                <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-error/10 text-error group-hover:bg-error/20 transition-colors duration-150">
+                  <LogOut className="h-3.5 w-3.5" />
+                </span>
+                Logout
+              </button>
+            </motion.div>
+            </div> {/* /inner shell */}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
