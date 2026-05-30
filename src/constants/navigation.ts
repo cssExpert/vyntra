@@ -48,6 +48,16 @@ export const NAV_SECTIONS: NavSection[] = [
         label: "CMS / Editor",
         href: "/cms",
         icon: "FileText",
+        children: [
+          { id: "cms-pages",    label: "Pages",           href: "/cms/pages",            icon: "" },
+          { id: "cms-blogs",    label: "Blogs",           href: "/cms/blogs",            icon: "" },
+          { id: "cms-gallery",  label: "Gallery",         href: "/cms/gallery",          icon: "" },
+          { id: "cms-teams",    label: "Teams",           href: "/cms/teams",            icon: "" },
+          { id: "cms-comments", label: "Comments",        href: "/cms/comments",         icon: "" },
+          { id: "cms-contact",  label: "Contact Requests",href: "/cms/contact-requests", icon: "" },
+          { id: "cms-forms",    label: "Forms",           href: "/cms/forms",            icon: "" },
+          { id: "cms-preview",  label: "Preview Website", href: "/cms/preview",          icon: "" },
+        ],
       },
       {
         id: "seo",

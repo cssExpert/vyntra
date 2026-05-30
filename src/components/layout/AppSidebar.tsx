@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,6 +18,7 @@ import {
   Settings2,
   BarChart3,
   ChevronLeft,
+  ChevronDown,
   LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -50,50 +52,60 @@ interface AppSidebarProps {
   onClose: () => void;
 }
 
-function NavItemComponent({
-  item,
-  isCollapsed,
-  isActive,
-}: {
-  item: NavItem;
-  isCollapsed: boolean;
-  isActive: boolean;
-}) {
-  const Icon = ICON_MAP[item.icon] ?? LayoutDashboard;
-
+/* ─── Sub-item (bullet style) ───────────────────────────────── */
+function SubNavItem({ item, isActive }: { item: NavItem; isActive: boolean }) {
   return (
     <Link
       href={item.href}
       className={cn(
-        "nav-item group relative",
-        isCollapsed && "justify-center px-0",
-        isActive && "active",
+        "flex items-center gap-2.5 pl-9 pr-3 py-1.5 rounded-lg text-sm transition-colors duration-150",
+        isActive
+          ? "text-foreground font-semibold"
+          : "text-muted-foreground hover:text-foreground",
       )}
-      title={isCollapsed ? item.label : undefined}
     >
-      {/*
-       * Sliding background — layoutId="nav-active-bg" means Framer Motion
-       * animates this element from the previously-active item to this one
-       * whenever the active route changes. Kept inset-0 so it never escapes
-       * the Link's own bounds (no overflow-hidden clipping risk).
-       */}
+      <span
+        className={cn(
+          "h-1.5 w-1.5 rounded-full flex-shrink-0 transition-colors duration-150",
+          isActive ? "bg-primary" : "bg-muted-foreground/35",
+        )}
+      />
+      <span className="truncate">{item.label}</span>
+    </Link>
+  );
+}
+
+/* ─── Main nav item ─────────────────────────────────────────── */
+function NavItemComponent({
+  item,
+  isCollapsed,
+  isActive,
+  isExpanded,
+  onToggle,
+  pathname,
+}: {
+  item: NavItem;
+  isCollapsed: boolean;
+  isActive: boolean;
+  isExpanded: boolean;
+  onToggle: () => void;
+  pathname: string;
+}) {
+  const NavIcon = ICON_MAP[item.icon] ?? LayoutDashboard;
+  const hasChildren = !!item.children?.length;
+
+  const inner = (
+    <>
+      {/* Sliding background */}
       {isActive && (
         <motion.span
           layoutId="nav-active-bg"
           className="absolute inset-0 rounded-lg bg-primary/10 dark:bg-[#404040]"
-          transition={{
-            type: "tween",
-            duration: 0.22,
-            ease: [0.16, 1, 0.3, 1],
-          }}
+          transition={{ type: "tween", duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
         />
       )}
 
-      {/*
-       * Left bar indicator — simple fade-in/out; the sliding feel comes from
-       * the background above. Correct position: top-1/2 -translate-y-1/2
-       * centres the bar on the item row.
-       */}
+      {/* Left bar indicator */}
       <AnimatePresence>
         {isActive && (
           <motion.span
@@ -107,7 +119,7 @@ function NavItemComponent({
         )}
       </AnimatePresence>
 
-      {/* Icon — z-10 so it renders above the sliding background */}
+      {/* Icon */}
       <span
         className={cn(
           "relative z-10 nav-icon flex-shrink-0 transition-colors",
@@ -116,10 +128,10 @@ function NavItemComponent({
             : "text-muted-foreground group-hover:text-foreground",
         )}
       >
-        <Icon className="h-[18px] w-[18px]" />
+        <NavIcon className="h-[18px] w-[18px]" />
       </span>
 
-      {/* Label — z-10 so it renders above the sliding background */}
+      {/* Label */}
       <AnimatePresence>
         {!isCollapsed && (
           <motion.span
@@ -134,7 +146,7 @@ function NavItemComponent({
         )}
       </AnimatePresence>
 
-      {/* Badges — z-10 */}
+      {/* Badges */}
       {!isCollapsed && item.badge && (
         <span
           className={cn(
@@ -147,16 +159,58 @@ function NavItemComponent({
           {item.badge}
         </span>
       )}
-
       {!isCollapsed && item.isNew && (
         <span className="relative z-10 ml-auto rounded-full bg-success/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-success">
           New
         </span>
       )}
+
+      {/* Expand chevron for items with children */}
+      {!isCollapsed && hasChildren && (
+        <motion.span
+          animate={{ rotate: isExpanded ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
+          className="relative z-10 ml-auto text-muted-foreground"
+        >
+          <ChevronDown className="h-3.5 w-3.5" />
+        </motion.span>
+      )}
+    </>
+  );
+
+  /* Items with children: button (toggles submenu) + navigates on click */
+  if (hasChildren) {
+    return (
+      <button
+        onClick={onToggle}
+        className={cn(
+          "nav-item group relative w-full",
+          isCollapsed && "justify-center px-0",
+          isActive && "active",
+        )}
+      >
+        {inner}
+      </button>
+    );
+  }
+
+  /* Regular items: Link */
+  return (
+    <Link
+      href={item.href}
+      className={cn(
+        "nav-item group relative",
+        isCollapsed && "justify-center px-0",
+        isActive && "active",
+      )}
+      title={isCollapsed ? item.label : undefined}
+    >
+      {inner}
     </Link>
   );
 }
 
+/* ─── AppSidebar ────────────────────────────────────────────── */
 export function AppSidebar({
   isCollapsed,
   isMobileOpen,
@@ -165,13 +219,51 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const pathname = usePathname();
 
+  /* Track which items are expanded by their id */
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(() => {
+    const initial = new Set<string>();
+    NAV_SECTIONS.forEach((section) =>
+      section.items.forEach((item) => {
+        if (item.children?.some((c) => pathname.startsWith(c.href) || pathname === c.href)) {
+          initial.add(item.id);
+        }
+        /* Also expand if the parent route itself is active and has children */
+        if (item.children?.length && pathname.startsWith(item.href)) {
+          initial.add(item.id);
+        }
+      }),
+    );
+    return initial;
+  });
+
+  /* Auto-expand when navigating to a child route */
+  useEffect(() => {
+    NAV_SECTIONS.forEach((section) =>
+      section.items.forEach((item) => {
+        if (
+          item.children?.some((c) => pathname === c.href || pathname.startsWith(c.href)) ||
+          (item.children?.length && pathname.startsWith(item.href))
+        ) {
+          setExpandedItems((prev) => new Set(prev).add(item.id));
+        }
+      }),
+    );
+  }, [pathname]);
+
+  const toggleItem = (id: string) => {
+    setExpandedItems((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
   const sidebarContent = (
     <motion.aside
       animate={{ width: isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH }}
       transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-      className={cn(
-        "relative flex h-full flex-col bg-sidebar border-r border-sidebar-border overflow-hidden",
-      )}
+      className="relative flex h-full flex-col bg-sidebar border-r border-sidebar-border overflow-hidden"
     >
       {/* Logo */}
       <div
@@ -180,10 +272,7 @@ export function AppSidebar({
           isCollapsed && "justify-center px-0",
         )}
       >
-        <Link
-          href="/dashboard"
-          className="flex items-center gap-2.5 cursor-pointer"
-        >
+        <Link href="/dashboard" className="flex items-center gap-2.5 cursor-pointer">
           <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-sm bg-primary shadow-glow-brand">
             <Icon name="Brand" size="24" className="h-6 w-6 text-white" />
           </div>
@@ -228,18 +317,60 @@ export function AppSidebar({
               )}
 
               {section.items.map((item) => {
+                const hasChildren = !!item.children?.length;
+                const isExpanded = expandedItems.has(item.id);
+
+                /* Active if exact match OR any child is active */
                 const isActive =
                   pathname === item.href ||
-                  (item.href !== "/dashboard" &&
-                    pathname.startsWith(item.href));
+                  (!hasChildren &&
+                    item.href !== "/dashboard" &&
+                    pathname.startsWith(item.href)) ||
+                  (hasChildren &&
+                    !!item.children?.some(
+                      (c) => pathname === c.href || pathname.startsWith(c.href),
+                    ));
 
                 return (
-                  <NavItemComponent
-                    key={item.id}
-                    item={item}
-                    isCollapsed={isCollapsed}
-                    isActive={isActive}
-                  />
+                  <div key={item.id}>
+                    <NavItemComponent
+                      item={item}
+                      isCollapsed={isCollapsed}
+                      isActive={isActive}
+                      isExpanded={isExpanded}
+                      onToggle={() => toggleItem(item.id)}
+                      pathname={pathname}
+                    />
+
+                    {/* Submenu */}
+                    <AnimatePresence initial={false}>
+                      {hasChildren && isExpanded && !isCollapsed && (
+                        <motion.div
+                          key={`sub-${item.id}`}
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+                          className="overflow-hidden"
+                        >
+                          <div className="py-1">
+                            {item.children!.map((child) => {
+                              const childActive =
+                                pathname === child.href ||
+                                pathname.startsWith(child.href);
+                              return (
+                                <SubNavItem
+                                  key={child.id}
+                                  item={child}
+                                  isActive={childActive}
+                                />
+                              );
+                            })}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 );
               })}
             </div>
@@ -266,12 +397,8 @@ export function AppSidebar({
                 RG
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-xs font-semibold text-foreground">
-                  Ravi Gupta
-                </p>
-                <p className="truncate text-[10px] text-muted-foreground">
-                  Admin
-                </p>
+                <p className="truncate text-xs font-semibold text-foreground">Ravi Gupta</p>
+                <p className="truncate text-[10px] text-muted-foreground">Admin</p>
               </div>
             </motion.div>
           ) : (
@@ -286,7 +413,7 @@ export function AppSidebar({
 
   return (
     <>
-      {/* Desktop sidebar — relative wrapper so toggle button can escape overflow-hidden aside */}
+      {/* Desktop sidebar */}
       <div className="hidden lg:flex h-screen sticky top-0 flex-shrink-0">
         {sidebarContent}
         <button
