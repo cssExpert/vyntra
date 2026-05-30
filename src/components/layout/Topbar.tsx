@@ -14,6 +14,7 @@ import {
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import { ProfileMenu } from "@/components/layout/ProfileMenu";
+import { useCommandPalette } from "@/components/layout/CommandPalette";
 
 const PAGE_TITLES: Record<string, string> = {
   "/dashboard": "Dashboard",
@@ -84,6 +85,7 @@ function NotificationButton() {
 
 export function Topbar({ onMenuClick }: TopbarProps) {
   const pathname = usePathname();
+  const { open: openPalette } = useCommandPalette();
 
   const currentPage = Object.entries(PAGE_TITLES).find(([key]) =>
     key === "/" ? pathname === "/" : pathname.startsWith(key)
@@ -120,6 +122,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
 
         {/* Search bar */}
         <button
+          onClick={openPalette}
           className={cn(
             "flex flex-1 max-w-sm items-center gap-2 rounded-lg",
             "border border-border bg-muted/50 px-3 py-2",

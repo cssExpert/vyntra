@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { Topbar } from "@/components/layout/Topbar";
+import { CommandPaletteProvider } from "@/components/layout/CommandPalette";
 import { useSidebar } from "@/hooks/useSidebar";
 import { useAuth } from "@/providers/AuthProvider";
 
@@ -27,21 +28,23 @@ export default function DashboardLayout({
   if (isLoading || !isAuthenticated) return null;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background bg-mesh">
-      <AppSidebar
-        isCollapsed={isCollapsed}
-        isMobileOpen={isMobileOpen}
-        onToggle={toggle}
-        onClose={closeMobile}
-      />
+    <CommandPaletteProvider>
+      <div className="flex h-screen overflow-hidden bg-background bg-mesh">
+        <AppSidebar
+          isCollapsed={isCollapsed}
+          isMobileOpen={isMobileOpen}
+          onToggle={toggle}
+          onClose={closeMobile}
+        />
 
-      <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
-        <Topbar onMenuClick={toggle} />
+        <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
+          <Topbar onMenuClick={toggle} />
 
-        <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-[1600px] p-4 sm:p-6">{children}</div>
-        </main>
+          <main className="flex-1 overflow-y-auto">
+            <div className="mx-auto max-w-[1600px] p-4 sm:p-6">{children}</div>
+          </main>
+        </div>
       </div>
-    </div>
+    </CommandPaletteProvider>
   );
 }
