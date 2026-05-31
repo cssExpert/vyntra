@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { UsersPageSkeleton } from "@/components/common/DashboardSkeleton";
@@ -17,7 +17,22 @@ import {
   User as UserIcon,
   AlertTriangle,
   HelpCircle,
+  ChevronUp,
+  ChevronDown,
+  ChevronsUpDown,
 } from "lucide-react";
+import {
+  Column,
+  useReactTable,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  flexRender,
+  createColumnHelper,
+  type SortingState,
+  type FilterFn,
+  type ColumnPinningState,
+} from "@tanstack/react-table";
 
 import SectionTitle from "@/components/common/SectionTitle";
 import { Modal } from "@/components/common/Modal";
@@ -125,6 +140,21 @@ const INITIAL_USERS: User[] = [
   },
 ];
 
+// Module-level TanStack helpers — no component state dependency
+const columnHelper = createColumnHelper<User>();
+
+const nameEmailFilter: FilterFn<User> = (
+  row,
+  _columnId,
+  filterValue: string,
+) => {
+  const q = filterValue.toLowerCase();
+  return (
+    row.original.name.toLowerCase().includes(q) ||
+    row.original.email.toLowerCase().includes(q)
+  );
+};
+
 export function UsersView() {
   const [users, setUsers] = useState<User[]>(INITIAL_USERS);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -158,14 +188,221 @@ export function UsersView() {
     }, 4000);
   };
 
-  // Filter users based on search term (name or email)
-  const filteredUsers = useMemo(() => {
-    return users.filter(
-      (user) =>
-        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
-  }, [users, searchTerm]);
+  const [sorting, setSorting] = useState<SortingState>([]);
+
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor("name", {
+        header: "Name",
+        cell: ({ row }) => {
+          const user = row.original;
+          return (
+            <div className="flex items-center gap-3">
+              <div
+                className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center font-bold text-xs ${
+                  user.locked
+                    ? "bg-muted text-muted-foreground"
+                    : "bg-primary/10 text-primary"
+                }`}
+              >
+                {user.name
+                  .split(" ")
+                  .map((n: string) => n[0])
+                  .join("")
+                  .substring(0, 2)
+                  .toUpperCase()}
+              </div>
+              <span
+                className={
+                  user.locked
+                    ? "line-through text-muted-foreground font-medium"
+                    : ""
+                }
+              >
+                {user.name}
+              </span>
+            </div>
+          );
+        },
+      }),
+      columnHelper.accessor("email", {
+        header: "Email",
+        cell: ({ getValue }) => getValue(),
+      }),
+      columnHelper.accessor("phone", {
+        header: "Phone",
+        enableSorting: false,
+        cell: ({ getValue }) => getValue(),
+      }),
+      columnHelper.accessor("role", {
+        header: "Role",
+        cell: ({ getValue }) => (
+          <span className="inline-flex items-center justify-center bg-muted text-muted-foreground font-bold text-[11px] px-2.5 py-0.5 rounded-md tracking-wider">
+            {getValue()}
+          </span>
+        ),
+      }),
+      columnHelper.accessor("group", {
+        header: "Group",
+        cell: ({ getValue }) => (
+          <span className="inline-flex items-center justify-center bg-primary/10 text-primary font-bold text-[11px] px-2.5 py-1 rounded-full tracking-wider border border-primary/20">
+            {getValue()}
+          </span>
+        ),
+      }),
+      columnHelper.accessor("status", {
+        header: "Status",
+        cell: ({ getValue }) => {
+          const status = getValue();
+          return (
+            <span
+              className={`inline-flex items-center justify-center font-bold text-[11px] px-3 py-1 rounded-full ${
+                status === "Active"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground"
+              }`}
+            >
+              {status}
+            </span>
+          );
+        },
+      }),
+      columnHelper.accessor("locked", {
+        header: "Lock",
+        enableSorting: false,
+        cell: ({ row }) => {
+          const user = row.original;
+          return (
+            <button
+              onClick={() => handleToggleLock(user.id, user.locked)}
+              title={
+                user.locked
+                  ? "Click to unlock user account"
+                  : "Click to lock user account"
+              }
+              className={`flex items-center gap-1.5 font-medium transition-colors group ${
+                user.locked
+                  ? "text-rose-500 hover:text-rose-600"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {user.locked ? (
+                <>
+                  <Lock size={14} className="stroke-[2.5]" />
+                  <span className="text-xs font-semibold">Locked</span>
+                </>
+              ) : (
+                <span className="text-muted-foreground font-semibold group-hover:text-foreground">
+                  —
+                </span>
+              )}
+            </button>
+          );
+        },
+      }),
+      columnHelper.accessor("joined", {
+        header: "Joined",
+        enableSorting: false,
+        cell: ({ getValue }) => getValue(),
+      }),
+      columnHelper.display({
+        id: "actions",
+        header: "Actions",
+        cell: ({ row }) => {
+          const user = row.original;
+          return (
+            <div className="flex justify-end">
+              <TableActionMenu
+                items={[
+                  {
+                    label: "Edit",
+                    icon: <PencilLine size={13} className="stroke-[2.5]" />,
+                    onClick: () => handleEditUserClick(user),
+                  },
+                  {
+                    label: "Delete",
+                    icon: <Trash2 size={13} />,
+                    onClick: () => setDeletingUser(user),
+                    variant: "danger",
+                    separator: true,
+                  },
+                ]}
+              />
+            </div>
+          );
+        },
+      }),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
+  const [columnPinning, setColumnPinning] = useState<ColumnPinningState>({
+    left: ["name"],
+    right: ["actions"],
+  });
+
+  // Scroll-aware pinned-column shadow
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+
+    const update = () => {
+      setCanScrollLeft(el.scrollLeft > 0);
+      setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 1);
+    };
+
+    update();
+    el.addEventListener("scroll", update, { passive: true });
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+
+    return () => {
+      el.removeEventListener("scroll", update);
+      ro.disconnect();
+    };
+  }, [isLoaded]); // re-run after usePageLoad reveals the table in DOM
+
+  const table = useReactTable({
+    data: users,
+    columns,
+    state: { globalFilter: searchTerm, sorting, columnPinning },
+    onGlobalFilterChange: setSearchTerm,
+    onSortingChange: setSorting,
+    onColumnPinningChange: setColumnPinning,
+    globalFilterFn: nameEmailFilter,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  });
+
+  const getCommonPinningStyles = (
+    column: Column<User>,
+  ): React.CSSProperties => {
+    const isPinned = column.getIsPinned();
+    const isLastLeft = isPinned === "left" && column.getIsLastColumn("left");
+    const isFirstRight =
+      isPinned === "right" && column.getIsFirstColumn("right");
+
+    return {
+      position: isPinned ? "sticky" : undefined,
+      left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
+      right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
+      zIndex: isPinned ? 2 : undefined,
+      backgroundColor: isPinned ? "var(--card)" : undefined,
+      boxShadow:
+        isLastLeft && canScrollLeft
+          ? "4px 0 6px -2px rgba(0,0,0,0.08)"
+          : isFirstRight && canScrollRight
+            ? "-4px 0 6px -2px rgba(0,0,0,0.08)"
+            : undefined,
+      transition: "box-shadow 0.2s ease",
+    };
+  };
 
   // Open Modal for creation
   const handleAddUserClick = () => {
@@ -300,7 +537,7 @@ export function UsersView() {
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <SectionTitle
                 title="Users"
-                paragraph={`${filteredUsers.length} ${filteredUsers.length === 1 ? "user" : "users"}`}
+                paragraph={`${table.getRowModel().rows.length} ${table.getRowModel().rows.length === 1 ? "user" : "users"}`}
               />
               <div>
                 <button
@@ -387,175 +624,122 @@ export function UsersView() {
               {/* Main Users Table Board Container */}
               <div className="bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden">
                 {users.length > 0 ? (
-                  <div className="overflow-x-auto">
+                  <div ref={scrollContainerRef} className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="border-b border-border text-[13px] font-semibold text-muted-foreground select-none bg-muted/40">
-                          <th className="py-4 px-6 font-semibold">Name</th>
-                          <th className="py-4 px-4 font-semibold">Email</th>
-                          <th className="py-4 px-4 font-semibold">Phone</th>
-                          <th className="py-4 px-4 font-semibold">Role</th>
-                          <th className="py-4 px-4 font-semibold">Group</th>
-                          <th className="py-4 px-4 font-semibold">Status</th>
-                          <th className="py-4 px-4 font-semibold">Lock</th>
-                          <th className="py-4 px-4 font-semibold">Joined</th>
-                          <th className="py-4 px-6 text-right font-semibold">
-                            Actions
-                          </th>
-                        </tr>
+                        {table.getHeaderGroups().map((headerGroup) => (
+                          <tr
+                            key={headerGroup.id}
+                            className="border-b border-border text-[13px] font-semibold text-muted-foreground select-none bg-muted/40"
+                          >
+                            {headerGroup.headers.map((header) => {
+                              const canSort = header.column.getCanSort();
+                              const sorted = header.column.getIsSorted();
+                              const isActions = header.id === "actions";
+                              const isName = header.id === "name";
+                              return (
+                                <th
+                                  key={header.id}
+                                  onClick={
+                                    canSort
+                                      ? header.column.getToggleSortingHandler()
+                                      : undefined
+                                  }
+                                  className={`font-semibold ${
+                                    isActions
+                                      ? "py-4 px-6 text-right"
+                                      : isName
+                                        ? "py-4 px-6"
+                                        : "py-4 px-4"
+                                  } ${canSort ? "cursor-pointer hover:text-foreground transition-colors" : ""}`}
+                                  style={getCommonPinningStyles(header.column)}
+                                >
+                                  <div
+                                    className={`flex items-center gap-1 ${isActions ? "justify-end" : ""}`}
+                                  >
+                                    {header.isPlaceholder
+                                      ? null
+                                      : flexRender(
+                                          header.column.columnDef.header,
+                                          header.getContext(),
+                                        )}
+                                    {canSort &&
+                                      (sorted === "asc" ? (
+                                        <ChevronUp
+                                          size={13}
+                                          className="text-primary shrink-0"
+                                        />
+                                      ) : sorted === "desc" ? (
+                                        <ChevronDown
+                                          size={13}
+                                          className="text-primary shrink-0"
+                                        />
+                                      ) : (
+                                        <ChevronsUpDown
+                                          size={13}
+                                          className="text-muted-foreground/40 shrink-0"
+                                        />
+                                      ))}
+                                  </div>
+                                </th>
+                              );
+                            })}
+                          </tr>
+                        ))}
                       </thead>
 
                       <tbody className="divide-y divide-border text-[14px]">
                         <AnimatePresence initial={false}>
-                          {filteredUsers.length > 0 ? (
-                            filteredUsers.map((user) => (
-                              <motion.tr
-                                key={user.id}
-                                layoutId={`user-row-${user.id}`}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                className={`hover:bg-muted/40 transition-colors ${
-                                  user.locked ? "bg-muted/20" : ""
-                                }`}
-                              >
-                                {/* Name Column */}
-                                <td className="py-4 px-6 font-bold text-foreground">
-                                  <div className="flex items-center gap-3">
-                                    <div
-                                      className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center font-bold text-xs ${
-                                        user.locked
-                                          ? "bg-muted text-muted-foreground"
-                                          : "bg-primary/10 text-primary"
-                                      }`}
-                                    >
-                                      {user.name
-                                        .split(" ")
-                                        .map((n) => n[0])
-                                        .join("")
-                                        .substring(0, 2)
-                                        .toUpperCase()}
-                                    </div>
-                                    <span
-                                      className={
-                                        user.locked
-                                          ? "line-through text-muted-foreground font-medium"
-                                          : ""
-                                      }
-                                    >
-                                      {user.name}
-                                    </span>
-                                  </div>
-                                </td>
-
-                                {/* Email Column */}
-                                <td className="py-4 px-4 text-muted-foreground font-medium">
-                                  {user.email}
-                                </td>
-
-                                {/* Phone Column */}
-                                <td className="py-4 px-4 text-muted-foreground tabular-nums">
-                                  {user.phone}
-                                </td>
-
-                                {/* Role Badge */}
-                                <td className="py-4 px-4">
-                                  <span className="inline-flex items-center justify-center bg-muted text-muted-foreground font-bold text-[11px] px-2.5 py-0.5 rounded-md tracking-wider">
-                                    {user.role}
-                                  </span>
-                                </td>
-
-                                {/* Group Badge */}
-                                <td className="py-4 px-4">
-                                  <span className="inline-flex items-center justify-center bg-primary/10 text-primary font-bold text-[11px] px-2.5 py-1 rounded-full tracking-wider border border-primary/20">
-                                    {user.group}
-                                  </span>
-                                </td>
-
-                                {/* Status Badge */}
-                                <td className="py-4 px-4">
-                                  <span
-                                    className={`inline-flex items-center justify-center font-bold text-[11px] px-3 py-1 rounded-full ${
-                                      user.status === "Active"
-                                        ? "bg-primary text-primary-foreground"
-                                        : "bg-muted text-muted-foreground"
-                                    }`}
-                                  >
-                                    {user.status}
-                                  </span>
-                                </td>
-
-                                {/* Lock Toggle Action & View */}
-                                <td className="py-4 px-4">
-                                  <button
-                                    onClick={() =>
-                                      handleToggleLock(user.id, user.locked)
-                                    }
-                                    title={
-                                      user.locked
-                                        ? "Click to unlock user account"
-                                        : "Click to lock user account"
-                                    }
-                                    className={`flex items-center gap-1.5 font-medium transition-colors group ${
-                                      user.locked
-                                        ? "text-rose-500 hover:text-rose-600"
-                                        : "text-muted-foreground hover:text-foreground"
-                                    }`}
-                                  >
-                                    {user.locked ? (
-                                      <>
-                                        <Lock
-                                          size={14}
-                                          className="stroke-[2.5]"
-                                        />
-                                        <span className="text-xs font-semibold">
-                                          Locked
-                                        </span>
-                                      </>
-                                    ) : (
-                                      <span className="text-muted-foreground font-semibold group-hover:text-foreground">
-                                        —
-                                      </span>
-                                    )}
-                                  </button>
-                                </td>
-
-                                {/* Joined Date */}
-                                <td className="py-4 px-4 text-muted-foreground font-medium">
-                                  {user.joined}
-                                </td>
-
-                                {/* Actions */}
-                                <td className="py-4 px-6 text-right">
-                                  <TableActionMenu
-                                    items={[
-                                      {
-                                        label: "Edit",
-                                        icon: (
-                                          <PencilLine
-                                            size={13}
-                                            className="stroke-[2.5]"
-                                          />
-                                        ),
-                                        onClick: () =>
-                                          handleEditUserClick(user),
-                                      },
-                                      {
-                                        label: "Delete",
-                                        icon: <Trash2 size={13} />,
-                                        onClick: () => setDeletingUser(user),
-                                        variant: "danger",
-                                        separator: true,
-                                      },
-                                    ]}
-                                  />
-                                </td>
-                              </motion.tr>
-                            ))
+                          {table.getRowModel().rows.length > 0 ? (
+                            table.getRowModel().rows.map((row) => {
+                              const user = row.original;
+                              return (
+                                <motion.tr
+                                  key={row.id}
+                                  layoutId={`user-row-${row.id}`}
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  exit={{ opacity: 0 }}
+                                  className={`hover:bg-muted/40 transition-colors ${
+                                    user.locked ? "bg-muted/20" : ""
+                                  }`}
+                                >
+                                  {row.getVisibleCells().map((cell) => {
+                                    const id = cell.column.id;
+                                    const tdCls =
+                                      id === "name"
+                                        ? "py-4 px-6 font-bold text-foreground"
+                                        : id === "email"
+                                          ? "py-4 px-4 text-muted-foreground font-medium"
+                                          : id === "phone"
+                                            ? "py-4 px-4 text-muted-foreground tabular-nums"
+                                            : id === "joined"
+                                              ? "py-4 px-4 text-muted-foreground font-medium"
+                                              : id === "actions"
+                                                ? "py-4 px-6 text-right"
+                                                : "py-4 px-4";
+                                    return (
+                                      <td
+                                        key={cell.id}
+                                        className={tdCls}
+                                        style={getCommonPinningStyles(
+                                          cell.column,
+                                        )}
+                                      >
+                                        {flexRender(
+                                          cell.column.columnDef.cell,
+                                          cell.getContext(),
+                                        )}
+                                      </td>
+                                    );
+                                  })}
+                                </motion.tr>
+                              );
+                            })
                           ) : (
                             <tr key="no-results-row">
                               <td
-                                colSpan={9}
+                                colSpan={columns.length}
                                 className="py-12 text-center text-muted-foreground bg-muted/10"
                               >
                                 <div className="flex flex-col items-center justify-center gap-2">
@@ -690,8 +874,8 @@ export function UsersView() {
                 {/* Footer of user summary inside listing box */}
                 <div className="bg-muted/60 px-6 py-4 border-t border-border text-xs text-muted-foreground flex items-center justify-between font-medium">
                   <span>
-                    Showing {filteredUsers.length} of {users.length} total
-                    entries
+                    Showing {table.getRowModel().rows.length} of {users.length}{" "}
+                    total entries
                   </span>
                   <span>Active Dashboard Control Suite</span>
                 </div>
