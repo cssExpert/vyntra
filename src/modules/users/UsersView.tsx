@@ -411,7 +411,7 @@ export function UsersView() {
       boxShadow:
         isLastLeft && canScrollLeft
           ? "4px 0 6px -2px rgba(0,0,0,0.08)"
-          : isFirstRight && canScrollRight
+          : isFirstRight && canScrollLeft
             ? "-4px 0 6px -2px rgba(0,0,0,0.08)"
             : undefined,
       transition: "box-shadow 0.2s ease",
@@ -720,7 +720,7 @@ export function UsersView() {
                                   initial={{ opacity: 0 }}
                                   animate={{ opacity: 1 }}
                                   exit={{ opacity: 0 }}
-                                  className={`hover:bg-muted/40 transition-colors ${
+                                  className={`group hover:bg-muted/40 transition-colors ${
                                     user.locked ? "bg-muted/20" : ""
                                   }`}
                                 >
@@ -738,10 +738,18 @@ export function UsersView() {
                                               : id === "actions"
                                                 ? "py-4 px-6 text-right"
                                                 : "py-4 px-4";
+                                    const isPinned = cell.column.getIsPinned();
+                                    const pinnedCls = isPinned
+                                      ? `transition-colors group-hover:bg-muted/40 ${
+                                          user.locked
+                                            ? "bg-muted/20"
+                                            : "bg-card"
+                                        }`
+                                      : "";
                                     return (
                                       <td
                                         key={cell.id}
-                                        className={tdCls}
+                                        className={`${tdCls} ${pinnedCls}`}
                                         style={{
                                           ...getCommonPinningStyles(
                                             cell.column,
