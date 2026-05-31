@@ -245,7 +245,7 @@ export function ProfileMenu() {
                           setIsOpen(false);
                         }}
                         className={cn(
-                          "group flex items-center gap-3 px-4 py-2.5 mx-1.5 rounded-xl",
+                          "group flex items-center gap-3 px-4 py-2.5 mx-1.5 rounded-md",
                           "text-sm transition-all duration-150 cursor-pointer",
                           isActive
                             ? "bg-primary/10 text-primary"
@@ -254,7 +254,7 @@ export function ProfileMenu() {
                       >
                         <span
                           className={cn(
-                            "flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg transition-colors duration-150",
+                            "flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-sm transition-colors duration-150",
                             isActive
                               ? "bg-primary/15 text-primary"
                               : "bg-muted/80 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
@@ -277,12 +277,12 @@ export function ProfileMenu() {
                 <button
                   onClick={handleLogout}
                   className={cn(
-                    "group flex w-full items-center gap-3 px-4 py-2.5 rounded-xl",
+                    "group flex w-full items-center gap-3 px-4 py-2.5 rounded-md",
                     "text-sm font-medium text-error",
                     "hover:bg-error/8 transition-all duration-150 cursor-pointer",
                   )}
                 >
-                  <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-error/10 text-error group-hover:bg-error/20 transition-colors duration-150">
+                  <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-sm bg-error/10 text-error group-hover:bg-error/20 transition-colors duration-150">
                     <LogOut className="h-3.5 w-3.5" />
                   </span>
                   Logout

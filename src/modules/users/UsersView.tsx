@@ -9,7 +9,7 @@ import {
   Search,
   X,
   Trash2,
-  Edit2,
+  PencilLine,
   Lock,
   Unlock,
   Mail,
@@ -20,6 +20,8 @@ import {
 } from "lucide-react";
 
 import SectionTitle from "@/components/common/SectionTitle";
+import { Modal } from "@/components/common/Modal";
+import { TableActionMenu } from "@/components/common/TableActionMenu";
 
 // Type definitions for robust Next.js TypeScript support
 export type UserRole = "USER" | "MANAGER" | "ADMIN" | "SUPPORT";
@@ -293,448 +295,447 @@ export function UsersView() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.28, ease: "easeOut" }}
         >
-    <>
-      {/* Header Block matching visual layout */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-        <SectionTitle
-          title="Users"
-          paragraph={`${filteredUsers.length} ${filteredUsers.length === 1 ? "user" : "users"}`}
-        />
-        <div>
-          <button
-            onClick={handleAddUserClick}
-            className="inline-flex items-center gap-2 rounded-sm bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all duration-200 cursor-pointer group transform active:scale-[0.98]"
-          >
-            <Plus
-              size={18}
-              className="stroke-[3] transition-transform group-hover:rotate-90 duration-300"
-            />
-            <span>Add User</span>
-          </button>
-        </div>
-      </div>
-      {/* Dynamic Toast Container using Framer Motion Layout animations */}
-      <div className="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
-        <AnimatePresence>
-          {toasts.map((toast) => (
-            <motion.div
-              key={toast.id}
-              layout
-              initial={{ opacity: 0, y: -20, scale: 0.9, x: 50 }}
-              animate={{ opacity: 1, y: 0, scale: 1, x: 0 }}
-              exit={{ opacity: 0, scale: 0.85, x: 100 }}
-              transition={{ type: "spring", stiffness: 350, damping: 25 }}
-              className={`pointer-events-auto flex items-center justify-between p-4 rounded-xl shadow-lg border text-sm font-medium ${
-                toast.type === "success"
-                  ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-100 dark:border-emerald-800/50"
-                  : toast.type === "error"
-                    ? "bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-100 dark:border-rose-800/50"
-                    : "bg-blue-50 dark:bg-indigo-950/60 text-indigo-900 dark:text-indigo-300 border-blue-100 dark:border-indigo-800/50"
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <span
-                  className={`w-2 h-2 rounded-full ${
-                    toast.type === "success"
-                      ? "bg-emerald-500"
-                      : toast.type === "error"
-                        ? "bg-rose-500"
-                        : "bg-indigo-500"
-                  }`}
-                />
-                <p>{toast.message}</p>
-              </div>
-              <button
-                onClick={() =>
-                  setToasts((prev) => prev.filter((t) => t.id !== toast.id))
-                }
-                className="text-muted-foreground hover:text-foreground transition-colors ml-4"
-              >
-                <X size={16} />
-              </button>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
-
-      <div className="max-w-7xl mx-auto">
-        {/* Search Bar Block with precision borders */}
-        <div className="mb-6 relative max-w-sm">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted-foreground">
-            <Search size={17} />
-          </span>
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by name or email..."
-            className="w-full pl-10 pr-4 py-2.5 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm"
-          />
-          {searchTerm && (
-            <button
-              onClick={() => setSearchTerm("")}
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <X size={16} />
-            </button>
-          )}
-        </div>
-
-        {/* Main Users Table Board Container */}
-        <div className="bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden">
-          {users.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-border text-[13px] font-semibold text-muted-foreground select-none bg-muted/40">
-                    <th className="py-4 px-6 font-semibold">Name</th>
-                    <th className="py-4 px-4 font-semibold">Email</th>
-                    <th className="py-4 px-4 font-semibold">Phone</th>
-                    <th className="py-4 px-4 font-semibold">Role</th>
-                    <th className="py-4 px-4 font-semibold">Group</th>
-                    <th className="py-4 px-4 font-semibold">Status</th>
-                    <th className="py-4 px-4 font-semibold">Lock</th>
-                    <th className="py-4 px-4 font-semibold">Joined</th>
-                    <th className="py-4 px-6 text-right font-semibold">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody className="divide-y divide-border text-[14px]">
-                  <AnimatePresence initial={false}>
-                    {filteredUsers.length > 0 ? (
-                      filteredUsers.map((user) => (
-                        <motion.tr
-                          key={user.id}
-                          layoutId={`user-row-${user.id}`}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          className={`hover:bg-muted/40 transition-colors ${
-                            user.locked ? "bg-muted/20" : ""
-                          }`}
-                        >
-                          {/* Name Column */}
-                          <td className="py-4 px-6 font-bold text-foreground">
-                            <div className="flex items-center gap-3">
-                              <div
-                                className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center font-bold text-xs ${
-                                  user.locked
-                                    ? "bg-muted text-muted-foreground"
-                                    : "bg-primary/10 text-primary"
-                                }`}
-                              >
-                                {user.name
-                                  .split(" ")
-                                  .map((n) => n[0])
-                                  .join("")
-                                  .substring(0, 2)
-                                  .toUpperCase()}
-                              </div>
-                              <span
-                                className={
-                                  user.locked
-                                    ? "line-through text-muted-foreground font-medium"
-                                    : ""
-                                }
-                              >
-                                {user.name}
-                              </span>
-                            </div>
-                          </td>
-
-                          {/* Email Column */}
-                          <td className="py-4 px-4 text-muted-foreground font-medium">
-                            {user.email}
-                          </td>
-
-                          {/* Phone Column */}
-                          <td className="py-4 px-4 text-muted-foreground tabular-nums">
-                            {user.phone}
-                          </td>
-
-                          {/* Role Badge */}
-                          <td className="py-4 px-4">
-                            <span className="inline-flex items-center justify-center bg-muted text-muted-foreground font-bold text-[11px] px-2.5 py-0.5 rounded-md tracking-wider">
-                              {user.role}
-                            </span>
-                          </td>
-
-                          {/* Group Badge */}
-                          <td className="py-4 px-4">
-                            <span className="inline-flex items-center justify-center bg-primary/10 text-primary font-bold text-[11px] px-2.5 py-1 rounded-full tracking-wider border border-primary/20">
-                              {user.group}
-                            </span>
-                          </td>
-
-                          {/* Status Badge */}
-                          <td className="py-4 px-4">
-                            <span
-                              className={`inline-flex items-center justify-center font-bold text-[11px] px-3 py-1 rounded-full ${
-                                user.status === "Active"
-                                  ? "bg-primary text-primary-foreground"
-                                  : "bg-muted text-muted-foreground"
-                              }`}
-                            >
-                              {user.status}
-                            </span>
-                          </td>
-
-                          {/* Lock Toggle Action & View */}
-                          <td className="py-4 px-4">
-                            <button
-                              onClick={() =>
-                                handleToggleLock(user.id, user.locked)
-                              }
-                              title={
-                                user.locked
-                                  ? "Click to unlock user account"
-                                  : "Click to lock user account"
-                              }
-                              className={`flex items-center gap-1.5 font-medium transition-colors group ${
-                                user.locked
-                                  ? "text-rose-500 hover:text-rose-600"
-                                  : "text-muted-foreground hover:text-foreground"
-                              }`}
-                            >
-                              {user.locked ? (
-                                <>
-                                  <Lock size={14} className="stroke-[2.5]" />
-                                  <span className="text-xs font-semibold">
-                                    Locked
-                                  </span>
-                                </>
-                              ) : (
-                                <span className="text-muted-foreground font-semibold group-hover:text-foreground">
-                                  —
-                                </span>
-                              )}
-                            </button>
-                          </td>
-
-                          {/* Joined Date */}
-                          <td className="py-4 px-4 text-muted-foreground font-medium">
-                            {user.joined}
-                          </td>
-
-                          {/* Actions */}
-                          <td className="py-4 px-6 text-right">
-                            <div className="flex items-center justify-end gap-2.5">
-                              <button
-                                onClick={() => handleEditUserClick(user)}
-                                title="Edit user details"
-                                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm transition-all"
-                              >
-                                <Edit2 size={16} className="stroke-[2.5]" />
-                              </button>
-
-                              <button
-                                onClick={() => setDeletingUser(user)}
-                                title="Delete user"
-                                className="p-1.5 text-muted-foreground hover:text-rose-600 hover:bg-rose-500/10 rounded-sm transition-all"
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-                          </td>
-                        </motion.tr>
-                      ))
-                    ) : (
-                      <tr key="no-results-row">
-                        <td
-                          colSpan={9}
-                          className="py-12 text-center text-muted-foreground bg-muted/10"
-                        >
-                          <div className="flex flex-col items-center justify-center gap-2">
-                            <AlertTriangle
-                              className="text-muted-foreground/40"
-                              size={32}
-                            />
-                            <p className="font-semibold text-foreground">
-                              No users found
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              Try modifying your search or add a new user.
-                            </p>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </AnimatePresence>
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            /* Premium, majestic full-card empty state when there are 0 users in the entire list */
-            <motion.div
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.35 }}
-              className="py-20 px-8 text-center flex flex-col items-center justify-center max-w-xl mx-auto"
-            >
-              {/* Majestic SVG Onboarding Graphic */}
-              <div className="w-52 h-52 mb-6">
-                <svg viewBox="0 0 200 200" className="w-full h-full">
-                  {/* Subtle Background Rings */}
-                  <circle
-                    cx="100"
-                    cy="100"
-                    r="80"
-                    className="stroke-slate-100/70 stroke-2 fill-none"
-                    strokeDasharray="6 6"
-                  />
-                  <circle
-                    cx="100"
-                    cy="100"
-                    r="60"
-                    className="fill-indigo-50/30"
-                  />
-
-                  {/* Modern abstract dashboard user icons with connecting lines */}
-                  <line
-                    x1="60"
-                    y1="120"
-                    x2="100"
-                    y2="80"
-                    className="stroke-slate-200 stroke-2"
-                  />
-                  <line
-                    x1="140"
-                    y1="120"
-                    x2="100"
-                    y2="80"
-                    className="stroke-slate-200 stroke-2"
-                  />
-
-                  {/* Main Avatar Center */}
-                  <circle
-                    cx="100"
-                    cy="80"
-                    r="22"
-                    className="fill-[#131553] shadow-md"
-                  />
-                  <path
-                    d="M82 120 C 82 105, 118 105, 118 120"
-                    className="fill-[#131553]"
-                  />
-
-                  {/* Auxiliary Left Avatar */}
-                  <circle cx="60" cy="120" r="14" className="fill-[#e3e6fc]" />
-                  <path
-                    d="M48 145 C 48 135, 72 135, 72 145"
-                    className="fill-[#e3e6fc]"
-                  />
-
-                  {/* Auxiliary Right Avatar */}
-                  <circle cx="140" cy="120" r="14" className="fill-[#e3e6fc]" />
-                  <path
-                    d="M128 145 C 128 135, 152 135, 152 145"
-                    className="fill-[#e3e6fc]"
-                  />
-
-                  {/* Pulsing Accent Rings */}
-                  <circle
-                    cx="100"
-                    cy="80"
-                    r="32"
-                    className="stroke-indigo-200 stroke-[1.5] fill-none"
-                  />
-                </svg>
-              </div>
-
-              <h3 className="text-xl md:text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight">
-                Your Directory is Empty
-              </h3>
-              <p className="text-sm md:text-md text-muted-foreground mt-2.5 max-w-sm leading-relaxed">
-                Unlock full control by listing and administering operators,
-                retailers, and system administrators under a single dashboard
-                control panel.
-              </p>
-
-              <button
-                onClick={handleAddUserClick}
-                className="mt-6 inline-flex items-center gap-2 rounded-sm bg-primary px-4 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all duration-200 cursor-pointer transform active:scale-95 group"
-              >
-                <Plus
-                  size={16}
-                  className="stroke-[3] transition-transform group-hover:rotate-90 duration-300"
-                />
-                <span>Create Your First User</span>
-              </button>
-            </motion.div>
-          )}
-
-          {/* Footer of user summary inside listing box */}
-          <div className="bg-muted/60 px-6 py-4 border-t border-border text-xs text-muted-foreground flex items-center justify-between font-medium">
-            <span>
-              Showing {filteredUsers.length} of {users.length} total entries
-            </span>
-            <span>Active Dashboard Control Suite</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Real Framer-Motion Animated Add/Edit User Modal Overlay */}
-      <AnimatePresence>
-        {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center px-4 overflow-y-auto">
-            {/* Backdrop: Smoothly Fades In/Out */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
-              onClick={() => setIsModalOpen(false)}
-              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm"
-            />
-
-            {/* Modal Container: Smooth Spring-Loaded entry bounce */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.93, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              transition={{
-                type: "spring",
-                stiffness: 380,
-                damping: 30,
-                mass: 0.8,
-                bounce: 0.15,
-              }}
-              className="bg-card rounded-2xl w-full max-w-lg shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-border overflow-hidden relative z-10"
-            >
-              {/* Modal Header */}
-              <div className="px-6 py-5 border-b border-border flex items-center justify-between bg-muted/40">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                    {editingUser ? (
-                      <Edit2 size={18} className="stroke-[2.5]" />
-                    ) : (
-                      <UserPlusIcon size={18} />
-                    )}
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-foreground">
-                      {editingUser ? "Edit User Details" : "Add New User"}
-                    </h3>
-                    <p className="text-xs text-muted-foreground">
-                      {editingUser
-                        ? "Update account parameters and credentials."
-                        : "Create a fresh system-level operator record."}
-                    </p>
-                  </div>
-                </div>
+          <>
+            {/* Header Block matching visual layout */}
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+              <SectionTitle
+                title="Users"
+                paragraph={`${filteredUsers.length} ${filteredUsers.length === 1 ? "user" : "users"}`}
+              />
+              <div>
                 <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                  onClick={handleAddUserClick}
+                  className="inline-flex items-center gap-2 rounded-sm bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all duration-200 cursor-pointer group transform active:scale-[0.98]"
                 >
-                  <X size={18} />
+                  <Plus
+                    size={18}
+                    className="stroke-[3] transition-transform group-hover:rotate-90 duration-300"
+                  />
+                  <span>Add User</span>
                 </button>
               </div>
+            </div>
+            {/* Dynamic Toast Container using Framer Motion Layout animations */}
+            <div className="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
+              <AnimatePresence>
+                {toasts.map((toast) => (
+                  <motion.div
+                    key={toast.id}
+                    layout
+                    initial={{ opacity: 0, y: -20, scale: 0.9, x: 50 }}
+                    animate={{ opacity: 1, y: 0, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.85, x: 100 }}
+                    transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                    className={`pointer-events-auto flex items-center justify-between p-4 rounded-xl shadow-lg border text-sm font-medium ${
+                      toast.type === "success"
+                        ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-100 dark:border-emerald-800/50"
+                        : toast.type === "error"
+                          ? "bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-100 dark:border-rose-800/50"
+                          : "bg-blue-50 dark:bg-indigo-950/60 text-indigo-900 dark:text-indigo-300 border-blue-100 dark:border-indigo-800/50"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`w-2 h-2 rounded-full ${
+                          toast.type === "success"
+                            ? "bg-emerald-500"
+                            : toast.type === "error"
+                              ? "bg-rose-500"
+                              : "bg-indigo-500"
+                        }`}
+                      />
+                      <p>{toast.message}</p>
+                    </div>
+                    <button
+                      onClick={() =>
+                        setToasts((prev) =>
+                          prev.filter((t) => t.id !== toast.id),
+                        )
+                      }
+                      className="text-muted-foreground hover:text-foreground transition-colors ml-4"
+                    >
+                      <X size={16} />
+                    </button>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
 
-              {/* Modal Form */}
-              <form onSubmit={handleFormSubmit}>
+            <div className="max-w-7xl mx-auto">
+              {/* Search Bar Block with precision borders */}
+              <div className="mb-6 relative max-w-sm">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted-foreground">
+                  <Search size={17} />
+                </span>
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search by name or email..."
+                  className="w-full pl-10 pr-4 py-2.5 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm"
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm("")}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+
+              {/* Main Users Table Board Container */}
+              <div className="bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden">
+                {users.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-border text-[13px] font-semibold text-muted-foreground select-none bg-muted/40">
+                          <th className="py-4 px-6 font-semibold">Name</th>
+                          <th className="py-4 px-4 font-semibold">Email</th>
+                          <th className="py-4 px-4 font-semibold">Phone</th>
+                          <th className="py-4 px-4 font-semibold">Role</th>
+                          <th className="py-4 px-4 font-semibold">Group</th>
+                          <th className="py-4 px-4 font-semibold">Status</th>
+                          <th className="py-4 px-4 font-semibold">Lock</th>
+                          <th className="py-4 px-4 font-semibold">Joined</th>
+                          <th className="py-4 px-6 text-right font-semibold">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+
+                      <tbody className="divide-y divide-border text-[14px]">
+                        <AnimatePresence initial={false}>
+                          {filteredUsers.length > 0 ? (
+                            filteredUsers.map((user) => (
+                              <motion.tr
+                                key={user.id}
+                                layoutId={`user-row-${user.id}`}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className={`hover:bg-muted/40 transition-colors ${
+                                  user.locked ? "bg-muted/20" : ""
+                                }`}
+                              >
+                                {/* Name Column */}
+                                <td className="py-4 px-6 font-bold text-foreground">
+                                  <div className="flex items-center gap-3">
+                                    <div
+                                      className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center font-bold text-xs ${
+                                        user.locked
+                                          ? "bg-muted text-muted-foreground"
+                                          : "bg-primary/10 text-primary"
+                                      }`}
+                                    >
+                                      {user.name
+                                        .split(" ")
+                                        .map((n) => n[0])
+                                        .join("")
+                                        .substring(0, 2)
+                                        .toUpperCase()}
+                                    </div>
+                                    <span
+                                      className={
+                                        user.locked
+                                          ? "line-through text-muted-foreground font-medium"
+                                          : ""
+                                      }
+                                    >
+                                      {user.name}
+                                    </span>
+                                  </div>
+                                </td>
+
+                                {/* Email Column */}
+                                <td className="py-4 px-4 text-muted-foreground font-medium">
+                                  {user.email}
+                                </td>
+
+                                {/* Phone Column */}
+                                <td className="py-4 px-4 text-muted-foreground tabular-nums">
+                                  {user.phone}
+                                </td>
+
+                                {/* Role Badge */}
+                                <td className="py-4 px-4">
+                                  <span className="inline-flex items-center justify-center bg-muted text-muted-foreground font-bold text-[11px] px-2.5 py-0.5 rounded-md tracking-wider">
+                                    {user.role}
+                                  </span>
+                                </td>
+
+                                {/* Group Badge */}
+                                <td className="py-4 px-4">
+                                  <span className="inline-flex items-center justify-center bg-primary/10 text-primary font-bold text-[11px] px-2.5 py-1 rounded-full tracking-wider border border-primary/20">
+                                    {user.group}
+                                  </span>
+                                </td>
+
+                                {/* Status Badge */}
+                                <td className="py-4 px-4">
+                                  <span
+                                    className={`inline-flex items-center justify-center font-bold text-[11px] px-3 py-1 rounded-full ${
+                                      user.status === "Active"
+                                        ? "bg-primary text-primary-foreground"
+                                        : "bg-muted text-muted-foreground"
+                                    }`}
+                                  >
+                                    {user.status}
+                                  </span>
+                                </td>
+
+                                {/* Lock Toggle Action & View */}
+                                <td className="py-4 px-4">
+                                  <button
+                                    onClick={() =>
+                                      handleToggleLock(user.id, user.locked)
+                                    }
+                                    title={
+                                      user.locked
+                                        ? "Click to unlock user account"
+                                        : "Click to lock user account"
+                                    }
+                                    className={`flex items-center gap-1.5 font-medium transition-colors group ${
+                                      user.locked
+                                        ? "text-rose-500 hover:text-rose-600"
+                                        : "text-muted-foreground hover:text-foreground"
+                                    }`}
+                                  >
+                                    {user.locked ? (
+                                      <>
+                                        <Lock
+                                          size={14}
+                                          className="stroke-[2.5]"
+                                        />
+                                        <span className="text-xs font-semibold">
+                                          Locked
+                                        </span>
+                                      </>
+                                    ) : (
+                                      <span className="text-muted-foreground font-semibold group-hover:text-foreground">
+                                        —
+                                      </span>
+                                    )}
+                                  </button>
+                                </td>
+
+                                {/* Joined Date */}
+                                <td className="py-4 px-4 text-muted-foreground font-medium">
+                                  {user.joined}
+                                </td>
+
+                                {/* Actions */}
+                                <td className="py-4 px-6 text-right">
+                                  <TableActionMenu
+                                    items={[
+                                      {
+                                        label: "Edit",
+                                        icon: (
+                                          <PencilLine
+                                            size={13}
+                                            className="stroke-[2.5]"
+                                          />
+                                        ),
+                                        onClick: () =>
+                                          handleEditUserClick(user),
+                                      },
+                                      {
+                                        label: "Delete",
+                                        icon: <Trash2 size={13} />,
+                                        onClick: () => setDeletingUser(user),
+                                        variant: "danger",
+                                        separator: true,
+                                      },
+                                    ]}
+                                  />
+                                </td>
+                              </motion.tr>
+                            ))
+                          ) : (
+                            <tr key="no-results-row">
+                              <td
+                                colSpan={9}
+                                className="py-12 text-center text-muted-foreground bg-muted/10"
+                              >
+                                <div className="flex flex-col items-center justify-center gap-2">
+                                  <AlertTriangle
+                                    className="text-muted-foreground/40"
+                                    size={32}
+                                  />
+                                  <p className="font-semibold text-foreground">
+                                    No users found
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    Try modifying your search or add a new user.
+                                  </p>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </AnimatePresence>
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  /* Premium, majestic full-card empty state when there are 0 users in the entire list */
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.35 }}
+                    className="py-20 px-8 text-center flex flex-col items-center justify-center max-w-xl mx-auto"
+                  >
+                    {/* Majestic SVG Onboarding Graphic */}
+                    <div className="w-52 h-52 mb-6">
+                      <svg viewBox="0 0 200 200" className="w-full h-full">
+                        {/* Subtle Background Rings */}
+                        <circle
+                          cx="100"
+                          cy="100"
+                          r="80"
+                          className="stroke-slate-100/70 stroke-2 fill-none"
+                          strokeDasharray="6 6"
+                        />
+                        <circle
+                          cx="100"
+                          cy="100"
+                          r="60"
+                          className="fill-indigo-50/30"
+                        />
+
+                        {/* Modern abstract dashboard user icons with connecting lines */}
+                        <line
+                          x1="60"
+                          y1="120"
+                          x2="100"
+                          y2="80"
+                          className="stroke-slate-200 stroke-2"
+                        />
+                        <line
+                          x1="140"
+                          y1="120"
+                          x2="100"
+                          y2="80"
+                          className="stroke-slate-200 stroke-2"
+                        />
+
+                        {/* Main Avatar Center */}
+                        <circle
+                          cx="100"
+                          cy="80"
+                          r="22"
+                          className="fill-[#131553] shadow-md"
+                        />
+                        <path
+                          d="M82 120 C 82 105, 118 105, 118 120"
+                          className="fill-[#131553]"
+                        />
+
+                        {/* Auxiliary Left Avatar */}
+                        <circle
+                          cx="60"
+                          cy="120"
+                          r="14"
+                          className="fill-[#e3e6fc]"
+                        />
+                        <path
+                          d="M48 145 C 48 135, 72 135, 72 145"
+                          className="fill-[#e3e6fc]"
+                        />
+
+                        {/* Auxiliary Right Avatar */}
+                        <circle
+                          cx="140"
+                          cy="120"
+                          r="14"
+                          className="fill-[#e3e6fc]"
+                        />
+                        <path
+                          d="M128 145 C 128 135, 152 135, 152 145"
+                          className="fill-[#e3e6fc]"
+                        />
+
+                        {/* Pulsing Accent Rings */}
+                        <circle
+                          cx="100"
+                          cy="80"
+                          r="32"
+                          className="stroke-indigo-200 stroke-[1.5] fill-none"
+                        />
+                      </svg>
+                    </div>
+
+                    <h3 className="text-xl md:text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight">
+                      Your Directory is Empty
+                    </h3>
+                    <p className="text-sm md:text-md text-muted-foreground mt-2.5 max-w-sm leading-relaxed">
+                      Unlock full control by listing and administering
+                      operators, retailers, and system administrators under a
+                      single dashboard control panel.
+                    </p>
+
+                    <button
+                      onClick={handleAddUserClick}
+                      className="mt-6 inline-flex items-center gap-2 rounded-sm bg-primary px-4 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all duration-200 cursor-pointer transform active:scale-95 group"
+                    >
+                      <Plus
+                        size={16}
+                        className="stroke-[3] transition-transform group-hover:rotate-90 duration-300"
+                      />
+                      <span>Create Your First User</span>
+                    </button>
+                  </motion.div>
+                )}
+
+                {/* Footer of user summary inside listing box */}
+                <div className="bg-muted/60 px-6 py-4 border-t border-border text-xs text-muted-foreground flex items-center justify-between font-medium">
+                  <span>
+                    Showing {filteredUsers.length} of {users.length} total
+                    entries
+                  </span>
+                  <span>Active Dashboard Control Suite</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Add / Edit User Modal */}
+            <Modal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              title={editingUser ? "Edit User Details" : "Add New User"}
+              description={
+                editingUser
+                  ? "Update account parameters and credentials."
+                  : "Create a fresh system-level operator record."
+              }
+              icon={
+                editingUser ? (
+                  <PencilLine size={18} className="stroke-[2.5]" />
+                ) : (
+                  <UserPlusIcon size={18} />
+                )
+              }
+              maxWidth="lg"
+              footer={
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    className="px-4 py-3 text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm text-sm font-semibold transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    form="user-add-edit-form"
+                    className="px-5 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-sm text-sm font-semibold transition-all shadow-sm active:scale-95"
+                  >
+                    {editingUser ? "Save Changes" : "Create User"}
+                  </button>
+                </>
+              }
+            >
+              <form id="user-add-edit-form" onSubmit={handleFormSubmit}>
                 <div className="p-6 space-y-4">
                   {/* Name Input */}
                   <div>
@@ -796,9 +797,8 @@ export function UsersView() {
                     )}
                   </div>
 
-                  {/* Grid layout for Phone & Role */}
+                  {/* Grid: Phone & Role */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Phone Input */}
                     <div>
                       <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
                         Phone Number <span className="text-rose-500">*</span>
@@ -828,7 +828,6 @@ export function UsersView() {
                       )}
                     </div>
 
-                    {/* Role Dropdown */}
                     <div>
                       <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
                         System Role
@@ -851,9 +850,8 @@ export function UsersView() {
                     </div>
                   </div>
 
-                  {/* Grid layout for Group & Status */}
+                  {/* Grid: Group & Status */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Group Select */}
                     <div>
                       <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
                         Commercial Group
@@ -875,7 +873,6 @@ export function UsersView() {
                       </select>
                     </div>
 
-                    {/* Status Radio / Select */}
                     <div>
                       <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
                         Initial Status
@@ -911,7 +908,7 @@ export function UsersView() {
                     </div>
                   </div>
 
-                  {/* Quick Toggle: Locked State */}
+                  {/* Lock Toggle */}
                   <div className="p-3 bg-muted/50 rounded-xl flex items-center justify-between border border-border mt-2">
                     <div className="flex items-center gap-2.5">
                       <div
@@ -955,92 +952,47 @@ export function UsersView() {
                     </button>
                   </div>
                 </div>
+              </form>
+            </Modal>
 
-                {/* Form Actions Footer */}
-                <div className="px-6 py-4 bg-muted/40 border-t border-border flex items-center justify-end gap-3">
+            {/* Delete Confirmation Modal */}
+            <Modal
+              isOpen={!!deletingUser}
+              onClose={() => setDeletingUser(null)}
+              title="Remove Account Operator?"
+              description={
+                <>
+                  Are you sure you want to delete{" "}
+                  <strong className="text-foreground font-bold">
+                    {deletingUser?.name}
+                  </strong>
+                  ? All parameters, associations, and credentials will be
+                  permanently erased. This cannot be undone.
+                </>
+              }
+              icon={<HelpCircle size={20} />}
+              iconVariant="danger"
+              maxWidth="md"
+              footer={
+                <>
                   <button
                     type="button"
-                    onClick={() => setIsModalOpen(false)}
-                    className="px-4 py-3 text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm text-sm font-semibold transition-all"
+                    onClick={() => setDeletingUser(null)}
+                    className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm text-sm font-semibold transition-all"
                   >
-                    Cancel
+                    Keep Account
                   </button>
                   <button
-                    type="submit"
-                    className="px-5 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-sm text-sm font-semibold transition-all shadow-sm active:scale-95"
+                    type="button"
+                    onClick={handleConfirmDelete}
+                    className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-sm text-sm font-semibold transition-all active:scale-95"
                   >
-                    {editingUser ? "Save Changes" : "Create User"}
+                    Yes, Delete User
                   </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* Real Premium Framer-Motion Animated Custom Deletion Confirmation Dialog */}
-      <AnimatePresence>
-        {deletingUser && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center px-4 overflow-y-auto">
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setDeletingUser(null)}
-              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40"
+                </>
+              }
             />
-
-            {/* Confirmation Dialog Box */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              transition={{ type: "spring", stiffness: 400, damping: 28 }}
-              className="bg-card rounded-2xl w-full max-w-md shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-border overflow-hidden relative z-50"
-            >
-              <div className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-500 shrink-0">
-                    <HelpCircle size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-foreground">
-                      Remove Account Operator?
-                    </h3>
-                    <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">
-                      Are you sure you want to delete{" "}
-                      <strong className="text-foreground font-bold">
-                        {deletingUser.name}
-                      </strong>
-                      ? All parameters, associations, and credentials will be
-                      permanently erased. This cannot be undone.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="px-6 py-4 bg-muted/40 border-t border-border flex items-center justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setDeletingUser(null)}
-                  className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm text-sm font-semibold transition-all"
-                >
-                  Keep Account
-                </button>
-                <button
-                  type="button"
-                  onClick={handleConfirmDelete}
-                  className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-sm text-sm font-semibold transition-all active:scale-95"
-                >
-                  Yes, Delete User
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-    </>
+          </>
         </motion.div>
       )}
     </AnimatePresence>
