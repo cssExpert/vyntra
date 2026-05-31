@@ -399,12 +399,13 @@ export function UsersView() {
   ): React.CSSProperties => {
     const isPinned = column.getIsPinned();
     const isLastLeft = isPinned === "left" && column.getIsLastColumn("left");
-    const isFirstRight = isPinned === "left" && column.getIsFirstColumn("left");
+    const isFirstRight =
+      isPinned === "right" && column.getIsFirstColumn("right");
 
     return {
       position: isPinned ? "sticky" : undefined,
       left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
-      // right: isPinned === "left" ? `${column.getAfter("left")}px` : undefined,
+      right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
       zIndex: isPinned ? 2 : undefined,
       backgroundColor: isPinned ? "hsl(var(--card))" : undefined,
       boxShadow:
