@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { UsersPageSkeleton } from "@/components/common/DashboardSkeleton";
@@ -85,6 +85,17 @@ export interface FormErrors {
 const INITIAL_USERS: User[] = [
   {
     id: "1",
+    name: "Ravi Gupta",
+    email: "ravigupts.exe@gmail.com",
+    phone: "9811366107",
+    role: "USER",
+    group: "RETAILER",
+    status: "Active",
+    locked: false,
+    joined: "27 May 2026",
+  },
+  {
+    id: "2",
     name: "Vasudev Sharma",
     email: "vasu14082@gmail.com",
     phone: "8976352629",
@@ -95,20 +106,9 @@ const INITIAL_USERS: User[] = [
     joined: "27 May 2026",
   },
   {
-    id: "2",
-    name: "Arjun Mehta",
-    email: "arjun.mehta@nexus.com",
-    phone: "9812345670",
-    role: "ADMIN",
-    group: "DISTRIBUTOR",
-    status: "Active",
-    locked: false,
-    joined: "14 Feb 2026",
-  },
-  {
     id: "3",
-    name: "Samantha Reed",
-    email: "samantha.r@retailco.org",
+    name: "Simaranjeet Singh",
+    email: "simranjeet1012@gmail.com",
     phone: "7654321098",
     role: "USER",
     group: "RETAILER",
@@ -194,6 +194,7 @@ export function UsersView() {
     () => [
       columnHelper.accessor("name", {
         header: "Name",
+        size: 210,
         cell: ({ row }) => {
           const user = row.original;
           return (
@@ -227,15 +228,18 @@ export function UsersView() {
       }),
       columnHelper.accessor("email", {
         header: "Email",
+        size: 230,
         cell: ({ getValue }) => getValue(),
       }),
       columnHelper.accessor("phone", {
         header: "Phone",
+        size: 150,
         enableSorting: false,
         cell: ({ getValue }) => getValue(),
       }),
       columnHelper.accessor("role", {
         header: "Role",
+        size: 110,
         cell: ({ getValue }) => (
           <span className="inline-flex items-center justify-center bg-muted text-muted-foreground font-bold text-[11px] px-2.5 py-0.5 rounded-md tracking-wider">
             {getValue()}
@@ -244,6 +248,7 @@ export function UsersView() {
       }),
       columnHelper.accessor("group", {
         header: "Group",
+        size: 130,
         cell: ({ getValue }) => (
           <span className="inline-flex items-center justify-center bg-primary/10 text-primary font-bold text-[11px] px-2.5 py-1 rounded-full tracking-wider border border-primary/20">
             {getValue()}
@@ -252,6 +257,7 @@ export function UsersView() {
       }),
       columnHelper.accessor("status", {
         header: "Status",
+        size: 110,
         cell: ({ getValue }) => {
           const status = getValue();
           return (
@@ -269,6 +275,7 @@ export function UsersView() {
       }),
       columnHelper.accessor("locked", {
         header: "Lock",
+        size: 110,
         enableSorting: false,
         cell: ({ row }) => {
           const user = row.original;
@@ -302,12 +309,14 @@ export function UsersView() {
       }),
       columnHelper.accessor("joined", {
         header: "Joined",
+        size: 140,
         enableSorting: false,
         cell: ({ getValue }) => getValue(),
       }),
       columnHelper.display({
         id: "actions",
         header: "Actions",
+        size: 80,
         cell: ({ row }) => {
           const user = row.original;
           return (
@@ -343,29 +352,34 @@ export function UsersView() {
   });
 
   // Scroll-aware pinned-column shadow
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  // Use state-backed ref so the effect fires only once the element is in the DOM.
+  // useRef + [isLoaded] is too early — AnimatePresence mode="wait" mounts the
+  // content asynchronously after the skeleton's exit animation, so the ref is
+  // still null when isLoaded flips. A ref callback guarantees DOM presence.
+  const [scrollEl, setScrollEl] = useState<HTMLDivElement | null>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
   useEffect(() => {
-    const el = scrollContainerRef.current;
-    if (!el) return;
+    if (!scrollEl) return;
 
     const update = () => {
-      setCanScrollLeft(el.scrollLeft > 0);
-      setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 1);
+      setCanScrollLeft(scrollEl.scrollLeft > 0);
+      setCanScrollRight(
+        scrollEl.scrollLeft < scrollEl.scrollWidth - scrollEl.clientWidth - 1,
+      );
     };
 
     update();
-    el.addEventListener("scroll", update, { passive: true });
+    scrollEl.addEventListener("scroll", update, { passive: true });
     const ro = new ResizeObserver(update);
-    ro.observe(el);
+    ro.observe(scrollEl);
 
     return () => {
-      el.removeEventListener("scroll", update);
+      scrollEl.removeEventListener("scroll", update);
       ro.disconnect();
     };
-  }, [isLoaded]); // re-run after usePageLoad reveals the table in DOM
+  }, [scrollEl]);
 
   const table = useReactTable({
     data: users,
@@ -385,15 +399,14 @@ export function UsersView() {
   ): React.CSSProperties => {
     const isPinned = column.getIsPinned();
     const isLastLeft = isPinned === "left" && column.getIsLastColumn("left");
-    const isFirstRight =
-      isPinned === "right" && column.getIsFirstColumn("right");
+    const isFirstRight = isPinned === "left" && column.getIsFirstColumn("left");
 
     return {
       position: isPinned ? "sticky" : undefined,
       left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
-      right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
+      // right: isPinned === "left" ? `${column.getAfter("left")}px` : undefined,
       zIndex: isPinned ? 2 : undefined,
-      backgroundColor: isPinned ? "var(--card)" : undefined,
+      backgroundColor: isPinned ? "hsl(var(--card))" : undefined,
       boxShadow:
         isLastLeft && canScrollLeft
           ? "4px 0 6px -2px rgba(0,0,0,0.08)"
@@ -624,8 +637,11 @@ export function UsersView() {
               {/* Main Users Table Board Container */}
               <div className="bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden">
                 {users.length > 0 ? (
-                  <div ref={scrollContainerRef} className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
+                  <div ref={setScrollEl} className="overflow-x-auto">
+                    <table
+                      className="text-left border-collapse"
+                      style={{ tableLayout: "fixed", minWidth: "1280px" }}
+                    >
                       <thead>
                         {table.getHeaderGroups().map((headerGroup) => (
                           <tr
@@ -652,7 +668,10 @@ export function UsersView() {
                                         ? "py-4 px-6"
                                         : "py-4 px-4"
                                   } ${canSort ? "cursor-pointer hover:text-foreground transition-colors" : ""}`}
-                                  style={getCommonPinningStyles(header.column)}
+                                  style={{
+                                    ...getCommonPinningStyles(header.column),
+                                    width: header.getSize(),
+                                  }}
                                 >
                                   <div
                                     className={`flex items-center gap-1 ${isActions ? "justify-end" : ""}`}
@@ -722,9 +741,12 @@ export function UsersView() {
                                       <td
                                         key={cell.id}
                                         className={tdCls}
-                                        style={getCommonPinningStyles(
-                                          cell.column,
-                                        )}
+                                        style={{
+                                          ...getCommonPinningStyles(
+                                            cell.column,
+                                          ),
+                                          width: cell.column.getSize(),
+                                        }}
                                       >
                                         {flexRender(
                                           cell.column.columnDef.cell,

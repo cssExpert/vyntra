@@ -48,6 +48,8 @@
     --font-inter: "Inter", sans-serif;
     --font-plus-jakarta: "Plus Jakarta Sans", sans-serif;
     --font-jetbrains: "JetBrains Mono", monospace;
+
+    --table-card: #fff;
   }
 
   .dark {
@@ -87,6 +89,8 @@
     --sidebar-hover: 0 0% 18%; /* #2E2E2E */
     --sidebar-active: 0 0% 25%; /* #404040 */
     --sidebar-active-text: 0 0% 100%;
+
+    --table-card: rgba(15, 15, 15, 1);
 
     .bg-mesh {
       background-color: rgba(15, 15, 15, 1);
