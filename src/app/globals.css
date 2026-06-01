@@ -606,3 +606,30 @@
   pointer-events: none;
   color: hsl(var(--muted-foreground));
 }
+
+/* Device Preview */
+.device-preview {
+  background-image:
+    radial-gradient(at 40% 20%, rgba(55, 88, 249, 0.015) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, rgba(100, 118, 251, 0.1) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, rgba(6, 182, 212, 0.08) 0px, transparent 50%);
+}
+.table-container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  margin: 0.75rem 0;
+}
+/* Grow to content width (so wide tables scroll), but fill the container when
+   the table is narrow. This is what enables horizontal scroll on mobile. */
+.device-preview .table-container table {
+  border-collapse: collapse;
+  width: max-content;
+  min-width: 100%;
+  margin: 0;
+}
+.device-preview .table-container th,
+.device-preview .table-container td {
+  white-space: nowrap;
+}

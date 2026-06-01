@@ -19,12 +19,28 @@ export interface DevicePreviewModalProps {
   form: BlogFormState;
 }
 
+// Wrap every <table> in a horizontally-scrollable container so wide tables
+// scroll on narrow (mobile/tablet) preview widths instead of overflowing.
+function wrapTables(html: string): string {
+  return html
+    .replace(
+      /<table/g,
+      '<div class="table-container"><table class="device-preview"',
+    )
+    .replace(/<\/table>/g, "</table></div>");
+}
+
 export function DevicePreviewModal({
   isOpen,
   onClose,
   form,
 }: DevicePreviewModalProps) {
   const [device, setDevice] = useState<Device>("desktop");
+
+  const articleHtml = wrapTables(
+    form.content ||
+      "<p class='text-muted-foreground italic'>Start writing to preview your article…</p>",
+  );
 
   return (
     <AnimatePresence>
@@ -88,7 +104,7 @@ export function DevicePreviewModal({
                     : "max-w-xs"
               }`}
             >
-              <div className="rounded-2xl border border-border bg-card shadow-2xl overflow-hidden my-4">
+              <div className="device-preview rounded-2xl border border-border bg-card shadow-2xl overflow-hidden my-4">
                 {/* Browser chrome */}
                 <div className="px-4 py-2 bg-muted border-b border-border flex items-center gap-2 text-[10px] text-muted-foreground font-mono">
                   <div className="flex gap-1 shrink-0">
@@ -130,11 +146,7 @@ export function DevicePreviewModal({
                   <hr className="border-border" />
                   <div
                     className="tiptap max-w-none"
-                    dangerouslySetInnerHTML={{
-                      __html:
-                        form.content ||
-                        "<p class='text-muted-foreground italic'>Start writing to preview your article…</p>",
-                    }}
+                    dangerouslySetInnerHTML={{ __html: articleHtml }}
                   />
                 </div>
               </div>
