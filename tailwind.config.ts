@@ -12,15 +12,6 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      // Tailwind's default opacity scale is multiples of 5, so modifiers like
-      // `border-white/8`, `bg-card/8`, and `bg-success/12` are silently dropped
-      // (they render fully transparent). These tints are used across the editor,
-      // template thumbnails, and status colors — add the steps they rely on.
-      opacity: {
-        6: "0.06",
-        8: "0.08",
-        12: "0.12",
-      },
       fontFamily: {
         sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
         mono: ["var(--font-jetbrains)", "JetBrains Mono", "monospace"],

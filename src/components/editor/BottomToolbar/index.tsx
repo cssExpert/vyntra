@@ -456,7 +456,7 @@ export default function BottomToolbar() {
           {nodes.length > 0 && (
             <button
               onClick={() => setShowClearConfirm(true)}
-              className="px-2.5 py-1 rounded text-xs transition-colors text-muted-foreground dark:text-muted-foreground hover:text-red-400 hover:bg-red-500/8"
+              className="px-2.5 py-1 rounded text-xs transition-colors text-muted-foreground dark:text-muted-foreground hover:text-red-400 hover:bg-red-500/10"
             >
               Clear
             </button>

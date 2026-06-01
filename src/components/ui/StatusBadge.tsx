@@ -20,12 +20,12 @@ interface StatusBadgeProps {
 // Light-mode text uses darker semantic shades to pass WCAG AA (4.5:1) on tinted bg.
 // Dark-mode overrides restore the vivid color since the tinted bg is nearly black.
 const variantStyles: Record<BadgeVariant, string> = {
-  default: "bg-primary/12 text-blue-700   dark:text-primary    border-primary/20",
-  success: "bg-success/12 text-green-800  dark:text-success    border-success/20",
-  warning: "bg-warning/12 text-amber-800  dark:text-warning    border-warning/20",
-  error:   "bg-error/12   text-red-700    dark:text-error      border-error/20",
-  info:    "bg-info/12    text-cyan-800   dark:text-info       border-info/20",
-  purple:  "bg-purple-500/12 text-purple-800 dark:text-purple-400 border-purple-500/20",
+  default: "bg-primary/10 text-blue-700   dark:text-primary    border-primary/20",
+  success: "bg-success/10 text-green-800  dark:text-success    border-success/20",
+  warning: "bg-warning/10 text-amber-800  dark:text-warning    border-warning/20",
+  error:   "bg-error/10   text-red-700    dark:text-error      border-error/20",
+  info:    "bg-info/10    text-cyan-800   dark:text-info       border-info/20",
+  purple:  "bg-purple-500/10 text-purple-800 dark:text-purple-400 border-purple-500/20",
   muted:   "bg-muted text-muted-foreground border-border",
 };
 

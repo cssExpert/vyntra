@@ -33,7 +33,7 @@ export function ExportDropdown() {
           "flex items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-medium",
           "transition-all duration-150 cursor-pointer",
           isOpen
-            ? "border-primary/50 bg-primary/8 text-primary"
+            ? "border-primary/50 bg-primary/10 text-primary"
             : "border-border text-muted-foreground hover:text-foreground hover:bg-muted",
         )}
       >

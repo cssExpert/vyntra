@@ -135,7 +135,7 @@ export function FilterPopover({
           "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium border",
           "transition-all duration-150 cursor-pointer",
           isOpen || activeCount > 0
-            ? "border-primary/50 bg-primary/8 text-primary"
+            ? "border-primary/50 bg-primary/10 text-primary"
             : "border-border text-primary hover:bg-muted",
         )}
       >

@@ -75,7 +75,7 @@ export function CRMToolbar({
 
       <div className="h-6 w-px bg-border" />
 
-      <button className="flex items-center gap-1.5 rounded-xl border border-border bg-primary/8 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/15 transition-colors cursor-pointer">
+      <button className="flex items-center gap-1.5 rounded-xl border border-border bg-primary/10 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/15 transition-colors cursor-pointer">
         <SlidersHorizontal className="h-3.5 w-3.5" />
         Filters
       </button>

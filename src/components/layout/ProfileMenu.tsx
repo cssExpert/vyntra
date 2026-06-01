@@ -158,7 +158,7 @@ export function ProfileMenu() {
           "flex items-center gap-2 rounded-lg border px-3 py-1.5",
           "transition-all duration-200 cursor-pointer",
           isOpen
-            ? "border-primary/40 bg-primary/8 text-foreground"
+            ? "border-primary/40 bg-primary/10 text-foreground"
             : "border-border bg-muted/50 hover:bg-muted text-foreground",
         )}
       >
@@ -279,7 +279,7 @@ export function ProfileMenu() {
                   className={cn(
                     "group flex w-full items-center gap-3 px-4 py-2.5 rounded-md",
                     "text-sm font-medium text-error",
-                    "hover:bg-error/8 transition-all duration-150 cursor-pointer",
+                    "hover:bg-error/10 transition-all duration-150 cursor-pointer",
                   )}
                 >
                   <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-sm bg-error/10 text-error group-hover:bg-error/20 transition-colors duration-150">

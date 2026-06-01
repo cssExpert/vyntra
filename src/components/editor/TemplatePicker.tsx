@@ -739,7 +739,7 @@ function buildFlorent(): EditorNode[] {
   return [
     buildHeader(
       "FLORENT",
-      "bg-black border-b border-white/8",
+      "bg-black border-b border-white/10",
       "text-white",
       "text-muted-foreground",
       "border border-white/20 text-white hover:bg-card/10",
@@ -770,7 +770,7 @@ function buildFlorent(): EditorNode[] {
           icon: "◼",
           title: "Art Direction",
           desc: "Strategic creative direction that shapes how your brand looks, feels, and speaks.",
-          cardCls: "bg-foreground border border-white/8",
+          cardCls: "bg-foreground border border-white/10",
           iconBg: "bg-orange-500/20",
           titleCls: "text-white",
           descCls: "text-muted-foreground",
@@ -779,7 +779,7 @@ function buildFlorent(): EditorNode[] {
           icon: "◼",
           title: "Web Design",
           desc: "Immersive digital experiences built with intention and sharp attention to detail.",
-          cardCls: "bg-foreground border border-white/8",
+          cardCls: "bg-foreground border border-white/10",
           iconBg: "bg-orange-500/20",
           titleCls: "text-white",
           descCls: "text-muted-foreground",
@@ -788,7 +788,7 @@ function buildFlorent(): EditorNode[] {
           icon: "◼",
           title: "Motion & Film",
           desc: "Cinematic motion design that brings your brand story to life.",
-          cardCls: "bg-foreground border border-white/8",
+          cardCls: "bg-foreground border border-white/10",
           iconBg: "bg-orange-500/20",
           titleCls: "text-white",
           descCls: "text-muted-foreground",
@@ -800,7 +800,7 @@ function buildFlorent(): EditorNode[] {
       "bg-foreground",
       "What Clients Say",
       "text-white",
-      "bg-foreground border border-white/8",
+      "bg-foreground border border-white/10",
       "text-muted-foreground",
       "text-white",
       "text-muted-foreground",
@@ -985,7 +985,7 @@ function buildTalentify(): EditorNode[] {
   return [
     buildHeader(
       "Talentify",
-      "bg-primary border-b border-white/8",
+      "bg-primary border-b border-white/10",
       "text-white",
       "text-primary",
       "bg-primary hover:bg-primary text-white",
@@ -1253,7 +1253,7 @@ function buildPixend(): EditorNode[] {
   return [
     buildHeader(
       "Pixend",
-      "bg-blue-950 border-b border-white/8",
+      "bg-blue-950 border-b border-white/10",
       "text-white",
       "text-blue-300",
       "bg-blue-500 hover:bg-blue-400 text-white",
@@ -1384,10 +1384,10 @@ function buildPortfolite(): EditorNode[] {
   return [
     buildHeader(
       "PORTFOLITE",
-      "bg-black border-b border-white/8",
+      "bg-black border-b border-white/10",
       "text-white",
       "text-muted-foreground",
-      "border border-white/20 text-white hover:bg-card/8",
+      "border border-white/20 text-white hover:bg-card/10",
       ["Work", "Agency", "Insights"],
       "Start a Project",
     ),
@@ -1401,7 +1401,7 @@ function buildPortfolite(): EditorNode[] {
       "text-muted-foreground",
       "bg-card text-foreground hover:bg-muted",
       "Our Work",
-      "border border-white/20 text-white hover:bg-card/8",
+      "border border-white/20 text-white hover:bg-card/10",
       "Get in Touch",
     ),
     buildFeatured(
@@ -1415,8 +1415,8 @@ function buildPortfolite(): EditorNode[] {
           icon: "▲",
           title: "Branding",
           desc: "Strategy-first brand identities that position you as a category leader.",
-          cardCls: "bg-foreground border border-white/8",
-          iconBg: "bg-card/8",
+          cardCls: "bg-foreground border border-white/10",
+          iconBg: "bg-card/10",
           titleCls: "text-white",
           descCls: "text-muted-foreground",
         },
@@ -1424,8 +1424,8 @@ function buildPortfolite(): EditorNode[] {
           icon: "▲",
           title: "Web Design",
           desc: "Websites that stop the scroll and convert attention into action.",
-          cardCls: "bg-foreground border border-white/8",
-          iconBg: "bg-card/8",
+          cardCls: "bg-foreground border border-white/10",
+          iconBg: "bg-card/10",
           titleCls: "text-white",
           descCls: "text-muted-foreground",
         },
@@ -1433,8 +1433,8 @@ function buildPortfolite(): EditorNode[] {
           icon: "▲",
           title: "Campaigns",
           desc: "Integrated creative campaigns across digital, print, and beyond.",
-          cardCls: "bg-foreground border border-white/8",
-          iconBg: "bg-card/8",
+          cardCls: "bg-foreground border border-white/10",
+          iconBg: "bg-card/10",
           titleCls: "text-white",
           descCls: "text-muted-foreground",
         },
@@ -1450,7 +1450,7 @@ function buildPortfolite(): EditorNode[] {
       "bg-black",
       "From Our Clients",
       "text-white",
-      "bg-foreground border border-white/8",
+      "bg-foreground border border-white/10",
       "text-muted-foreground",
       "text-white",
       "text-muted-foreground",
@@ -1515,7 +1515,7 @@ function buildFinito(): EditorNode[] {
   return [
     buildHeader(
       "Finito",
-      "bg-blue-950 border-b border-white/8",
+      "bg-blue-950 border-b border-white/10",
       "text-white",
       "text-blue-300",
       "bg-card text-blue-950 hover:bg-blue-50",
@@ -1638,7 +1638,7 @@ function buildLimitless(): EditorNode[] {
   return [
     buildHeader(
       "Limitless",
-      "bg-violet-950 border-b border-white/8",
+      "bg-violet-950 border-b border-white/10",
       "text-white",
       "text-violet-300",
       "bg-violet-500 hover:bg-violet-400 text-white",
@@ -1769,7 +1769,7 @@ function buildMagnetto(): EditorNode[] {
   return [
     buildHeader(
       "MAGNETTO",
-      "bg-black border-b border-white/8",
+      "bg-black border-b border-white/10",
       "text-amber-400",
       "text-muted-foreground",
       "border border-amber-400/40 text-amber-400 hover:bg-amber-400/10",
@@ -1786,7 +1786,7 @@ function buildMagnetto(): EditorNode[] {
       "text-muted-foreground",
       "bg-amber-400 text-black hover:bg-amber-300 font-bold",
       "View Work",
-      "border border-white/20 text-white hover:bg-card/8",
+      "border border-white/20 text-white hover:bg-card/10",
       "Get in Touch",
     ),
     buildFeatured(
@@ -2437,7 +2437,7 @@ function PageThumbnail({ theme }: { theme: ThumbnailTheme }) {
           >
             <div className="w-3 h-3 rounded bg-black/10 dark:bg-card/10 mb-0.5" />
             <div className="h-1 w-3/4 rounded bg-black/15 dark:bg-card/15" />
-            <div className="h-1 w-full rounded bg-black/8 dark:bg-card/8" />
+            <div className="h-1 w-full rounded bg-black/10 dark:bg-card/10" />
           </div>
         ))}
       </div>
@@ -2520,13 +2520,13 @@ export default function TemplatePicker({ open, onClose }: TemplatePickerProps) {
         flex flex-col bg-card rounded-2xl shadow-2xl overflow-hidden"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-7 py-5 border-b border-border dark:border-white/8 shrink-0">
+      <div className="flex items-center justify-between px-7 py-5 border-b border-border dark:border-white/10 shrink-0">
         <MotionModalTitle className="text-lg font-semibold text-foreground dark:text-white">
           Pick a Template
         </MotionModalTitle>
         <MotionModalClose
           className="p-1.5 rounded-lg text-muted-foreground hover:text-muted-foreground hover:bg-muted
-            dark:text-muted-foreground dark:hover:text-muted-foreground dark:hover:bg-card/8 transition-colors"
+            dark:text-muted-foreground dark:hover:text-muted-foreground dark:hover:bg-card/10 transition-colors"
         >
           <X className="w-4 h-4" />
         </MotionModalClose>
@@ -2535,7 +2535,7 @@ export default function TemplatePicker({ open, onClose }: TemplatePickerProps) {
           {/* Body */}
           <div className="flex flex-1 min-h-0">
             {/* Sidebar */}
-            <aside className="w-52 shrink-0 flex flex-col border-r border-border dark:border-white/8 p-5">
+            <aside className="w-52 shrink-0 flex flex-col border-r border-border dark:border-white/10 p-5">
               <nav className="flex flex-col gap-0.5 flex-1">
                 {categories.map((cat) => (
                   <button
@@ -2545,7 +2545,7 @@ export default function TemplatePicker({ open, onClose }: TemplatePickerProps) {
                       "text-left px-3 py-2 rounded-sm text-sm transition-colors",
                       activeCategory === cat
                         ? "bg-muted dark:bg-card/10 text-foreground dark:text-white font-medium"
-                        : "text-muted-foreground dark:text-muted-foreground hover:text-foreground dark:hover:text-white hover:bg-muted dark:hover:bg-card/6",
+                        : "text-muted-foreground dark:text-muted-foreground hover:text-foreground dark:hover:text-white hover:bg-muted dark:hover:bg-card/5",
                     )}
                   >
                     {cat === "All" ? "All Templates" : cat}
@@ -2556,7 +2556,7 @@ export default function TemplatePicker({ open, onClose }: TemplatePickerProps) {
                 onClick={onClose}
                 className="mt-4 flex items-center justify-center gap-2 px-4 py-2.5 rounded-sm border border-border shadow-xs dark:border-white/10
                   text-sm font-medium text-muted-foreground dark:text-muted-foreground
-                  hover:bg-muted dark:hover:bg-card/6 transition-colors text-left"
+                  hover:bg-muted dark:hover:bg-card/5 transition-colors text-left"
               >
                 <LayersPlus className="w-4 h-4" />
                 Start blank

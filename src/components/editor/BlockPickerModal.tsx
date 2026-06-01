@@ -157,9 +157,9 @@ function BlockPreview({ category }: { category: string }) {
           {[0, 1, 2, 3].map((i) => (
             <div key={i} className="flex-1 flex flex-col gap-0.5">
               <div className="h-1.5 w-3/4 rounded bg-card/30 mb-0.5" />
-              <div className="h-1 w-full rounded bg-card/12" />
-              <div className="h-1 w-2/3 rounded bg-card/12" />
-              <div className="h-1 w-3/4 rounded bg-card/12" />
+              <div className="h-1 w-full rounded bg-card/10" />
+              <div className="h-1 w-2/3 rounded bg-card/10" />
+              <div className="h-1 w-3/4 rounded bg-card/10" />
             </div>
           ))}
         </div>
@@ -329,7 +329,7 @@ export default function BlockPickerModal({
         flex flex-col bg-card rounded-2xl shadow-2xl overflow-hidden"
     >
       {/* Header */}
-      <div className="flex items-center gap-4 px-6 py-4 border-b border-border dark:border-white/8 shrink-0">
+      <div className="flex items-center gap-4 px-6 py-4 border-b border-border dark:border-white/10 shrink-0">
         <MotionModalTitle className="text-base font-semibold text-foreground dark:text-white shrink-0">
           Add Block
         </MotionModalTitle>
@@ -351,7 +351,7 @@ export default function BlockPickerModal({
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full pl-9 py-1.5 rounded-lg text-sm
-                  bg-muted dark:bg-card/8
+                  bg-muted dark:bg-card/10
                   text-foreground dark:text-white
                   placeholder:text-muted-foreground dark:placeholder:text-muted-foreground
                   border border-transparent focus:border-primary dark:focus:border-primary/50
@@ -378,7 +378,7 @@ export default function BlockPickerModal({
 
             <MotionModalClose
               className="p-1.5 rounded-lg text-muted-foreground hover:text-muted-foreground hover:bg-muted
-                dark:text-muted-foreground dark:hover:text-muted-foreground dark:hover:bg-card/8 transition-colors shrink-0"
+                dark:text-muted-foreground dark:hover:text-muted-foreground dark:hover:bg-card/10 transition-colors shrink-0"
             >
               <X className="w-4 h-4" />
             </MotionModalClose>
@@ -387,7 +387,7 @@ export default function BlockPickerModal({
           {/* Body */}
           <div className="flex flex-1 min-h-0">
             {/* Category sidebar */}
-            <aside className="w-44 shrink-0 border-r border-border dark:border-white/8 p-3 flex flex-col gap-0.5 overflow-y-auto">
+            <aside className="w-44 shrink-0 border-r border-border dark:border-white/10 p-3 flex flex-col gap-0.5 overflow-y-auto">
               {allCategories.map((cat) => (
                 <button
                   key={cat}
@@ -396,7 +396,7 @@ export default function BlockPickerModal({
                     "text-left px-3 py-1.5 rounded-lg text-sm transition-colors",
                     activeCategory === cat
                       ? "bg-muted dark:bg-card/10 text-foreground dark:text-white font-medium"
-                      : "text-muted-foreground dark:text-muted-foreground hover:text-foreground dark:hover:text-white hover:bg-muted dark:hover:bg-card/6",
+                      : "text-muted-foreground dark:text-muted-foreground hover:text-foreground dark:hover:text-white hover:bg-muted dark:hover:bg-card/5",
                   )}
                 >
                   {cat}
@@ -434,7 +434,7 @@ export default function BlockPickerModal({
                     <button
                       key={block.id}
                       onClick={() => handleSelect(block)}
-                      className="group flex flex-col rounded-xl overflow-hidden border border-border dark:border-white/8
+                      className="group flex flex-col rounded-xl overflow-hidden border border-border dark:border-white/10
                         hover:border-primary dark:hover:border-primary/50
                         hover:shadow-md dark:hover:shadow-black/20
                         focus:outline-none focus-visible:border-primary
