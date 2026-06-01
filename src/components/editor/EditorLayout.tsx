@@ -16,7 +16,7 @@ import dynamic from "next/dynamic";
 const LeftSidebar = dynamic(() => import("./LeftSidebar"), {
   ssr: false,
   loading: () => (
-    <div className="w-60 h-full animate-pulse bg-muted dark:bg-foreground/50" />
+    <div className="w-65 h-full animate-pulse bg-muted dark:bg-foreground/50" />
   ),
 });
 const BottomToolbar = dynamic(() => import("./BottomToolbar"), {

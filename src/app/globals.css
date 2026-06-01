@@ -166,6 +166,14 @@
   .pb-[\75\%] {
     padding-block-end: 75%;
   }
+
+  .w-65 {
+    width: 16.25rem;
+  }
+
+  .max-h-125 {
+    max-height: 31.25rem;
+  }
 }
 
 /* ─── Component Layer ───────────────────────────────────── */

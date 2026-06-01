@@ -99,7 +99,7 @@ function CategorySection({
 
 export function Brand() {
   return (
-    <div className="w-full p-3">
+    <div className="flex h-16 flex-shrink-0 items-center border-b border-sidebar-border px-4">
       <Link
         href="/dashboard"
         className="flex items-center gap-2.5 group cursor-pointer"
@@ -159,7 +159,7 @@ export default function LeftSidebar() {
     : null;
 
   return (
-    <aside className="w-60 flex flex-col h-full overflow-hidden border-r bg-card border-border dark:border-border">
+    <aside className="w-65 flex flex-col h-full overflow-hidden border-r bg-card border-border dark:border-border">
       <Brand />
 
       {/* Tab bar + Search container */}
