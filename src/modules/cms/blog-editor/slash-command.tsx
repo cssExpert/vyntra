@@ -275,7 +275,7 @@ const SlashCommandList = forwardRef<SlashMenuRef, SlashMenuProps>(
         initial={{ opacity: 0, y: 6, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.14, ease: [0.16, 1, 0.3, 1] }}
-        className="w-72 max-h-80 overflow-y-auto rounded-xl border border-border bg-card shadow-[0_12px_40px_rgba(0,0,0,0.16)] p-1.5"
+        className="w-72 max-h-[300px] overflow-y-auto rounded-xl border border-border bg-card shadow-[0_12px_40px_rgba(0,0,0,0.16)] p-0"
       >
         {items.map((item, i) => {
           const Icon = item.icon;
@@ -285,7 +285,7 @@ const SlashCommandList = forwardRef<SlashMenuRef, SlashMenuProps>(
           return (
             <React.Fragment key={item.title}>
               {showHeader && (
-                <span className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-2.5 pt-2 first:pt-1 my-1.5 first:mt-0 border-t first:border-t-0 border-border">
+                <span className="sticky top-0 p-0 bg-card block text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-2.5 py-1.5 mb-1 border-b border-border">
                   {item.group}
                 </span>
               )}
@@ -293,7 +293,7 @@ const SlashCommandList = forwardRef<SlashMenuRef, SlashMenuProps>(
                 type="button"
                 onMouseEnter={() => setSelected(i)}
                 onClick={() => command(item)}
-                className={`w-full flex items-center gap-3 px-2.5 py-1.5 rounded-lg text-left transition-colors ${
+                className={`w-full flex items-center gap-3 px-2.5 py-1.5 rounded-0 text-left transition-colors ${
                   isActive ? "bg-muted" : "hover:bg-muted/60"
                 }`}
               >
