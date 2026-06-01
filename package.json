@@ -22,9 +22,9 @@
     "type-check": "pnpm -r type-check",
     "db:up": "docker compose -f infrastructure/docker-compose.yml up -d",
     "db:down": "docker compose -f infrastructure/docker-compose.yml down",
-    "db:migrate": "pnpm --filter @vyntra/api prisma migrate dev",
-    "db:seed": "pnpm --filter @vyntra/api prisma:seed",
-    "db:studio": "pnpm --filter @vyntra/api prisma studio"
+    "db:migrate": "pnpm --filter @vyntra/api exec prisma migrate dev",
+    "db:seed": "pnpm --filter @vyntra/api exec prisma db seed",
+    "db:studio": "pnpm --filter @vyntra/api exec prisma studio"
   },
   "engines": {
     "node": ">=20",
