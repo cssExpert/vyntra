@@ -18,6 +18,7 @@ import { COMPONENT_BLOCKS, CATEGORIES } from "@/lib/componentBlocks";
 import { useEditorStore } from "@/store/editorStore";
 import type { ComponentBlock, EditorNode } from "@/types/editor";
 import { cn } from "@/lib/utils";
+import Icon from "@/components/common/Icon";
 
 function DraggableBlock({ block }: { block: ComponentBlock }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
@@ -99,12 +100,15 @@ function CategorySection({
 export function Brand() {
   return (
     <div className="w-full p-3">
-      <Link href="/" className="flex items-center gap-2 group">
-        <div className="w-9 h-9 rounded-lg bg-primary dark:bg-primary flex items-center justify-center">
-          <Feather className="w-6 h-6 text-white dark:text-primary-foreground" />
+      <Link
+        href="/dashboard"
+        className="flex items-center gap-2.5 group cursor-pointer"
+      >
+        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-sm bg-primary shadow-glow-brand">
+          <Icon name="Brand" size="24" className="h-6 w-6 text-white" />
         </div>
-        <span className="font-bold text-md md:text-xl text-foreground dark:text-foreground">
-          Feather
+        <span className="text-base font-bold font-display text-foreground">
+          Vyntra
         </span>
       </Link>
     </div>

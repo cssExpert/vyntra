@@ -23,14 +23,14 @@ const BottomToolbar = dynamic(() => import("./BottomToolbar"), {
   ssr: false,
 });
 
-// import Link from "next/link";
+import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { useEditorStore } from "@/store/editorStore";
 import { COMPONENT_BLOCKS } from "@/lib/componentBlocks";
 import Icon from "@/components/common/Icon";
+import { ThemeToggle } from "@/components/common/ThemeToggle";
 import Canvas from "./Canvas";
 import RightSidebar from "./RightSidebar";
-import ThemeSwitcher from "./ThemeSwitcher";
 import TemplatePicker from "./TemplatePicker";
 import BlockPickerModal from "./BlockPickerModal";
 import { nanoid } from "nanoid";
@@ -48,24 +48,23 @@ function EditorHeader() {
   return (
     <header
       className="shrink-0 h-auto flex items-center justify-between px-8 pt-4 z-40
-      bg-trsnsparent"
+      bg-transparent"
     >
+      <ThemeToggle />
       {/* Right actions */}
-      <div className="flex flex-1 items-center justify-end gap-3">
+      <div className="flex items-center gap-3">
         <div className="inline-flex items-center gap-2">
           <a
             href="#"
             className="flex items-center gap-1.5 text-sm font-medium transition-colors
-            text-muted-foreground hover:text-foreground
-            dark:text-muted-foreground dark:hover:text-foreground"
+            text-muted-foreground hover:text-foreground"
           >
             Preview in new tab
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
           <button
             className="text-xs font-semibold px-4 py-1.5 rounded-lg transition-colors
-          bg-primary hover:bg-primary text-white
-          dark:bg-primary dark:hover:bg-primary dark:text-primary-foreground"
+          bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             Publish
           </button>

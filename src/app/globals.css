@@ -97,6 +97,14 @@
     .bg-mesh {
       background-color: rgba(15, 15, 15, 1);
     }
+
+    .canvas-container {
+      background-image: radial-gradient(
+        rgba(255, 255, 255, 0.075) 1px,
+        transparent 1px
+      );
+      background-size: 15px 15px;
+    }
   }
 }
 
@@ -144,6 +152,19 @@
 
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-muted-foreground/40;
+  }
+
+  .canvas-container {
+    background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+    background-size: 15px 15px;
+  }
+
+  .js-block-selected {
+    z-index: 50 !important;
+  }
+
+  .pb-[\75\%] {
+    padding-block-end: 75%;
   }
 }
 
