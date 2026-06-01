@@ -101,7 +101,7 @@ export function Brand() {
   return (
     <div className="flex h-16 flex-shrink-0 items-center border-b border-sidebar-border px-4">
       <Link
-        href="/dashboard"
+        href="/cms/pages"
         className="flex items-center gap-2.5 group cursor-pointer"
       >
         <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-sm bg-primary shadow-glow-brand">
