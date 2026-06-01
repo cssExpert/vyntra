@@ -638,16 +638,24 @@ export function UsersView() {
               {/* Main Users Table Board Container */}
               <div className="bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden">
                 {users.length > 0 ? (
-                  <div ref={setScrollEl} className="overflow-x-auto">
+                  <div
+                    ref={setScrollEl}
+                    className="overflow-x-auto overflow-y-auto"
+                    style={{ maxHeight: "calc(100vh - 320px)" }}
+                  >
                     <table
                       className="text-left border-collapse"
-                      style={{ tableLayout: "fixed", minWidth: "1280px" }}
+                      style={{
+                        tableLayout: "fixed",
+                        width: "100%",
+                        minWidth: "1280px",
+                      }}
                     >
                       <thead>
                         {table.getHeaderGroups().map((headerGroup) => (
                           <tr
                             key={headerGroup.id}
-                            className="border-b border-border text-[13px] font-semibold text-muted-foreground select-none bg-muted/40"
+                            className="text-[13px] font-semibold text-muted-foreground select-none"
                           >
                             {headerGroup.headers.map((header) => {
                               const canSort = header.column.getCanSort();
@@ -662,7 +670,7 @@ export function UsersView() {
                                       ? header.column.getToggleSortingHandler()
                                       : undefined
                                   }
-                                  className={`font-semibold ${
+                                  className={`sticky top-0 z-10 bg-muted border-b border-border font-semibold ${
                                     isActions
                                       ? "py-4 px-6 text-right"
                                       : isName
