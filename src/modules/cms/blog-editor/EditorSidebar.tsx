@@ -3,7 +3,7 @@
 import React from "react";
 import { Sparkles } from "lucide-react";
 import { EditorCard } from "./fields";
-import { AUTHOR_PROFILES, type BlogFormState } from "./types";
+import { AUTHOR_PROFILES, stripHtml, type BlogFormState } from "./types";
 
 export interface EditorSidebarProps {
   form: BlogFormState;
@@ -14,7 +14,8 @@ export interface EditorSidebarProps {
 export function EditorSidebar({ form, seoScore, onInspect }: EditorSidebarProps) {
   const author =
     AUTHOR_PROFILES.find((a) => a.id === form.author) ?? AUTHOR_PROFILES[0];
-  const wordCount = form.content.split(/\s+/).filter(Boolean).length;
+  const plainText = stripHtml(form.content);
+  const wordCount = plainText ? plainText.split(/\s+/).filter(Boolean).length : 0;
   const circumference = 150;
 
   return (

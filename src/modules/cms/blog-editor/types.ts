@@ -98,6 +98,15 @@ export function emptyBlogForm(): BlogFormState {
   };
 }
 
+// Strip HTML tags to plain text (for word/character counts on TipTap HTML).
+export function stripHtml(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 export function slugify(value: string): string {
   return value
     .toLowerCase()
@@ -110,86 +119,8 @@ export function calculateSeoScore(form: BlogFormState): number {
   if (form.title.length > 20 && form.title.length < 70) score += 20;
   if (form.excerpt.length > 50 && form.excerpt.length < 160) score += 20;
   if (form.tags.length >= 2) score += 20;
-  if (form.content.split(" ").length > 200) score += 20;
+  if (stripHtml(form.content).split(" ").filter(Boolean).length > 200)
+    score += 20;
   if (form.keywords.trim() !== "") score += 20;
   return score;
-}
-
-// Minimal, dependency-free Markdown → HTML for the live preview.
-export function parseMarkdownToHTML(mdText: string): string {
-  if (!mdText)
-    return "<p class='text-muted-foreground italic'>Write copy in the editor to preview formatting…</p>";
-
-  let html = mdText
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-
-  html = html.replace(
-    /^# (.*?)$/gm,
-    '<h1 class="text-2xl font-bold mt-5 mb-3 text-foreground">$1</h1>',
-  );
-  html = html.replace(
-    /^## (.*?)$/gm,
-    '<h2 class="text-xl font-semibold mt-4 mb-2 text-foreground">$1</h2>',
-  );
-  html = html.replace(
-    /^### (.*?)$/gm,
-    '<h3 class="text-lg font-medium mt-3 mb-1 text-foreground">$1</h3>',
-  );
-
-  html = html.replace(
-    /```(javascript|css|html|typescript|json)?([\s\S]*?)```/gm,
-    (_match, lang, code) =>
-      `<pre class="bg-muted text-foreground p-3.5 rounded-xl my-3 font-mono text-xs overflow-x-auto border border-border"><div class="flex justify-between items-center text-[10px] text-muted-foreground mb-1.5 border-b border-border pb-1"><span>${lang || "code"}</span><span>SYNTAX</span></div><code>${code.trim()}</code></pre>`,
-  );
-
-  html = html.replace(
-    /`(.*?)`/g,
-    '<code class="bg-muted text-primary px-1 py-0.5 rounded font-mono text-xs">$1</code>',
-  );
-  html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-  html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
-  html = html.replace(
-    /^\* (.*?)$/gm,
-    '<li class="ml-5 list-disc text-muted-foreground">$1</li>',
-  );
-  html = html.replace(
-    /^- (.*?)$/gm,
-    '<li class="ml-5 list-disc text-muted-foreground">$1</li>',
-  );
-
-  const lines = html.split("\n");
-  let output = "";
-  let inList = false;
-
-  lines.forEach((line) => {
-    if (line.startsWith("<li")) {
-      if (!inList) {
-        output += '<ul class="space-y-1 my-2">';
-        inList = true;
-      }
-      output += line;
-    } else {
-      if (inList) {
-        output += "</ul>";
-        inList = false;
-      }
-      if (
-        line.trim() !== "" &&
-        !line.startsWith("<h") &&
-        !line.startsWith("<pre") &&
-        !line.startsWith("</pre") &&
-        !line.startsWith("<code>") &&
-        !line.startsWith("</code>")
-      ) {
-        output += `<p class="my-2 text-muted-foreground leading-relaxed text-sm">${line}</p>`;
-      } else {
-        output += line;
-      }
-    }
-  });
-
-  if (inList) output += "</ul>";
-  return output;
 }

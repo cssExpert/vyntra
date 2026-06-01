@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Laptop, Tablet, Smartphone, type LucideIcon } from "lucide-react";
-import { parseMarkdownToHTML, type BlogFormState } from "./types";
+import type { BlogFormState } from "./types";
 
 type Device = "desktop" | "tablet" | "mobile";
 
@@ -129,9 +129,11 @@ export function DevicePreviewModal({
                   )}
                   <hr className="border-border" />
                   <div
-                    className="max-w-none"
+                    className="tiptap max-w-none"
                     dangerouslySetInnerHTML={{
-                      __html: parseMarkdownToHTML(form.content),
+                      __html:
+                        form.content ||
+                        "<p class='text-muted-foreground italic'>Start writing to preview your article…</p>",
                     }}
                   />
                 </div>

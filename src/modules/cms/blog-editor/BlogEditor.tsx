@@ -18,6 +18,7 @@ import {
   calculateSeoScore,
   emptyBlogForm,
   slugify,
+  stripHtml,
   type BlogEditorStatus,
   type BlogFormState,
 } from "./types";
@@ -85,9 +86,10 @@ export function BlogEditor({ blog }: BlogEditorProps) {
     }
   }, [form.excerpt, seoDescManuallyEdited]);
 
-  // Recompute read time from content length.
+  // Recompute read time from content length (strip HTML tags first).
   useEffect(() => {
-    const words = form.content.trim().split(/\s+/).filter(Boolean).length;
+    const text = stripHtml(form.content);
+    const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
     const minutes = Math.max(1, Math.ceil(words / 220));
     setForm((prev) =>
       prev.readTime === minutes ? prev : { ...prev, readTime: minutes },

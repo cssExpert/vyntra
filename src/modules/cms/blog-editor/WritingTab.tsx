@@ -4,7 +4,7 @@ import React from "react";
 import { ArrowRight } from "lucide-react";
 import { EditorCard, FieldLabel, inputClass } from "./fields";
 import { CoverImagePicker } from "./CoverImagePicker";
-import { MarkdownEditor } from "./MarkdownEditor";
+import { RichTextEditor } from "./RichTextEditor";
 import type { BlogFormState } from "./types";
 
 export interface WritingTabProps {
@@ -95,7 +95,7 @@ export function WritingTab({
       />
 
       {/* Content */}
-      <MarkdownEditor
+      <RichTextEditor
         value={form.content}
         onChange={(content) => patch({ content })}
       />
