@@ -98,26 +98,31 @@ Vyntra is built to become the central operating system for modern businesses —
 
 ```bash
 git clone https://github.com/yourusername/vyntra.git
-
 cd vyntra
 
-npm install
-
-npm run dev
+pnpm install          # this is a pnpm monorepo — do not use npm/yarn
+pnpm build:types
+pnpm db:up            # start PostgreSQL via Docker (team standard)
+cp apps/api/.env.example apps/api/.env
+pnpm db:migrate && pnpm db:seed
 ```
+
+> **Full developer setup (Windows & macOS):** see **[DEVELOPMENT.md](./DEVELOPMENT.md)**.
 
 ---
 
 ## 🖥️ Development
 
 ```bash
-npm run dev
+pnpm dev              # runs API (:3001) and web (:3000) together
+# or: pnpm dev:api  /  pnpm dev:web
 ```
 
 Open:
 
 ```txt
-http://localhost:3000
+Web  → http://localhost:3000
+API  → http://localhost:3001/api
 ```
 
 ---

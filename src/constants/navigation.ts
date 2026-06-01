@@ -23,12 +23,14 @@ export const NAV_SECTIONS: NavSection[] = [
         icon: "Users2",
         badge: 12,
         badgeVariant: "info",
+        module: "CRM",
       },
       {
         id: "email",
         label: "Email Automations",
         href: "/email",
         icon: "Mail",
+        module: "EMAIL",
       },
       {
         id: "calling",
@@ -36,6 +38,7 @@ export const NAV_SECTIONS: NavSection[] = [
         href: "/calling",
         icon: "Phone",
         isNew: true,
+        module: "CALLING",
       },
     ],
   },
@@ -48,6 +51,7 @@ export const NAV_SECTIONS: NavSection[] = [
         label: "CMS / Editor",
         href: "/cms",
         icon: "FileText",
+        module: "CMS",
         children: [
           { id: "cms-pages",    label: "Pages",           href: "/cms/pages",            icon: "" },
           { id: "cms-blogs",    label: "Blogs",           href: "/cms/blogs",            icon: "" },
@@ -64,12 +68,14 @@ export const NAV_SECTIONS: NavSection[] = [
         label: "SEO Tools",
         href: "/seo",
         icon: "TrendingUp",
+        module: "SEO",
       },
       {
         id: "lighthouse",
         label: "Lighthouse",
         href: "/lighthouse",
         icon: "Gauge",
+        module: "LIGHTHOUSE",
       },
     ],
   },
@@ -82,12 +88,14 @@ export const NAV_SECTIONS: NavSection[] = [
         label: "Store",
         href: "/store",
         icon: "ShoppingBag",
+        module: "STORE",
       },
       {
         id: "payments",
         label: "Payments",
         href: "/payments",
         icon: "CreditCard",
+        module: "PAYMENTS",
       },
     ],
   },
@@ -100,6 +108,7 @@ export const NAV_SECTIONS: NavSection[] = [
         label: "Reports",
         href: "/reports",
         icon: "BarChart3",
+        module: "REPORTS",
       },
       {
         id: "users",
@@ -113,6 +122,32 @@ export const NAV_SECTIONS: NavSection[] = [
         href: "/settings",
         icon: "Settings2",
       },
+    ],
+  },
+];
+
+// Platform-admin navigation — shown only to super admins (no package gating).
+export const SUPER_ADMIN_NAV: NavSection[] = [
+  {
+    id: "sa-core",
+    items: [
+      { id: "sa-dashboard", label: "Dashboard", href: "/dashboard", icon: "LayoutDashboard" },
+    ],
+  },
+  {
+    id: "sa-platform",
+    label: "Platform",
+    items: [
+      { id: "sa-orgs", label: "Organizations", href: "/admin/organizations", icon: "Building2" },
+      { id: "sa-packages", label: "Packages", href: "/admin/packages", icon: "Package" },
+      { id: "sa-modules", label: "Modules", href: "/admin/modules", icon: "Boxes" },
+      { id: "sa-users", label: "Users", href: "/admin/users", icon: "UserCog" },
+    ],
+  },
+  {
+    id: "sa-settings",
+    items: [
+      { id: "sa-settings", label: "Settings", href: "/settings", icon: "Settings2" },
     ],
   },
 ];

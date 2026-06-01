@@ -168,14 +168,17 @@ export function LoginPage() {
     }
 
     setIsLoading(true);
-    await new Promise((r) => setTimeout(r, 700));
-    setIsLoading(false);
-
-    if (email === "erv@vyntra.com" && password === "erv") {
-      login({ email, name: "Ravi Gupta", role: "Admin", initials: "RG" });
+    try {
+      await login(email, password);
       router.push("/dashboard");
-    } else {
-      setError("Invalid email or password. Please try again.");
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Invalid email or password. Please try again.",
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 

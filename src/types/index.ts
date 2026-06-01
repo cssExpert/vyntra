@@ -9,6 +9,9 @@ export interface NavItem {
   children?: NavItem[];
   isNew?: boolean;
   isPro?: boolean;
+  /** Module entitlement key required to see this item (e.g. "CMS", "CRM").
+   *  Items without it are always visible; super admins see everything. */
+  module?: string;
 }
 
 export interface NavSection {

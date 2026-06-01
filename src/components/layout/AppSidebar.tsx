@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,6 +17,9 @@ import {
   UserCog,
   Settings2,
   BarChart3,
+  Building2,
+  Package,
+  Boxes,
   ChevronLeft,
   ChevronDown,
   LucideIcon,
@@ -24,11 +27,13 @@ import {
 import { cn } from "@/lib/utils";
 import {
   NAV_SECTIONS,
+  SUPER_ADMIN_NAV,
   SIDEBAR_WIDTH,
   SIDEBAR_COLLAPSED_WIDTH,
 } from "@/constants/navigation";
 import type { NavItem } from "@/types";
 import Icon from "@/components/common/Icon";
+import { useAuth } from "@/providers/AuthProvider";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   LayoutDashboard,
@@ -43,6 +48,9 @@ const ICON_MAP: Record<string, LucideIcon> = {
   UserCog,
   Settings2,
   BarChart3,
+  Building2,
+  Package,
+  Boxes,
 };
 
 interface AppSidebarProps {
@@ -221,11 +229,24 @@ export function AppSidebar({
   onClose,
 }: AppSidebarProps) {
   const pathname = usePathname();
+  const { hasModule, user, isSuperAdmin } = useAuth();
+
+  /* Super admins get the platform-admin menu; companies get a nav filtered to
+     the modules their package entitles. */
+  const sections = useMemo(() => {
+    if (isSuperAdmin) return SUPER_ADMIN_NAV;
+    return NAV_SECTIONS.map((section) => ({
+      ...section,
+      items: section.items.filter(
+        (item) => !item.module || hasModule(item.module),
+      ),
+    })).filter((section) => section.items.length > 0);
+  }, [hasModule, isSuperAdmin]);
 
   /* Track which items are expanded by their id */
   const [expandedItems, setExpandedItems] = useState<Set<string>>(() => {
     const initial = new Set<string>();
-    NAV_SECTIONS.forEach((section) =>
+    sections.forEach((section) =>
       section.items.forEach((item) => {
         if (
           item.children?.some(
@@ -245,7 +266,7 @@ export function AppSidebar({
 
   /* Auto-expand when navigating to a child route */
   useEffect(() => {
-    NAV_SECTIONS.forEach((section) =>
+    sections.forEach((section) =>
       section.items.forEach((item) => {
         if (
           item.children?.some(
@@ -257,7 +278,7 @@ export function AppSidebar({
         }
       }),
     );
-  }, [pathname]);
+  }, [pathname, sections]);
 
   const toggleItem = (id: string) => {
     setExpandedItems((prev) => {
@@ -311,7 +332,7 @@ export function AppSidebar({
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-3 no-scrollbar">
         <div className="space-y-0.5 px-2">
-          {NAV_SECTIONS.map((section) => (
+          {sections.map((section) => (
             <div key={section.id} className="mb-1">
               {/* Section label */}
               <AnimatePresence>
@@ -418,20 +439,20 @@ export function AppSidebar({
               className="flex items-center gap-3 rounded-lg px-2 py-2"
             >
               <div className="h-8 w-8 flex-shrink-0 rounded-full bg-gradient-brand flex items-center justify-center text-xs font-bold text-white">
-                RG
+                {user?.initials ?? "?"}
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-xs font-semibold text-foreground">
-                  Ravi Gupta
+                  {user?.name ?? "Account"}
                 </p>
                 <p className="truncate text-[10px] text-muted-foreground">
-                  Admin
+                  {user?.role ?? ""}
                 </p>
               </div>
             </motion.div>
           ) : (
             <div className="h-8 w-8 rounded-full bg-gradient-brand flex items-center justify-center text-xs font-bold text-white cursor-pointer">
-              RG
+              {user?.initials ?? "?"}
             </div>
           )}
         </AnimatePresence>

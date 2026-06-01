@@ -1,55 +1,159 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
+import {
+  apiGetMe,
+  apiGetMyOrg,
+  apiLogin,
+  clearTokens,
+  getToken,
+  setTokens,
+  type ApiAuthUser,
+} from "@/lib/api";
 
 interface AuthUser {
+  id: string;
   email: string;
   name: string;
+  /** Display role label, e.g. "Super Admin" or "Org Admin". */
   role: string;
   initials: string;
+  superAdmin: boolean;
+  organizationId: string | null;
+  roles: string[];
 }
 
 interface AuthContextValue {
   user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (user: AuthUser) => void;
+  isSuperAdmin: boolean;
+  /** Module keys the current org's package grants (e.g. ["CMS","CRM"]). */
+  modules: string[];
+  organizationName: string | null;
+  /** True if the user may access a given module (super admins always can). */
+  hasModule: (key: string) => boolean;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-const STORAGE_KEY = "vyntra_auth";
+function initialsOf(name: string | null, email: string): string {
+  const source = (name && name.trim()) || email;
+  const parts = source.split(/[\s@.]+/).filter(Boolean);
+  const letters = (parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "");
+  return (letters || source.slice(0, 2)).toUpperCase();
+}
+
+function roleLabel(u: ApiAuthUser): string {
+  if (u.superAdmin) return "Super Admin";
+  const first = u.roles[0];
+  if (!first) return "Member";
+  return first
+    .toLowerCase()
+    .split("_")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
+function toAuthUser(u: ApiAuthUser): AuthUser {
+  return {
+    id: u.id,
+    email: u.email,
+    name: u.name || u.email,
+    role: roleLabel(u),
+    initials: initialsOf(u.name, u.email),
+    superAdmin: u.superAdmin,
+    organizationId: u.organizationId,
+    roles: u.roles,
+  };
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [modules, setModules] = useState<string[]>([]);
+  const [organizationName, setOrganizationName] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Rehydrate from localStorage on mount
-  useEffect(() => {
+  /** Load the org's entitled modules (skipped for super admins, who see all). */
+  const loadOrgContext = useCallback(async (authUser: ApiAuthUser) => {
+    if (authUser.superAdmin || !authUser.organizationId) {
+      setModules([]);
+      setOrganizationName(null);
+      return;
+    }
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) setUser(JSON.parse(stored));
+      const org = await apiGetMyOrg();
+      setModules(org.modules ?? []);
+      setOrganizationName(org.name);
     } catch {
-      // corrupted storage — ignore
-    } finally {
-      setIsLoading(false);
+      setModules([]);
+      setOrganizationName(null);
     }
   }, []);
 
-  const login = useCallback((authUser: AuthUser) => {
-    setUser(authUser);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(authUser));
-  }, []);
+  // Rehydrate session from a stored token on mount.
+  useEffect(() => {
+    (async () => {
+      if (!getToken()) {
+        setIsLoading(false);
+        return;
+      }
+      try {
+        const me = await apiGetMe();
+        setUser(toAuthUser(me));
+        await loadOrgContext(me);
+      } catch {
+        clearTokens();
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+  }, [loadOrgContext]);
+
+  const login = useCallback(
+    async (email: string, password: string) => {
+      const res = await apiLogin(email, password);
+      setTokens(res.accessToken, res.refreshToken);
+      setUser(toAuthUser(res.user));
+      await loadOrgContext(res.user);
+    },
+    [loadOrgContext],
+  );
 
   const logout = useCallback(() => {
+    clearTokens();
     setUser(null);
-    localStorage.removeItem(STORAGE_KEY);
+    setModules([]);
+    setOrganizationName(null);
   }, []);
+
+  const hasModule = useCallback(
+    (key: string) => !!user?.superAdmin || modules.includes(key),
+    [user, modules],
+  );
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated: !!user, isLoading, login, logout }}
+      value={{
+        user,
+        isAuthenticated: !!user,
+        isLoading,
+        isSuperAdmin: !!user?.superAdmin,
+        modules,
+        organizationName,
+        hasModule,
+        login,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>

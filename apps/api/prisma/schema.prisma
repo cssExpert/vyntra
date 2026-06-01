@@ -1,0 +1,479 @@
+// Vyntra API — Prisma Schema
+// Multi-tenant SaaS: super admin manages organizations, users, packages & module
+// entitlements. Companies (organizations) access only the modules their package grants.
+// MVP modules: CMS + CRM.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  Core: Users & RBAC
+// ════════════════════════════════════════════════════════════════════
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  name           String?
+  password       String? // bcrypt hash; null until set
+  superAdmin     Boolean   @default(false) // platform-level god mode
+  isActive       Boolean   @default(true)
+  lastLogin      DateTime?
+  organizationId String? // null for super admins
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  organization Organization? @relation("OrganizationUsers", fields: [organizationId], references: [id], onDelete: SetNull)
+  roles        UserRole[]
+  tasks        Task[]
+  comments     Comment[]
+  auditLogs    AuditLog[]
+
+  @@index([organizationId])
+  @@map("users")
+}
+
+// A user's role within a given organization (or platform-wide when org is null).
+model UserRole {
+  id             String   @id @default(cuid())
+  role           Role
+  userId         String
+  organizationId String?
+  createdAt      DateTime @default(now())
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId, role])
+  @@index([userId])
+  @@index([organizationId])
+  @@map("user_roles")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ORG_ADMIN
+  EDITOR
+  USER
+  VIEWER
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  Organizations (tenants / companies)
+// ════════════════════════════════════════════════════════════════════
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  email     String?
+  phone     String?
+  website   String?
+  isActive  Boolean  @default(true)
+  maxUsers  Int      @default(5) // hard cap; effective limit = min(this, package.maxUsers)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  users        User[]        @relation("OrganizationUsers")
+  userRoles    UserRole[]
+  subscription Subscription?
+  auditLogs    AuditLog[]
+
+  // CMS (org-scoped)
+  pages          Page[]
+  blogs          Blog[]
+  comments       Comment[]
+  media          Media[]
+  websiteConfigs WebsiteConfig[]
+
+  // CRM (org-scoped)
+  leads      Lead[]
+  contacts   Contact[]
+  campaigns  Campaign[]
+  tasks      Task[]
+  activities Activity[]
+
+  @@map("organizations")
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  Packages (plans) & Module entitlements
+// ════════════════════════════════════════════════════════════════════
+
+// Catalog of platform modules. Stored in DB so new modules can be added
+// without schema changes; the `key` is the contract used for access checks.
+model Module {
+  id          String   @id @default(cuid())
+  key         String   @unique // "CMS", "CRM", ...
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  packages PackageModule[]
+
+  @@map("modules")
+}
+
+// A purchasable/assignable plan. Super admin creates these; companies are
+// assigned one via a Subscription. The set of modules a package includes
+// determines what the company can access.
+model Package {
+  id           String       @id @default(cuid())
+  name         String       @unique
+  slug         String       @unique
+  description  String?
+  priceCents   Int          @default(0)
+  billingCycle BillingCycle @default(MONTHLY)
+  maxUsers     Int          @default(5)
+  isActive     Boolean      @default(true)
+  isPublic     Boolean      @default(true) // visible for future self-signup
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  modules       PackageModule[]
+  subscriptions Subscription[]
+
+  @@map("packages")
+}
+
+// Join: which modules a package grants.
+model PackageModule {
+  id        String @id @default(cuid())
+  packageId String
+  moduleId  String
+
+  package Package @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  module  Module  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@unique([packageId, moduleId])
+  @@index([packageId])
+  @@index([moduleId])
+  @@map("package_modules")
+}
+
+enum BillingCycle {
+  MONTHLY
+  YEARLY
+  LIFETIME
+}
+
+// An organization's current plan assignment + billing lifecycle.
+model Subscription {
+  id             String             @id @default(cuid())
+  organizationId String             @unique
+  packageId      String
+  status         SubscriptionStatus @default(ACTIVE)
+  billingEmail   String?
+  startDate      DateTime           @default(now())
+  endDate        DateTime?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  package      Package      @relation(fields: [packageId], references: [id])
+
+  @@index([packageId])
+  @@map("subscriptions")
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  TRIALING
+  PAUSED
+  CANCELLED
+  EXPIRED
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  Audit logging
+// ════════════════════════════════════════════════════════════════════
+
+model AuditLog {
+  id             String   @id @default(cuid())
+  action         String // e.g. "POST /api/admin/organizations"
+  userId         String?
+  organizationId String?
+  resourceType   String?
+  resourceId     String?
+  statusCode     Int?
+  changes        Json?
+  ipAddress      String?
+  createdAt      DateTime @default(now())
+
+  user         User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  CMS (org-scoped) — controllers implemented in a later phase
+// ════════════════════════════════════════════════════════════════════
+
+model Page {
+  id             String    @id @default(cuid())
+  title          String
+  slug           String
+  content        String?
+  metaDesc       String?
+  metaKeywords   String?
+  published      Boolean   @default(false)
+  publishedAt    DateTime?
+  organizationId String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  comments     Comment[]
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+  @@map("pages")
+}
+
+model Blog {
+  id             String    @id @default(cuid())
+  title          String
+  slug           String
+  body           String?
+  excerpt        String?
+  author         String?
+  category       String?
+  metaDesc       String?
+  published      Boolean   @default(false)
+  publishedAt    DateTime?
+  organizationId String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  comments     Comment[]
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+  @@map("blogs")
+}
+
+model Comment {
+  id             String        @id @default(cuid())
+  body           String
+  status         CommentStatus @default(PENDING)
+  authorName     String?
+  authorEmail    String?
+  pageId         String?
+  blogId         String?
+  userId         String?
+  organizationId String
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  page         Page?        @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  blog         Blog?        @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("comments")
+}
+
+enum CommentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Media {
+  id             String   @id @default(cuid())
+  url            String
+  fileName       String
+  fileType       String
+  size           Int?
+  category       String?
+  organizationId String
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("media")
+}
+
+model WebsiteConfig {
+  id             String   @id @default(cuid())
+  key            String
+  value          String?
+  description    String?
+  organizationId String
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, key])
+  @@index([organizationId])
+  @@map("website_config")
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  CRM (org-scoped) — controllers implemented in a later phase
+// ════════════════════════════════════════════════════════════════════
+
+model Lead {
+  id             String     @id @default(cuid())
+  firstName      String
+  lastName       String
+  email          String?
+  phone          String?
+  company        String?
+  source         LeadSource @default(OTHER)
+  status         LeadStatus @default(NEW)
+  organizationId String
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  activities   Activity[]
+  tasks        Task[]
+
+  @@index([organizationId])
+  @@map("leads")
+}
+
+enum LeadSource {
+  WEBSITE
+  REFERRAL
+  CAMPAIGN
+  PHONE
+  EMAIL
+  OTHER
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  PROPOSAL
+  NEGOTIATION
+  CLOSED_WON
+  CLOSED_LOST
+}
+
+model Contact {
+  id             String   @id @default(cuid())
+  firstName      String
+  lastName       String
+  email          String?
+  phone          String?
+  company        String?
+  jobTitle       String?
+  organizationId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  activities   Activity[]
+  tasks        Task[]
+
+  @@unique([organizationId, email])
+  @@index([organizationId])
+  @@map("contacts")
+}
+
+model Campaign {
+  id             String         @id @default(cuid())
+  title          String
+  description    String?
+  status         CampaignStatus @default(ACTIVE)
+  startDate      DateTime?
+  endDate        DateTime?
+  organizationId String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("campaigns")
+}
+
+enum CampaignStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+model Task {
+  id             String       @id @default(cuid())
+  title          String
+  description    String?
+  status         TaskStatus   @default(TODO)
+  priority       TaskPriority @default(MEDIUM)
+  dueDate        DateTime?
+  assignedToId   String?
+  leadId         String?
+  contactId      String?
+  organizationId String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  assignedTo   User?        @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+  lead         Lead?        @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  contact      Contact?     @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("tasks")
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model Activity {
+  id             String       @id @default(cuid())
+  type           ActivityType
+  description    String?
+  leadId         String?
+  contactId      String?
+  organizationId String
+  createdAt      DateTime     @default(now())
+
+  lead         Lead?        @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  contact      Contact?     @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("activities")
+}
+
+enum ActivityType {
+  CALL
+  EMAIL
+  MEETING
+  NOTE
+  TASK_CREATED
+  STAGE_CHANGED
+  OTHER
+}
