@@ -32,19 +32,49 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+type CommandGroup = "Styles" | "Upload" | "Insert";
+
 interface CommandItem {
   title: string;
   subtitle: string;
   icon: LucideIcon;
+  group: CommandGroup;
   keywords?: string[];
   run: (props: { editor: Editor; range: Range }) => void;
 }
 
+// Opens the OS file picker and inserts the chosen image as a data URL.
+function uploadImage(editor: Editor, range: Range) {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.onchange = () => {
+    const file = input.files?.[0];
+    if (!file) {
+      editor.chain().focus().deleteRange(range).run();
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .setImage({ src: reader.result as string })
+        .run();
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+
 const COMMANDS: CommandItem[] = [
+  // ── Styles ──────────────────────────────────────────────
   {
     title: "Text",
     subtitle: "Plain paragraph",
     icon: Type,
+    group: "Styles",
     keywords: ["paragraph", "body"],
     run: ({ editor, range }) =>
       editor.chain().focus().deleteRange(range).setParagraph().run(),
@@ -53,6 +83,7 @@ const COMMANDS: CommandItem[] = [
     title: "Heading 1",
     subtitle: "Big section heading",
     icon: Heading1,
+    group: "Styles",
     keywords: ["h1", "title"],
     run: ({ editor, range }) =>
       editor.chain().focus().deleteRange(range).setHeading({ level: 1 }).run(),
@@ -61,6 +92,7 @@ const COMMANDS: CommandItem[] = [
     title: "Heading 2",
     subtitle: "Medium section heading",
     icon: Heading2,
+    group: "Styles",
     keywords: ["h2"],
     run: ({ editor, range }) =>
       editor.chain().focus().deleteRange(range).setHeading({ level: 2 }).run(),
@@ -69,6 +101,7 @@ const COMMANDS: CommandItem[] = [
     title: "Heading 3",
     subtitle: "Small section heading",
     icon: Heading3,
+    group: "Styles",
     keywords: ["h3"],
     run: ({ editor, range }) =>
       editor.chain().focus().deleteRange(range).setHeading({ level: 3 }).run(),
@@ -77,6 +110,7 @@ const COMMANDS: CommandItem[] = [
     title: "Heading 4",
     subtitle: "Sub heading",
     icon: Heading4,
+    group: "Styles",
     keywords: ["h4"],
     run: ({ editor, range }) =>
       editor.chain().focus().deleteRange(range).setHeading({ level: 4 }).run(),
@@ -85,6 +119,7 @@ const COMMANDS: CommandItem[] = [
     title: "Heading 5",
     subtitle: "Sub heading",
     icon: Heading5,
+    group: "Styles",
     keywords: ["h5"],
     run: ({ editor, range }) =>
       editor.chain().focus().deleteRange(range).setHeading({ level: 5 }).run(),
@@ -93,6 +128,7 @@ const COMMANDS: CommandItem[] = [
     title: "Heading 6",
     subtitle: "Smallest heading",
     icon: Heading6,
+    group: "Styles",
     keywords: ["h6"],
     run: ({ editor, range }) =>
       editor.chain().focus().deleteRange(range).setHeading({ level: 6 }).run(),
@@ -101,6 +137,7 @@ const COMMANDS: CommandItem[] = [
     title: "Bullet List",
     subtitle: "Simple bulleted list",
     icon: List,
+    group: "Styles",
     keywords: ["unordered", "ul"],
     run: ({ editor, range }) =>
       editor.chain().focus().deleteRange(range).toggleBulletList().run(),
@@ -109,6 +146,7 @@ const COMMANDS: CommandItem[] = [
     title: "Numbered List",
     subtitle: "Ordered list",
     icon: ListOrdered,
+    group: "Styles",
     keywords: ["ordered", "ol"],
     run: ({ editor, range }) =>
       editor.chain().focus().deleteRange(range).toggleOrderedList().run(),
@@ -117,6 +155,7 @@ const COMMANDS: CommandItem[] = [
     title: "To-do List",
     subtitle: "Track tasks with checkboxes",
     icon: ListChecks,
+    group: "Styles",
     keywords: ["task", "todo", "checkbox"],
     run: ({ editor, range }) =>
       editor.chain().focus().deleteRange(range).toggleTaskList().run(),
@@ -125,6 +164,7 @@ const COMMANDS: CommandItem[] = [
     title: "Quote",
     subtitle: "Capture a quotation",
     icon: Quote,
+    group: "Styles",
     keywords: ["blockquote"],
     run: ({ editor, range }) =>
       editor.chain().focus().deleteRange(range).toggleBlockquote().run(),
@@ -133,26 +173,28 @@ const COMMANDS: CommandItem[] = [
     title: "Code Block",
     subtitle: "Formatted code snippet",
     icon: Code,
+    group: "Styles",
     keywords: ["pre", "snippet"],
     run: ({ editor, range }) =>
       editor.chain().focus().deleteRange(range).toggleCodeBlock().run(),
   },
+
+  // ── Upload ──────────────────────────────────────────────
   {
     title: "Image",
-    subtitle: "Embed an image by URL",
+    subtitle: "Upload an image from your device",
     icon: ImageIcon,
+    group: "Upload",
     keywords: ["photo", "picture", "upload"],
-    run: ({ editor, range }) => {
-      const url = window.prompt("Image URL");
-      const chain = editor.chain().focus().deleteRange(range);
-      if (url) chain.setImage({ src: url }).run();
-      else chain.run();
-    },
+    run: ({ editor, range }) => uploadImage(editor, range),
   },
+
+  // ── Insert ──────────────────────────────────────────────
   {
     title: "Table",
     subtitle: "Insert a 3 × 3 table",
     icon: TableIcon,
+    group: "Insert",
     keywords: ["grid", "rows", "columns"],
     run: ({ editor, range }) =>
       editor
@@ -166,6 +208,7 @@ const COMMANDS: CommandItem[] = [
     title: "Mention",
     subtitle: "Mention a person with @",
     icon: AtSign,
+    group: "Insert",
     keywords: ["person", "user", "tag"],
     run: ({ editor, range }) =>
       editor.chain().focus().deleteRange(range).insertContent("@").run(),
@@ -174,6 +217,7 @@ const COMMANDS: CommandItem[] = [
     title: "Emoji",
     subtitle: "Insert an emoji with :",
     icon: Smile,
+    group: "Insert",
     keywords: ["emoticon", "smiley", "react"],
     run: ({ editor, range }) =>
       editor.chain().focus().deleteRange(range).insertContent(":").run(),
@@ -182,6 +226,7 @@ const COMMANDS: CommandItem[] = [
     title: "Separator",
     subtitle: "Horizontal rule",
     icon: Minus,
+    group: "Insert",
     keywords: ["hr", "line", "divider"],
     run: ({ editor, range }) =>
       editor.chain().focus().deleteRange(range).setHorizontalRule().run(),
@@ -232,40 +277,45 @@ const SlashCommandList = forwardRef<SlashMenuRef, SlashMenuProps>(
         transition={{ duration: 0.14, ease: [0.16, 1, 0.3, 1] }}
         className="w-72 max-h-80 overflow-y-auto rounded-xl border border-border bg-card shadow-[0_12px_40px_rgba(0,0,0,0.16)] p-1.5"
       >
-        <span className="block text-xs font-semibold text-foreground opacity-50 border-b border-border mb-1.5 pb-1 px-2.5">
-          Styles
-        </span>
         {items.map((item, i) => {
           const Icon = item.icon;
           const isActive = i === selected;
+          // Render a section header whenever the group changes.
+          const showHeader = i === 0 || items[i - 1].group !== item.group;
           return (
-            <button
-              key={item.title}
-              type="button"
-              onMouseEnter={() => setSelected(i)}
-              onClick={() => command(item)}
-              className={`w-full flex items-center gap-3 px-2.5 py-1.5 rounded-lg text-left transition-colors ${
-                isActive ? "bg-muted" : "hover:bg-muted/60"
-              }`}
-            >
-              <span
-                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border ${
-                  isActive
-                    ? "bg-primary/10 text-primary"
-                    : "bg-background text-muted-foreground"
+            <React.Fragment key={item.title}>
+              {showHeader && (
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-2.5 pt-2 first:pt-1 my-1.5 first:mt-0 border-t first:border-t-0 border-border">
+                  {item.group}
+                </span>
+              )}
+              <button
+                type="button"
+                onMouseEnter={() => setSelected(i)}
+                onClick={() => command(item)}
+                className={`w-full flex items-center gap-3 px-2.5 py-1.5 rounded-lg text-left transition-colors ${
+                  isActive ? "bg-muted" : "hover:bg-muted/60"
                 }`}
               >
-                <Icon className="w-4 h-4" />
-              </span>
-              <span className="min-w-0">
-                <span className="block text-sm font-semibold text-foreground">
-                  {item.title}
+                <span
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border ${
+                    isActive
+                      ? "bg-primary/10 text-primary"
+                      : "bg-background text-muted-foreground"
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
                 </span>
-                <span className="block text-[11px] text-muted-foreground truncate">
-                  {item.subtitle}
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold text-foreground">
+                    {item.title}
+                  </span>
+                  <span className="block text-[11px] text-muted-foreground truncate">
+                    {item.subtitle}
+                  </span>
                 </span>
-              </span>
-            </button>
+              </button>
+            </React.Fragment>
           );
         })}
       </motion.div>
