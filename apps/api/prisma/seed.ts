@@ -148,30 +148,54 @@ async function main() {
     });
   }
 
-  const editor = await prisma.user.upsert({
-    where: { email: 'editor@acme.com' },
-    update: { password: passwordHash, organizationId: org.id },
+  // Helper: ensure a user exists in an org with a given role (idempotent).
+  const ensureMember = async (
+    email: string,
+    name: string,
+    organizationId: string,
+    role: Role,
+  ) => {
+    const u = await prisma.user.upsert({
+      where: { email },
+      update: { password: passwordHash, organizationId },
+      create: { email, name, password: passwordHash, organizationId },
+    });
+    const existing = await prisma.userRole.findFirst({
+      where: { userId: u.id, organizationId },
+    });
+    if (!existing) {
+      await prisma.userRole.create({ data: { userId: u.id, organizationId, role } });
+    }
+  };
+
+  // One user per role inside Acme (Pro plan).
+  await ensureMember('editor@acme.com', 'Acme Editor', org.id, Role.EDITOR);
+  await ensureMember('user@acme.com', 'Acme User', org.id, Role.USER);
+  await ensureMember('viewer@acme.com', 'Acme Viewer', org.id, Role.VIEWER);
+
+  // ── Second company on the Free plan (shows package-based nav gating) ──
+  const bloom = await prisma.organization.upsert({
+    where: { slug: 'bloom-studio' },
+    update: {},
     create: {
-      email: 'editor@acme.com',
-      name: 'Acme Editor',
-      password: passwordHash,
-      organizationId: org.id,
+      name: 'Bloom Studio',
+      slug: 'bloom-studio',
+      email: 'admin@bloom.com',
+      maxUsers: 3,
+      subscription: {
+        create: { packageId: bySlug['free'], billingEmail: 'admin@bloom.com' },
+      },
     },
   });
-  const existingEditorRole = await prisma.userRole.findFirst({
-    where: { userId: editor.id, organizationId: org.id },
-  });
-  if (!existingEditorRole) {
-    await prisma.userRole.create({
-      data: { userId: editor.id, organizationId: org.id, role: Role.EDITOR },
-    });
-  }
+  await ensureMember('admin@bloom.com', 'Bloom Admin', bloom.id, Role.ORG_ADMIN);
 
-  console.log('✅ Seed complete');
-  console.log('   Super admin : superadmin@vyntra.com');
-  console.log('   Org admin   : admin@acme.com (Acme Corp, Pro plan)');
-  console.log('   Editor      : editor@acme.com');
-  console.log(`   Password    : ${PASSWORD}`);
+  console.log(`✅ Seed complete  (password for all accounts: ${PASSWORD})`);
+  console.log('   SUPER_ADMIN : superadmin@vyntra.com');
+  console.log('   ORG_ADMIN   : admin@acme.com    (Acme Corp · Pro)');
+  console.log('   EDITOR      : editor@acme.com   (Acme Corp · Pro)');
+  console.log('   USER        : user@acme.com     (Acme Corp · Pro)');
+  console.log('   VIEWER      : viewer@acme.com   (Acme Corp · Pro)');
+  console.log('   ORG_ADMIN   : admin@bloom.com   (Bloom Studio · Free)');
 }
 
 main()
