@@ -92,7 +92,7 @@ export default function Canvas() {
                 regardless of the editor theme (blocks are designed for a white page). */}
             <div
               data-canvas-scroll
-              className="flex-1 overflow-y-auto bg-white text-gray-900 relative @container"
+              className="flex-1 overflow-y-auto bg-card text-gray-900 relative @container"
             >
               {responsiveMode !== "desktop" && (
                 <div className="absolute -top-px left-0 right-0 flex justify-end pointer-events-none z-10">

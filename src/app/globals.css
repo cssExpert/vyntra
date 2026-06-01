@@ -172,7 +172,8 @@
   }
 
   .max-h-125 {
-    max-height: 31.25rem;
+    /* max-height: 31.25rem; */
+    max-height: calc(100dvh - 270px);
   }
 }
 
@@ -255,11 +256,6 @@
   /* Badge */
   .badge {
     @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium;
-  }
-
-  /* Data table */
-  .data-table thead tr {
-    @apply border-b border-border bg-muted/50;
   }
 
   .data-table thead th {
@@ -647,7 +643,7 @@
   width: 100%;
   max-width: 100%;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
   margin: 0.75rem 0;
 }
 /* Grow to content width (so wide tables scroll), but fill the container when

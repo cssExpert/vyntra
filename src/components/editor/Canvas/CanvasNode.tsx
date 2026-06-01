@@ -204,7 +204,7 @@ export default function CanvasNode({
           : isHovered
             ? "outline outline-1 outline-primary dark:outline-primary/30"
             : showOutlines
-              ? "outline outline-1 outline-black/6"
+              ? "outline outline-1 outline-black/[0.08] dark:outline-white/15"
               : "";
 
   // Focus + place cursor at end when editing starts

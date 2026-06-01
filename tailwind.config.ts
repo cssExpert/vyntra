@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import plugin from "tailwindcss/plugin";
 
 const config: Config = {
   darkMode: ["class"],
@@ -192,6 +193,10 @@ const config: Config = {
     require("@tailwindcss/forms"),
     require("@tailwindcss/typography"),
     require("@tailwindcss/container-queries"),
+    // Your custom data-active variant merged here cleanly
+    plugin(({ addVariant }) => {
+      addVariant("data-active", '&[data-active="true"]');
+    }),
   ],
 };
 

@@ -143,7 +143,7 @@ function PageSettingsDialog({
                   <TabsTrigger
                     key={tab}
                     value={tab}
-                    className="flex-0 pb-3 px-4 text-sm capitalize rounded-none border-0 data-active:text-primary dark:data-active:text-primary data-active:after:bg-primary dark:data-active:after:bg-primary group-data-horizontal/tabs:after:-bottom-0.5!"
+                    className="flex-0 pb-3 px-4 text-sm capitalize rounded-none border-0 data-[state=active]:text-primary data-[state=active]:after:bg-primary dark:data-[state=active]:after:bg-primary group-data-horizontal/tabs:after:-bottom-0.5!"
                   >
                     {tab === "meta"
                       ? "Meta tags"
