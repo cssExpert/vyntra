@@ -235,7 +235,6 @@ export function UsersView() {
         header: "Phone",
         size: 150,
         enableSorting: false,
-        cell: ({ getValue }) => getValue(),
       }),
       columnHelper.accessor("role", {
         header: "Role",
@@ -407,7 +406,6 @@ export function UsersView() {
       left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
       right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
       zIndex: isPinned ? 2 : undefined,
-      backgroundColor: isPinned ? "hsl(var(--card))" : undefined,
       boxShadow:
         isLastLeft && canScrollLeft
           ? "4px 0 6px -2px rgba(0,0,0,0.08)"
@@ -641,7 +639,7 @@ export function UsersView() {
                   <div
                     ref={setScrollEl}
                     className="overflow-x-auto overflow-y-auto"
-                    style={{ maxHeight: "calc(100vh - 320px)" }}
+                    style={{ maxHeight: "calc(100vh - 325px)" }}
                   >
                     <table
                       className="text-left border-collapse"
@@ -680,6 +678,9 @@ export function UsersView() {
                                   style={{
                                     ...getCommonPinningStyles(header.column),
                                     width: header.getSize(),
+                                    ...(header.column.getIsPinned()
+                                      ? { zIndex: 20 }
+                                      : {}),
                                   }}
                                 >
                                   <div

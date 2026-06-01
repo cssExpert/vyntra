@@ -15,6 +15,7 @@ import {
   ChevronUp,
   ChevronDown,
   ChevronsUpDown,
+  ListFilterPlus,
 } from "lucide-react";
 import {
   useReactTable,
@@ -52,25 +53,125 @@ export interface CmsPage {
 // ─── Seed data ───────────────────────────────────────────────────────────────
 
 const INITIAL_PAGES: CmsPage[] = [
-  { id: "1", title: "Home", slug: "home", author: "Ravi Gupta", status: "Public", createdAt: "05-26-2026", updatedAt: "06-01-2026" },
-  { id: "2", title: "About Us", slug: "about-us", author: "Ravi Gupta", status: "Public", createdAt: "05-26-2026", updatedAt: "05-26-2026" },
-  { id: "3", title: "Contact Us", slug: "contact-us", author: "Ravi Gupta", status: "Public", createdAt: "05-26-2026", updatedAt: "05-26-2026" },
-  { id: "4", title: "Services", slug: "services", author: "Vasudev Sharma", status: "Draft", createdAt: "05-28-2026", updatedAt: "05-30-2026" },
-  { id: "5", title: "Blog", slug: "blog", author: "Vasudev Sharma", status: "Public", createdAt: "05-29-2026", updatedAt: "06-01-2026" },
-  { id: "6", title: "Privacy Policy", slug: "privacy-policy", author: "Ravi Gupta", status: "Private", createdAt: "05-30-2026", updatedAt: "05-30-2026" },
-  { id: "7", title: "Terms of Service", slug: "terms", author: "Ravi Gupta", status: "Private", createdAt: "05-30-2026", updatedAt: "05-30-2026" },
-  { id: "8", title: "FAQ", slug: "faq", author: "Vasudev Sharma", status: "Draft", createdAt: "06-01-2026", updatedAt: "06-01-2026" },
-  { id: "9", title: "Pricing", slug: "pricing", author: "Ravi Gupta", status: "Public", createdAt: "06-01-2026", updatedAt: "06-01-2026" },
-  { id: "10", title: "Careers", slug: "careers", author: "Vasudev Sharma", status: "Draft", createdAt: "06-01-2026", updatedAt: "06-01-2026" },
-  { id: "11", title: "Press Kit", slug: "press", author: "Ravi Gupta", status: "Private", createdAt: "06-01-2026", updatedAt: "06-01-2026" },
-  { id: "12", title: "Cookie Policy", slug: "cookies", author: "Ravi Gupta", status: "Public", createdAt: "06-01-2026", updatedAt: "06-01-2026" },
+  {
+    id: "1",
+    title: "Home",
+    slug: "home",
+    author: "Ravi Gupta",
+    status: "Public",
+    createdAt: "05-26-2026",
+    updatedAt: "06-01-2026",
+  },
+  {
+    id: "2",
+    title: "About Us",
+    slug: "about-us",
+    author: "Ravi Gupta",
+    status: "Public",
+    createdAt: "05-26-2026",
+    updatedAt: "05-26-2026",
+  },
+  {
+    id: "3",
+    title: "Contact Us",
+    slug: "contact-us",
+    author: "Ravi Gupta",
+    status: "Public",
+    createdAt: "05-26-2026",
+    updatedAt: "05-26-2026",
+  },
+  {
+    id: "4",
+    title: "Services",
+    slug: "services",
+    author: "Vasudev Sharma",
+    status: "Draft",
+    createdAt: "05-28-2026",
+    updatedAt: "05-30-2026",
+  },
+  {
+    id: "5",
+    title: "Blog",
+    slug: "blog",
+    author: "Vasudev Sharma",
+    status: "Public",
+    createdAt: "05-29-2026",
+    updatedAt: "06-01-2026",
+  },
+  {
+    id: "6",
+    title: "Privacy Policy",
+    slug: "privacy-policy",
+    author: "Ravi Gupta",
+    status: "Private",
+    createdAt: "05-30-2026",
+    updatedAt: "05-30-2026",
+  },
+  {
+    id: "7",
+    title: "Terms of Service",
+    slug: "terms",
+    author: "Ravi Gupta",
+    status: "Private",
+    createdAt: "05-30-2026",
+    updatedAt: "05-30-2026",
+  },
+  {
+    id: "8",
+    title: "FAQ",
+    slug: "faq",
+    author: "Vasudev Sharma",
+    status: "Draft",
+    createdAt: "06-01-2026",
+    updatedAt: "06-01-2026",
+  },
+  {
+    id: "9",
+    title: "Pricing",
+    slug: "pricing",
+    author: "Ravi Gupta",
+    status: "Public",
+    createdAt: "06-01-2026",
+    updatedAt: "06-01-2026",
+  },
+  {
+    id: "10",
+    title: "Careers",
+    slug: "careers",
+    author: "Vasudev Sharma",
+    status: "Draft",
+    createdAt: "06-01-2026",
+    updatedAt: "06-01-2026",
+  },
+  {
+    id: "11",
+    title: "Press Kit",
+    slug: "press",
+    author: "Ravi Gupta",
+    status: "Private",
+    createdAt: "06-01-2026",
+    updatedAt: "06-01-2026",
+  },
+  {
+    id: "12",
+    title: "Cookie Policy",
+    slug: "cookies",
+    author: "Ravi Gupta",
+    status: "Public",
+    createdAt: "06-01-2026",
+    updatedAt: "06-01-2026",
+  },
 ];
 
 // ─── Module-level TanStack helpers ───────────────────────────────────────────
 
 const columnHelper = createColumnHelper<CmsPage>();
 
-const titleAuthorFilter: FilterFn<CmsPage> = (row, _columnId, filterValue: string) => {
+const titleAuthorFilter: FilterFn<CmsPage> = (
+  row,
+  _columnId,
+  filterValue: string,
+) => {
   const q = filterValue.toLowerCase();
   return (
     row.original.title.toLowerCase().includes(q) ||
@@ -108,10 +209,17 @@ function StatusBadge({ status }: { status: PageStatus }) {
 function pageWindow(current: number, total: number): (number | "…")[] {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i);
   const pages: (number | "…")[] = [];
-  const add = (n: number) => { if (!pages.includes(n)) pages.push(n); };
+  const add = (n: number) => {
+    if (!pages.includes(n)) pages.push(n);
+  };
   add(0);
   if (current > 2) pages.push("…");
-  for (let i = Math.max(1, current - 1); i <= Math.min(total - 2, current + 1); i++) add(i);
+  for (
+    let i = Math.max(1, current - 1);
+    i <= Math.min(total - 2, current + 1);
+    i++
+  )
+    add(i);
   if (current < total - 3) pages.push("…");
   add(total - 1);
   return pages;
@@ -124,9 +232,45 @@ export function PagesView() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
   const [deletingPage, setDeletingPage] = useState<CmsPage | null>(null);
+  const [editingPage, setEditingPage] = useState<CmsPage | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    title: "",
+    slug: "",
+    author: "",
+    status: "Public" as PageStatus,
+  });
   const isLoaded = usePageLoad(700);
+
+  const handleEditPageClick = (page: CmsPage) => {
+    setEditingPage(page);
+    setEditFormData({
+      title: page.title,
+      slug: page.slug,
+      author: page.author,
+      status: page.status,
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleEditSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPage) return;
+    setPages((prev) =>
+      prev.map((p) =>
+        p.id === editingPage.id
+          ? { ...p, ...editFormData, updatedAt: todayFormatted() }
+          : p,
+      ),
+    );
+    setIsModalOpen(false);
+    setEditingPage(null);
+  };
 
   // Disable outer page scroll — table scrolls internally
   useEffect(() => {
@@ -226,7 +370,7 @@ export function PagesView() {
                   {
                     label: "Edit",
                     icon: <PencilLine size={13} className="stroke-[2.5]" />,
-                    onClick: () => console.log("Edit", page.slug),
+                    onClick: () => handleEditPageClick(page),
                   },
                   {
                     label: "Preview",
@@ -298,6 +442,11 @@ export function PagesView() {
   const toEntry = Math.min((pageIndex + 1) * pageSize, filteredCount);
   const pageCount = table.getPageCount();
   const selectedCount = Object.keys(rowSelection).length;
+  const handleAddPageClick = () => {
+    setEditingPage(null);
+    setEditFormData({ title: "", slug: "", author: "", status: "Public" });
+    setIsModalOpen(true);
+  };
 
   return (
     <AnimatePresence mode="wait" initial={false}>
@@ -328,7 +477,10 @@ export function PagesView() {
             />
 
             <div className="flex items-center gap-2 flex-wrap">
-              <button className="inline-flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer group active:scale-[0.98]">
+              <button
+                onClick={handleAddPageClick}
+                className="inline-flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer group active:scale-[0.98]"
+              >
                 <Plus
                   size={16}
                   className="stroke-[3] transition-transform group-hover:rotate-90 duration-300"
@@ -368,11 +520,15 @@ export function PagesView() {
           <div className="mt-6 bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden">
             <div
               className="overflow-x-auto overflow-y-auto"
-              style={{ height: "calc(100vh - 260px)" }}
+              style={{ maxHeight: "calc(100vh - 270px)" }}
             >
               <table
                 className="text-left border-collapse"
-                style={{ tableLayout: "fixed", width: "100%", minWidth: "920px" }}
+                style={{
+                  tableLayout: "fixed",
+                  width: "100%",
+                  minWidth: "920px",
+                }}
               >
                 {/* Thead */}
                 <thead>
@@ -561,6 +717,54 @@ export function PagesView() {
               </div>
             </div>
           </div>
+
+          {/* ── Edit Page Modal ─────────────────────────────────────────────── */}
+          <Modal
+            isOpen={isModalOpen}
+            onClose={() => {
+              setIsModalOpen(false);
+              setEditingPage(null);
+            }}
+            title={editingPage ? "Edit Page" : "Add New Page"}
+            description={
+              editingPage
+                ? "Update page parameters and content."
+                : "Add a new page to your website with fully editable sections and dynamic content support."
+            }
+            icon={
+              editingPage ? (
+                <PencilLine size={18} className="stroke-[2.5]" />
+              ) : (
+                <ListFilterPlus size={18} />
+              )
+            }
+            maxWidth="xxxl"
+            footer={
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    setEditingPage(null);
+                  }}
+                  className="px-4 py-2.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm text-sm font-semibold transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  form="page-edit-form"
+                  className="px-5 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-sm text-sm font-semibold transition-all shadow-sm active:scale-95"
+                >
+                  Save Changes
+                </button>
+              </>
+            }
+          >
+            <form id="page-edit-form" onSubmit={handleEditSubmit}>
+              <div className="p-6 space-y-4">RG</div>
+            </form>
+          </Modal>
 
           {/* ── Delete confirmation modal ───────────────────────────────────── */}
           <Modal

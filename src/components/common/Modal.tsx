@@ -9,6 +9,8 @@ const maxWidthMap = {
   md: "max-w-md",
   lg: "max-w-lg",
   xl: "max-w-xl",
+  xxl: "max-w-6xl",
+  xxxl: "max-w-9xl",
 } as const;
 
 export interface ModalProps {
@@ -77,7 +79,9 @@ export function Modal({
                   </div>
                 )}
                 <div className="min-w-0">
-                  <h3 className="text-base font-bold text-foreground">{title}</h3>
+                  <h3 className="text-base font-bold text-foreground">
+                    {title}
+                  </h3>
                   {description && (
                     <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
                       {description}
