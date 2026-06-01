@@ -323,12 +323,12 @@ export default function BlockPickerModal({
     <DialogPrimitive.Root open={open} onOpenChange={handleOpenChange}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Backdrop
-          className="fixed inset-0 z-150 bg-black/40 backdrop-blur-sm
+          className="fixed inset-0 z-[150] bg-black/40 backdrop-blur-sm
             data-open:animate-in data-open:fade-in-0
             data-closed:animate-out data-closed:fade-out-0 duration-150"
         />
         <DialogPrimitive.Popup
-          className="fixed top-1/2 left-1/2 z-250 -translate-x-1/2 -translate-y-1/2
+          className="fixed top-1/2 left-1/2 z-[250] -translate-x-1/2 -translate-y-1/2
             w-[calc(100vw-2rem)] max-w-4xl max-h-[calc(100vh-4rem)]
             flex flex-col bg-card
             rounded-2xl shadow-2xl outline-none overflow-hidden

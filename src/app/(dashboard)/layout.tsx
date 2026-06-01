@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { CommandPaletteProvider } from "@/components/layout/CommandPalette";
@@ -16,7 +16,11 @@ export default function DashboardLayout({
 }) {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   const { isCollapsed, isMobileOpen, toggle, closeMobile } = useSidebar();
+
+  // The visual builder takes over the whole viewport — no app chrome.
+  const isFullscreenEditor = pathname === "/cms/editor";
 
   // Redirect unauthenticated users to login
   useEffect(() => {
@@ -27,6 +31,11 @@ export default function DashboardLayout({
 
   // Show nothing while checking auth to avoid flash
   if (isLoading || !isAuthenticated) return null;
+
+  // Full-screen editor: render the page on its own, no sidebar / topbar / padding.
+  if (isFullscreenEditor) {
+    return <CommandPaletteProvider>{children}</CommandPaletteProvider>;
+  }
 
   return (
     <CommandPaletteProvider>

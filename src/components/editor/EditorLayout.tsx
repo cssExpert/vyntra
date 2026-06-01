@@ -27,6 +27,7 @@ const BottomToolbar = dynamic(() => import("./BottomToolbar"), {
 import { ExternalLink } from "lucide-react";
 import { useEditorStore } from "@/store/editorStore";
 import { COMPONENT_BLOCKS } from "@/lib/componentBlocks";
+import Icon from "@/components/common/Icon";
 import Canvas from "./Canvas";
 import RightSidebar from "./RightSidebar";
 import ThemeSwitcher from "./ThemeSwitcher";
@@ -50,8 +51,7 @@ function EditorHeader() {
       bg-trsnsparent"
     >
       {/* Right actions */}
-      <div className="flex flex-1 items-center justify-between gap-3">
-        <ThemeSwitcher />
+      <div className="flex flex-1 items-center justify-end gap-3">
         <div className="inline-flex items-center gap-2">
           <a
             href="#"
