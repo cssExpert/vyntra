@@ -2,7 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { X, Search, Loader2 } from "lucide-react";
-import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
+import {
+  MotionModal,
+  MotionModalTitle,
+  MotionModalClose,
+} from "./ui/MotionModal";
 import { COMPONENT_BLOCKS, CATEGORIES } from "@/lib/componentBlocks";
 import type { ComponentBlock } from "@/types/editor";
 import { cn } from "@/lib/utils";
@@ -312,35 +316,23 @@ export default function BlockPickerModal({
     onClose();
   }
 
-  function handleOpenChange(isOpen: boolean) {
-    if (!isOpen) {
-      onClose();
-      clearSearch();
-    }
+  function handleClose() {
+    onClose();
+    clearSearch();
   }
 
   return (
-    <DialogPrimitive.Root open={open} onOpenChange={handleOpenChange}>
-      <DialogPrimitive.Portal>
-        <DialogPrimitive.Backdrop
-          className="fixed inset-0 z-[150] bg-black/40 backdrop-blur-sm
-            data-open:animate-in data-open:fade-in-0
-            data-closed:animate-out data-closed:fade-out-0 duration-150"
-        />
-        <DialogPrimitive.Popup
-          className="fixed top-1/2 left-1/2 z-[250] -translate-x-1/2 -translate-y-1/2
-            w-[calc(100vw-2rem)] max-w-4xl max-h-[calc(100vh-4rem)]
-            flex flex-col bg-card
-            rounded-2xl shadow-2xl outline-none overflow-hidden
-            data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95
-            data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95
-            duration-150"
-        >
-          {/* Header */}
-          <div className="flex items-center gap-4 px-6 py-4 border-b border-border dark:border-white/8 shrink-0">
-            <DialogPrimitive.Title className="text-base font-semibold text-foreground dark:text-white shrink-0">
-              Add Block
-            </DialogPrimitive.Title>
+    <MotionModal
+      open={open}
+      onClose={handleClose}
+      className="w-[calc(100vw-2rem)] max-w-4xl max-h-[calc(100vh-4rem)]
+        flex flex-col bg-card rounded-2xl shadow-2xl overflow-hidden"
+    >
+      {/* Header */}
+      <div className="flex items-center gap-4 px-6 py-4 border-b border-border dark:border-white/8 shrink-0">
+        <MotionModalTitle className="text-base font-semibold text-foreground dark:text-white shrink-0">
+          Add Block
+        </MotionModalTitle>
 
             {/* Search */}
             <div className="relative flex-1">
@@ -384,13 +376,12 @@ export default function BlockPickerModal({
               )}
             </div>
 
-            <DialogPrimitive.Close
+            <MotionModalClose
               className="p-1.5 rounded-lg text-muted-foreground hover:text-muted-foreground hover:bg-muted
                 dark:text-muted-foreground dark:hover:text-muted-foreground dark:hover:bg-card/8 transition-colors shrink-0"
-              onClick={onClose}
             >
               <X className="w-4 h-4" />
-            </DialogPrimitive.Close>
+            </MotionModalClose>
           </div>
 
           {/* Body */}
@@ -469,8 +460,6 @@ export default function BlockPickerModal({
               )}
             </div>
           </div>
-        </DialogPrimitive.Popup>
-      </DialogPrimitive.Portal>
-    </DialogPrimitive.Root>
+      </MotionModal>
   );
 }

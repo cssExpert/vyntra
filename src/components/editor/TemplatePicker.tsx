@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import { X, Layers as LayersPlus } from "lucide-react";
-import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
+import {
+  MotionModal,
+  MotionModalTitle,
+  MotionModalClose,
+} from "./ui/MotionModal";
 import { cn } from "@/lib/utils";
 import { useEditorStore } from "@/store/editorStore";
 import { nanoid } from "nanoid";
@@ -2509,40 +2513,24 @@ export default function TemplatePicker({ open, onClose }: TemplatePickerProps) {
   }
 
   return (
-    <DialogPrimitive.Root
+    <MotionModal
       open={open}
-      onOpenChange={(o) => {
-        if (!o) onClose();
-      }}
+      onClose={onClose}
+      className="w-[calc(100vw-2rem)] max-w-5xl max-h-[calc(100vh-3rem)]
+        flex flex-col bg-card rounded-2xl shadow-2xl overflow-hidden"
     >
-      <DialogPrimitive.Portal>
-        <DialogPrimitive.Backdrop
-          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm
-            data-open:animate-in data-open:fade-in-0
-            data-closed:animate-out data-closed:fade-out-0 duration-150"
-        />
-        <DialogPrimitive.Popup
-          className="fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2
-            w-[calc(100vw-2rem)] max-w-5xl max-h-[calc(100vh-3rem)]
-            flex flex-col bg-card
-            rounded-2xl shadow-2xl outline-none overflow-hidden
-            data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95
-            data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95
-            duration-150"
+      {/* Header */}
+      <div className="flex items-center justify-between px-7 py-5 border-b border-border dark:border-white/8 shrink-0">
+        <MotionModalTitle className="text-lg font-semibold text-foreground dark:text-white">
+          Pick a Template
+        </MotionModalTitle>
+        <MotionModalClose
+          className="p-1.5 rounded-lg text-muted-foreground hover:text-muted-foreground hover:bg-muted
+            dark:text-muted-foreground dark:hover:text-muted-foreground dark:hover:bg-card/8 transition-colors"
         >
-          {/* Header */}
-          <div className="flex items-center justify-between px-7 py-5 border-b border-border dark:border-white/8 shrink-0">
-            <DialogPrimitive.Title className="text-lg font-semibold text-foreground dark:text-white">
-              Pick a Template
-            </DialogPrimitive.Title>
-            <DialogPrimitive.Close
-              className="p-1.5 rounded-lg text-muted-foreground hover:text-muted-foreground hover:bg-muted
-                dark:text-muted-foreground dark:hover:text-muted-foreground dark:hover:bg-card/8 transition-colors"
-              onClick={onClose}
-            >
-              <X className="w-4 h-4" />
-            </DialogPrimitive.Close>
-          </div>
+          <X className="w-4 h-4" />
+        </MotionModalClose>
+      </div>
 
           {/* Body */}
           <div className="flex flex-1 min-h-0">
@@ -2607,8 +2595,6 @@ export default function TemplatePicker({ open, onClose }: TemplatePickerProps) {
               </div>
             </div>
           </div>
-        </DialogPrimitive.Popup>
-      </DialogPrimitive.Portal>
-    </DialogPrimitive.Root>
+      </MotionModal>
   );
 }

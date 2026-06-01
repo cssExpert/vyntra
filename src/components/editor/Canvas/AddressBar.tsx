@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import {
   ChevronLeft,
@@ -21,20 +21,18 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip";
+import { motion } from "framer-motion";
 import {
   DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { MotionDropdownContent } from "../ui/MotionDropdown";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
+  MotionModal,
+  MotionModalTitle,
+  MotionModalDescription,
+} from "../ui/MotionModal";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 import { cn } from "@/lib/utils";
@@ -86,6 +84,7 @@ function PageSettingsDialog({
 }) {
   const [pageTitle, setPageTitle] = useState("");
   const [metaTags, setMetaTags] = useState<MetaTag[]>([]);
+  const [activeTab, setActiveTab] = useState("meta");
 
   const pageRef = useRef(page);
 
@@ -116,84 +115,90 @@ function PageSettingsDialog({
   //const inputCls =
   //("w-full min-h-10 w-full min-w-0 border border-input px-2.5 py-1 text-base transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus:border-primary focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 rounded-sm bg-card focus:border-primary! focus:ring-2 focus:ring-ring/20! dark:focus:border-primary! dark:focus-visible:ring-primary/25!");
 
+  const tabPanels: { value: string; label: string; panel: ReactNode }[] = [
+    { value: "meta", label: "Meta tags", panel: <MetaTitle /> },
+    { value: "open graphs", label: "Open graphs", panel: <OpenGraphs /> },
+    { value: "styles", label: "Styles", panel: <Styles /> },
+    { value: "scripts", label: "Scripts", panel: <Scripts /> },
+    { value: "favicon", label: "Favicon", panel: <Favicon /> },
+  ];
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-250! w-full p-0 gap-0 overflow-hidden">
-        <DialogHeader className="px-6 pt-6 pb-4">
-          <DialogTitle className="text-lg font-semibold text-foreground dark:text-foreground">
-            Page settings
-          </DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground dark:text-muted-foreground">
-            Edit settings for{" "}
-            <span className="font-medium text-primary dark:text-primary">
-              {page?.fileName}
-            </span>
-          </DialogDescription>
-        </DialogHeader>
+    <MotionModal
+      open={open}
+      onClose={() => onOpenChange(false)}
+      className="w-[calc(100vw-2rem)] max-w-250 flex flex-col bg-card rounded-2xl shadow-2xl overflow-hidden"
+    >
+      <div className="flex flex-col gap-1.5 text-left px-6 pt-6 pb-4">
+        <MotionModalTitle className="text-lg font-semibold text-foreground dark:text-foreground">
+          Page settings
+        </MotionModalTitle>
+        <MotionModalDescription className="text-sm text-muted-foreground dark:text-muted-foreground">
+          Edit settings for{" "}
+          <span className="font-medium text-primary dark:text-primary">
+            {page?.fileName}
+          </span>
+        </MotionModalDescription>
+      </div>
 
-        <Tabs defaultValue="meta" className="flex-1 gap-0">
-          <div className="px-6 pt-4 border-b border-border dark:border-border">
-            <TabsList
-              variant="line"
-              className="gap-4 h-auto pb-0 w-full justify-start rounded-none bg-transparent"
-              data-horizontal
-            >
-              {["meta", "open graphs", "styles", "scripts", "favicon"].map(
-                (tab) => (
-                  <TabsTrigger
-                    key={tab}
-                    value={tab}
-                    className="flex-0 pb-3 px-4 text-sm capitalize rounded-none border-0 data-[state=active]:text-primary data-[state=active]:after:bg-primary dark:data-[state=active]:after:bg-primary group-data-horizontal/tabs:after:-bottom-0.5!"
-                  >
-                    {tab === "meta"
-                      ? "Meta tags"
-                      : tab.charAt(0).toUpperCase() + tab.slice(1)}
-                  </TabsTrigger>
-                ),
-              )}
-            </TabsList>
-          </div>
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="flex-1 gap-0"
+      >
+        <div className="px-6 pt-4 border-b border-border dark:border-border">
+          <TabsList className="gap-4 h-auto p-0 pb-0 w-full justify-start rounded-none bg-transparent">
+            {tabPanels.map(({ value, label }) => (
+              <TabsTrigger
+                key={value}
+                value={value}
+                className="relative flex-0 pb-3 px-4 text-sm rounded-none border-0 bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-primary"
+              >
+                {label}
+                {activeTab === value && (
+                  <motion.span
+                    layoutId="pageSettingsTabUnderline"
+                    className="absolute -bottom-px left-0 right-0 h-0.5 rounded-full bg-primary"
+                    transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                  />
+                )}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
 
-          <div className="px-8 md:px-16 py-8 max-h-125 overflow-y-auto bg-muted dark:bg-background">
-            <TabsContent value="meta" className="space-y-5">
-              <MetaTitle />
+        <div className="px-8 md:px-16 py-8 max-h-125 overflow-y-auto bg-muted dark:bg-background">
+          {tabPanels.map(({ value, panel }) => (
+            <TabsContent key={value} value={value}>
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="space-y-5"
+              >
+                {panel}
+              </motion.div>
             </TabsContent>
+          ))}
+        </div>
+      </Tabs>
 
-            <TabsContent value="open graphs">
-              <OpenGraphs />
-            </TabsContent>
-
-            <TabsContent value="styles">
-              <Styles />
-            </TabsContent>
-
-            <TabsContent value="scripts">
-              <Scripts />
-            </TabsContent>
-
-            <TabsContent value="favicon">
-              <Favicon />
-            </TabsContent>
-          </div>
-        </Tabs>
-
-        <DialogFooter className="px-6 py-4 border-t m-0! border-border dark:border-border bg-muted dark:bg-card flex-row justify-end gap-2 rounded-none">
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            className="h-10 rounded-sm"
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSave}
-            className="h-10 rounded-sm bg-primary hover:bg-primary dark:bg-primary dark:hover:bg-primary dark:text-primary-foreground"
-          >
-            Save changes
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      <div className="flex flex-row justify-end gap-2 px-6 py-4 border-t border-border dark:border-border bg-muted dark:bg-card">
+        <Button
+          variant="outline"
+          onClick={() => onOpenChange(false)}
+          className="h-10 rounded-sm"
+        >
+          Cancel
+        </Button>
+        <Button
+          onClick={handleSave}
+          className="h-10 rounded-sm bg-primary hover:bg-primary dark:bg-primary dark:hover:bg-primary dark:text-primary-foreground"
+        >
+          Save changes
+        </Button>
+      </div>
+    </MotionModal>
   );
 }
 
@@ -359,7 +364,11 @@ const AddressBar = () => {
                   }
                 />
 
-                <DropdownMenuContent align="end" className="min-w-75 p-1">
+                <MotionDropdownContent
+                  open={dropdownOpen}
+                  align="end"
+                  className="min-w-75 p-1"
+                >
                   {/* Page rows */}
                   {pageList.map((page) => (
                     <div
@@ -506,7 +515,7 @@ const AddressBar = () => {
                     <ListPlus className="h-4 w-4" />
                     Add a page
                   </div>
-                </DropdownMenuContent>
+                </MotionDropdownContent>
               </DropdownMenu>
 
               <TooltipProvider>
