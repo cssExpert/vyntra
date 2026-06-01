@@ -33,5 +33,10 @@
   "devDependencies": {
     "@types/node": "^22.10.1",
     "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "@types/react-datepicker": "^7.0.0",
+    "react-datepicker": "^9.1.0",
+    "react-select": "^5.10.2"
   }
 }

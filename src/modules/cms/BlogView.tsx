@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
@@ -16,6 +17,7 @@ import {
   ChevronDown,
   ChevronsUpDown,
   ListFilterPlus,
+  MoreVertical,
 } from "lucide-react";
 import {
   useReactTable,
@@ -42,150 +44,28 @@ import {
   type TableSkeletonColumn,
 } from "@/components/common/TableSkeleton";
 import { usePageLoad } from "@/hooks/usePageLoad";
+import {
+  INITIAL_BLOGS,
+  type BlogStatus,
+  type CmsBlog,
+} from "@/modules/cms/blog-data";
 
 // Skeleton column layout mirrors the real table columns below.
 const SKELETON_COLUMNS: TableSkeletonColumn[] = [
   { width: "w-12", shape: "checkbox", align: "center" },
-  { width: "flex-[2.3]", shape: "text", cellWidth: "w-40", headerWidth: "w-10" },
-  { width: "flex-[1.6]", shape: "text", cellWidth: "w-24", headerWidth: "w-14" },
-  { width: "flex-[1.1]", shape: "badge", cellWidth: "w-16", headerWidth: "w-12" },
+  { width: "flex-[3]", shape: "text", cellWidth: "w-56", headerWidth: "w-10" },
   { width: "flex-[1.4]", shape: "text", cellWidth: "w-24", headerWidth: "w-14" },
-  { width: "flex-[1.4]", shape: "text", cellWidth: "w-24", headerWidth: "w-20" },
+  { width: "flex-[1.1]", shape: "badge", cellWidth: "w-16", headerWidth: "w-12" },
+  { width: "flex-[1.3]", shape: "text", cellWidth: "w-24", headerWidth: "w-14" },
+  { width: "flex-[1.4]", shape: "text", cellWidth: "w-24", headerWidth: "w-24" },
   { width: "w-20", shape: "actions", align: "end", headerWidth: "w-12" },
-];
-
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-export type PageStatus = "Public" | "Draft" | "Private";
-
-export interface CmsPage {
-  id: string;
-  title: string;
-  slug: string;
-  author: string;
-  status: PageStatus;
-  createdAt: string;
-  updatedAt: string;
-}
-
-// ─── Seed data ───────────────────────────────────────────────────────────────
-
-const INITIAL_PAGES: CmsPage[] = [
-  {
-    id: "1",
-    title: "Home",
-    slug: "home",
-    author: "Ravi Gupta",
-    status: "Public",
-    createdAt: "05-26-2026",
-    updatedAt: "06-01-2026",
-  },
-  {
-    id: "2",
-    title: "About Us",
-    slug: "about-us",
-    author: "Ravi Gupta",
-    status: "Public",
-    createdAt: "05-26-2026",
-    updatedAt: "05-26-2026",
-  },
-  {
-    id: "3",
-    title: "Contact Us",
-    slug: "contact-us",
-    author: "Ravi Gupta",
-    status: "Public",
-    createdAt: "05-26-2026",
-    updatedAt: "05-26-2026",
-  },
-  {
-    id: "4",
-    title: "Services",
-    slug: "services",
-    author: "Vasudev Sharma",
-    status: "Draft",
-    createdAt: "05-28-2026",
-    updatedAt: "05-30-2026",
-  },
-  {
-    id: "5",
-    title: "Blog",
-    slug: "blog",
-    author: "Vasudev Sharma",
-    status: "Public",
-    createdAt: "05-29-2026",
-    updatedAt: "06-01-2026",
-  },
-  {
-    id: "6",
-    title: "Privacy Policy",
-    slug: "privacy-policy",
-    author: "Ravi Gupta",
-    status: "Private",
-    createdAt: "05-30-2026",
-    updatedAt: "05-30-2026",
-  },
-  {
-    id: "7",
-    title: "Terms of Service",
-    slug: "terms",
-    author: "Ravi Gupta",
-    status: "Private",
-    createdAt: "05-30-2026",
-    updatedAt: "05-30-2026",
-  },
-  {
-    id: "8",
-    title: "FAQ",
-    slug: "faq",
-    author: "Vasudev Sharma",
-    status: "Draft",
-    createdAt: "06-01-2026",
-    updatedAt: "06-01-2026",
-  },
-  {
-    id: "9",
-    title: "Pricing",
-    slug: "pricing",
-    author: "Ravi Gupta",
-    status: "Public",
-    createdAt: "06-01-2026",
-    updatedAt: "06-01-2026",
-  },
-  {
-    id: "10",
-    title: "Careers",
-    slug: "careers",
-    author: "Vasudev Sharma",
-    status: "Draft",
-    createdAt: "06-01-2026",
-    updatedAt: "06-01-2026",
-  },
-  {
-    id: "11",
-    title: "Press Kit",
-    slug: "press",
-    author: "Ravi Gupta",
-    status: "Private",
-    createdAt: "06-01-2026",
-    updatedAt: "06-01-2026",
-  },
-  {
-    id: "12",
-    title: "Cookie Policy",
-    slug: "cookies",
-    author: "Ravi Gupta",
-    status: "Public",
-    createdAt: "06-01-2026",
-    updatedAt: "06-01-2026",
-  },
 ];
 
 // ─── Module-level TanStack helpers ───────────────────────────────────────────
 
-const columnHelper = createColumnHelper<CmsPage>();
+const columnHelper = createColumnHelper<CmsBlog>();
 
-const titleAuthorFilter: FilterFn<CmsPage> = (
+const titleAuthorFilter: FilterFn<CmsBlog> = (
   row,
   _columnId,
   filterValue: string,
@@ -206,7 +86,7 @@ function todayFormatted(): string {
 
 // ─── Status badge ─────────────────────────────────────────────────────────────
 
-function StatusBadge({ status }: { status: PageStatus }) {
+function StatusBadge({ status }: { status: BlogStatus }) {
   const cls =
     status === "Public"
       ? "bg-emerald-500 text-white"
@@ -245,15 +125,15 @@ function pageWindow(current: number, total: number): (number | "…")[] {
 
 // ─── Filter state ────────────────────────────────────────────────────────────
 
-interface PageFilters {
+interface BlogFilters {
   dateFrom: string;
   dateTo: string;
-  dateField: "all" | "createdAt" | "updatedAt";
-  status: "all" | PageStatus;
+  dateField: "all" | "createdAt" | "publishedAt";
+  status: "all" | BlogStatus;
   author: string;
 }
 
-const DEFAULT_FILTERS: PageFilters = {
+const DEFAULT_FILTERS: BlogFilters = {
   dateFrom: "",
   dateTo: "",
   dateField: "all",
@@ -269,8 +149,9 @@ function parseMDY(s: string): Date | null {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export function PagesView() {
-  const [pages, setPages] = useState<CmsPage[]>(INITIAL_PAGES);
+export function BlogView() {
+  const router = useRouter();
+  const [blogs, setBlogs] = useState<CmsBlog[]>(INITIAL_BLOGS);
   const [searchTerm, setSearchTerm] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
@@ -278,23 +159,15 @@ export function PagesView() {
     pageIndex: 0,
     pageSize: 10,
   });
-  const [deletingPage, setDeletingPage] = useState<CmsPage | null>(null);
-  const [editingPage, setEditingPage] = useState<CmsPage | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editFormData, setEditFormData] = useState({
-    title: "",
-    slug: "",
-    author: "",
-    status: "Public" as PageStatus,
-  });
-  const [filterDraft, setFilterDraft] = useState<PageFilters>(DEFAULT_FILTERS);
+  const [deletingBlog, setDeletingBlog] = useState<CmsBlog | null>(null);
+  const [filterDraft, setFilterDraft] = useState<BlogFilters>(DEFAULT_FILTERS);
   const [activeFilters, setActiveFilters] =
-    useState<PageFilters>(DEFAULT_FILTERS);
+    useState<BlogFilters>(DEFAULT_FILTERS);
   const isLoaded = usePageLoad(700);
 
   const uniqueAuthors = useMemo(
-    () => Array.from(new Set(pages.map((p) => p.author))).sort(),
-    [pages],
+    () => Array.from(new Set(blogs.map((b) => b.author))).sort(),
+    [blogs],
   );
 
   const hasActiveFilters = useMemo(
@@ -302,16 +175,16 @@ export function PagesView() {
     [activeFilters],
   );
 
-  const panelFilteredPages = useMemo(() => {
-    return pages.filter((page) => {
+  const panelFilteredBlogs = useMemo(() => {
+    return blogs.filter((blog) => {
       if (
         activeFilters.status !== "all" &&
-        page.status !== activeFilters.status
+        blog.status !== activeFilters.status
       )
         return false;
       if (
         activeFilters.author !== "all" &&
-        page.author !== activeFilters.author
+        blog.author !== activeFilters.author
       )
         return false;
       if (activeFilters.dateFrom || activeFilters.dateTo) {
@@ -326,44 +199,26 @@ export function PagesView() {
           if (to && d > to) return false;
           return true;
         };
-        if (activeFilters.dateField === "createdAt" && !inRange(page.createdAt))
+        if (activeFilters.dateField === "createdAt" && !inRange(blog.createdAt))
           return false;
-        if (activeFilters.dateField === "updatedAt" && !inRange(page.updatedAt))
+        if (
+          activeFilters.dateField === "publishedAt" &&
+          !inRange(blog.publishedAt)
+        )
           return false;
         if (
           activeFilters.dateField === "all" &&
-          !inRange(page.createdAt) &&
-          !inRange(page.updatedAt)
+          !inRange(blog.createdAt) &&
+          !inRange(blog.publishedAt)
         )
           return false;
       }
       return true;
     });
-  }, [pages, activeFilters]);
+  }, [blogs, activeFilters]);
 
-  const handleEditPageClick = (page: CmsPage) => {
-    setEditingPage(page);
-    setEditFormData({
-      title: page.title,
-      slug: page.slug,
-      author: page.author,
-      status: page.status,
-    });
-    setIsModalOpen(true);
-  };
-
-  const handleEditSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingPage) return;
-    setPages((prev) =>
-      prev.map((p) =>
-        p.id === editingPage.id
-          ? { ...p, ...editFormData, updatedAt: todayFormatted() }
-          : p,
-      ),
-    );
-    setIsModalOpen(false);
-    setEditingPage(null);
+  const handleEditBlogClick = (blog: CmsBlog) => {
+    router.push(`/cms/blogs/${blog.id}/edit`);
   };
 
   // Disable outer page scroll — table scrolls internally
@@ -413,14 +268,14 @@ export function PagesView() {
       // ── Title ─────────────────────────────────────────────────────────────
       columnHelper.accessor("title", {
         header: "Title",
-        size: 230,
+        size: 320,
         cell: ({ row, getValue }) => {
-          const page = row.original;
+          const blog = row.original;
           return (
             <button
               type="button"
-              onClick={() => handleEditPageClick(page)}
-              className="text-primary font-semibold cursor-pointer hover:underline underline-offset-2"
+              onClick={() => handleEditBlogClick(blog)}
+              className="text-primary font-semibold cursor-pointer hover:underline underline-offset-2 text-left"
             >
               {getValue()}
             </button>
@@ -431,7 +286,7 @@ export function PagesView() {
       // ── Author ────────────────────────────────────────────────────────────
       columnHelper.accessor("author", {
         header: "Author",
-        size: 160,
+        size: 150,
         cell: ({ getValue }) => getValue(),
       }),
 
@@ -449,10 +304,10 @@ export function PagesView() {
         cell: ({ getValue }) => getValue(),
       }),
 
-      // ── Updated on ────────────────────────────────────────────────────────
-      columnHelper.accessor("updatedAt", {
-        header: "Updated on",
-        size: 140,
+      // ── Published on ──────────────────────────────────────────────────────
+      columnHelper.accessor("publishedAt", {
+        header: "Published on",
+        size: 150,
         cell: ({ getValue }) => getValue(),
       }),
 
@@ -463,7 +318,7 @@ export function PagesView() {
         size: 90,
         enableSorting: false,
         cell: ({ row }) => {
-          const page = row.original;
+          const blog = row.original;
           return (
             <div className="flex justify-end">
               <TableActionMenu
@@ -471,28 +326,28 @@ export function PagesView() {
                   {
                     label: "Edit",
                     icon: <PencilLine size={13} className="stroke-[2.5]" />,
-                    onClick: () => handleEditPageClick(page),
+                    onClick: () => handleEditBlogClick(blog),
                   },
                   {
                     label: "Preview",
                     icon: <Eye size={13} />,
-                    onClick: () => window.open(`/${page.slug}`, "_blank"),
+                    onClick: () => window.open(`/blog/${blog.slug}`, "_blank"),
                   },
                   {
                     label: "Duplicate",
                     icon: <Copy size={13} />,
                     onClick: () => {
                       const today = todayFormatted();
-                      setPages((prev) => [
+                      setBlogs((prev) => [
                         ...prev,
                         {
-                          ...page,
+                          ...blog,
                           id: Date.now().toString(),
-                          title: `${page.title} (Copy)`,
-                          slug: `${page.slug}-copy-${Date.now()}`,
+                          title: `${blog.title} (Copy)`,
+                          slug: `${blog.slug}-copy-${Date.now()}`,
                           status: "Draft",
                           createdAt: today,
-                          updatedAt: today,
+                          publishedAt: today,
                         },
                       ]);
                     },
@@ -500,7 +355,7 @@ export function PagesView() {
                   {
                     label: "Delete",
                     icon: <Trash2 size={13} />,
-                    onClick: () => setDeletingPage(page),
+                    onClick: () => setDeletingBlog(blog),
                     variant: "danger",
                     separator: true,
                   },
@@ -516,7 +371,7 @@ export function PagesView() {
   );
 
   const table = useReactTable({
-    data: panelFilteredPages,
+    data: panelFilteredBlogs,
     columns,
     state: { globalFilter: searchTerm, sorting, rowSelection, pagination },
     onGlobalFilterChange: setSearchTerm,
@@ -532,9 +387,9 @@ export function PagesView() {
   });
 
   const handleConfirmDelete = () => {
-    if (!deletingPage) return;
-    setPages((prev) => prev.filter((p) => p.id !== deletingPage.id));
-    setDeletingPage(null);
+    if (!deletingBlog) return;
+    setBlogs((prev) => prev.filter((b) => b.id !== deletingBlog.id));
+    setDeletingBlog(null);
   };
 
   const { pageIndex, pageSize } = table.getState().pagination;
@@ -543,10 +398,9 @@ export function PagesView() {
   const toEntry = Math.min((pageIndex + 1) * pageSize, filteredCount);
   const pageCount = table.getPageCount();
   const selectedCount = Object.keys(rowSelection).length;
-  const handleAddPageClick = () => {
-    setEditingPage(null);
-    setEditFormData({ title: "", slug: "", author: "", status: "Public" });
-    setIsModalOpen(true);
+
+  const handleAddBlogClick = () => {
+    router.push("/cms/blogs/new");
   };
 
   return (
@@ -569,26 +423,29 @@ export function PagesView() {
           {/* ── Page Header ────────────────────────────────────────────────── */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <SectionTitle
-              title="Pages"
-              paragraph={`${filteredCount} ${filteredCount === 1 ? "page" : "pages"}${selectedCount > 0 ? ` · ${selectedCount} selected` : ""}`}
+              title="Blog"
+              paragraph={`${filteredCount} ${filteredCount === 1 ? "post" : "posts"}${selectedCount > 0 ? ` · ${selectedCount} selected` : ""}`}
               mb="0"
-              className="w-auto[\!]\important md:!w-auto lg:!w-auto"
+              className="!w-auto"
             />
 
             <div className="flex items-center gap-2">
               <button
-                onClick={handleAddPageClick}
+                onClick={handleAddBlogClick}
                 className="inline-flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer group active:scale-[0.98]"
               >
                 <Plus
                   size={16}
                   className="stroke-[3] transition-transform group-hover:rotate-90 duration-300"
                 />
-                Add Page
+                Add Blog
               </button>
               <button className="inline-flex items-center gap-2 rounded-sm border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted transition-all cursor-pointer active:scale-[0.98]">
                 <Download size={15} />
                 Export
+              </button>
+              <button className="inline-flex items-center justify-center rounded-sm border border-border bg-background px-2.5 py-2.5 text-foreground hover:bg-muted transition-all cursor-pointer active:scale-[0.98]">
+                <MoreVertical size={15} />
               </button>
 
               {/* Apply Filters */}
@@ -632,13 +489,13 @@ export function PagesView() {
                   onChange={(v) =>
                     setFilterDraft((f) => ({
                       ...f,
-                      dateField: v as PageFilters["dateField"],
+                      dateField: v as BlogFilters["dateField"],
                     }))
                   }
                   options={[
                     { value: "all", label: "All" },
                     { value: "createdAt", label: "Created" },
-                    { value: "updatedAt", label: "Updated On" },
+                    { value: "publishedAt", label: "Published On" },
                   ]}
                 />
 
@@ -649,7 +506,7 @@ export function PagesView() {
                   onChange={(v) =>
                     setFilterDraft((f) => ({
                       ...f,
-                      status: v as PageFilters["status"],
+                      status: v as BlogFilters["status"],
                     }))
                   }
                   options={[
@@ -681,7 +538,7 @@ export function PagesView() {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search pages..."
+                  placeholder="Search blog posts..."
                   className="pl-9 pr-8 py-2.5 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all w-52"
                 />
                 {searchTerm && (
@@ -707,7 +564,7 @@ export function PagesView() {
                 style={{
                   tableLayout: "fixed",
                   width: "100%",
-                  minWidth: "920px",
+                  minWidth: "1010px",
                 }}
               >
                 {/* Thead */}
@@ -774,7 +631,7 @@ export function PagesView() {
                       table.getRowModel().rows.map((row) => (
                         <motion.tr
                           key={row.id}
-                          layoutId={`page-row-${row.id}`}
+                          layoutId={`blog-row-${row.id}`}
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
@@ -814,10 +671,10 @@ export function PagesView() {
                           className="py-14 text-center text-muted-foreground bg-muted/10"
                         >
                           <p className="font-semibold text-foreground mb-1">
-                            No pages found
+                            No blog posts found
                           </p>
                           <p className="text-xs">
-                            Try adjusting your search or add a new page.
+                            Try adjusting your search or add a new blog post.
                           </p>
                         </td>
                       </tr>
@@ -898,64 +755,16 @@ export function PagesView() {
             </div>
           </div>
 
-          {/* ── Edit Page Modal ─────────────────────────────────────────────── */}
-          <Modal
-            isOpen={isModalOpen}
-            onClose={() => {
-              setIsModalOpen(false);
-              setEditingPage(null);
-            }}
-            title={editingPage ? `Edit ${editingPage.title}` : "Add New Page"}
-            description={
-              editingPage
-                ? "Update page parameters and content."
-                : "Add a new page to your website with fully editable sections and dynamic content support."
-            }
-            icon={
-              editingPage ? (
-                <PencilLine size={18} className="stroke-[2.5]" />
-              ) : (
-                <ListFilterPlus size={18} />
-              )
-            }
-            maxWidth="xxxl"
-            footer={
-              <>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsModalOpen(false);
-                    setEditingPage(null);
-                  }}
-                  className="px-4 py-2.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm text-sm font-semibold transition-all"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  form="page-edit-form"
-                  className="px-5 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-sm text-sm font-semibold transition-all shadow-sm active:scale-95"
-                >
-                  Save Changes
-                </button>
-              </>
-            }
-          >
-            <form id="page-edit-form" onSubmit={handleEditSubmit}>
-              <div className="p-6 space-y-4">RG</div>
-            </form>
-          </Modal>
-
           {/* ── Delete confirmation modal ───────────────────────────────────── */}
           <Modal
-            isOpen={!!deletingPage}
-            onClose={() => setDeletingPage(null)}
-            title="Delete Page?"
+            isOpen={!!deletingBlog}
+            onClose={() => setDeletingBlog(null)}
+            title="Delete Blog Post?"
             description={
               <>
                 Are you sure you want to delete{" "}
                 <strong className="text-foreground font-bold">
-                  &ldquo;{deletingPage?.title}&rdquo;
+                  &ldquo;{deletingBlog?.title}&rdquo;
                 </strong>
                 ? This action cannot be undone.
               </>
@@ -967,7 +776,7 @@ export function PagesView() {
               <>
                 <button
                   type="button"
-                  onClick={() => setDeletingPage(null)}
+                  onClick={() => setDeletingBlog(null)}
                   className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm text-sm font-semibold transition-all"
                 >
                   Cancel
