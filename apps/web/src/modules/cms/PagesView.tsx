@@ -46,36 +46,11 @@ import { usePageLoad } from "@/hooks/usePageLoad";
 // Skeleton column layout mirrors the real table columns below.
 const SKELETON_COLUMNS: TableSkeletonColumn[] = [
   { width: "w-12", shape: "checkbox", align: "center" },
-  {
-    width: "flex-[2.3]",
-    shape: "text",
-    cellWidth: "w-40",
-    headerWidth: "w-10",
-  },
-  {
-    width: "flex-[1.6]",
-    shape: "text",
-    cellWidth: "w-24",
-    headerWidth: "w-14",
-  },
-  {
-    width: "flex-[1.1]",
-    shape: "badge",
-    cellWidth: "w-16",
-    headerWidth: "w-12",
-  },
-  {
-    width: "flex-[1.4]",
-    shape: "text",
-    cellWidth: "w-24",
-    headerWidth: "w-14",
-  },
-  {
-    width: "flex-[1.4]",
-    shape: "text",
-    cellWidth: "w-24",
-    headerWidth: "w-20",
-  },
+  { width: "flex-[2.3]", shape: "text", cellWidth: "w-40", headerWidth: "w-10" },
+  { width: "flex-[1.6]", shape: "text", cellWidth: "w-24", headerWidth: "w-14" },
+  { width: "flex-[1.1]", shape: "badge", cellWidth: "w-16", headerWidth: "w-12" },
+  { width: "flex-[1.4]", shape: "text", cellWidth: "w-24", headerWidth: "w-14" },
+  { width: "flex-[1.4]", shape: "text", cellWidth: "w-24", headerWidth: "w-20" },
   { width: "w-20", shape: "actions", align: "end", headerWidth: "w-12" },
 ];
 
@@ -294,7 +269,7 @@ function parseMDY(s: string): Date | null {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export function EditorView() {
+export function PagesView() {
   const [pages, setPages] = useState<CmsPage[]>(INITIAL_PAGES);
   const [searchTerm, setSearchTerm] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -597,7 +572,7 @@ export function EditorView() {
               title="Pages"
               paragraph={`${filteredCount} ${filteredCount === 1 ? "page" : "pages"}${selectedCount > 0 ? ` · ${selectedCount} selected` : ""}`}
               mb="0"
-              className="w-auto[\!]\important md:!w-auto lg:!w-auto"
+              className="!w-auto"
             />
 
             <div className="flex items-center gap-2">
