@@ -613,6 +613,7 @@
   font-family: var(--font-jetbrains), monospace;
   font-size: 0.8rem;
 }
+
 .tiptap pre code {
   background: none;
   color: hsl(var(--foreground));
@@ -624,6 +625,7 @@
   text-decoration: underline;
   text-underline-offset: 2px;
 }
+
 /* Placeholder (empty editor) */
 .tiptap p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
