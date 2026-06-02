@@ -2,12 +2,7 @@
 set -e
 
 echo "Running database migrations..."
-for i in 1 2 3 4 5; do
-  npx prisma migrate deploy && break || {
-    echo "Migration attempt $i failed, retrying in 5s..."
-    sleep 5
-  }
-done
+npx prisma migrate deploy || echo "⚠️  Migration failed (DB may not be ready), continuing..."
 
 echo "Starting NestJS API..."
 exec node dist/main
