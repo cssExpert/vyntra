@@ -10,22 +10,22 @@
     ]
   },
   "scripts": {
-    "dev": "pnpm -r --parallel dev",
-    "dev:web": "pnpm --filter @vyntra/web dev",
-    "dev:app": "next dev",
-    "dev:api": "pnpm --filter @vyntra/api dev",
-    "build": "pnpm build:types && next build && pnpm build:api",
-    "build:types": "pnpm --filter @vyntra/types build",
-    "build:web": "next build",
-    "build:api": "pnpm --filter @vyntra/api build",
-    "lint": "next lint && pnpm --filter @vyntra/api lint",
-    "type-check": "tsc --noEmit && pnpm --filter @vyntra/api type-check",
-    "db:up": "docker compose -f infrastructure/docker-compose.yml up -d",
-    "db:down": "docker compose -f infrastructure/docker-compose.yml down",
-    "db:migrate": "pnpm --filter @vyntra/api exec prisma migrate dev",
-    "db:seed": "pnpm --filter @vyntra/api exec prisma db seed",
-    "db:studio": "pnpm --filter @vyntra/api exec prisma studio"
-  },
+	  "dev": "next dev",
+	  "dev:api": "pnpm --filter @vyntra/api dev",
+
+	  "build": "pnpm build:types && next build",
+	  "build:types": "pnpm --filter @vyntra/types build",
+	  "build:api": "pnpm --filter @vyntra/api build",
+
+	  "lint": "next lint",
+	  "type-check": "tsc --noEmit",
+
+	  "db:up": "docker compose -f infrastructure/docker-compose.yml up -d",
+	  "db:down": "docker compose -f infrastructure/docker-compose.yml down",
+	  "db:migrate": "pnpm --filter @vyntra/api exec prisma migrate dev",
+	  "db:seed": "pnpm --filter @vyntra/api exec prisma db seed",
+	  "db:studio": "pnpm --filter @vyntra/api exec prisma studio"
+	},
   "engines": {
     "node": ">=20",
     "pnpm": ">=9"
