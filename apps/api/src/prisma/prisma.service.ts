@@ -6,8 +6,17 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   private readonly logger = new Logger('PrismaService');
 
   async onModuleInit() {
-    await this.$connect();
-    this.logger.log('✅ Database connected');
+    for (let i = 1; i <= 5; i++) {
+      try {
+        await this.$connect();
+        this.logger.log('✅ Database connected');
+        return;
+      } catch (err) {
+        this.logger.warn(`DB connect attempt ${i}/5 failed, retrying in 3s...`);
+        await new Promise((r) => setTimeout(r, 3000));
+      }
+    }
+    this.logger.error('❌ Could not connect to database after 5 attempts');
   }
 
   async onModuleDestroy() {
