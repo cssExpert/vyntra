@@ -1,11 +1,10 @@
-FROM node:20-alpine
+FROM node:20-slim
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
-RUN apk add --no-cache openssl bash
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-
 
 # Copy workspace manifests first (layer cache)
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
