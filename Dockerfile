@@ -2,7 +2,7 @@ FROM node:20-alpine
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl bash
 
 WORKDIR /app
 
@@ -25,6 +25,8 @@ RUN pnpm --filter @vyntra/api build
 
 WORKDIR /app/apps/api
 
+RUN chmod +x start.sh
+
 EXPOSE 3001
 
-CMD ["node", "dist/main"]
+CMD ["bash", "start.sh"]
