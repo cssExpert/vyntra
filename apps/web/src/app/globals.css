@@ -618,6 +618,7 @@
   color: hsl(var(--foreground));
   padding: 0;
 }
+
 .tiptap a {
   color: hsl(var(--primary));
   text-decoration: underline;
