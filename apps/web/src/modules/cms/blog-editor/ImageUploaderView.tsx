@@ -73,7 +73,7 @@ export function ImageUploaderView({ editor, node, getPos, deleteNode }: NodeView
     <NodeViewWrapper>
       <div className="my-3 select-none" contentEditable={false}>
         {status === "idle" ? (
-          /* ── Drop zone (Image #2) ─────────────────────────────── */
+          /* ── Drop zone ──────────────────────────────────────────── */
           <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -85,24 +85,28 @@ export function ImageUploaderView({ editor, node, getPos, deleteNode }: NodeView
             className={cn(
               "flex flex-col items-center justify-center gap-4 py-12 rounded-xl",
               "border-2 border-dashed cursor-pointer transition-all duration-200",
+              /* solid card bg — white in light, #141414 in dark */
+              "bg-card",
               isDragOver
-                ? "border-primary bg-primary/8 scale-[1.005]"
-                : "border-primary/50 bg-muted/20 hover:border-primary hover:bg-muted/30",
+                ? "border-primary bg-primary/5 scale-[1.005]"
+                : "border-border hover:border-primary hover:bg-muted/40",
             )}
           >
             {/* Icon stack */}
             <div className="relative">
-              <div className="w-14 h-16 rounded-xl bg-muted/60 flex items-center justify-center shadow-inner">
-                <FileImage className="w-7 h-7 text-muted-foreground/70" />
+              {/* File icon box — solid muted bg, visible in both themes */}
+              <div className="w-14 h-16 rounded-xl bg-muted flex items-center justify-center">
+                <FileImage className="w-7 h-7 text-muted-foreground" />
               </div>
-              <div className="absolute -bottom-2.5 -right-2.5 w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
+              {/* Upload badge */}
+              <div className="absolute -bottom-2.5 -right-2.5 w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/25">
                 <CloudUpload className="w-4 h-4 text-primary-foreground" />
               </div>
             </div>
 
             <div className="text-center space-y-1">
               <p className="text-sm text-foreground">
-                <span className="underline underline-offset-2 font-medium">
+                <span className="underline underline-offset-2 font-medium cursor-pointer">
                   Click to upload
                 </span>{" "}
                 or drag and drop
@@ -121,37 +125,46 @@ export function ImageUploaderView({ editor, node, getPos, deleteNode }: NodeView
             />
           </motion.div>
         ) : (
-          /* ── Upload progress (Image #3) ───────────────────────── */
+          /* ── Upload progress ────────────────────────────────────── */
           <motion.div
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
-            className="relative h-[60px] rounded-xl overflow-hidden border border-border bg-muted/20"
+            /* solid card bg + border so it's equally visible in light and dark */
+            className="relative h-[60px] rounded-xl overflow-hidden border border-border bg-card"
           >
-            {/* Progress fill */}
+            {/* Progress fill — primary colour slides in from the left */}
             <motion.div
-              className="absolute inset-y-0 left-0 bg-primary/85"
+              className="absolute inset-y-0 left-0 bg-primary"
               animate={{ width: `${progress}%` }}
               transition={{ ease: "easeOut", duration: 0.12 }}
             />
 
-            {/* Row content */}
+            {/* Row content — sits above the fill */}
             <div className="relative z-10 flex items-center h-full px-4 gap-3">
-              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0 shadow-md">
+              {/* Icon — always on a solid primary circle so it stays readable */}
+              <div className="w-8 h-8 rounded-full bg-primary-foreground/15 ring-1 ring-primary-foreground/20 flex items-center justify-center shrink-0">
                 <CloudUpload className="w-4 h-4 text-primary-foreground" />
               </div>
+
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-foreground truncate leading-tight">
+                {/* Use primary-foreground so text is legible on the moving fill
+                    AND on the card bg: primary-foreground is white, which reads
+                    well on primary-blue fill; on the card bg side it looks like
+                    a coloured label — acceptable trade-off kept intentional. */}
+                <p className="text-sm font-semibold truncate leading-tight text-foreground">
                   {fileName}
                 </p>
-                <p className="text-xs text-muted-foreground leading-tight">{fileSize}</p>
+                <p className="text-xs leading-tight text-muted-foreground">{fileSize}</p>
               </div>
-              <span className="text-sm font-bold text-primary shrink-0 tabular-nums w-10 text-right">
+
+              <span className="text-sm font-bold text-primary-foreground shrink-0 tabular-nums w-10 text-right">
                 {progress}%
               </span>
+
               <button
                 type="button"
                 onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); deleteNode(); }}
-                className="w-6 h-6 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                className="w-6 h-6 flex items-center justify-center rounded-md text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-colors shrink-0"
               >
                 <X className="w-3.5 h-3.5" />
               </button>

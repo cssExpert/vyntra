@@ -626,6 +626,21 @@
   text-underline-offset: 2px;
 }
 
+.tiptap img[data-align="center"] {
+  display: block;
+  margin-inline: auto;
+}
+.tiptap img[data-align="left"] {
+  display: block;
+  margin-inline-end: auto;
+  margin-inline-start: 0.5rem;
+}
+.tiptap img[data-align="right"] {
+  display: block;
+  margin-inline-end: 0.5rem;
+  margin-inline-start: auto;
+}
+
 /* Placeholder (empty editor) */
 .tiptap p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
