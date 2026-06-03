@@ -7,8 +7,6 @@ import {
   AlignStartVertical,
   AlignHorizontalSpaceAround,
   AlignEndVertical,
-  Maximize2,
-  PanelBottom,
   Download,
   RefreshCw,
   Trash2,
@@ -27,7 +25,6 @@ const ALIGN_OPTS: {
   { value: "left", icon: AlignStartVertical, label: "Align left" },
   { value: "center", icon: AlignHorizontalSpaceAround, label: "Align center" },
   { value: "right", icon: AlignEndVertical, label: "Align right" },
-  { value: "full", icon: Maximize2, label: "Full width" },
 ];
 
 function downloadImage(src: string, name = "image") {
@@ -139,7 +136,7 @@ export function ImageNodeView({
                 exit={{ opacity: 0, y: 8, scale: 0.94 }}
                 transition={{ type: "spring", stiffness: 440, damping: 30 }}
                 onMouseDown={(e) => e.stopPropagation()}
-                className="absolute -top-12 left-1/2 -translate-x-1/2 z-30 flex items-center gap-0.5 px-2 py-1.5 rounded-xl bg-neutral-900 shadow-[0_8px_32px_rgba(0,0,0,0.36)] whitespace-nowrap"
+                className="absolute -top-12 left-0 right-0 mx-auto w-fit z-30 flex items-center gap-0.5 px-2 py-1.5 rounded-xl bg-neutral-900 shadow-[0_8px_32px_rgba(0,0,0,0.36)] whitespace-nowrap"
               >
                 {/* Alignment */}
                 {ALIGN_OPTS.map(({ value, icon: Icon, label }) => (
@@ -156,7 +153,7 @@ export function ImageNodeView({
                       });
                     }}
                     className={cn(
-                      "p-1.5 rounded-lg transition-colors",
+                      "p-1.5 rounded-sm transition-colors",
                       align === value
                         ? "bg-white/20 text-white"
                         : "text-white/50 hover:bg-white/12 hover:text-white",
@@ -178,7 +175,7 @@ export function ImageNodeView({
                     toggleCaption();
                   }}
                   className={cn(
-                    "p-1.5 rounded-lg transition-colors",
+                    "p-1.5 rounded-sm transition-colors",
                     hasCaption
                       ? "bg-white/20 text-white"
                       : "text-white/50 hover:bg-white/12 hover:text-white",
@@ -198,7 +195,7 @@ export function ImageNodeView({
                     e.stopPropagation();
                     downloadImage(src, alt ?? "image");
                   }}
-                  className="p-1.5 rounded-lg text-white/50 hover:bg-white/12 hover:text-white transition-colors"
+                  className="p-1.5 rounded-sm text-white/50 hover:bg-white/12 hover:text-white transition-colors"
                 >
                   <Download className="w-3.5 h-3.5" />
                 </button>
@@ -212,7 +209,7 @@ export function ImageNodeView({
                     e.stopPropagation();
                     onReplace();
                   }}
-                  className="p-1.5 rounded-lg text-white/50 hover:bg-white/12 hover:text-white transition-colors"
+                  className="p-1.5 rounded-sm text-white/50 hover:bg-white/12 hover:text-white transition-colors"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
                 </button>
@@ -228,7 +225,7 @@ export function ImageNodeView({
                     e.stopPropagation();
                     deleteNode();
                   }}
-                  className="p-1.5 rounded-lg text-white/50 hover:bg-red-400/80 hover:text-white transition-colors"
+                  className="p-1.5 rounded-sm text-white/50 hover:bg-red-400/80 hover:text-white transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
@@ -236,19 +233,76 @@ export function ImageNodeView({
             )}
           </AnimatePresence>
 
-          {/* ── Image ─────────────────────────────────────── */}
-          <img
-            ref={imgRef}
-            src={src}
-            alt={alt ?? ""}
-            title={title}
-            style={imgStyle}
-            className={cn(
-              "select-none block",
-              showCaptionArea ? "rounded-t-xl" : "rounded-xl",
-            )}
-            draggable={false}
-          />
+          {/* ── Image + handles (own relative container) ──── */}
+          <div className="relative">
+            <img
+              ref={imgRef}
+              src={src}
+              alt={alt ?? ""}
+              title={title}
+              style={imgStyle}
+              className={cn(
+                "select-none block",
+                showCaptionArea ? "rounded-t-xl" : "rounded-xl",
+              )}
+              draggable={false}
+            />
+
+            {/* Left resize handle — flex centering avoids transform conflicts */}
+            <AnimatePresence>
+              {selected && align !== "full" && (
+                <div className="absolute left-2 inset-y-0 flex items-center pointer-events-none">
+                  <motion.div
+                    initial={{ opacity: 0, scaleY: 0.6 }}
+                    animate={{ opacity: 1, scaleY: 1 }}
+                    exit={{ opacity: 0, scaleY: 0.6 }}
+                    transition={{ duration: 0.15 }}
+                    onMouseDown={(e) => onDrag(e, -1)}
+                    className="w-1.5 h-10 rounded-full bg-primary cursor-ew-resize shadow-md hover:bg-primary/80 transition-colors pointer-events-auto"
+                  />
+                </div>
+              )}
+            </AnimatePresence>
+
+            {/* Right resize handle */}
+            <AnimatePresence>
+              {selected && align !== "full" && (
+                <div className="absolute right-2 inset-y-0 flex items-center pointer-events-none">
+                  <motion.div
+                    initial={{ opacity: 0, scaleY: 0.6 }}
+                    animate={{ opacity: 1, scaleY: 1 }}
+                    exit={{ opacity: 0, scaleY: 0.6 }}
+                    transition={{ duration: 0.15 }}
+                    onMouseDown={(e) => onDrag(e, 1)}
+                    className="w-1.5 h-10 rounded-full bg-primary cursor-ew-resize shadow-md hover:bg-primary/80 transition-colors pointer-events-auto"
+                  />
+                </div>
+              )}
+            </AnimatePresence>
+
+            {/* Sparkle button — bottom-3 is now relative to image only */}
+            <AnimatePresence>
+              {selected && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.7 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.7 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 400,
+                    damping: 25,
+                    delay: 0.05,
+                  }}
+                  type="button"
+                  title="AI enhance (coming soon)"
+                  onMouseDown={(e) => e.stopPropagation()}
+                  className="absolute bottom-3 right-3 w-9 h-9 rounded-xl bg-neutral-900/80 backdrop-blur-sm flex items-center justify-center text-white shadow-lg hover:bg-neutral-900 transition-colors"
+                >
+                  <Sparkles className="w-4 h-4" />
+                </motion.button>
+              )}
+            </AnimatePresence>
+          </div>
 
           {/* ── Caption bar ───────────────────────────────── */}
           <AnimatePresence>
@@ -261,7 +315,6 @@ export function ImageNodeView({
                 transition={{ duration: 0.2, ease: "easeOut" }}
                 className="overflow-hidden rounded-b-xl border-t border-border/30 bg-muted/60 backdrop-blur-sm"
               >
-                {/* Editable input — only when selected */}
                 {selected ? (
                   <input
                     type="text"
@@ -275,63 +328,11 @@ export function ImageNodeView({
                     className="w-full bg-transparent px-4 py-2.5 text-center text-sm text-muted-foreground placeholder:text-muted-foreground/40 outline-none"
                   />
                 ) : (
-                  /* Static figcaption — shown when deselected with text */
                   <p className="px-4 py-2.5 text-center text-sm text-muted-foreground">
                     {caption}
                   </p>
                 )}
               </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* ── Left resize handle ────────────────────────── */}
-          <AnimatePresence>
-            {selected && align !== "full" && (
-              <motion.div
-                initial={{ opacity: 0, scaleY: 0.6 }}
-                animate={{ opacity: 1, scaleY: 1 }}
-                exit={{ opacity: 0, scaleY: 0.6 }}
-                transition={{ duration: 0.15 }}
-                onMouseDown={(e) => onDrag(e, -1)}
-                className="absolute left-2 top-1/2 -translate-y-1/2 w-1.5 h-10 rounded-full bg-primary cursor-ew-resize shadow-md hover:bg-primary/80 transition-colors"
-              />
-            )}
-          </AnimatePresence>
-
-          {/* ── Right resize handle ───────────────────────── */}
-          <AnimatePresence>
-            {selected && align !== "full" && (
-              <motion.div
-                initial={{ opacity: 0, scaleY: 0.6 }}
-                animate={{ opacity: 1, scaleY: 1 }}
-                exit={{ opacity: 0, scaleY: 0.6 }}
-                transition={{ duration: 0.15 }}
-                onMouseDown={(e) => onDrag(e, 1)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-10 rounded-full bg-primary cursor-ew-resize shadow-md hover:bg-primary/80 transition-colors"
-              />
-            )}
-          </AnimatePresence>
-
-          {/* ── Sparkle button ────────────────────────────── */}
-          <AnimatePresence>
-            {selected && (
-              <motion.button
-                initial={{ opacity: 0, scale: 0.7 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.7 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 400,
-                  damping: 25,
-                  delay: 0.05,
-                }}
-                type="button"
-                title="AI enhance (coming soon)"
-                onMouseDown={(e) => e.stopPropagation()}
-                className="absolute bottom-3 right-3 w-9 h-9 rounded-xl bg-neutral-900/80 backdrop-blur-sm flex items-center justify-center text-white shadow-lg hover:bg-neutral-900 transition-colors"
-              >
-                <Sparkles className="w-4 h-4" />
-              </motion.button>
             )}
           </AnimatePresence>
         </div>
