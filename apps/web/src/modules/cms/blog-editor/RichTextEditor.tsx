@@ -16,7 +16,8 @@ import { Color } from "@tiptap/extension-color";
 import Highlight from "@tiptap/extension-highlight";
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
-import Image from "@tiptap/extension-image";
+import { CustomImage } from "./CustomImageExtension";
+import { ImageUploader } from "./ImageUploaderExtension";
 import Table from "@tiptap/extension-table";
 import TableRow from "@tiptap/extension-table-row";
 import TableHeader from "@tiptap/extension-table-header";
@@ -328,7 +329,8 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
       Highlight.configure({ multicolor: true }),
       TaskList,
       TaskItem.configure({ nested: true }),
-      Image.configure({ HTMLAttributes: { class: "rounded-lg max-w-full" } }),
+      CustomImage,
+      ImageUploader,
       Table.configure({ resizable: true }),
       TableRow,
       TableHeader,
@@ -451,9 +453,14 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
           />
         </div>
 
-        {/* Bubble menu over selection */}
+        {/* Bubble menu — text selections only, never when an image node is active */}
         <BubbleMenu
           editor={editor}
+          shouldShow={({ editor: e, state }) => {
+            if (e.isActive("image") || e.isActive("imageUploader")) return false;
+            const { from, to } = state.selection;
+            return from !== to;
+          }}
           tippyOptions={{ duration: 120, animation: false }}
         >
           <motion.div

@@ -43,29 +43,14 @@ interface CommandItem {
   run: (props: { editor: Editor; range: Range }) => void;
 }
 
-// Opens the OS file picker and inserts the chosen image as a data URL.
-function uploadImage(editor: Editor, range: Range) {
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "image/*";
-  input.onchange = () => {
-    const file = input.files?.[0];
-    if (!file) {
-      editor.chain().focus().deleteRange(range).run();
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => {
-      editor
-        .chain()
-        .focus()
-        .deleteRange(range)
-        .setImage({ src: reader.result as string })
-        .run();
-    };
-    reader.readAsDataURL(file);
-  };
-  input.click();
+// Inserts the dropzone/upload placeholder node into the editor.
+function insertImageUploader(editor: Editor, range: Range) {
+  editor
+    .chain()
+    .focus()
+    .deleteRange(range)
+    .insertContentAt(range.from, { type: "imageUploader" })
+    .run();
 }
 
 const COMMANDS: CommandItem[] = [
@@ -186,7 +171,7 @@ const COMMANDS: CommandItem[] = [
     icon: ImageIcon,
     group: "Upload",
     keywords: ["photo", "picture", "upload"],
-    run: ({ editor, range }) => uploadImage(editor, range),
+    run: ({ editor, range }) => insertImageUploader(editor, range),
   },
 
   // ── Insert ──────────────────────────────────────────────
