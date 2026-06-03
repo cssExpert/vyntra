@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Eye, Check } from "lucide-react";
 import type { CmsBlog } from "../blog-data";
 import { EditorStepTabs, type EditorTab } from "./EditorStepTabs";
@@ -167,43 +167,53 @@ export function BlogEditor({ blog }: BlogEditorProps) {
         <div className="lg:col-span-8 space-y-6">
           <EditorStepTabs active={activeTab} onChange={setActiveTab} />
 
-          {activeTab === "editor" && (
-            <WritingTab
-              form={form}
-              patch={patch}
-              slugManuallyEdited={slugManuallyEdited}
-              setSlugManuallyEdited={setSlugManuallyEdited}
-              onNext={() => setActiveTab("metadata")}
-              onToast={addToast}
-            />
-          )}
-          {activeTab === "metadata" && (
-            <MetadataTab
-              form={form}
-              patch={patch}
-              onBack={() => setActiveTab("editor")}
-              onNext={() => setActiveTab("seo")}
-              onToast={addToast}
-            />
-          )}
-          {activeTab === "seo" && (
-            <SeoTab
-              form={form}
-              patch={patch}
-              setSeoTitleManuallyEdited={setSeoTitleManuallyEdited}
-              setSeoDescManuallyEdited={setSeoDescManuallyEdited}
-              onBack={() => setActiveTab("metadata")}
-              onNext={() => setActiveTab("publish")}
-            />
-          )}
-          {activeTab === "publish" && (
-            <PublishTab
-              form={form}
-              patch={patch}
-              onBack={() => setActiveTab("seo")}
-              onPublish={handlePublish}
-            />
-          )}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+            >
+              {activeTab === "editor" && (
+                <WritingTab
+                  form={form}
+                  patch={patch}
+                  slugManuallyEdited={slugManuallyEdited}
+                  setSlugManuallyEdited={setSlugManuallyEdited}
+                  onNext={() => setActiveTab("metadata")}
+                  onToast={addToast}
+                />
+              )}
+              {activeTab === "metadata" && (
+                <MetadataTab
+                  form={form}
+                  patch={patch}
+                  onBack={() => setActiveTab("editor")}
+                  onNext={() => setActiveTab("seo")}
+                  onToast={addToast}
+                />
+              )}
+              {activeTab === "seo" && (
+                <SeoTab
+                  form={form}
+                  patch={patch}
+                  setSeoTitleManuallyEdited={setSeoTitleManuallyEdited}
+                  setSeoDescManuallyEdited={setSeoDescManuallyEdited}
+                  onBack={() => setActiveTab("metadata")}
+                  onNext={() => setActiveTab("publish")}
+                />
+              )}
+              {activeTab === "publish" && (
+                <PublishTab
+                  form={form}
+                  patch={patch}
+                  onBack={() => setActiveTab("seo")}
+                  onPublish={handlePublish}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* Right column — sticky on scroll */}
