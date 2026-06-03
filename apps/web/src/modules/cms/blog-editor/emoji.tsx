@@ -60,12 +60,15 @@ const EmojiList = forwardRef<SuggestionListHandle, EmojiListProps>(
               i === selected ? "bg-muted" : "hover:bg-muted/60"
             }`}
           >
-            <span className="text-lg w-6 text-center shrink-0">
-              {e.emoji ??
-                (e.fallbackImage ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={e.fallbackImage} alt={e.name} className="w-5 h-5" />
-                ) : null)}
+            <span className="w-6 shrink-0 flex items-center justify-center">
+              {e.fallbackImage ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={e.fallbackImage} alt={e.emoji ?? e.name} className="w-5 h-5 object-contain" loading="lazy" />
+              ) : e.emoji ? (
+                <span className="text-lg leading-none">{e.emoji}</span>
+              ) : (
+                <span className="text-xs text-muted-foreground">?</span>
+              )}
             </span>
             <span className="text-sm text-foreground truncate">:{e.name}:</span>
           </button>
@@ -76,19 +79,31 @@ const EmojiList = forwardRef<SuggestionListHandle, EmojiListProps>(
 );
 EmojiList.displayName = "EmojiList";
 
+const POPULAR = [
+  "smile", "heart", "+1", "fire", "rocket", "tada",
+  "clap", "eyes", "100", "raised_hands",
+];
+
 export function buildEmoji() {
   return Emoji.configure({
     emojis: gitHubEmojis,
     enableEmoticons: true,
+    forceFallbackImages: true,
     suggestion: {
       char: ":",
       items: ({ editor, query }) => {
         const all = editor.storage.emoji.emojis as EmojiItem[];
+        const q = query.toLowerCase();
+        if (!q) {
+          return all.filter((e) => POPULAR.includes(e.name));
+        }
         return all
           .filter(
             (e) =>
-              e.shortcodes.some((s) => s.startsWith(query.toLowerCase())) ||
-              e.tags.some((t) => t.startsWith(query.toLowerCase())),
+              !e.name.startsWith("regional_indicator_") &&
+              (e.name.startsWith(q) ||
+                e.shortcodes?.some((s) => s.startsWith(q)) ||
+                e.tags?.some((t) => t.startsWith(q))),
           )
           .slice(0, 8);
       },
@@ -96,7 +111,12 @@ export function buildEmoji() {
       render: makeSuggestionRender(EmojiList as any),
       command: ({ editor, range, props }) => {
         const name = (props as unknown as { name: string }).name;
-        editor.chain().focus().deleteRange(range).setEmoji(name).run();
+        editor
+          .chain()
+          .focus()
+          .deleteRange(range)
+          .insertContentAt(range.from, { type: "emoji", attrs: { name } })
+          .run();
       },
     },
   });

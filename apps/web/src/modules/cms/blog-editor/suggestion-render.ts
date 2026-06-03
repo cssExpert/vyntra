@@ -10,13 +10,18 @@ export interface SuggestionListHandle {
 
 // Shared, null-safe tippy + ReactRenderer lifecycle for any "@", ":" etc.
 // suggestion. Pass the React list component to render.
-export function makeSuggestionRender(Component: ComponentType<Record<string, unknown>>) {
+export function makeSuggestionRender(
+  Component: ComponentType<Record<string, unknown>>,
+) {
   return () => {
     let component: ReactRenderer | undefined;
     let popup: Instance[] | undefined;
 
     return {
-      onStart: (props: { clientRect?: (() => DOMRect | null) | null; editor: unknown }) => {
+      onStart: (props: {
+        clientRect?: (() => DOMRect | null) | null;
+        editor: unknown;
+      }) => {
         if (!props.clientRect) return;
         component = new ReactRenderer(Component, {
           props,
@@ -32,6 +37,7 @@ export function makeSuggestionRender(Component: ComponentType<Record<string, unk
           trigger: "manual",
           placement: "bottom-start",
           animation: false,
+          arrow: true,
         });
       },
       onUpdate: (props: { clientRect?: (() => DOMRect | null) | null }) => {

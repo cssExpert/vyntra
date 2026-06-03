@@ -529,9 +529,7 @@
   padding: 0.05em 0.35em;
   font-weight: 600;
 }
-.tiptap .mention::before {
-  content: "@";
-}
+/* Tiptap extension-mention already renders "@label" — no ::before needed */
 /* Inline image */
 .tiptap img {
   border-radius: 0.6rem;
@@ -639,6 +637,27 @@
   display: block;
   margin-inline-end: 0.5rem;
   margin-inline-start: auto;
+}
+
+.tiptap span[data-type="emoji"] {
+  top: 0.25rem;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25em;
+  aspect-ratio: 1 / 1;
+  margin-inline-end: 0.25rem;
+}
+.tiptap span[data-type="emoji"] img {
+  display: inline-block;
+  width: 1.25rem;
+  height: 1.25rem;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  border-radius: 0;
+  cursor: text;
 }
 
 /* Placeholder (empty editor) */
