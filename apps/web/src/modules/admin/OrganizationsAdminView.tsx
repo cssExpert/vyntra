@@ -202,38 +202,40 @@ function Inner() {
           </div>
         }
       >
-        <div className="space-y-4">
-          <div>
-            <label className="mb-1.5 block text-sm font-medium">Name</label>
-            <input
-              className={adminInput}
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              placeholder="Acme Corp"
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-sm font-medium">Email (optional)</label>
-            <input
-              className={adminInput}
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              placeholder="admin@acme.com"
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-sm font-medium">Plan</label>
-            <select
-              className={adminInput}
-              value={form.packageSlug}
-              onChange={(e) => setForm({ ...form, packageSlug: e.target.value })}
-            >
-              {packages.map((p) => (
-                <option key={p.id} value={p.slug}>
-                  {p.name} — {p.modules.join(", ") || "no modules"}
-                </option>
-              ))}
-            </select>
+        <div className="px-6 py-5">
+          <div className="space-y-4">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium">Name</label>
+              <input
+                className={adminInput}
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                placeholder="Acme Corp"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium">Email (optional)</label>
+              <input
+                className={adminInput}
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                placeholder="admin@acme.com"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium">Plan</label>
+              <select
+                className={adminInput}
+                value={form.packageSlug}
+                onChange={(e) => setForm({ ...form, packageSlug: e.target.value })}
+              >
+                {packages.map((p) => (
+                  <option key={p.id} value={p.slug}>
+                    {p.name} — {p.modules.join(", ") || "no modules"}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
       </Modal>
