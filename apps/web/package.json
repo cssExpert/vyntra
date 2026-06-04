@@ -46,6 +46,7 @@
     "@tiptap/starter-kit": "^2",
     "@tiptap/suggestion": "^2",
     "@types/react-datepicker": "^7.0.0",
+    "@uiw/react-color": "^2.10.3",
     "@vyntra/types": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

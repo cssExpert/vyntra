@@ -1,8 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Building2, Palette, Lock, Bell, Upload, Trash2, Save } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import {
+  Building2,
+  Palette,
+  Lock,
+  Bell,
+  Save,
+  CheckCircle2,
+  AlertCircle,
+  Globe,
+  Trash2,
+  ShieldAlert,
+  Mail,
+  MessageSquare,
+  Key,
+  Smartphone,
+  ChevronDown,
+} from "lucide-react";
+import { Sketch } from "@uiw/react-color";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { ImageUploader } from "@/components/common/ImageUploader";
 import { cn } from "@/lib/utils";
 import { apiUpdateOrgSettings } from "@/lib/api";
 import { useSettings } from "@/providers/SettingsProvider";
@@ -20,20 +38,165 @@ interface SettingsState {
   slackNotifications: boolean;
 }
 
-const PRESET_COLORS = [
-  { name: "Blue", hex: "#3b82f6" },
-  { name: "Purple", hex: "#8b5cf6" },
-  { name: "Pink", hex: "#ec4899" },
-  { name: "Red", hex: "#ef4444" },
-  { name: "Orange", hex: "#f97316" },
-  { name: "Green", hex: "#22c55e" },
-  { name: "Teal", hex: "#14b8a6" },
-  { name: "Cyan", hex: "#06b6d4" },
+// ── Reusable sub-components ───────────────────────────────────────────────────
+
+function SectionCard({
+  icon: Icon,
+  title,
+  description,
+  children,
+}: {
+  icon: React.ElementType;
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-2xl border border-border bg-card overflow-hidden">
+      <div className="flex items-start gap-3 px-6 py-5 border-b border-border bg-muted/20">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary mt-0.5">
+          <Icon className="h-4.5 w-4.5" size={18} />
+        </div>
+        <div>
+          <h3 className="text-[15px] font-semibold text-foreground">{title}</h3>
+          {description && (
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {description}
+            </p>
+          )}
+        </div>
+      </div>
+      <div className="px-6 py-6">{children}</div>
+    </div>
+  );
+}
+
+function FieldGroup({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <label className="block text-sm font-medium text-foreground">
+        {label}
+      </label>
+      {children}
+      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+    </div>
+  );
+}
+
+const inputCls =
+  "w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15";
+
+// ── Color picker field with @uiw/react-color Sketch popover ──────────────────
+const SWATCH_PRESETS = [
+  "#d14c23",
+  "#ef4444",
+  "#f97316",
+  "#eab308",
+  "#22c55e",
+  "#14b8a6",
+  "#3b82f6",
+  "#8b5cf6",
+  "#ec4899",
+  "#64748b",
+  "#000000",
+  "#ffffff",
 ];
 
+function ColorPickerField({
+  label,
+  description,
+  value,
+  onChange,
+}: {
+  label: string;
+  description: string;
+  value: string;
+  onChange: (hex: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  return (
+    <div className="flex items-center justify-between gap-4 rounded-xl border border-border bg-background px-4 py-3.5">
+      <div className="min-w-0">
+        <p className="text-sm font-medium text-foreground">{label}</p>
+        <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
+      </div>
+
+      {/* Trigger */}
+      <div ref={ref} className="relative shrink-0">
+        <button
+          type="button"
+          onClick={() => setOpen((p) => !p)}
+          className="flex items-center gap-2 rounded-xl border border-border bg-muted px-2.5 py-1.5 hover:bg-muted/80 transition-colors cursor-pointer group"
+        >
+          <span
+            className="h-6 w-6 rounded-lg border border-black/10 shadow-sm shrink-0"
+            style={{ backgroundColor: value }}
+          />
+          <span className="font-mono text-xs text-foreground">
+            {value.toUpperCase()}
+          </span>
+          <ChevronDown
+            className={cn(
+              "h-3.5 w-3.5 text-muted-foreground transition-transform duration-150",
+              open && "rotate-180",
+            )}
+          />
+        </button>
+
+        {/* Sketch popover */}
+        {open && (
+          <div className="absolute right-0 top-full mt-2 z-50 drop-shadow-xl rounded-2xl overflow-hidden border border-border">
+            <Sketch
+              color={value}
+              presetColors={SWATCH_PRESETS}
+              onChange={(c) => onChange(c.hex)}
+              style={
+                {
+                  "--sketch-background": "hsl(var(--card))",
+                } as React.CSSProperties
+              }
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export function SettingsView() {
-  const { settings: savedSettings, loading: contextLoading, error: contextError, refreshSettings } = useSettings();
-  const [activeTab, setActiveTab] = useState<"branding" | "notifications" | "security">("branding");
+  const {
+    settings: savedSettings,
+    loading: contextLoading,
+    error: contextError,
+    refreshSettings,
+  } = useSettings();
+
+  const [activeTab, setActiveTab] = useState<
+    "branding" | "notifications" | "security"
+  >("branding");
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
@@ -41,7 +204,7 @@ export function SettingsView() {
     organizationName: "",
     organizationSlug: "",
     organizationEmail: "",
-    primaryColor: "#3b82f6",
+    primaryColor: "#d14c23",
     secondaryColor: "#8b5cf6",
     accentColor: "#ec4899",
     logoUrl: null,
@@ -50,7 +213,6 @@ export function SettingsView() {
     slackNotifications: false,
   });
 
-  // Load settings from API when they become available
   useEffect(() => {
     if (savedSettings) {
       setSettings({
@@ -68,7 +230,7 @@ export function SettingsView() {
     }
   }, [savedSettings]);
 
-  const handleChange = (field: keyof SettingsState, value: any) => {
+  const handleChange = (field: keyof SettingsState, value: unknown) => {
     setSettings((prev) => ({ ...prev, [field]: value }));
     setSaved(false);
     setError("");
@@ -78,27 +240,27 @@ export function SettingsView() {
     setLoading(true);
     setError("");
     try {
-      const updateData: any = {
+      const updateData: Record<string, unknown> = {
         primaryColor: settings.primaryColor,
         secondaryColor: settings.secondaryColor,
         accentColor: settings.accentColor,
         emailNotifications: settings.emailNotifications,
         slackNotifications: settings.slackNotifications,
       };
-
-      // Only include name if it changed
-      if (settings.organizationName) updateData.name = settings.organizationName;
-      if (settings.organizationEmail) updateData.email = settings.organizationEmail;
+      if (settings.organizationName)
+        updateData.name = settings.organizationName;
+      if (settings.organizationEmail)
+        updateData.email = settings.organizationEmail;
       if (settings.logoUrl !== null) updateData.logoUrl = settings.logoUrl;
-      if (settings.faviconUrl !== null) updateData.faviconUrl = settings.faviconUrl;
+      if (settings.faviconUrl !== null)
+        updateData.faviconUrl = settings.faviconUrl;
 
       await apiUpdateOrgSettings(updateData);
       await refreshSettings();
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to save settings";
-      setError(message);
+      setError(err instanceof Error ? err.message : "Failed to save settings");
     } finally {
       setLoading(false);
     }
@@ -108,29 +270,35 @@ export function SettingsView() {
     { id: "branding", label: "Branding", icon: Palette },
     { id: "notifications", label: "Notifications", icon: Bell },
     { id: "security", label: "Security", icon: Lock },
-  ];
+  ] as const;
 
+  // ── Loading / no-org states ──────────────────────────────────────────────
   if (contextLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-muted-foreground">Loading settings...</p>
+      <div className="flex items-center justify-center min-h-[40vh]">
+        <div className="flex flex-col items-center gap-3 text-muted-foreground">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <p className="text-sm">Loading settings…</p>
+        </div>
       </div>
     );
   }
 
-  // Super admins or users without organization context can't access organization settings
-  if (contextError && contextError.includes("No organization context")) {
+  if (contextError?.includes("No organization context")) {
     return (
       <div className="space-y-6">
         <PageHeader
           title="Settings"
           description="Manage your workspace, branding, and preferences."
         />
-        <div className="rounded-lg bg-warning/10 border border-warning/20 px-6 py-8 text-center max-w-md mx-auto">
-          <p className="text-sm text-foreground font-medium mb-2">Organization Settings Not Available</p>
-          <p className="text-xs text-muted-foreground">
-            Organization settings are only available for members of an organization.
-            If you're a super admin, use the admin panel to manage organization settings.
+        <div className="rounded-2xl border border-warning/20 bg-warning/5 px-8 py-10 text-center max-w-md mx-auto">
+          <ShieldAlert className="mx-auto h-8 w-8 text-warning mb-3" />
+          <p className="text-sm font-semibold text-foreground mb-1">
+            Organization Settings Not Available
+          </p>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Organization settings are only available for members of an
+            organization. Super admins can manage settings via the admin panel.
           </p>
         </div>
       </div>
@@ -138,302 +306,386 @@ export function SettingsView() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-10">
       <PageHeader
         title="Settings"
         description="Manage your workspace, branding, and preferences."
       />
 
+      {/* Alert banners */}
       {error && (
-        <div className="rounded-lg bg-error/10 border border-error/20 px-4 py-3 text-sm text-error">
+        <div className="flex items-center gap-2.5 rounded-xl border border-error/20 bg-error/5 px-4 py-3 text-sm text-error">
+          <AlertCircle className="h-4 w-4 shrink-0" />
           {error}
         </div>
       )}
-
       {saved && (
-        <div className="rounded-lg bg-success/10 border border-success/20 px-4 py-3 text-sm text-success">
+        <div className="flex items-center gap-2.5 rounded-xl border border-success/20 bg-success/5 px-4 py-3 text-sm text-success">
+          <CheckCircle2 className="h-4 w-4 shrink-0" />
           Settings saved successfully!
         </div>
       )}
 
-      {/* Tabs */}
-      <div className="flex gap-2 border-b border-border">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id as any;
+      {/* Tab bar */}
+      <div className="flex gap-1 rounded-2xl border border-border bg-muted/30 p-1.5 w-fit">
+        {tabs.map(({ id, label, icon: Icon }) => {
+          const isActive = activeTab === id;
           return (
             <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              key={id}
+              onClick={() => setActiveTab(id)}
               className={cn(
-                "flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors",
+                "flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all duration-150 cursor-pointer",
                 isActive
-                  ? "border-primary text-foreground"
-                  : "border-transparent text-muted-foreground hover:text-foreground",
+                  ? "bg-card text-foreground shadow-sm border border-border"
+                  : "text-muted-foreground hover:text-foreground hover:bg-background/60",
               )}
             >
               <Icon className="h-4 w-4" />
-              {tab.label}
+              {label}
             </button>
           );
         })}
       </div>
 
-      {/* Content */}
-      <div>
-        {/* Branding Tab */}
-        {activeTab === "branding" && (
-          <div className="space-y-6">
-            {/* Organization Info */}
-            <div className="rounded-xl border border-border bg-card p-6">
-              <div className="flex items-center gap-2.5 mb-6">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Building2 className="h-4 w-4" />
-                </div>
-                <h3 className="text-lg font-semibold">Organization</h3>
-              </div>
+      {/* ── Branding Tab ──────────────────────────────────────────────────── */}
+      {activeTab === "branding" && (
+        <div className="space-y-5">
+          {/* Organization Info */}
+          <SectionCard
+            icon={Building2}
+            title="Organization"
+            description="Your organization's identity and contact details."
+          >
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FieldGroup label="Organization Name">
+                <input
+                  type="text"
+                  value={settings.organizationName}
+                  onChange={(e) =>
+                    handleChange("organizationName", e.target.value)
+                  }
+                  className={inputCls}
+                  placeholder="My Organization"
+                />
+              </FieldGroup>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium">Organization Name</label>
-                  <input
-                    type="text"
-                    value={settings.organizationName}
-                    onChange={(e) => handleChange("organizationName", e.target.value)}
-                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
-                    placeholder="My Organization"
-                  />
-                </div>
+              <FieldGroup label="Organization Email">
+                <input
+                  type="email"
+                  value={settings.organizationEmail}
+                  onChange={(e) =>
+                    handleChange("organizationEmail", e.target.value)
+                  }
+                  className={inputCls}
+                  placeholder="hello@myorg.com"
+                />
+              </FieldGroup>
 
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium">Organization Email</label>
-                  <input
-                    type="email"
-                    value={settings.organizationEmail}
-                    onChange={(e) => handleChange("organizationEmail", e.target.value)}
-                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
-                    placeholder="hello@myorg.com"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium">Workspace Slug</label>
+              <FieldGroup
+                label="Workspace Slug"
+                hint="Used in your workspace URL · e.g. app.ervflow.com/my-org"
+              >
+                <div className="relative">
+                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                   <input
                     type="text"
                     value={settings.organizationSlug}
                     onChange={(e) =>
-                      handleChange("organizationSlug", e.target.value.toLowerCase().replace(/\s+/g, "-"))
+                      handleChange(
+                        "organizationSlug",
+                        e.target.value.toLowerCase().replace(/\s+/g, "-"),
+                      )
                     }
-                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
+                    className={cn(inputCls, "pl-9")}
                     placeholder="my-organization"
                   />
-                  <p className="mt-1 text-xs text-muted-foreground">Used in your workspace URL</p>
+                </div>
+              </FieldGroup>
+            </div>
+          </SectionCard>
+
+          {/* Logo & Icon */}
+          <SectionCard
+            icon={Palette}
+            title="Logo & Icon"
+            description="Upload your brand logo and favicon. Recommended: PNG or SVG with transparent background."
+          >
+            <div className="grid gap-8 sm:grid-cols-2">
+              {/* Logo */}
+              <div className="space-y-3">
+                <div>
+                  <p className="text-sm font-medium text-foreground">Logo</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Shown in the sidebar and emails. Landscape format works
+                    best.
+                  </p>
+                </div>
+                <ImageUploader
+                  value={settings.logoUrl}
+                  onChange={(url) => handleChange("logoUrl", url)}
+                  accept="image/png,image/jpeg,image/svg+xml,image/webp"
+                  maxSizeMB={5}
+                  previewShape="wide"
+                  label="Upload Logo"
+                />
+              </div>
+
+              {/* Favicon */}
+              <div className="space-y-3">
+                <div>
+                  <p className="text-sm font-medium text-foreground">
+                    Favicon / App Icon
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Shown in browser tabs and app launchers. Square 512×512
+                    recommended.
+                  </p>
+                </div>
+                <ImageUploader
+                  value={settings.faviconUrl}
+                  onChange={(url) => handleChange("faviconUrl", url)}
+                  accept="image/png,image/x-icon,image/svg+xml"
+                  maxSizeMB={2}
+                  previewShape="circle"
+                  label="Upload Icon"
+                />
+              </div>
+            </div>
+          </SectionCard>
+
+          {/* Brand Colors */}
+          <SectionCard
+            icon={Palette}
+            title="Brand Colors"
+            description="Customize colors used across buttons, links, and highlights."
+          >
+            <div className="space-y-3">
+              <ColorPickerField
+                label="Primary"
+                description="Main CTA color — buttons, active states, links"
+                value={settings.primaryColor}
+                onChange={(hex) => handleChange("primaryColor", hex)}
+              />
+              <ColorPickerField
+                label="Secondary"
+                description="Supporting color — badges, secondary actions"
+                value={settings.secondaryColor}
+                onChange={(hex) => handleChange("secondaryColor", hex)}
+              />
+              <ColorPickerField
+                label="Accent"
+                description="Highlight color — tags, decorative elements"
+                value={settings.accentColor}
+                onChange={(hex) => handleChange("accentColor", hex)}
+              />
+
+              {/* Live preview strip */}
+              <div className="mt-2 pt-5 border-t border-border">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+                  Preview
+                </p>
+                <div className="flex gap-3">
+                  {[
+                    { label: "Primary", color: settings.primaryColor },
+                    { label: "Secondary", color: settings.secondaryColor },
+                    { label: "Accent", color: settings.accentColor },
+                  ].map(({ label, color }) => (
+                    <div key={label} className="flex-1 text-center space-y-2">
+                      <div
+                        className="h-14 w-full rounded-xl border border-border/50 shadow-inner"
+                        style={{ backgroundColor: color }}
+                      />
+                      <p className="text-[11px] text-muted-foreground">
+                        {label}
+                      </p>
+                      <p className="text-[11px] font-mono text-foreground/60">
+                        {color.toUpperCase()}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
+          </SectionCard>
+        </div>
+      )}
 
-            {/* Logo & Favicon */}
-            <div className="rounded-xl border border-border bg-card p-6">
-              <h3 className="text-lg font-semibold mb-6">Logo & Icon</h3>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium">Logo</label>
-                  <div className="flex items-end gap-4">
-                    <div className="flex-1">
-                      <input
-                        type="text"
-                        value={settings.logoUrl || ""}
-                        onChange={(e) => handleChange("logoUrl", e.target.value || null)}
-                        placeholder="https://example.com/logo.png"
-                        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
+      {/* ── Notifications Tab ─────────────────────────────────────────────── */}
+      {activeTab === "notifications" && (
+        <div className="space-y-5">
+          <SectionCard
+            icon={Bell}
+            title="Notification Channels"
+            description="Choose how you receive alerts and updates from ERVFlow."
+          >
+            <div className="space-y-1">
+              {[
+                {
+                  field: "emailNotifications" as const,
+                  icon: Mail,
+                  label: "Email Notifications",
+                  desc: "Receive activity updates, summaries, and alerts via email.",
+                },
+                {
+                  field: "slackNotifications" as const,
+                  icon: MessageSquare,
+                  label: "Slack Notifications",
+                  desc: "Push real-time alerts directly to your connected Slack workspace.",
+                },
+              ].map(({ field, icon: Icon, label, desc }) => (
+                <label
+                  key={field}
+                  className="flex items-center justify-between gap-4 rounded-xl px-4 py-4 cursor-pointer hover:bg-muted/40 transition-colors group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted text-muted-foreground group-hover:text-foreground transition-colors">
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">
+                        {label}
+                      </p>
+                      <p className="text-xs text-muted-foreground">{desc}</p>
+                    </div>
+                  </div>
+                  {/* Toggle */}
+                  <div className="relative shrink-0">
+                    <input
+                      type="checkbox"
+                      checked={settings[field]}
+                      onChange={(e) => handleChange(field, e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div
+                      className={cn(
+                        "w-11 h-6 rounded-full border-2 transition-all duration-200 peer",
+                        settings[field]
+                          ? "bg-primary border-primary"
+                          : "bg-muted border-border",
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          "absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all duration-200",
+                          settings[field] ? "left-[22px]" : "left-0.5",
+                        )}
                       />
                     </div>
-                    <button className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted transition">
-                      <Upload className="h-4 w-4" />
-                      Upload
-                    </button>
                   </div>
-                  {settings.logoUrl && (
-                    <div className="mt-3 p-3 bg-muted/40 rounded-lg">
-                      <img src={settings.logoUrl} alt="Logo" className="h-12 object-contain" />
+                </label>
+              ))}
+            </div>
+          </SectionCard>
+        </div>
+      )}
+
+      {/* ── Security Tab ──────────────────────────────────────────────────── */}
+      {activeTab === "security" && (
+        <div className="space-y-5">
+          <SectionCard
+            icon={Key}
+            title="Authentication"
+            description="Manage password policies and login methods."
+          >
+            <div className="space-y-4">
+              {[
+                {
+                  icon: Smartphone,
+                  label: "Two-Factor Authentication",
+                  desc: "Require 2FA for all members of this workspace.",
+                  badge: "Coming soon",
+                },
+                {
+                  icon: Key,
+                  label: "SSO / SAML",
+                  desc: "Connect an identity provider for single sign-on.",
+                  badge: "Coming soon",
+                },
+              ].map(({ icon: Icon, label, desc, badge }) => (
+                <div
+                  key={label}
+                  className="flex items-center justify-between gap-4 rounded-xl border border-border bg-muted/20 px-4 py-4"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+                      <Icon className="h-4 w-4" />
                     </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">
+                        {label}
+                      </p>
+                      <p className="text-xs text-muted-foreground">{desc}</p>
+                    </div>
+                  </div>
+                  {badge && (
+                    <span className="shrink-0 rounded-full bg-muted border border-border px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+                      {badge}
+                    </span>
                   )}
                 </div>
+              ))}
+            </div>
+          </SectionCard>
 
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium">Favicon</label>
-                  <div className="flex items-end gap-4">
-                    <div className="flex-1">
-                      <input
-                        type="text"
-                        value={settings.faviconUrl || ""}
-                        onChange={(e) => handleChange("faviconUrl", e.target.value || null)}
-                        placeholder="https://example.com/favicon.ico"
-                        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
-                      />
-                    </div>
-                    <button className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted transition">
-                      <Upload className="h-4 w-4" />
-                      Upload
-                    </button>
-                  </div>
-                </div>
+          {/* Danger Zone */}
+          <div className="rounded-2xl border border-error/30 bg-error/5 overflow-hidden">
+            <div className="flex items-center gap-3 px-6 py-4 border-b border-error/20">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-error/10 text-error">
+                <ShieldAlert className="h-4.5 w-4.5" size={18} />
+              </div>
+              <div>
+                <h3 className="text-[15px] font-semibold text-error">
+                  Danger Zone
+                </h3>
+                <p className="text-xs text-error/70">
+                  These actions are permanent and cannot be undone.
+                </p>
               </div>
             </div>
-
-            {/* Color Branding */}
-            <div className="rounded-xl border border-border bg-card p-6">
-              <h3 className="text-lg font-semibold mb-6">Brand Colors</h3>
-
-              <div className="space-y-6">
-                {[
-                  { key: "primaryColor", label: "Primary Color" },
-                  { key: "secondaryColor", label: "Secondary Color" },
-                  { key: "accentColor", label: "Accent Color" },
-                ].map(({ key, label }) => (
-                  <div key={key}>
-                    <label className="mb-3 block text-sm font-medium">{label}</label>
-                    <div className="space-y-3">
-                      {/* Custom color input */}
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="color"
-                          value={String(settings[key as keyof SettingsState])}
-                          onChange={(e) => handleChange(key as keyof SettingsState, e.target.value)}
-                          className="h-10 w-16 rounded-lg border border-border cursor-pointer"
-                        />
-                        <input
-                          type="text"
-                          value={String(settings[key as keyof SettingsState])}
-                          onChange={(e) => handleChange(key as keyof SettingsState, e.target.value)}
-                          className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground font-mono"
-                          placeholder="#3b82f6"
-                        />
-                      </div>
-
-                      {/* Preset colors */}
-                      <div className="flex gap-2 flex-wrap">
-                        {PRESET_COLORS.map((color) => (
-                          <button
-                            key={color.hex}
-                            onClick={() => handleChange(key as keyof SettingsState, color.hex)}
-                            className={cn(
-                              "h-8 w-8 rounded-lg border-2 transition-all hover:scale-110",
-                              settings[key as keyof SettingsState] === color.hex
-                                ? "border-foreground"
-                                : "border-transparent",
-                            )}
-                            style={{ backgroundColor: color.hex }}
-                            title={color.name}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Color Preview */}
-              <div className="mt-8 pt-6 border-t border-border">
-                <h4 className="text-sm font-medium mb-4">Preview</h4>
-                <div className="flex gap-4">
-                  <div className="flex-1">
-                    <p className="text-xs text-muted-foreground mb-2">Primary</p>
-                    <div
-                      className="h-24 rounded-lg border border-border"
-                      style={{ backgroundColor: String(settings.primaryColor) }}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-xs text-muted-foreground mb-2">Secondary</p>
-                    <div
-                      className="h-24 rounded-lg border border-border"
-                      style={{ backgroundColor: String(settings.secondaryColor) }}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-xs text-muted-foreground mb-2">Accent</p>
-                    <div
-                      className="h-24 rounded-lg border border-border"
-                      style={{ backgroundColor: String(settings.accentColor) }}
-                    />
-                  </div>
+            <div className="px-6 py-6 space-y-4">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm font-medium text-foreground">
+                    Delete Workspace
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Permanently delete this workspace and all its data, members,
+                    and billing.
+                  </p>
                 </div>
+                <button className="shrink-0 flex items-center gap-2 rounded-xl border border-error/30 bg-error/10 text-error px-4 py-2 text-sm font-medium hover:bg-error/20 transition cursor-pointer">
+                  <Trash2 className="h-4 w-4" />
+                  Delete
+                </button>
               </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Notifications Tab */}
-        {activeTab === "notifications" && (
-          <div className="rounded-xl border border-border bg-card p-6">
-            <h3 className="text-lg font-semibold mb-6">Notification Preferences</h3>
-
-            <div className="space-y-4">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={settings.emailNotifications}
-                  onChange={(e) => handleChange("emailNotifications", e.target.checked)}
-                  className="w-4 h-4 rounded border border-border bg-background cursor-pointer"
-                />
-                <div>
-                  <span className="block text-sm font-medium">Email Notifications</span>
-                  <span className="text-xs text-muted-foreground">Receive updates via email</span>
-                </div>
-              </label>
-
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={settings.slackNotifications}
-                  onChange={(e) => handleChange("slackNotifications", e.target.checked)}
-                  className="w-4 h-4 rounded border border-border bg-background cursor-pointer"
-                />
-                <div>
-                  <span className="block text-sm font-medium">Slack Notifications</span>
-                  <span className="text-xs text-muted-foreground">Send alerts to your Slack workspace</span>
-                </div>
-              </label>
-            </div>
-          </div>
-        )}
-
-        {/* Security Tab */}
-        {activeTab === "security" && (
-          <div className="space-y-6">
-            <div className="rounded-xl border border-border bg-card p-6">
-              <h3 className="text-lg font-semibold mb-6">Security Settings</h3>
-
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">Security features coming soon.</p>
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-error/20 bg-error/5 p-6">
-              <h3 className="text-lg font-semibold mb-4 text-error">Danger Zone</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Delete your workspace and all associated data. This action is irreversible.
-              </p>
-              <button className="flex items-center gap-2 rounded-lg bg-error/10 text-error px-4 py-2 text-sm font-medium hover:bg-error/20 transition">
-                <Trash2 className="h-4 w-4" />
-                Delete Workspace
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Save Button */}
-      <div className="flex justify-end">
+      {/* ── Sticky save bar ───────────────────────────────────────────────── */}
+      <div className="sticky bottom-0 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-4 bg-background/80 backdrop-blur-md border-t border-border/60 flex items-center justify-between gap-4 z-10">
+        <p className="text-xs text-muted-foreground">
+          {saved ? (
+            <span className="flex items-center gap-1.5 text-success">
+              <CheckCircle2 className="h-3.5 w-3.5" /> Saved
+            </span>
+          ) : (
+            "Unsaved changes will be lost if you navigate away."
+          )}
+        </p>
         <button
           onClick={handleSave}
           disabled={loading}
-          className="flex items-center gap-2 rounded-lg bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 transition disabled:opacity-50"
+          className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition disabled:opacity-50 cursor-pointer shadow-md shadow-primary/20"
         >
-          <Save className="h-4 w-4" />
-          {loading ? "Saving..." : "Save Changes"}
+          {loading ? (
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+          ) : (
+            <Save className="h-4 w-4" />
+          )}
+          {loading ? "Saving…" : "Save Changes"}
         </button>
       </div>
     </div>
