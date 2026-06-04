@@ -1,7 +1,8 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { apiGetOrgSettings, type OrganizationSettings } from "@/lib/api";
+import { apiGetOrgSettings, type OrganizationSettings, ApiError } from "@/lib/api";
+import { useAuth } from "./AuthProvider";
 
 interface SettingsContextType {
   settings: OrganizationSettings | null;
@@ -13,6 +14,7 @@ interface SettingsContextType {
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [settings, setSettings] = useState<OrganizationSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,9 +27,15 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       setSettings(data);
       applyTheme(data);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to load settings";
-      setError(message);
-      console.error("Failed to load organization settings:", err);
+      // Silently ignore "No organization context" errors - user might be on a public page
+      if (err instanceof ApiError && err.status === 400) {
+        setError(null);
+        setSettings(null);
+      } else {
+        const message = err instanceof Error ? err.message : "Failed to load settings";
+        setError(message);
+        console.error("Failed to load organization settings:", err);
+      }
     } finally {
       setLoading(false);
     }
@@ -38,8 +46,13 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    loadSettings();
-  }, []);
+    // Only load settings after auth is checked and user is authenticated
+    if (!authLoading && isAuthenticated) {
+      loadSettings();
+    } else if (!authLoading && !isAuthenticated) {
+      setLoading(false);
+    }
+  }, [isAuthenticated, authLoading]);
 
   return (
     <SettingsContext.Provider value={{ settings, loading, error, refreshSettings }}>
