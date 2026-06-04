@@ -31,8 +31,8 @@ export function CRMToolbar({
           className={cn(
             "w-full rounded-xl border border-border bg-background pl-9 pr-9 py-2.5 text-sm",
             "text-foreground placeholder:text-muted-foreground/50",
-            "focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20",
-            "transition-all duration-200",
+            "outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20",
+            "transition-[border-color,box-shadow] duration-200",
           )}
         />
         {search && (

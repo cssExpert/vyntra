@@ -43,12 +43,12 @@ export function RevenueChart({ data }: RevenueChartProps) {
       <AreaChart data={data} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
         <defs>
           <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#3758f9" stopOpacity={0.3} />
-            <stop offset="95%" stopColor="#3758f9" stopOpacity={0} />
+            <stop offset="5%" stopColor="#d14c23" stopOpacity={0.3} />
+            <stop offset="95%" stopColor="#d14c23" stopOpacity={0} />
           </linearGradient>
           <linearGradient id="colorPrevious" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#6476fb" stopOpacity={0.2} />
-            <stop offset="95%" stopColor="#6476fb" stopOpacity={0} />
+            <stop offset="5%" stopColor="#eb5729" stopOpacity={0.2} />
+            <stop offset="95%" stopColor="#eb5729" stopOpacity={0} />
           </linearGradient>
         </defs>
         <CartesianGrid
@@ -74,7 +74,7 @@ export function RevenueChart({ data }: RevenueChartProps) {
           type="monotone"
           dataKey="value2"
           name="Previous Year"
-          stroke="#6476fb"
+          stroke="#eb5729"
           strokeWidth={1.5}
           strokeDasharray="4 4"
           fill="url(#colorPrevious)"
@@ -84,11 +84,11 @@ export function RevenueChart({ data }: RevenueChartProps) {
           type="monotone"
           dataKey="value"
           name="Revenue"
-          stroke="#3758f9"
+          stroke="#d14c23"
           strokeWidth={2}
           fill="url(#colorRevenue)"
           dot={false}
-          activeDot={{ r: 4, fill: "#3758f9", stroke: "hsl(var(--background))", strokeWidth: 2 }}
+          activeDot={{ r: 4, fill: "#d14c23", stroke: "hsl(var(--background))", strokeWidth: 2 }}
         />
       </AreaChart>
     </ResponsiveContainer>
