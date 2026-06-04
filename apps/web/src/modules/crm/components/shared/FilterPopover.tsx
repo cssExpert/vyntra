@@ -202,9 +202,9 @@ export function FilterPopover({
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search"
                   className={cn(
-                    "w-full rounded-xl border-2 border-primary/40 bg-background pl-9 pr-3 py-2.5",
+                    "w-full rounded-xl border border-border bg-background pl-9 pr-3 py-2.5",
                     "text-sm text-foreground placeholder:text-muted-foreground",
-                    "outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus:border-primary transition-colors",
+                    "outline-none focus:outline-none focus-visible:outline-none  focus-visible:ring-2 focus-visible:ring-ring/20 focus-visible:border-ring transition-[border-color,box-shadow] disabled:cursor-not-allowed disabled:opacity-50",
                   )}
                 />
               </div>
