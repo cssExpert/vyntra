@@ -111,8 +111,8 @@ export class OrganizationsService {
       throw new BadRequestException('No organization context');
     }
     const data: any = {};
-    if (dto.organizationName) data.name = dto.organizationName;
-    if (dto.organizationEmail) data.email = dto.organizationEmail;
+    if (dto.name) data.name = dto.name;
+    if (dto.email) data.email = dto.email;
     if (dto.logoUrl !== undefined) data.logoUrl = dto.logoUrl;
     if (dto.faviconUrl !== undefined) data.faviconUrl = dto.faviconUrl;
     if (dto.primaryColor) data.primaryColor = dto.primaryColor;

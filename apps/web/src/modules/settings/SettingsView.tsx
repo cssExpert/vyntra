@@ -78,17 +78,21 @@ export function SettingsView() {
     setLoading(true);
     setError("");
     try {
-      await apiUpdateOrgSettings({
-        name: settings.organizationName,
-        email: settings.organizationEmail || null,
-        logoUrl: settings.logoUrl,
-        faviconUrl: settings.faviconUrl,
+      const updateData: any = {
         primaryColor: settings.primaryColor,
         secondaryColor: settings.secondaryColor,
         accentColor: settings.accentColor,
         emailNotifications: settings.emailNotifications,
         slackNotifications: settings.slackNotifications,
-      });
+      };
+
+      // Only include name if it changed
+      if (settings.organizationName) updateData.name = settings.organizationName;
+      if (settings.organizationEmail) updateData.email = settings.organizationEmail;
+      if (settings.logoUrl !== null) updateData.logoUrl = settings.logoUrl;
+      if (settings.faviconUrl !== null) updateData.faviconUrl = settings.faviconUrl;
+
+      await apiUpdateOrgSettings(updateData);
       await refreshSettings();
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);

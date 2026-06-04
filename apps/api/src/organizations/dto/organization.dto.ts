@@ -65,11 +65,11 @@ export class AssignPackageDto {
 export class OrganizationSettingsDto {
   @IsOptional()
   @IsString()
-  organizationName?: string;
+  name?: string;
 
   @IsOptional()
   @IsEmail()
-  organizationEmail?: string;
+  email?: string;
 
   @IsOptional()
   @IsString()
