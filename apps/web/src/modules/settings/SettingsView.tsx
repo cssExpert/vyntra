@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Building2,
   Palette,
@@ -123,13 +125,42 @@ function ColorPickerField({
   onChange: (hex: string) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  // right = distance from viewport right edge → right-aligns picker to button's right border
+  const [coords, setCoords] = useState<{
+    top?: number;
+    bottom?: number;
+    right: number;
+  }>({ right: 0 });
+  const triggerRef = useRef<HTMLDivElement>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
 
-  // Close on outside click
+  const handleToggle = () => {
+    if (!open && triggerRef.current) {
+      const r = triggerRef.current.getBoundingClientRect();
+      const right = window.innerWidth - r.right;
+      if (window.innerHeight - r.bottom >= 280) {
+        setCoords({ top: r.bottom + 4, bottom: undefined, right });
+      } else {
+        setCoords({
+          top: undefined,
+          bottom: window.innerHeight - r.top + 4,
+          right,
+        });
+      }
+    }
+    setOpen((p) => !p);
+  };
+
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node))
+      const t = e.target as Node;
+      if (
+        triggerRef.current &&
+        !triggerRef.current.contains(t) &&
+        popoverRef.current &&
+        !popoverRef.current.contains(t)
+      )
         setOpen(false);
     };
     document.addEventListener("mousedown", handler);
@@ -144,11 +175,11 @@ function ColorPickerField({
       </div>
 
       {/* Trigger */}
-      <div ref={ref} className="relative shrink-0">
+      <div ref={triggerRef} className="shrink-0">
         <button
           type="button"
-          onClick={() => setOpen((p) => !p)}
-          className="flex items-center gap-2 rounded-xl border border-border bg-muted px-2.5 py-1.5 hover:bg-muted/80 transition-colors cursor-pointer group"
+          onClick={handleToggle}
+          className="flex items-center gap-2 rounded-xl border border-border bg-white dark:bg-muted px-2.5 py-1.5 hover:bg-muted/80 transition-colors cursor-pointer group"
         >
           <span
             className="h-6 w-6 rounded-lg border border-black/10 shadow-sm shrink-0"
@@ -164,10 +195,23 @@ function ColorPickerField({
             )}
           />
         </button>
+      </div>
 
-        {/* Sketch popover */}
-        {open && (
-          <div className="absolute right-0 top-full mt-2 z-50 drop-shadow-xl rounded-2xl overflow-hidden border border-border">
+      {/* Portal — escapes overflow:hidden and all stacking contexts */}
+      {open &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            ref={popoverRef}
+            style={{
+              position: "fixed",
+              ...(coords.top !== undefined ? { top: coords.top } : {}),
+              ...(coords.bottom !== undefined ? { bottom: coords.bottom } : {}),
+              right: coords.right,
+              zIndex: 9999,
+            }}
+            className="drop-shadow-xl rounded-md overflow-hidden border border-border"
+          >
             <Sketch
               color={value}
               presetColors={SWATCH_PRESETS}
@@ -178,9 +222,9 @@ function ColorPickerField({
                 } as React.CSSProperties
               }
             />
-          </div>
+          </div>,
+          document.body,
         )}
-      </div>
     </div>
   );
 }
@@ -327,8 +371,8 @@ export function SettingsView() {
         </div>
       )}
 
-      {/* Tab bar */}
-      <div className="flex gap-1 rounded-2xl border border-border bg-muted/30 p-1.5 w-fit">
+      {/* Tab bar — same style as Blog Editor MotionTabs */}
+      <div className="p-1 rounded-xl flex items-center gap-1 border border-border bg-card w-fit">
         {tabs.map(({ id, label, icon: Icon }) => {
           const isActive = activeTab === id;
           return (
@@ -336,18 +380,33 @@ export function SettingsView() {
               key={id}
               onClick={() => setActiveTab(id)}
               className={cn(
-                "flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all duration-150 cursor-pointer",
-                isActive
-                  ? "bg-card text-foreground shadow-sm border border-border"
-                  : "text-muted-foreground hover:text-foreground hover:bg-background/60",
+                "relative flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold cursor-pointer transition-colors duration-150",
+                isActive ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground",
               )}
             >
-              <Icon className="h-4 w-4" />
-              {label}
+              {isActive && (
+                <motion.div
+                  layoutId="settings-tab-indicator"
+                  className="absolute inset-0 rounded-lg bg-primary shadow-md"
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
+                />
+              )}
+              <Icon className="relative z-10 h-4 w-4 shrink-0" />
+              <span className="relative z-10">{label}</span>
             </button>
           );
         })}
       </div>
+
+      {/* Tab content — same y:8→0 fade-in as MotionTabs */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+        >
 
       {/* ── Branding Tab ──────────────────────────────────────────────────── */}
       {activeTab === "branding" && (
@@ -664,6 +723,9 @@ export function SettingsView() {
           </div>
         </div>
       )}
+
+        </motion.div>
+      </AnimatePresence>
 
       {/* ── Sticky save bar ───────────────────────────────────────────────── */}
       <div className="sticky bottom-0 -mx-4 sm:-mx-6 px-4 sm:px-6 py-4 bg-background/80 backdrop-blur-md border-t border-border/60 flex items-center justify-between gap-4 z-10">

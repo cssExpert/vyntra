@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   Settings,
   Save,
@@ -108,12 +109,31 @@ function ColorPickerField({
   onChange: (hex: string) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [coords, setCoords] = useState<{ top?: number; bottom?: number; right: number }>({ right: 0 });
+  const triggerRef = useRef<HTMLDivElement>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
+
+  const handleToggle = () => {
+    if (!open && triggerRef.current) {
+      const r     = triggerRef.current.getBoundingClientRect();
+      const right = window.innerWidth - r.right;
+      if (window.innerHeight - r.bottom >= 280) {
+        setCoords({ top: r.bottom + 4, bottom: undefined, right });
+      } else {
+        setCoords({ top: undefined, bottom: window.innerHeight - r.top + 4, right });
+      }
+    }
+    setOpen((p) => !p);
+  };
 
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      const t = e.target as Node;
+      if (
+        triggerRef.current && !triggerRef.current.contains(t) &&
+        popoverRef.current && !popoverRef.current.contains(t)
+      ) setOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -125,10 +145,10 @@ function ColorPickerField({
         <p className="text-sm font-medium text-foreground">{label}</p>
         <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
       </div>
-      <div ref={ref} className="relative shrink-0">
+      <div ref={triggerRef} className="shrink-0">
         <button
           type="button"
-          onClick={() => setOpen((p) => !p)}
+          onClick={handleToggle}
           className="flex items-center gap-2 rounded-xl border border-border bg-muted px-2.5 py-1.5 hover:bg-muted/80 transition-colors cursor-pointer"
         >
           <span
@@ -143,16 +163,29 @@ function ColorPickerField({
             )}
           />
         </button>
-        {open && (
-          <div className="absolute right-0 top-full mt-2 z-50 drop-shadow-xl rounded-2xl overflow-hidden border border-border">
-            <Sketch
-              color={value}
-              presetColors={SWATCH_PRESETS}
-              onChange={(c) => onChange(c.hex)}
-            />
-          </div>
-        )}
       </div>
+
+      {/* Portal — escapes overflow:hidden and all stacking contexts */}
+      {open && typeof document !== "undefined" && createPortal(
+        <div
+          ref={popoverRef}
+          style={{
+            position: "fixed",
+            ...(coords.top    !== undefined ? { top:    coords.top    } : {}),
+            ...(coords.bottom !== undefined ? { bottom: coords.bottom } : {}),
+            right: coords.right,
+            zIndex: 9999,
+          }}
+          className="drop-shadow-xl rounded-2xl overflow-hidden border border-border"
+        >
+          <Sketch
+            color={value}
+            presetColors={SWATCH_PRESETS}
+            onChange={(c) => onChange(c.hex)}
+          />
+        </div>,
+        document.body,
+      )}
     </div>
   );
 }

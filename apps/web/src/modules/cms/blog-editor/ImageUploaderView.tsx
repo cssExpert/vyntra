@@ -3,7 +3,7 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import { NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
 import { motion } from "framer-motion";
-import { FileImage, CloudUpload, X } from "lucide-react";
+import { FileImage, ArrowUpFromLine, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 function formatBytes(bytes: number): string {
@@ -11,7 +11,12 @@ function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 }
 
-export function ImageUploaderView({ editor, node, getPos, deleteNode }: NodeViewProps) {
+export function ImageUploaderView({
+  editor,
+  node,
+  getPos,
+  deleteNode,
+}: NodeViewProps) {
   const [status, setStatus] = useState<"idle" | "uploading">("idle");
   const [progress, setProgress] = useState(0);
   const [fileName, setFileName] = useState("");
@@ -22,7 +27,12 @@ export function ImageUploaderView({ editor, node, getPos, deleteNode }: NodeView
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const dataUrlRef = useRef("");
 
-  useEffect(() => () => { if (timerRef.current) clearInterval(timerRef.current); }, []);
+  useEffect(
+    () => () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    },
+    [],
+  );
 
   const processFile = useCallback(
     (file: File) => {
@@ -35,7 +45,9 @@ export function ImageUploaderView({ editor, node, getPos, deleteNode }: NodeView
       setStatus("uploading");
 
       const reader = new FileReader();
-      reader.onload = () => { dataUrlRef.current = reader.result as string; };
+      reader.onload = () => {
+        dataUrlRef.current = reader.result as string;
+      };
       reader.readAsDataURL(file);
 
       let p = 0;
@@ -51,7 +63,11 @@ export function ImageUploaderView({ editor, node, getPos, deleteNode }: NodeView
               .deleteRange({ from: pos, to: pos + node.nodeSize })
               .insertContentAt(pos, {
                 type: "image",
-                attrs: { src: dataUrlRef.current, align: "center", width: null },
+                attrs: {
+                  src: dataUrlRef.current,
+                  align: "center",
+                  width: null,
+                },
               })
               .run();
           }, 280);
@@ -62,12 +78,15 @@ export function ImageUploaderView({ editor, node, getPos, deleteNode }: NodeView
     [editor, getPos, node.nodeSize],
   );
 
-  const onDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    const file = e.dataTransfer.files[0];
-    if (file) processFile(file);
-  }, [processFile]);
+  const onDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragOver(false);
+      const file = e.dataTransfer.files[0];
+      if (file) processFile(file);
+    },
+    [processFile],
+  );
 
   return (
     <NodeViewWrapper>
@@ -78,7 +97,10 @@ export function ImageUploaderView({ editor, node, getPos, deleteNode }: NodeView
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.18 }}
-            onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setIsDragOver(true);
+            }}
             onDragLeave={() => setIsDragOver(false)}
             onDrop={onDrop}
             onClick={() => inputRef.current?.click()}
@@ -100,7 +122,7 @@ export function ImageUploaderView({ editor, node, getPos, deleteNode }: NodeView
               </div>
               {/* Upload badge */}
               <div className="absolute -bottom-2.5 -right-2.5 w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/25">
-                <CloudUpload className="w-4 h-4 text-primary-foreground" />
+                <ArrowUpFromLine className="w-4 h-4 text-primary-foreground" />
               </div>
             </div>
 
@@ -121,7 +143,10 @@ export function ImageUploaderView({ editor, node, getPos, deleteNode }: NodeView
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={(e) => { const f = e.target.files?.[0]; if (f) processFile(f); }}
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) processFile(f);
+              }}
             />
           </motion.div>
         ) : (
@@ -143,7 +168,7 @@ export function ImageUploaderView({ editor, node, getPos, deleteNode }: NodeView
             <div className="relative z-10 flex items-center h-full px-4 gap-3">
               {/* Icon — always on a solid primary circle so it stays readable */}
               <div className="w-8 h-8 rounded-full bg-primary-foreground/15 ring-1 ring-primary-foreground/20 flex items-center justify-center shrink-0">
-                <CloudUpload className="w-4 h-4 text-primary-foreground" />
+                <ArrowUpFromLine className="w-4 h-4 text-primary-foreground" />
               </div>
 
               <div className="min-w-0 flex-1">
@@ -154,7 +179,9 @@ export function ImageUploaderView({ editor, node, getPos, deleteNode }: NodeView
                 <p className="text-sm font-semibold truncate leading-tight text-foreground">
                   {fileName}
                 </p>
-                <p className="text-xs leading-tight text-muted-foreground">{fileSize}</p>
+                <p className="text-xs leading-tight text-muted-foreground">
+                  {fileSize}
+                </p>
               </div>
 
               <span className="text-sm font-bold text-primary-foreground shrink-0 tabular-nums w-10 text-right">
@@ -163,7 +190,11 @@ export function ImageUploaderView({ editor, node, getPos, deleteNode }: NodeView
 
               <button
                 type="button"
-                onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); deleteNode(); }}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  deleteNode();
+                }}
                 className="w-6 h-6 flex items-center justify-center rounded-md text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-colors shrink-0"
               >
                 <X className="w-3.5 h-3.5" />
