@@ -13,6 +13,14 @@
     outline: none;
   }
 
+  /* React Select v5: .rs__input IS the <input> element (not a parent) */
+  .rs__input,
+  .rs__input:focus,
+  .rs__input:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
   /* Override native select focus ring (focus-visible unreliable on <select>) */
   select:focus,
   select:focus-visible {
@@ -363,7 +371,8 @@
 
   .rounded-sm,
   .rounded-lg,
-  .rounded-xl {
+  .rounded-xl,
+  .rs__control {
     border-radius: calc(var(--radius) - 4px) !important;
   }
 }
@@ -724,4 +733,12 @@
 .device-preview .table-container th,
 .device-preview .table-container td {
   white-space: nowrap;
+}
+
+/* React Select v5: .rs__input IS the <input> element (not a parent) */
+.rs__input,
+.rs__input:focus,
+.rs__input:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
 }

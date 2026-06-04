@@ -2,9 +2,28 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, User, Mail, Phone, Building2, Briefcase, Tag, ChevronDown } from "lucide-react";
+import {
+  X,
+  User,
+  Mail,
+  Phone,
+  Building2,
+  Briefcase,
+  Tag,
+  TrendingUp,
+  Layers,
+  UserCheck,
+} from "lucide-react";
+import Select, { type StylesConfig, type GroupBase } from "react-select";
 import { cn } from "@/lib/utils";
 import type { ContactStage, ContactSource } from "../../types";
+
+// ── Types ──────────────────────────────────────────────────────────────────────
+
+interface SelectOption<T extends string = string> {
+  value: T;
+  label: string;
+}
 
 interface AddContactDrawerProps {
   isOpen: boolean;
@@ -25,38 +44,164 @@ export interface ContactFormData {
   tags: string;
 }
 
-const STAGE_OPTIONS: { value: ContactStage; label: string }[] = [
-  { value: "subscriber",  label: "Subscriber"               },
-  { value: "lead",        label: "Lead"                     },
-  { value: "mql",         label: "Marketing Qualified Lead" },
-  { value: "sql",         label: "Sales Qualified Lead"     },
-  { value: "opportunity", label: "Opportunity"              },
-  { value: "customer",    label: "Customer"                 },
+// ── Options ────────────────────────────────────────────────────────────────────
+
+const STAGE_OPTIONS: SelectOption<ContactStage>[] = [
+  { value: "subscriber", label: "Subscriber" },
+  { value: "lead", label: "Lead" },
+  { value: "mql", label: "Marketing Qualified Lead" },
+  { value: "sql", label: "Sales Qualified Lead" },
+  { value: "opportunity", label: "Opportunity" },
+  { value: "customer", label: "Customer" },
 ];
 
-const SOURCE_OPTIONS = [
-  { value: "website",       label: "Website"       },
-  { value: "referral",      label: "Referral"      },
-  { value: "social",        label: "Social Media"  },
-  { value: "email",         label: "Email"         },
-  { value: "paid_ads",      label: "Paid Ads"      },
-  { value: "organic",       label: "Organic"       },
+const SOURCE_OPTIONS: SelectOption[] = [
+  { value: "website", label: "Website" },
+  { value: "referral", label: "Referral" },
+  { value: "social", label: "Social Media" },
+  { value: "email", label: "Email" },
+  { value: "paid_ads", label: "Paid Ads" },
+  { value: "organic", label: "Organic" },
   { value: "cold_outreach", label: "Cold Outreach" },
 ];
 
-const OWNER_OPTIONS = [
-  { value: "ravi",  label: "Ravi Gupta" },
-  { value: "alex",  label: "Alex Smith" },
-  { value: "emma",  label: "Emma Davis" },
+const OWNER_OPTIONS: SelectOption[] = [
+  { value: "ravi", label: "Ravi Gupta" },
+  { value: "alex", label: "Alex Smith" },
+  { value: "emma", label: "Emma Davis" },
 ];
 
 const EMPTY: ContactFormData = {
-  firstName: "", lastName: "", email: "", phone: "",
-  company: "", jobTitle: "", owner: "", stage: "lead", source: "", tags: "",
+  firstName: "",
+  lastName: "",
+  email: "",
+  phone: "",
+  company: "",
+  jobTitle: "",
+  owner: "",
+  stage: "lead",
+  source: "",
+  tags: "",
 };
 
+// ── React Select shared styles (design-token–aware) ────────────────────────────
+
+function buildSelectStyles<T extends string>(): StylesConfig<
+  SelectOption<T>,
+  false,
+  GroupBase<SelectOption<T>>
+> {
+  return {
+    control: (base, state) => ({
+      ...base,
+      minHeight: "42px",
+      backgroundColor: "hsl(var(--background))",
+      borderColor: state.isFocused ? "hsl(var(--primary))" : "hsl(var(--border))",
+      borderRadius: "var(--radius)",
+      boxShadow: state.isFocused ? "0 0 0 2px hsl(var(--primary) / 0.2)" : "none",
+      cursor: "default",
+      transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+      "&:hover": { borderColor: "hsl(var(--border))" },
+    }),
+    valueContainer: (base) => ({ ...base, padding: "2px 12px" }),
+    singleValue: (base) => ({
+      ...base,
+      color: "hsl(var(--foreground))",
+      fontSize: "0.875rem",
+    }),
+    placeholder: (base) => ({
+      ...base,
+      color: "hsl(var(--muted-foreground) / 0.6)",
+      fontSize: "0.875rem",
+    }),
+    input: (base) => ({
+      ...base,
+      color: "hsl(var(--foreground))",
+      fontSize: "0.875rem",
+      outline: "none",
+      boxShadow: "none",
+      caretColor: "hsl(var(--primary))",
+    }),
+    indicatorSeparator: () => ({ display: "none" }),
+    dropdownIndicator: (base, state) => ({
+      ...base,
+      color: "hsl(var(--muted-foreground))",
+      transition: "transform 0.2s ease",
+      transform: state.selectProps.menuIsOpen
+        ? "rotate(180deg)"
+        : "rotate(0deg)",
+      "&:hover": { color: "hsl(var(--foreground))" },
+    }),
+    clearIndicator: (base) => ({
+      ...base,
+      color: "hsl(var(--muted-foreground))",
+      "&:hover": { color: "hsl(var(--foreground))" },
+    }),
+    menu: (base) => ({
+      ...base,
+      backgroundColor: "hsl(var(--card))",
+      border: "1px solid hsl(var(--border))",
+      borderRadius: "var(--radius)",
+      overflow: "hidden",
+      boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
+      zIndex: 10000,
+    }),
+    menuPortal: (base) => ({ ...base, zIndex: 10000 }),
+    option: (base, state) => ({
+      ...base,
+      fontSize: "0.875rem",
+      fontWeight: 500,
+      cursor: "pointer",
+      color: state.isSelected
+        ? "hsl(var(--primary-foreground))"
+        : "hsl(var(--foreground))",
+      backgroundColor: state.isSelected
+        ? "hsl(var(--primary))"
+        : state.isFocused
+          ? "hsl(var(--muted))"
+          : "transparent",
+      "&:active": {
+        backgroundColor: "hsl(var(--primary))",
+        color: "hsl(var(--primary-foreground))",
+      },
+    }),
+    noOptionsMessage: (base) => ({
+      ...base,
+      color: "hsl(var(--muted-foreground))",
+      fontSize: "0.875rem",
+    }),
+  };
+}
+
+// Memoised per generic type to avoid object recreation on every render
+const stageStyles = buildSelectStyles<ContactStage>();
+const sourceStyles = buildSelectStyles<string>();
+const ownerStyles = buildSelectStyles<string>();
+
+// ── Option label highlighter ───────────────────────────────────────────────────
+
+function highlightLabel(label: string, query: string): React.ReactNode {
+  if (!query) return label;
+  const i = label.toLowerCase().indexOf(query.toLowerCase());
+  if (i === -1) return label;
+  return (
+    <>
+      {label.slice(0, i)}
+      <span style={{ color: "hsl(var(--primary))", fontWeight: 700 }}>
+        {label.slice(i, i + query.length)}
+      </span>
+      {label.slice(i + query.length)}
+    </>
+  );
+}
+
+// ── Sub-components ─────────────────────────────────────────────────────────────
+
 function FormField({
-  label, icon: Icon, children, required,
+  label,
+  icon: Icon,
+  children,
+  required,
 }: {
   label: string;
   icon?: React.ElementType;
@@ -68,7 +213,7 @@ function FormField({
       <label className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-foreground">
         {Icon && <Icon className="h-3.5 w-3.5 text-muted-foreground" />}
         {label}
-        {required && <span className="text-error">*</span>}
+        {required && <span className="text-error ml-0.5">*</span>}
       </label>
       {children}
     </div>
@@ -81,27 +226,41 @@ const inputCls = cn(
   "focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200",
 );
 
-export function AddContactDrawer({ isOpen, onClose, onSave }: AddContactDrawerProps) {
+const portalTarget =
+  typeof document !== "undefined" ? document.body : undefined;
+
+// ── Drawer ─────────────────────────────────────────────────────────────────────
+
+export function AddContactDrawer({
+  isOpen,
+  onClose,
+  onSave,
+}: AddContactDrawerProps) {
   const [form, setForm] = useState<ContactFormData>(EMPTY);
   const [errors, setErrors] = useState<Partial<ContactFormData>>({});
 
-  const set = (field: keyof ContactFormData) => (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => setForm((p) => ({ ...p, [field]: e.target.value }));
+  const setField =
+    (field: keyof ContactFormData) =>
+    (e: React.ChangeEvent<HTMLInputElement>) =>
+      setForm((p) => ({ ...p, [field]: e.target.value }));
 
   const validate = () => {
     const e: Partial<ContactFormData> = {};
     if (!form.firstName.trim()) e.firstName = "Required";
-    if (!form.email.trim())     e.email     = "Required";
+    if (!form.email.trim()) e.email = "Required";
     return e;
   };
 
   const handleSubmit = (ev: React.FormEvent) => {
     ev.preventDefault();
     const e = validate();
-    if (Object.keys(e).length) { setErrors(e); return; }
+    if (Object.keys(e).length) {
+      setErrors(e);
+      return;
+    }
     onSave(form);
     setForm(EMPTY);
+    setErrors({});
     onClose();
   };
 
@@ -129,8 +288,12 @@ export function AddContactDrawer({ isOpen, onClose, onSave }: AddContactDrawerPr
             {/* Header */}
             <div className="flex items-center justify-between border-b border-border px-6 py-4">
               <div>
-                <h2 className="text-base font-semibold font-display text-foreground">Add contact</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Fill in the contact details below</p>
+                <h2 className="text-base font-semibold font-display text-foreground">
+                  Add contact
+                </h2>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Fill in the contact details below
+                </p>
               </div>
               <button
                 onClick={onClose}
@@ -141,75 +304,159 @@ export function AddContactDrawer({ isOpen, onClose, onSave }: AddContactDrawerPr
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-5 space-y-4 no-scrollbar">
-
+            <form
+              onSubmit={handleSubmit}
+              className="flex-1 overflow-y-auto px-6 py-5 space-y-4 no-scrollbar"
+            >
               {/* Name row */}
               <div className="grid grid-cols-2 gap-3">
                 <FormField label="First name" icon={User} required>
                   <input
-                    value={form.firstName} onChange={set("firstName")}
-                    placeholder="Ravi" className={cn(inputCls, errors.firstName && "border-error")}
+                    value={form.firstName}
+                    onChange={setField("firstName")}
+                    placeholder="Ravi"
+                    className={cn(
+                      inputCls,
+                      errors.firstName &&
+                        "border-error focus:border-error focus:ring-error/20",
+                    )}
                   />
-                  {errors.firstName && <p className="mt-1 text-xs text-error">{errors.firstName}</p>}
+                  {errors.firstName && (
+                    <p className="mt-1 text-xs text-error">
+                      {errors.firstName}
+                    </p>
+                  )}
                 </FormField>
                 <FormField label="Last name" icon={User}>
-                  <input value={form.lastName} onChange={set("lastName")} placeholder="Gupta" className={inputCls} />
+                  <input
+                    value={form.lastName}
+                    onChange={setField("lastName")}
+                    placeholder="Gupta"
+                    className={inputCls}
+                  />
                 </FormField>
               </div>
 
               <FormField label="Email address" icon={Mail} required>
                 <input
-                  type="email" value={form.email} onChange={set("email")}
+                  type="email"
+                  value={form.email}
+                  onChange={setField("email")}
                   placeholder="email@domain.com"
-                  className={cn(inputCls, errors.email && "border-error")}
+                  className={cn(
+                    inputCls,
+                    errors.email &&
+                      "border-error focus:border-error focus:ring-error/20",
+                  )}
                 />
-                {errors.email && <p className="mt-1 text-xs text-error">{errors.email}</p>}
+                {errors.email && (
+                  <p className="mt-1 text-xs text-error">{errors.email}</p>
+                )}
               </FormField>
 
               <FormField label="Phone number" icon={Phone}>
-                <input value={form.phone} onChange={set("phone")} placeholder="+1 (555) 000-0000" className={inputCls} />
+                <input
+                  value={form.phone}
+                  onChange={setField("phone")}
+                  placeholder="+1 (555) 000-0000"
+                  className={inputCls}
+                />
               </FormField>
 
               <FormField label="Company" icon={Building2}>
-                <input value={form.company} onChange={set("company")} placeholder="Company name" className={inputCls} />
+                <input
+                  value={form.company}
+                  onChange={setField("company")}
+                  placeholder="Company name"
+                  className={inputCls}
+                />
               </FormField>
 
               <FormField label="Job title" icon={Briefcase}>
-                <input value={form.jobTitle} onChange={set("jobTitle")} placeholder="e.g. Marketing Manager" className={inputCls} />
+                <input
+                  value={form.jobTitle}
+                  onChange={setField("jobTitle")}
+                  placeholder="e.g. Marketing Manager"
+                  className={inputCls}
+                />
               </FormField>
 
-              {/* Selects */}
-              <FormField label="Lead status" icon={ChevronDown}>
-                <select value={form.stage} onChange={set("stage")} className={cn(inputCls, "appearance-none")}>
-                  {STAGE_OPTIONS.map((o) => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
-                  ))}
-                </select>
+              {/* ── React Select fields ── */}
+
+              <FormField label="Lead status" icon={TrendingUp}>
+                <Select<SelectOption<ContactStage>, false>
+                  classNamePrefix="rs"
+                  options={STAGE_OPTIONS}
+                  value={STAGE_OPTIONS.find((o) => o.value === form.stage) ?? null}
+                  onChange={(opt) =>
+                    setForm((p) => ({ ...p, stage: opt?.value ?? "lead" }))
+                  }
+                  placeholder="Select status..."
+                  isSearchable
+                  isClearable={false}
+                  formatOptionLabel={(opt, { context, inputValue }) =>
+                    context === "menu" ? highlightLabel(opt.label, inputValue) : opt.label
+                  }
+                  styles={stageStyles}
+                  menuPortalTarget={portalTarget}
+                  menuPlacement="auto"
+                />
               </FormField>
 
-              <FormField label="Contact owner">
-                <select value={form.owner} onChange={set("owner")} className={cn(inputCls, "appearance-none")}>
-                  <option value="">Unassigned</option>
-                  {OWNER_OPTIONS.map((o) => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
-                  ))}
-                </select>
+              <FormField label="Contact owner" icon={UserCheck}>
+                <Select<SelectOption, false>
+                  classNamePrefix="rs"
+                  options={OWNER_OPTIONS}
+                  value={OWNER_OPTIONS.find((o) => o.value === form.owner) ?? null}
+                  onChange={(opt) =>
+                    setForm((p) => ({ ...p, owner: opt?.value ?? "" }))
+                  }
+                  placeholder="Unassigned"
+                  isSearchable
+                  isClearable
+                  formatOptionLabel={(opt, { context, inputValue }) =>
+                    context === "menu" ? highlightLabel(opt.label, inputValue) : opt.label
+                  }
+                  styles={ownerStyles}
+                  menuPortalTarget={portalTarget}
+                  menuPlacement="auto"
+                />
               </FormField>
 
-              <FormField label="Source">
-                <select value={form.source} onChange={set("source")} className={cn(inputCls, "appearance-none")}>
-                  <option value="">Select source</option>
-                  {SOURCE_OPTIONS.map((o) => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
-                  ))}
-                </select>
+              <FormField label="Source" icon={Layers}>
+                <Select<SelectOption, false>
+                  classNamePrefix="rs"
+                  options={SOURCE_OPTIONS}
+                  value={SOURCE_OPTIONS.find((o) => o.value === form.source) ?? null}
+                  onChange={(opt) =>
+                    setForm((p) => ({
+                      ...p,
+                      source: (opt?.value as ContactSource) ?? "",
+                    }))
+                  }
+                  placeholder="Select source..."
+                  isSearchable
+                  isClearable
+                  formatOptionLabel={(opt, { context, inputValue }) =>
+                    context === "menu" ? highlightLabel(opt.label, inputValue) : opt.label
+                  }
+                  styles={sourceStyles}
+                  menuPortalTarget={portalTarget}
+                  menuPlacement="auto"
+                />
               </FormField>
 
               <FormField label="Tags" icon={Tag}>
-                <input value={form.tags} onChange={set("tags")} placeholder="enterprise, hot, priority" className={inputCls} />
-                <p className="mt-1 text-[11px] text-muted-foreground">Comma-separated tags</p>
+                <input
+                  value={form.tags}
+                  onChange={setField("tags")}
+                  placeholder="enterprise, hot, priority"
+                  className={inputCls}
+                />
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  Comma-separated tags
+                </p>
               </FormField>
-
             </form>
 
             {/* Footer */}
