@@ -54,7 +54,7 @@ async function main() {
       description: 'Content, CRM & marketing for growing teams',
       priceCents: 4900,
       maxUsers: 10,
-      modules: ['CMS', 'CRM', 'EMAIL', 'SEO', 'REPORTS'],
+      modules: ['CMS', 'CRM', 'EMAIL', 'SEO', 'LIGHTHOUSE', 'REPORTS'],
     },
     {
       name: 'Enterprise',
