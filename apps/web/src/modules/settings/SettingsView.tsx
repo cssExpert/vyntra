@@ -17,6 +17,7 @@ import {
   Key,
   Smartphone,
   ChevronDown,
+  ImagePlus,
 } from "lucide-react";
 import { Sketch } from "@uiw/react-color";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -267,7 +268,7 @@ export function SettingsView() {
   };
 
   const tabs = [
-    { id: "branding", label: "Branding", icon: Palette },
+    { id: "branding", label: "Branding", icon: ImagePlus },
     { id: "notifications", label: "Notifications", icon: Bell },
     { id: "security", label: "Security", icon: Lock },
   ] as const;
@@ -306,7 +307,7 @@ export function SettingsView() {
   }
 
   return (
-    <div className="space-y-6 pb-10">
+    <div className="space-y-6 pb-0">
       <PageHeader
         title="Settings"
         description="Manage your workspace, branding, and preferences."
@@ -665,7 +666,7 @@ export function SettingsView() {
       )}
 
       {/* ── Sticky save bar ───────────────────────────────────────────────── */}
-      <div className="sticky bottom-0 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-4 bg-background/80 backdrop-blur-md border-t border-border/60 flex items-center justify-between gap-4 z-10">
+      <div className="sticky bottom-0 -mx-4 sm:-mx-6 px-4 sm:px-6 py-4 bg-background/80 backdrop-blur-md border-t border-border/60 flex items-center justify-between gap-4 z-10">
         <p className="text-xs text-muted-foreground">
           {saved ? (
             <span className="flex items-center gap-1.5 text-success">

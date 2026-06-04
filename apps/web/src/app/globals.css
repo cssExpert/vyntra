@@ -133,6 +133,11 @@
     @apply border-border;
   }
 
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
   html {
     @apply scroll-smooth antialiased;
     font-feature-settings: "cv11", "ss01";

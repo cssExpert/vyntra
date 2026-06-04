@@ -50,9 +50,11 @@ export default function DashboardLayout({
         <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
           <Topbar onMenuClick={toggle} />
 
-          <main className="flex-1 overflow-y-auto">
+          <main className="flex-1 overflow-x-hidden overflow-y-auto">
             <PageTransition>
-              <div className="mx-auto max-w-[1600px] p-4 sm:p-6">{children}</div>
+              <div className="mx-auto max-w-[1600px] p-4 sm:p-6">
+                {children}
+              </div>
             </PageTransition>
           </main>
         </div>
