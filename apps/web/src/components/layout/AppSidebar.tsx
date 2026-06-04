@@ -5,6 +5,12 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   LayoutDashboard,
   Users2,
   FileText,
@@ -53,6 +59,10 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Boxes,
 };
 
+/* Shared fade transition constants */
+const LABEL_EXIT = { duration: 0.1, ease: "easeIn" } as const;
+const LABEL_ENTER = { delay: 0.2, duration: 0.15, ease: "easeOut" } as const;
+
 interface AppSidebarProps {
   isCollapsed: boolean;
   isMobileOpen: boolean;
@@ -83,6 +93,32 @@ function SubNavItem({ item, isActive }: { item: NavItem; isActive: boolean }) {
   );
 }
 
+/* ─── Fade wrapper used for every text-only reveal ──────────── */
+function FadeLabel({
+  show,
+  children,
+  className,
+}: {
+  show: boolean;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1, transition: LABEL_ENTER }}
+          exit={{ opacity: 0, transition: LABEL_EXIT }}
+          className={className}
+        >
+          {children}
+        </motion.span>
+      )}
+    </AnimatePresence>
+  );
+}
+
 /* ─── Main nav item ─────────────────────────────────────────── */
 function NavItemComponent({
   item,
@@ -90,21 +126,19 @@ function NavItemComponent({
   isActive,
   isExpanded,
   onToggle,
-  pathname,
 }: {
   item: NavItem;
   isCollapsed: boolean;
   isActive: boolean;
   isExpanded: boolean;
   onToggle: () => void;
-  pathname: string;
 }) {
   const NavIcon = ICON_MAP[item.icon] ?? LayoutDashboard;
   const hasChildren = !!item.children?.length;
 
   const inner = (
     <>
-      {/* Sliding background */}
+      {/* Sliding active background */}
       {isActive && (
         <motion.span
           layoutId="nav-active-bg"
@@ -131,7 +165,7 @@ function NavItemComponent({
         )}
       </AnimatePresence>
 
-      {/* Icon */}
+      {/* Icon — never moves, always at px-3 from left */}
       <span
         className={cn(
           "relative z-10 nav-icon flex-shrink-0 transition-colors",
@@ -143,81 +177,89 @@ function NavItemComponent({
         <NavIcon className="h-[18px] w-[18px]" />
       </span>
 
-      {/* Label — opacity only; sidebar overflow-hidden clips it as width shrinks */}
+      {/* Label — opacity only, overflow-hidden on sidebar clips it */}
+      <FadeLabel
+        show={!isCollapsed}
+        className="relative z-10 flex-1 truncate text-sm text-start"
+      >
+        {item.label}
+      </FadeLabel>
+
+      {/* Badges */}
       <AnimatePresence>
-        {!isCollapsed && (
+        {!isCollapsed && item.badge && (
           <motion.span
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1, transition: { delay: 0.1, duration: 0.15 } }}
-            exit={{ opacity: 0, transition: { duration: 0.07 } }}
-            className="relative z-10 truncate text-sm"
+            animate={{ opacity: 1, transition: LABEL_ENTER }}
+            exit={{ opacity: 0, transition: LABEL_EXIT }}
+            className={cn(
+              "relative z-10 ml-auto flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-semibold",
+              item.badgeVariant === "info"
+                ? "bg-info/15 text-info"
+                : "bg-primary/15 text-primary",
+            )}
           >
-            {item.label}
+            {item.badge}
           </motion.span>
         )}
       </AnimatePresence>
 
-      {/* Badges */}
-      {!isCollapsed && item.badge && (
-        <span
-          className={cn(
-            "relative z-10 ml-auto flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-semibold",
-            item.badgeVariant === "info"
-              ? "bg-info/15 text-info"
-              : "bg-primary/15 text-primary",
-          )}
-        >
-          {item.badge}
-        </span>
-      )}
-      {!isCollapsed && item.isNew && (
-        <span className="relative z-10 ml-auto rounded-full bg-success/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-success">
-          New
-        </span>
-      )}
+      <AnimatePresence>
+        {!isCollapsed && item.isNew && (
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1, transition: LABEL_ENTER }}
+            exit={{ opacity: 0, transition: LABEL_EXIT }}
+            className="relative z-10 ml-auto rounded-full bg-success/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-success"
+          >
+            New
+          </motion.span>
+        )}
+      </AnimatePresence>
 
-      {/* Expand chevron for items with children */}
-      {!isCollapsed && hasChildren && (
-        <motion.span
-          animate={{ rotate: isExpanded ? 180 : 0 }}
-          transition={{ duration: 0.2 }}
-          className="relative z-10 ml-auto text-muted-foreground"
-        >
-          <ChevronDown className="h-3.5 w-3.5" />
-        </motion.span>
-      )}
+      {/* Chevron */}
+      <AnimatePresence>
+        {!isCollapsed && hasChildren && (
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1, transition: LABEL_ENTER }}
+            exit={{ opacity: 0, transition: LABEL_EXIT }}
+            className="relative z-10 ml-auto text-muted-foreground"
+          >
+            <motion.span
+              animate={{ rotate: isExpanded ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+              className="block"
+            >
+              <ChevronDown className="h-3.5 w-3.5" />
+            </motion.span>
+          </motion.span>
+        )}
+      </AnimatePresence>
     </>
   );
 
-  /* Items with children: button (toggles submenu) + navigates on click */
-  if (hasChildren) {
-    return (
-      <button
-        onClick={onToggle}
-        className={cn(
-          "nav-item group relative w-full",
-          isCollapsed && "justify-center px-0",
-          isActive && "active",
-        )}
-      >
-        {inner}
-      </button>
-    );
-  }
+  const sharedClass = cn("nav-item group relative", isActive && "active");
 
-  /* Regular items: Link */
   return (
-    <Link
-      href={item.href}
-      className={cn(
-        "nav-item group relative",
-        isCollapsed && "justify-center px-0",
-        isActive && "active",
-      )}
-      title={isCollapsed ? item.label : undefined}
-    >
-      {inner}
-    </Link>
+    <TooltipProvider delayDuration={400}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          {hasChildren ? (
+            <button onClick={onToggle} className={cn(sharedClass, "w-full")}>
+              {inner}
+            </button>
+          ) : (
+            <Link href={item.href} className={sharedClass}>
+              {inner}
+            </Link>
+          )}
+        </TooltipTrigger>
+        {isCollapsed && (
+          <TooltipContent side="right">{item.label}</TooltipContent>
+        )}
+      </Tooltip>
+    </TooltipProvider>
   );
 }
 
@@ -231,8 +273,6 @@ export function AppSidebar({
   const pathname = usePathname();
   const { hasModule, user, isSuperAdmin } = useAuth();
 
-  /* Super admins get the platform-admin menu; companies get a nav filtered to
-     the modules their package entitles. */
   const sections = useMemo(() => {
     if (isSuperAdmin) return SUPER_ADMIN_NAV;
     return NAV_SECTIONS.map((section) => ({
@@ -243,7 +283,6 @@ export function AppSidebar({
     })).filter((section) => section.items.length > 0);
   }, [hasModule, isSuperAdmin]);
 
-  /* Track which items are expanded by their id */
   const [expandedItems, setExpandedItems] = useState<Set<string>>(() => {
     const initial = new Set<string>();
     sections.forEach((section) =>
@@ -251,12 +290,9 @@ export function AppSidebar({
         if (
           item.children?.some(
             (c) => pathname.startsWith(c.href) || pathname === c.href,
-          )
+          ) ||
+          (item.children?.length && pathname.startsWith(item.href))
         ) {
-          initial.add(item.id);
-        }
-        /* Also expand if the parent route itself is active and has children */
-        if (item.children?.length && pathname.startsWith(item.href)) {
           initial.add(item.id);
         }
       }),
@@ -264,7 +300,6 @@ export function AppSidebar({
     return initial;
   });
 
-  /* Auto-expand when navigating to a child route */
   useEffect(() => {
     sections.forEach((section) =>
       section.items.forEach((item) => {
@@ -292,16 +327,11 @@ export function AppSidebar({
   const sidebarContent = (
     <motion.aside
       animate={{ width: isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH }}
-      transition={{ type: "spring", stiffness: 260, damping: 28, mass: 0.8 }}
+      transition={{ type: "tween", duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
       className="relative flex h-full flex-col bg-sidebar border-r border-sidebar-border overflow-hidden"
     >
-      {/* Logo */}
-      <div
-        className={cn(
-          "flex h-16 flex-shrink-0 items-center border-b border-sidebar-border px-4",
-          isCollapsed && "justify-center px-0",
-        )}
-      >
+      {/* Logo — icon stays put, "Vyntra" fades */}
+      <div className="flex h-16 flex-shrink-0 items-center border-b border-sidebar-border px-4">
         <Link
           href="/dashboard"
           className="flex items-center gap-2.5 cursor-pointer"
@@ -309,23 +339,12 @@ export function AppSidebar({
           <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-sm bg-primary shadow-glow-brand">
             <Icon name="Brand" size="24" className="h-6 w-6 text-white" />
           </div>
-          <AnimatePresence>
-            {!isCollapsed && (
-              <motion.div
-                initial={{ opacity: 0, x: -6 }}
-                animate={{
-                  opacity: 1,
-                  x: 0,
-                  transition: { delay: 0.08, duration: 0.18 },
-                }}
-                exit={{ opacity: 0, x: -6, transition: { duration: 0.07 } }}
-              >
-                <span className="text-base font-bold font-display text-foreground">
-                  Vyntra
-                </span>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <FadeLabel
+            show={!isCollapsed}
+            className="text-base font-bold font-display text-foreground whitespace-nowrap"
+          >
+            Vyntra
+          </FadeLabel>
         </Link>
       </div>
 
@@ -334,32 +353,30 @@ export function AppSidebar({
         <div className="space-y-0.5 px-2">
           {sections.map((section) => (
             <div key={section.id} className="mb-1">
-              {/* Section label */}
-              <AnimatePresence>
-                {!isCollapsed && section.label && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{
-                      opacity: 1,
-                      transition: { delay: 0.12, duration: 0.15 },
-                    }}
-                    exit={{ opacity: 0, transition: { duration: 0.07 } }}
-                    className="mb-1 mt-3 px-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50"
-                  >
-                    {section.label}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {isCollapsed && section.label && (
-                <div className="my-2 mx-2 border-t border-sidebar-border/50" />
+              {/* Section label fades; collapsed divider snaps in */}
+              {section.label && (
+                <>
+                  <AnimatePresence>
+                    {!isCollapsed && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1, transition: LABEL_ENTER }}
+                        exit={{ opacity: 0, transition: LABEL_EXIT }}
+                        className="mb-1 mt-3 px-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50"
+                      >
+                        {section.label}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  {isCollapsed && (
+                    <div className="my-2 mx-2 border-t border-sidebar-border/50" />
+                  )}
+                </>
               )}
 
               {section.items.map((item) => {
                 const hasChildren = !!item.children?.length;
                 const isExpanded = expandedItems.has(item.id);
-
-                /* Active if exact match OR any child is active */
                 const isActive =
                   pathname === item.href ||
                   (!hasChildren &&
@@ -378,7 +395,6 @@ export function AppSidebar({
                       isActive={isActive}
                       isExpanded={isExpanded}
                       onToggle={() => toggleItem(item.id)}
-                      pathname={pathname}
                     />
 
                     {/* Submenu */}
@@ -420,42 +436,30 @@ export function AppSidebar({
         </div>
       </nav>
 
-      {/* Footer */}
-      <div
-        className={cn(
-          "border-t border-sidebar-border p-3",
-          isCollapsed && "flex justify-center",
-        )}
-      >
-        <AnimatePresence>
-          {!isCollapsed ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{
-                opacity: 1,
-                transition: { delay: 0.1, duration: 0.15 },
-              }}
-              exit={{ opacity: 0, transition: { duration: 0.07 } }}
-              className="flex items-center gap-3 rounded-lg px-2 py-2"
-            >
-              <div className="h-8 w-8 flex-shrink-0 rounded-full bg-gradient-brand flex items-center justify-center text-xs font-bold text-white">
-                {user?.initials ?? "?"}
-              </div>
-              <div className="min-w-0 flex-1">
+      {/* Footer — avatar stays put, name/role fades */}
+      <div className="border-t border-sidebar-border p-3">
+        <div className="flex items-center gap-3 rounded-lg px-2 py-2">
+          <div className="h-8 w-8 flex-shrink-0 rounded-full bg-gradient-brand flex items-center justify-center text-xs font-bold text-white cursor-pointer">
+            {user?.initials ?? "?"}
+          </div>
+          <AnimatePresence>
+            {!isCollapsed && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1, transition: LABEL_ENTER }}
+                exit={{ opacity: 0, transition: LABEL_EXIT }}
+                className="min-w-0 flex-1"
+              >
                 <p className="truncate text-xs font-semibold text-foreground">
                   {user?.name ?? "Account"}
                 </p>
                 <p className="truncate text-[10px] text-muted-foreground">
                   {user?.role ?? ""}
                 </p>
-              </div>
-            </motion.div>
-          ) : (
-            <div className="h-8 w-8 rounded-full bg-gradient-brand flex items-center justify-center text-xs font-bold text-white cursor-pointer">
-              {user?.initials ?? "?"}
-            </div>
-          )}
-        </AnimatePresence>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </motion.aside>
   );
