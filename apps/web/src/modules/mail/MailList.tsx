@@ -58,7 +58,7 @@ export function MailList({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search messages..."
-            className="w-full pl-9 pr-8 py-2 bg-background border border-border rounded-sm text-xs text-foreground placeholder:text-muted-foreground/40 outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200 shadow-sm"
+            className="w-full pl-9 pr-8 py-2.5 bg-background border border-border rounded-sm text-xs text-foreground placeholder:text-muted-foreground/40 outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200 shadow-sm"
           />
           {search && (
             <button
