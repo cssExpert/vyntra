@@ -1,17 +1,8 @@
 import type { Metadata } from "next";
-import { PageLoadWrapper } from "@/components/common/PageLoadWrapper";
+import { SettingsView } from "@/modules/settings/SettingsView";
 
 export const metadata: Metadata = { title: "Settings" };
 
 export default function SettingsPage() {
-  return (
-    <PageLoadWrapper>
-      <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <div className="glass-card p-12 text-center max-w-sm w-full">
-          <h1 className="text-xl font-bold font-display text-foreground mb-2">Settings</h1>
-          <p className="text-sm text-muted-foreground">Workspace, integrations, and preferences.</p>
-        </div>
-      </div>
-    </PageLoadWrapper>
-  );
+  return <SettingsView />;
 }
