@@ -228,13 +228,13 @@ export function SettingsView() {
                       <div className="flex items-center gap-3">
                         <input
                           type="color"
-                          value={settings[key as keyof SettingsState]}
+                          value={String(settings[key as keyof SettingsState])}
                           onChange={(e) => handleChange(key as keyof SettingsState, e.target.value)}
                           className="h-10 w-16 rounded-lg border border-border cursor-pointer"
                         />
                         <input
                           type="text"
-                          value={settings[key as keyof SettingsState]}
+                          value={String(settings[key as keyof SettingsState])}
                           onChange={(e) => handleChange(key as keyof SettingsState, e.target.value)}
                           className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground font-mono"
                           placeholder="#3b82f6"
@@ -271,21 +271,21 @@ export function SettingsView() {
                     <p className="text-xs text-muted-foreground mb-2">Primary</p>
                     <div
                       className="h-24 rounded-lg border border-border"
-                      style={{ backgroundColor: settings.primaryColor }}
+                      style={{ backgroundColor: String(settings.primaryColor) }}
                     />
                   </div>
                   <div className="flex-1">
                     <p className="text-xs text-muted-foreground mb-2">Secondary</p>
                     <div
                       className="h-24 rounded-lg border border-border"
-                      style={{ backgroundColor: settings.secondaryColor }}
+                      style={{ backgroundColor: String(settings.secondaryColor) }}
                     />
                   </div>
                   <div className="flex-1">
                     <p className="text-xs text-muted-foreground mb-2">Accent</p>
                     <div
                       className="h-24 rounded-lg border border-border"
-                      style={{ backgroundColor: settings.accentColor }}
+                      style={{ backgroundColor: String(settings.accentColor) }}
                     />
                   </div>
                 </div>
