@@ -30,4 +30,4 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
 
 // Shared input styling for admin forms.
 export const adminInput =
-  "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20";
+  "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer";

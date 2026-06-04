@@ -142,6 +142,7 @@ export const SUPER_ADMIN_NAV: NavSection[] = [
       { id: "sa-packages", label: "Packages", href: "/admin/packages", icon: "Package" },
       { id: "sa-modules", label: "Modules", href: "/admin/modules", icon: "Boxes" },
       { id: "sa-users", label: "Users", href: "/admin/users", icon: "UserCog" },
+      { id: "sa-admin-settings", label: "Settings", href: "/admin/settings", icon: "Settings2" },
     ],
   },
   {

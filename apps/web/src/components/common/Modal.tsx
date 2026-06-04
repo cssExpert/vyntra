@@ -99,7 +99,9 @@ export function Modal({
             </div>
 
             {/* Body */}
-            {children}
+            <div className="px-6 py-5">
+              {children}
+            </div>
 
             {/* Footer */}
             {footer && (
