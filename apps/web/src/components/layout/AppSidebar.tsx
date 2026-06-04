@@ -326,6 +326,7 @@ export function AppSidebar({
 
   const sidebarContent = (
     <motion.aside
+      initial={{ width: isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH }}
       animate={{ width: isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH }}
       transition={{ type: "tween", duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
       className="relative flex h-full flex-col bg-sidebar border-r border-sidebar-border overflow-hidden"

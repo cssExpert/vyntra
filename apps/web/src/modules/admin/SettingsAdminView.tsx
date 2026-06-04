@@ -29,6 +29,34 @@ import {
   type AdminSettings,
 } from "@/lib/api";
 
+function hexToHslComponents(hex: string): string {
+  if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) return "14 71% 48%"; // Flamingo fallback
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h = 0;
+  const l = (max + min) / 2;
+  const d = max - min;
+  const s = d === 0 ? 0 : l > 0.5 ? d / (2 - max - min) : d / (max + min);
+  if (d !== 0) {
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
+    }
+  }
+  return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
+}
+
+function applyColors(primary: string, secondary: string, accent: string) {
+  const root = document.documentElement;
+  root.style.setProperty("--primary",   hexToHslComponents(primary   || "#d14c23"));
+  root.style.setProperty("--ring",      hexToHslComponents(primary   || "#d14c23"));
+  root.style.setProperty("--secondary", hexToHslComponents(secondary || "#8b5cf6"));
+  root.style.setProperty("--accent",    hexToHslComponents(accent    || "#ec4899"));
+}
+
 // ── Shared section card ───────────────────────────────────────────────────────
 
 function SectionCard({
@@ -189,6 +217,11 @@ function Inner() {
         enableSocialAuth:         settings.enableSocialAuth,
         maintenanceMode:          settings.maintenanceMode,
       });
+      applyColors(
+        settings.primaryColor   ?? "#d14c23",
+        settings.secondaryColor ?? "#8b5cf6",
+        settings.accentColor    ?? "#ec4899",
+      );
       setSuccess("Settings saved successfully!");
       setTimeout(() => setSuccess(""), 3000);
     } catch (e) {

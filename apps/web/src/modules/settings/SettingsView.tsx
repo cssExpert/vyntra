@@ -97,7 +97,7 @@ const inputCls =
 
 // ── Color picker field with @uiw/react-color Sketch popover ──────────────────
 const SWATCH_PRESETS = [
-  "#d14c23",
+  "#F76235",
   "#ef4444",
   "#f97316",
   "#eab308",
@@ -205,7 +205,7 @@ export function SettingsView() {
     organizationName: "",
     organizationSlug: "",
     organizationEmail: "",
-    primaryColor: "#d14c23",
+    primaryColor: "#F76235",
     secondaryColor: "#8b5cf6",
     accentColor: "#ec4899",
     logoUrl: null,
@@ -408,7 +408,7 @@ export function SettingsView() {
 
           {/* Logo & Icon */}
           <SectionCard
-            icon={Palette}
+            icon={ImagePlus}
             title="Logo & Icon"
             description="Upload your brand logo and favicon. Recommended: PNG or SVG with transparent background."
           >

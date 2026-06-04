@@ -36,20 +36,6 @@ const config: Config = {
           900: "#3a0f04",
           950: "#250702",
         },
-        // Flamingo
-        flamingo: {
-          50: "#feedeb",
-          100: "#fcd2ce",
-          200: "#faa89c",
-          300: "#f87d66",
-          400: "#eb5729",
-          500: "#d14c23",
-          600: "#ae3e1c",
-          700: "#882f13",
-          800: "#611f0a",
-          900: "#3a0f04",
-          950: "#250702",
-        },
         // Sidebar
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-bg))",

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useRef, useState } from "react";
-import { UploadCloud, X, FileImage, AlertCircle } from "lucide-react";
+import { ArrowUpFromLine, X, FileImage, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface ImageUploaderProps {
@@ -112,8 +112,8 @@ export function ImageUploader({
       <div className={cn("relative group", className)}>
         <div
           className={cn(
-            "relative overflow-hidden border border-border bg-muted/30 flex items-center justify-center",
-            previewShape === "circle" && "w-20 h-20 rounded-full",
+            "relative overflow-hidden border border-border bg-muted/30 flex items-center justify-center md:h-[220px] md:max-h-[220px]",
+            previewShape === "circle" && "w-full rounded-xl aspect-[3/1]",
             previewShape === "wide" && "w-full rounded-xl aspect-[3/1]",
             previewShape === "rounded" && "w-full rounded-xl max-h-28",
           )}
@@ -124,8 +124,8 @@ export function ImageUploader({
             alt="Preview"
             className={cn(
               "object-contain",
-              previewShape === "circle" && "w-full h-full object-cover",
-              previewShape !== "circle" && "max-h-28 max-w-full",
+              previewShape === "circle" && "w-full h-full p-4",
+              previewShape !== "circle" && "max-h-28 max-w-full p-4",
             )}
           />
           {/* Hover overlay */}
@@ -136,7 +136,7 @@ export function ImageUploader({
               disabled={disabled}
               className="flex items-center gap-1.5 rounded-lg bg-white/95 px-3 py-1.5 text-xs font-semibold text-foreground shadow hover:bg-white transition"
             >
-              <UploadCloud className="h-3.5 w-3.5" />
+              <ArrowUpFromLine className="h-3.5 w-3.5" />
               Replace
             </button>
             <button
@@ -178,7 +178,7 @@ export function ImageUploader({
           e.key === "Enter" && !disabled && inputRef.current?.click()
         }
         className={cn(
-          "relative flex flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed px-8 py-12",
+          "relative flex flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed px-8 py-12 md:h-[220px] md:max-h-[220px]",
           "cursor-pointer select-none transition-all duration-200",
           isDragging
             ? "border-primary bg-primary/5 scale-[1.01]"
@@ -205,7 +205,7 @@ export function ImageUploader({
           {/* Upload badge */}
           {!loading && (
             <div className="absolute -bottom-2.5 -right-2.5 flex h-8 w-8 items-center justify-center rounded-full bg-primary shadow-md shadow-primary/30">
-              <UploadCloud className="h-4 w-4 text-white" strokeWidth={2} />
+              <ArrowUpFromLine className="h-4 w-4 text-white" strokeWidth={2} />
             </div>
           )}
         </div>
