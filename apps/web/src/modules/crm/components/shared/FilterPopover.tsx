@@ -26,7 +26,9 @@ interface FilterPopoverProps {
 const popoverVariants = {
   hidden: { opacity: 0, scale: 0.95, y: -6 },
   visible: {
-    opacity: 1, scale: 1, y: 0,
+    opacity: 1,
+    scale: 1,
+    y: 0,
     transition: { duration: 0.16, ease: [0.16, 1, 0.3, 1] },
   },
   exit: { opacity: 0, scale: 0.95, y: -6, transition: { duration: 0.12 } },
@@ -54,12 +56,12 @@ function CheckboxRow({
       <div
         className={cn(
           "flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border mt-0.5 transition-all duration-150",
-          checked
-            ? "border-primary bg-primary"
-            : "border-border bg-background",
+          checked ? "border-primary bg-primary" : "border-border bg-background",
         )}
       >
-        {checked && <Check className="h-2.5 w-2.5 text-white" strokeWidth={3} />}
+        {checked && (
+          <Check className="h-2.5 w-2.5 text-white" strokeWidth={3} />
+        )}
       </div>
 
       {/* Icon */}
@@ -69,14 +71,23 @@ function CheckboxRow({
 
       {/* Label */}
       <div className="min-w-0 flex-1">
-        <p className={cn("text-sm font-medium", checked ? "text-primary" : "text-foreground")}>
+        <p
+          className={cn(
+            "text-sm font-medium",
+            checked ? "text-primary" : "text-foreground",
+          )}
+        >
           {option.label}
           {option.count !== undefined && (
-            <span className="ml-1.5 text-xs text-muted-foreground">({option.count})</span>
+            <span className="ml-1.5 text-xs text-muted-foreground">
+              ({option.count})
+            </span>
           )}
         </p>
         {option.subtitle && (
-          <p className="mt-0.5 text-xs text-muted-foreground">{option.subtitle}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {option.subtitle}
+          </p>
         )}
       </div>
     </motion.button>
@@ -104,7 +115,10 @@ export function FilterPopover({
   useEffect(() => {
     if (!isOpen) return;
     const handler = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         setIsOpen(false);
         setQuery("");
       }
@@ -120,7 +134,9 @@ export function FilterPopover({
 
   const toggle = (id: string) => {
     onChange(
-      selected.includes(id) ? selected.filter((s) => s !== id) : [...selected, id],
+      selected.includes(id)
+        ? selected.filter((s) => s !== id)
+        : [...selected, id],
     );
   };
 
@@ -132,7 +148,7 @@ export function FilterPopover({
       <button
         onClick={() => setIsOpen((p) => !p)}
         className={cn(
-          "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium border",
+          "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium border bg-white dark:bg-muted",
           "transition-all duration-150 cursor-pointer",
           isOpen || activeCount > 0
             ? "border-primary/50 bg-primary/10 text-primary"
@@ -146,7 +162,10 @@ export function FilterPopover({
           </span>
         )}
         <ChevronDown
-          className={cn("h-3 w-3 transition-transform duration-200", isOpen && "rotate-180")}
+          className={cn(
+            "h-3 w-3 transition-transform duration-200",
+            isOpen && "rotate-180",
+          )}
         />
       </button>
 
@@ -162,7 +181,11 @@ export function FilterPopover({
               "absolute left-0 top-full mt-2 z-50",
               "rounded-2xl border border-border bg-card shadow-glass-lg overflow-hidden",
             )}
-            style={{ width, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}
+            style={{
+              width,
+              backdropFilter: "blur(16px)",
+              WebkitBackdropFilter: "blur(16px)",
+            }}
           >
             {/* Arrow caret */}
             <div className="absolute -top-2 left-5 flex justify-center">
@@ -215,7 +238,10 @@ export function FilterPopover({
                   Clear all
                 </button>
                 <button
-                  onClick={() => { setIsOpen(false); setQuery(""); }}
+                  onClick={() => {
+                    setIsOpen(false);
+                    setQuery("");
+                  }}
                   className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors cursor-pointer"
                 >
                   Apply

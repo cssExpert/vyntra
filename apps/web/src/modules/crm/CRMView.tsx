@@ -8,6 +8,7 @@ import { CRMHeader } from "./components/CRMHeader";
 import { CRMToolbar } from "./components/CRMToolbar";
 import { CRMFilterBar } from "./components/CRMFilterBar";
 import { KanbanBoard } from "./components/KanbanBoard";
+import { ContactsTable } from "./components/ContactsTable";
 import { AddContactDrawer, type ContactFormData } from "./components/shared/AddContactDrawer";
 import { type SortOption } from "./components/shared/SortDropdown";
 import { SAMPLE_CONTACTS } from "./data/contacts";
@@ -197,9 +198,7 @@ export function CRMView() {
         {viewMode === "board" ? (
           <KanbanBoard contacts={filteredContacts} />
         ) : (
-          <div className="flex items-center justify-center flex-1 rounded-xl border border-dashed border-border py-16 text-sm text-muted-foreground">
-            List view — coming soon
-          </div>
+          <ContactsTable contacts={filteredContacts} />
         )}
       </motion.div>
 

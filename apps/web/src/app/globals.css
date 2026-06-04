@@ -307,11 +307,7 @@
   .bg-mesh {
     background-color: rgba(255, 255, 255, 1);
     background-image:
-      radial-gradient(
-        at 40% 20%,
-        rgba(209, 76, 35, 0.05) 0px,
-        transparent 50%
-      ),
+      radial-gradient(at 40% 20%, rgba(209, 76, 35, 0.05) 0px, transparent 50%),
       radial-gradient(at 80% 0%, rgba(235, 87, 41, 0.07) 0px, transparent 50%),
       radial-gradient(at 0% 50%, rgba(6, 182, 212, 0.08) 0px, transparent 50%);
   }
@@ -353,6 +349,12 @@
   .search-cmd > input:where([type="text"]):hover,
   .search-cmd > input:where([type="text"]):focus-within {
     border: 0 none !important;
+  }
+
+  .rounded-sm,
+  .rounded-lg,
+  .rounded-xl {
+    border-radius: calc(var(--radius) - 4px) !important;
   }
 }
 

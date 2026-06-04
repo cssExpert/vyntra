@@ -14,10 +14,10 @@ interface CRMHeaderProps {
 }
 
 const TABS: ContactListTabDef[] = [
-  { id: "all",          label: "All contacts" },
-  { id: "newsletter",   label: "Newsletter subscribers" },
+  { id: "all", label: "All contacts" },
+  { id: "newsletter", label: "Newsletter subscribers" },
   { id: "unsubscribed", label: "Unsubscribed" },
-  { id: "customers",    label: "All customers" },
+  { id: "customers", label: "All customers" },
 ];
 
 export function CRMHeader({
@@ -29,7 +29,7 @@ export function CRMHeader({
   return (
     <div className="flex items-center gap-3 mb-4">
       {/* Contacts dropdown */}
-      <button className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/50 px-3 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors cursor-pointer flex-shrink-0">
+      <button className="flex items-center min-h-10 max-h-10 gap-1.5 rounded-lg border border-border bg-muted/50 px-3 py-2.5 text-sm font-medium text-foreground hover:bg-muted transition-colors cursor-pointer flex-shrink-0">
         <Users className="h-3.5 w-3.5 text-muted-foreground" />
         Contacts
         <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
@@ -44,10 +44,10 @@ export function CRMHeader({
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
               className={cn(
-                "relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-150 cursor-pointer flex-shrink-0",
+                "relative flex items-center min-h-10 max-h-10 gap-2 px-3 py-2 border border-border rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-150 cursor-pointer flex-shrink-0 bg-white dark:bg-muted",
                 isActive
                   ? "bg-muted text-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/150",
               )}
             >
               {tab.label}
@@ -73,7 +73,7 @@ export function CRMHeader({
 
         {/* Add view */}
         <button
-          className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
           title="Add view"
         >
           <Plus className="h-3.5 w-3.5" />
@@ -82,12 +82,12 @@ export function CRMHeader({
 
       {/* Right actions */}
       <div className="flex items-center gap-2 flex-shrink-0 ml-auto">
-        <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer">
+        <button className="flex h-10 w-10 items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer">
           <MoreHorizontal className="h-4 w-4" />
         </button>
         <button
           onClick={onAddContact}
-          className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer shadow-glow-brand"
+          className="flex items-center gap-2 h-10 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer shadow-glow-brand"
         >
           <Plus className="h-3.5 w-3.5" />
           Add contact

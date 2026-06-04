@@ -1,6 +1,15 @@
 "use client";
 
-import { Search, LayoutGrid, List, Settings2, SlidersHorizontal, Copy, Save, X } from "lucide-react";
+import {
+  Search,
+  LayoutGrid,
+  List,
+  Settings2,
+  SlidersHorizontal,
+  Copy,
+  Save,
+  X,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SortDropdown, type SortOption } from "./shared/SortDropdown";
 import { ExportDropdown } from "./shared/ExportDropdown";
@@ -16,7 +25,12 @@ interface CRMToolbarProps {
 }
 
 export function CRMToolbar({
-  search, onSearchChange, viewMode, onViewChange, activeSort, onSortChange,
+  search,
+  onSearchChange,
+  viewMode,
+  onViewChange,
+  activeSort,
+  onSortChange,
 }: CRMToolbarProps) {
   return (
     <div className="flex items-center gap-2 mb-3 flex-wrap">
@@ -46,36 +60,38 @@ export function CRMToolbar({
       </div>
 
       {/* View toggle */}
-      <div className="flex items-center rounded-xl border border-border bg-muted/40 p-0.5 gap-0.5">
-        <button
-          onClick={() => onViewChange("board")}
-          className={cn(
-            "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-150 cursor-pointer",
-            viewMode === "board" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
-          )}
-        >
-          <LayoutGrid className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Board</span>
-        </button>
-        <button
-          onClick={() => onViewChange("list")}
-          className={cn(
-            "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-150 cursor-pointer",
-            viewMode === "list" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
-          )}
-        >
-          <List className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">List</span>
-        </button>
+      <div className="flex items-center rounded-xl border border-border bg-white dark:bg-muted p-1 gap-0.5">
+        {(["board", "list"] as const).map((mode) => {
+          const active = viewMode === mode;
+          return (
+            <button
+              key={mode}
+              onClick={() => onViewChange(mode)}
+              className={cn(
+                "flex items-center gap-1.5 rounded-sm px-3.5 py-1.5 text-sm font-semibold transition-all duration-200 cursor-pointer select-none",
+                active
+                  ? "bg-primary text-white shadow-md shadow-primary/25 scale-[0.99]"
+                  : "text-muted-foreground hover:text-foreground hover:bg-background/80 dark:hover:bg-card",
+              )}
+            >
+              {mode === "board" ? (
+                <LayoutGrid className="h-3.5 w-3.5" />
+              ) : (
+                <List className="h-3.5 w-3.5" />
+              )}
+              <span className="hidden sm:inline capitalize">{mode}</span>
+            </button>
+          );
+        })}
       </div>
 
-      <button className="flex h-9 w-9 items-center justify-center rounded-xl border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer">
+      <button className="flex h-9 w-9 items-center justify-center rounded-xl border border-border text-muted-foreground bg-white dark:bg-muted hover:text-foreground hover:bg-muted transition-colors cursor-pointer">
         <Settings2 className="h-4 w-4" />
       </button>
 
       <div className="h-6 w-px bg-border" />
 
-      <button className="flex items-center gap-1.5 rounded-xl border border-border bg-primary/10 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/15 transition-colors cursor-pointer">
+      <button className="flex items-center gap-1.5 rounded-xl border border-primary bg-primary/10 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/15 transition-colors cursor-pointer">
         <SlidersHorizontal className="h-3.5 w-3.5" />
         Filters
       </button>
@@ -86,10 +102,10 @@ export function CRMToolbar({
       {/* Export — real dropdown */}
       <ExportDropdown />
 
-      <button className="hidden lg:flex h-9 w-9 items-center justify-center rounded-xl border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer">
+      <button className="hidden lg:flex h-9 w-9 items-center justify-center rounded-xl border border-border text-muted-foreground bg-white dark:bg-muted hover:text-foreground hover:bg-muted transition-colors cursor-pointer">
         <Copy className="h-3.5 w-3.5" />
       </button>
-      <button className="hidden lg:flex h-9 items-center justify-center rounded-xl border border-border px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer gap-1.5">
+      <button className="hidden lg:flex h-9 items-center justify-center rounded-xl border border-border px-3 text-sm font-medium text-muted-foreground bg-white dark:bg-muted hover:text-foreground hover:bg-muted transition-colors cursor-pointer gap-1.5">
         <Save className="h-3.5 w-3.5" />
         Save
       </button>
