@@ -68,6 +68,7 @@
     --font-inter: "Inter", sans-serif;
     --font-plus-jakarta: "Plus Jakarta Sans", sans-serif;
     --font-jetbrains: "JetBrains Mono", monospace;
+    --font-merienda: "Merienda", cursive;
 
     --table-card: #fff;
   }
@@ -143,6 +144,10 @@
     font-feature-settings:
       "rlig" 1,
       "calt" 1;
+  }
+
+  .font-merienda {
+    font-family: var(--font-merienda);
   }
 
   h1,

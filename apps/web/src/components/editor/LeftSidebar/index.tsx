@@ -107,7 +107,7 @@ export function Brand() {
         <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-sm bg-primary shadow-glow-brand">
           <Icon name="Logo" size="20" className="h-5 w-5 text-white" />
         </div>
-        <span className="text-base font-bold font-display text-foreground">
+        <span className="text-md font-extrabold font-merienda text-foreground">
           ERVFlow
         </span>
       </Link>

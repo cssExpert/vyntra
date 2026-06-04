@@ -201,7 +201,7 @@ export function LoginPage() {
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-glow-brand">
             <Icon name="Logo" size="24" className="w-6 h-6 text-white" />
           </div>
-          <span className="text-xl font-bold font-display text-foreground tracking-tight">
+          <span className="text-md lg:text-lg font-extrabold font-merienda text-foreground tracking-tight">
             ERVFlow
           </span>
         </div>

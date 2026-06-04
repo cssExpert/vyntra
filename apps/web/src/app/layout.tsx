@@ -1,5 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import {
+  Inter,
+  Plus_Jakarta_Sans,
+  JetBrains_Mono,
+  Merienda,
+} from "next/font/google";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { SettingsProvider } from "@/providers/SettingsProvider";
@@ -10,6 +15,12 @@ const inter = Inter({
   variable: "--font-inter",
   display: "swap",
   preload: true,
+});
+
+const merienda = Merienda({
+  subsets: ["latin"],
+  variable: "--font-merienda",
+  display: "swap",
 });
 
 const plusJakarta = Plus_Jakarta_Sans({
@@ -68,7 +79,10 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${inter.variable} ${plusJakarta.variable} ${jetbrainsMono.variable}`}
     >
-      <body suppressHydrationWarning className="min-h-screen bg-background font-sans antialiased">
+      <body
+        suppressHydrationWarning
+        className="min-h-screen bg-background font-sans antialiased"
+      >
         <ThemeProvider>
           <AuthProvider>
             <SettingsProvider>{children}</SettingsProvider>

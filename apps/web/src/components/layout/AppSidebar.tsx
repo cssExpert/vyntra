@@ -341,7 +341,7 @@ export function AppSidebar({
           </div>
           <FadeLabel
             show={!isCollapsed}
-            className="text-base font-bold font-display text-foreground whitespace-nowrap"
+            className="text-md font-extrabold font-merienda text-foreground whitespace-nowrap"
           >
             ERVFlow
           </FadeLabel>
