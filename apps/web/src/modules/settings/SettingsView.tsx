@@ -32,7 +32,7 @@ const PRESET_COLORS = [
 ];
 
 export function SettingsView() {
-  const { settings: savedSettings, loading: contextLoading, refreshSettings } = useSettings();
+  const { settings: savedSettings, loading: contextLoading, error: contextError, refreshSettings } = useSettings();
   const [activeTab, setActiveTab] = useState<"branding" | "notifications" | "security">("branding");
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -114,6 +114,25 @@ export function SettingsView() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <p className="text-muted-foreground">Loading settings...</p>
+      </div>
+    );
+  }
+
+  // Super admins or users without organization context can't access organization settings
+  if (contextError && contextError.includes("No organization context")) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="Settings"
+          description="Manage your workspace, branding, and preferences."
+        />
+        <div className="rounded-lg bg-warning/10 border border-warning/20 px-6 py-8 text-center max-w-md mx-auto">
+          <p className="text-sm text-foreground font-medium mb-2">Organization Settings Not Available</p>
+          <p className="text-xs text-muted-foreground">
+            Organization settings are only available for members of an organization.
+            If you're a super admin, use the admin panel to manage organization settings.
+          </p>
+        </div>
       </div>
     );
   }

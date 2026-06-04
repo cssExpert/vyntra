@@ -27,9 +27,10 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       setSettings(data);
       applyTheme(data);
     } catch (err) {
-      // Silently ignore "No organization context" errors - user might be on a public page
+      // Handle "No organization context" errors
       if (err instanceof ApiError && err.status === 400) {
-        setError(null);
+        const message = err.message || "No organization context";
+        setError(message);
         setSettings(null);
       } else {
         const message = err instanceof Error ? err.message : "Failed to load settings";
