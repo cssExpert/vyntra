@@ -1,17 +1,20 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Settings, Save, Upload } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { adminInput } from "./AdminGuard";
 import { AdminGuard } from "./AdminGuard";
+import { apiGetAdminSettings, apiUpdateAdminSettings, type AdminSettings } from "@/lib/api";
 
 function Inner() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [busy, setBusy] = useState(false);
-  const [settings, setSettings] = useState({
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const faviconInputRef = useRef<HTMLInputElement>(null);
+  const [settings, setSettings] = useState<Partial<AdminSettings>>({
     siteName: "Vyntra",
     supportEmail: "support@vyntra.com",
     maxOrganizations: 1000,
@@ -19,19 +22,54 @@ function Inner() {
     enableRegistration: true,
     enableSocialAuth: false,
     maintenanceMode: false,
-    logoUrl: null as string | null,
-    faviconUrl: null as string | null,
+    logoUrl: null,
+    faviconUrl: null,
     primaryColor: "#3b82f6",
     secondaryColor: "#8b5cf6",
     accentColor: "#ec4899",
   });
 
   useEffect(() => {
-    setLoading(false);
+    loadSettings();
   }, []);
+
+  const loadSettings = async () => {
+    try {
+      setLoading(true);
+      const data = await apiGetAdminSettings();
+      setSettings(data);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to load settings";
+      setError(message);
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (field: string, value: any) => {
     setSettings((prev) => ({ ...prev, [field]: value }));
+    setError("");
+  };
+
+  const handleFileUpload = async (
+    file: File,
+    fieldName: "logoUrl" | "faviconUrl"
+  ) => {
+    if (!file) return;
+
+    try {
+      // For now, we'll use a simple approach: read file as data URL
+      // In production, you'd upload to a storage service (S3, Cloudinary, etc.)
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string;
+        handleChange(fieldName, dataUrl);
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      setError("Failed to upload file");
+    }
   };
 
   const save = async () => {
@@ -39,12 +77,27 @@ function Inner() {
     setError("");
     setSuccess("");
     try {
-      // TODO: Connect to actual API endpoint when available
-      // await admin.updateSettings(settings);
+      // Only send updatable fields, exclude id, createdAt, updatedAt
+      const updateData = {
+        siteName: settings.siteName,
+        supportEmail: settings.supportEmail,
+        logoUrl: settings.logoUrl,
+        faviconUrl: settings.faviconUrl,
+        primaryColor: settings.primaryColor,
+        secondaryColor: settings.secondaryColor,
+        accentColor: settings.accentColor,
+        maxOrganizations: settings.maxOrganizations,
+        maxUsersPerOrganization: settings.maxUsersPerOrganization,
+        enableRegistration: settings.enableRegistration,
+        enableSocialAuth: settings.enableSocialAuth,
+        maintenanceMode: settings.maintenanceMode,
+      };
+      await apiUpdateAdminSettings(updateData);
       setSuccess("Settings saved successfully!");
       setTimeout(() => setSuccess(""), 3000);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to save settings");
+      const message = e instanceof Error ? e.message : "Failed to save settings";
+      setError(message);
     } finally {
       setBusy(false);
     }
@@ -95,10 +148,24 @@ function Inner() {
                     className={adminInput}
                   />
                 </div>
-                <button className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted transition">
+                <button
+                  type="button"
+                  onClick={() => logoInputRef.current?.click()}
+                  className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted transition"
+                >
                   <Upload className="h-4 w-4" />
                   Upload
                 </button>
+                <input
+                  ref={logoInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleFileUpload(file, "logoUrl");
+                  }}
+                />
               </div>
               {settings.logoUrl && (
                 <div className="mt-3 p-3 bg-muted/40 rounded-lg">
@@ -119,10 +186,24 @@ function Inner() {
                     className={adminInput}
                   />
                 </div>
-                <button className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted transition">
+                <button
+                  type="button"
+                  onClick={() => faviconInputRef.current?.click()}
+                  className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted transition"
+                >
                   <Upload className="h-4 w-4" />
                   Upload
                 </button>
+                <input
+                  ref={faviconInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleFileUpload(file, "faviconUrl");
+                  }}
+                />
               </div>
             </div>
           </div>

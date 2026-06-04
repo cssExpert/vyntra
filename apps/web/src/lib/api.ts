@@ -127,6 +127,35 @@ export function apiUpdateOrgSettings(body: Partial<OrganizationSettings>) {
   });
 }
 
+export interface AdminSettings {
+  id: string;
+  siteName: string;
+  supportEmail: string;
+  logoUrl: string | null;
+  faviconUrl: string | null;
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+  maxOrganizations: number;
+  maxUsersPerOrganization: number;
+  enableRegistration: boolean;
+  enableSocialAuth: boolean;
+  maintenanceMode: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export function apiGetAdminSettings() {
+  return apiFetch<AdminSettings>("/admin/settings");
+}
+
+export function apiUpdateAdminSettings(body: Partial<AdminSettings>) {
+  return apiFetch<AdminSettings>("/admin/settings", {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+}
+
 // ─── Super-admin shapes ──────────────────────────────────
 export interface AdminOrganization {
   id: string;

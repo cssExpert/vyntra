@@ -486,3 +486,27 @@ enum ActivityType {
   STAGE_CHANGED
   OTHER
 }
+
+// ════════════════════════════════════════════════════════════════════
+//  Admin Settings (platform-wide configuration)
+// ════════════════════════════════════════════════════════════════════
+
+model AdminSettings {
+  id                         String   @id @default(cuid())
+  siteName                   String   @default("Vyntra")
+  supportEmail               String   @default("support@vyntra.com")
+  logoUrl                    String?
+  faviconUrl                 String?
+  primaryColor               String   @default("#3b82f6")
+  secondaryColor             String   @default("#8b5cf6")
+  accentColor                String   @default("#ec4899")
+  maxOrganizations           Int      @default(1000)
+  maxUsersPerOrganization    Int      @default(500)
+  enableRegistration         Boolean  @default(true)
+  enableSocialAuth           Boolean  @default(false)
+  maintenanceMode            Boolean  @default(false)
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+
+  @@map("admin_settings")
+}
