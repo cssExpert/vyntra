@@ -580,7 +580,7 @@ export function UsersView() {
                         ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-100 dark:border-emerald-800/50"
                         : toast.type === "error"
                           ? "bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-100 dark:border-rose-800/50"
-                          : "bg-blue-50 dark:bg-indigo-950/60 text-indigo-900 dark:text-indigo-300 border-blue-100 dark:border-indigo-800/50"
+                          : "bg-primary/5 dark:bg-primary/10 text-primary dark:text-primary/80 border-primary/20 dark:border-primary/30"
                     }`}
                   >
                     <div className="flex items-center gap-2">
@@ -590,7 +590,7 @@ export function UsersView() {
                             ? "bg-emerald-500"
                             : toast.type === "error"
                               ? "bg-rose-500"
-                              : "bg-indigo-500"
+                              : "bg-primary"
                         }`}
                       />
                       <p>{toast.message}</p>
@@ -824,7 +824,7 @@ export function UsersView() {
                           cx="100"
                           cy="100"
                           r="60"
-                          className="fill-indigo-50/30"
+                          className="fill-primary/5"
                         />
 
                         {/* Modern abstract dashboard user icons with connecting lines */}
@@ -884,7 +884,7 @@ export function UsersView() {
                           cx="100"
                           cy="80"
                           r="32"
-                          className="stroke-indigo-200 stroke-[1.5] fill-none"
+                          className="stroke-primary/20 stroke-[1.5] fill-none"
                         />
                       </svg>
                     </div>

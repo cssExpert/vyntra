@@ -22,19 +22,19 @@ const config: Config = {
         ],
       },
       colors: {
-        // Brand
+        // Brand (Flamingo)
         brand: {
-          50: "#eff0ff",
-          100: "#d5d8fe",
-          200: "#aeb5fd",
-          300: "#8995fc",
-          400: "#6476fb",
-          500: "#3758f9",
-          600: "#1546ec",
-          700: "#0e36bd",
-          800: "#07258a",
-          900: "#031456",
-          950: "#010b3b",
+          50: "#feedeb",
+          100: "#fcd2ce",
+          200: "#faa89c",
+          300: "#f87d66",
+          400: "#eb5729",
+          500: "#d14c23",
+          600: "#ae3e1c",
+          700: "#882f13",
+          800: "#611f0a",
+          900: "#3a0f04",
+          950: "#250702",
         },
         // Flamingo
         flamingo: {
@@ -127,21 +127,21 @@ const config: Config = {
           "0 8px 32px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.10)",
         "glass-lg":
           "0 16px 48px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.12)",
-        "glow-brand": "0 0 24px rgba(55,88,249,0.40)",
+        "glow-brand": "0 0 24px rgba(209,76,35,0.40)",
         "glow-success": "0 0 16px rgba(34,197,94,0.30)",
         "glow-error": "0 0 16px rgba(239,68,68,0.30)",
         "card-hover": "0 12px 40px rgba(0,0,0,0.22)",
       },
       backgroundImage: {
-        "gradient-brand": "linear-gradient(135deg, #6476fb 0%, #3758f9 100%)",
+        "gradient-brand": "linear-gradient(135deg, #eb5729 0%, #d14c23 100%)",
         "gradient-brand-subtle":
-          "linear-gradient(135deg, rgba(55,88,249,0.15) 0%, rgba(21,70,236,0.15) 100%)",
+          "linear-gradient(135deg, rgba(209,76,35,0.15) 0%, rgba(174,62,28,0.15) 100%)",
         "gradient-dark": "linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 100%)",
         "gradient-card":
           "linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)",
         "gradient-sidebar": "linear-gradient(180deg, #171717 0%, #141414 100%)",
         "gradient-mesh":
-          "radial-gradient(at 40% 20%, rgba(55,88,249,0.15) 0px, transparent 50%), radial-gradient(at 80% 0%, rgba(100,118,251,0.10) 0px, transparent 50%), radial-gradient(at 0% 50%, rgba(6,182,212,0.08) 0px, transparent 50%)",
+          "radial-gradient(at 40% 20%, rgba(209,76,35,0.15) 0px, transparent 50%), radial-gradient(at 80% 0%, rgba(235,87,41,0.10) 0px, transparent 50%), radial-gradient(at 0% 50%, rgba(6,182,212,0.08) 0px, transparent 50%)",
       },
       animation: {
         "fade-in": "fadeIn 0.3s ease-out",

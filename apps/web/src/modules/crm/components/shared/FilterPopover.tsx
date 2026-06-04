@@ -181,7 +181,7 @@ export function FilterPopover({
                   className={cn(
                     "w-full rounded-xl border-2 border-primary/40 bg-background pl-9 pr-3 py-2.5",
                     "text-sm text-foreground placeholder:text-muted-foreground",
-                    "focus:outline-none focus:border-primary transition-colors",
+                    "outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus:border-primary transition-colors",
                   )}
                 />
               </div>

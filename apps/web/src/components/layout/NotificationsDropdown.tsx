@@ -33,8 +33,8 @@ const INITIAL_NOTIFICATIONS: Notification[] = [
   {
     id: "n1",
     icon: Users2,
-    iconColor: "text-blue-400",
-    iconBg: "bg-blue-500/10",
+    iconColor: "text-primary",
+    iconBg: "bg-primary/10",
     title: "New lead assigned",
     description: "Priya Patel from StartupXYZ was assigned to you.",
     time: "2m ago",
