@@ -97,6 +97,13 @@ export const NAV_SECTIONS: NavSection[] = [
         icon: "TowerControl",
         module: "LIGHTHOUSE",
       },
+      {
+        id: "mail",
+        label: "Mail",
+        href: "/mail",
+        icon: "Mail",
+        module: "MAIL",
+      },
     ],
   },
   {

@@ -1,0 +1,170 @@
+"use client";
+
+import { Star, Trash2, Reply, Forward, Paperclip, X, MoreVertical, FileText, Image as ImageIcon, FileCode } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { Email } from "./mail.types";
+import { LABELS } from "./mail.data";
+
+interface MailDetailProps {
+  email: Email;
+  onClose: () => void;
+  onToggleStar: (id: string) => void;
+  onDelete: (id: string) => void;
+  onReply: (email: Email) => void;
+}
+
+function getInitials(name: string) {
+  return name.split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase();
+}
+
+function formatFullDate(iso: string) {
+  return new Date(iso).toLocaleString([], {
+    weekday: "long", year: "numeric", month: "long", day: "numeric",
+    hour: "2-digit", minute: "2-digit",
+  });
+}
+
+function AttachmentIcon({ type }: { type: string }) {
+  if (type === "pdf") return <FileText size={16} className="text-rose-500" />;
+  if (type === "img") return <ImageIcon size={16} className="text-blue-500" />;
+  if (type === "json" || type === "doc") return <FileCode size={16} className="text-primary" />;
+  return <Paperclip size={16} className="text-muted-foreground" />;
+}
+
+export function MailDetail({ email, onClose, onToggleStar, onDelete, onReply }: MailDetailProps) {
+  const emailLabels = LABELS.filter((l) => email.labels.includes(l.id));
+
+  return (
+    <div className="flex flex-col h-full bg-background">
+      {/* Toolbar */}
+      <div className="flex items-center justify-between px-6 py-3 border-b border-border shrink-0">
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => onReply(email)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          >
+            <Reply size={14} /> Reply
+          </button>
+          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+            <Forward size={14} /> Forward
+          </button>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => onToggleStar(email.id)}
+            className={cn(
+              "p-1.5 rounded-sm transition-colors",
+              email.starred
+                ? "text-amber-400 hover:text-amber-500"
+                : "text-muted-foreground hover:text-amber-400",
+            )}
+          >
+            <Star size={15} className={email.starred ? "fill-amber-400" : ""} />
+          </button>
+          <button
+            onClick={() => onDelete(email.id)}
+            className="p-1.5 rounded-sm text-muted-foreground hover:text-rose-500 transition-colors"
+          >
+            <Trash2 size={15} />
+          </button>
+          <button className="p-1.5 rounded-sm text-muted-foreground hover:text-foreground transition-colors">
+            <MoreVertical size={15} />
+          </button>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-sm text-muted-foreground hover:text-foreground transition-colors ml-1"
+          >
+            <X size={15} />
+          </button>
+        </div>
+      </div>
+
+      {/* Email content */}
+      <div className="flex-1 overflow-y-auto px-6 py-6">
+        {/* Subject */}
+        <h1 className="text-xl font-bold text-foreground leading-snug mb-4">
+          {email.subject}
+        </h1>
+
+        {/* Labels */}
+        {emailLabels.length > 0 && (
+          <div className="flex items-center gap-2 mb-4">
+            {emailLabels.map((l) => (
+              <span
+                key={l.id}
+                className={cn(
+                  "flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full border",
+                  "bg-muted text-muted-foreground border-border",
+                )}
+              >
+                <span className={cn("w-1.5 h-1.5 rounded-full", l.color)} />
+                {l.name}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Sender card */}
+        <div className="flex items-start gap-3 p-4 rounded-xl bg-muted/40 border border-border mb-6">
+          <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm shrink-0">
+            {getInitials(email.from.name)}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <div>
+                <span className="text-sm font-bold text-foreground">{email.from.name}</span>
+                <span className="text-xs text-muted-foreground ml-2">&lt;{email.from.email}&gt;</span>
+              </div>
+              <span className="text-xs text-muted-foreground font-mono shrink-0">
+                {formatFullDate(email.date)}
+              </span>
+            </div>
+            <div className="text-xs text-muted-foreground mt-0.5">
+              To: {email.to.map((t) => t.name || t.email).join(", ") || "—"}
+            </div>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="text-sm text-foreground leading-relaxed whitespace-pre-line">
+          {email.body}
+        </div>
+
+        {/* Attachments */}
+        {email.attachments && email.attachments.length > 0 && (
+          <div className="mt-8 pt-6 border-t border-border">
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-1.5">
+              <Paperclip size={12} />
+              Attachments ({email.attachments.length})
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {email.attachments.map((att, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-card border border-border hover:border-primary/40 transition-colors cursor-pointer"
+                >
+                  <AttachmentIcon type={att.type} />
+                  <div>
+                    <p className="text-xs font-semibold text-foreground">{att.name}</p>
+                    <p className="text-[10px] text-muted-foreground">{att.size}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Quick reply */}
+      <div className="px-6 py-4 border-t border-border shrink-0">
+        <button
+          onClick={() => onReply(email)}
+          className="w-full text-left px-4 py-3 rounded-sm border border-border bg-background hover:border-primary/40 text-sm text-muted-foreground transition-colors"
+        >
+          Reply to {email.from.name}…
+        </button>
+      </div>
+    </div>
+  );
+}
