@@ -199,10 +199,10 @@ export function LoginPage() {
         {/* Logo */}
         <div className="mb-10 md:mb-12 lg:mb-20 flex items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-glow-brand">
-            <Icon name="Brand" size="20" className="text-white" />
+            <Icon name="Logo" size="24" className="w-6 h-6 text-white" />
           </div>
           <span className="text-xl font-bold font-display text-foreground tracking-tight">
-            Vyntra
+            ERVFlow
           </span>
         </div>
 
@@ -360,7 +360,7 @@ export function LoginPage() {
 
         {/* Footer note */}
         <p className="mt-auto pt-8 text-center text-xs md:text-sm text-muted-foreground/40">
-          © {new Date().getFullYear()} Vyntra. All rights reserved.
+          © {new Date().getFullYear()} ERVFlow. All rights reserved.
         </p>
       </motion.div>
     </div>

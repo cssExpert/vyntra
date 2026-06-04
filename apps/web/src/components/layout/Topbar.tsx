@@ -36,7 +36,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
   const currentPage = Object.entries(PAGE_TITLES).find(([key]) =>
     key === "/" ? pathname === "/" : pathname.startsWith(key),
   );
-  const pageTitle = currentPage?.[1] ?? "Vyntra";
+  const pageTitle = currentPage?.[1] ?? "ERVFlow";
 
   return (
     <motion.header

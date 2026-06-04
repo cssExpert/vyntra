@@ -17,5 +17,5 @@ export const INITIAL_NO_BRANCH: WorkflowStep[] = [
 
 export async function generateWithGemini(prompt: string, _sys: string): Promise<string> {
   await new Promise<void>((r) => setTimeout(r, 2200));
-  return `Subject: Your Journey Starts Here\n\nHi there,\n\nThank you for joining — we're thrilled to have you on board.\n\n[AI-generated copy based on: "${prompt.slice(0, 80)}..."]\n\nHere are a few things you can do right now:\n• Set up your first workflow\n• Invite your team members\n• Explore the AI Copilot\n\nLooking forward to helping you succeed.\n\nWarm regards,\nThe Vyntra Team`;
+  return `Subject: Your Journey Starts Here\n\nHi there,\n\nThank you for joining — we're thrilled to have you on board.\n\n[AI-generated copy based on: "${prompt.slice(0, 80)}..."]\n\nHere are a few things you can do right now:\n• Set up your first workflow\n• Invite your team members\n• Explore the AI Copilot\n\nLooking forward to helping you succeed.\n\nWarm regards,\nThe ERVFlow Team`;
 }

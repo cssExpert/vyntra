@@ -105,10 +105,10 @@ export function Brand() {
         className="flex items-center gap-2.5 group cursor-pointer"
       >
         <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-sm bg-primary shadow-glow-brand">
-          <Icon name="Brand" size="24" className="h-6 w-6 text-white" />
+          <Icon name="Logo" size="20" className="h-5 w-5 text-white" />
         </div>
         <span className="text-base font-bold font-display text-foreground">
-          Vyntra
+          ERVFlow
         </span>
       </Link>
     </div>

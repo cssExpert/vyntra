@@ -1,6 +1,7 @@
-# Vyntra SaaS Platform — Master Setup & Build Prompt
+# ERVFlow SaaS Platform — Master Setup & Build Prompt
 
 ## Project Overview
+
 Build a **multi-tenant SaaS business operating system** with centralized super admin controls, organization/company management, and role-based access control.
 
 **MVP Scope**: CMS + CRM modules only (other modules planned for Phase 2)
@@ -14,6 +15,7 @@ Build a **multi-tenant SaaS business operating system** with centralized super a
 ## Current Scaffolding (Already Done)
 
 ### File Structure
+
 ```
 vyntra/
 ├── apps/
@@ -40,6 +42,7 @@ vyntra/
 ```
 
 ### Prisma Schema (Already Defined)
+
 - **CMS**: pages, blogs, comments, media, website_config
 - **CRM**: leads, contacts, campaigns, tasks, activities
 - **Core**: users, organizations (modified for multi-tenant)
@@ -49,6 +52,7 @@ vyntra/
 ## SaaS Architecture Requirements
 
 ### Multi-Tenant Model
+
 - **Tenant = Organization** (company/client)
 - Each organization has its own users, CMS pages, CRM leads, etc.
 - Data isolation: Users can ONLY access their org's data
@@ -101,12 +105,14 @@ enum Permission {
 ### Database Schema Updates (Prisma)
 
 **Updated tables** (modify from existing schema):
+
 - `users` — Add `superAdmin` flag, org scoping
 - `organizations` — Add billing, subscription status
 - `user_roles` — Map users to roles per organization
 - `role_permissions` — Define role-permission mappings
 
 **Add new tables**:
+
 - `subscriptions` — Org subscription/billing
 - `audit_logs` — Track all actions by users
 - `api_keys` — For programmatic access
@@ -118,9 +124,11 @@ enum Permission {
 ### Phase 1: Foundation & Multi-Tenant Setup
 
 #### Task 1: Update Prisma Schema for Multi-Tenant & RBAC
+
 **File**: `apps/api/prisma/schema.prisma`
 
 **Changes**:
+
 1. Update `User` model:
    - Add `superAdmin: Boolean @default(false)`
    - Add `organizationId` (nullable for super admin)
@@ -134,6 +142,7 @@ enum Permission {
    - Add relation to `Subscription`
 
 3. Create new `UserRole` model:
+
    ```prisma
    model UserRole {
      id    String @id @default(cuid())
@@ -143,7 +152,7 @@ enum Permission {
      user  User @relation(fields: [userId], references: [id], onDelete: Cascade)
      organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
    }
-   
+
    enum Role {
      SUPER_ADMIN
      ORG_ADMIN
@@ -154,6 +163,7 @@ enum Permission {
    ```
 
 4. Create `Subscription` model:
+
    ```prisma
    model Subscription {
      id    String @id @default(cuid())
@@ -165,13 +175,13 @@ enum Permission {
      endDate DateTime?
      organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
    }
-   
+
    enum SubscriptionPlan {
      FREE
      PRO
      ENTERPRISE
    }
-   
+
    enum SubscriptionStatus {
      ACTIVE
      PAUSED
@@ -196,9 +206,11 @@ enum Permission {
    ```
 
 #### Task 2: Create Shared Types Library
+
 **Create**: `libs/types/`
 
 **Files**:
+
 - `package.json` — Export as `@vyntra/types`
 - `src/index.ts` — Main exports
 - `src/auth.types.ts` — User, UserRole, permissions
@@ -208,13 +220,14 @@ enum Permission {
 - `tsconfig.json`
 
 **Example** (`src/auth.types.ts`):
+
 ```typescript
 export enum UserRole {
-  SUPER_ADMIN = 'SUPER_ADMIN',
-  ORG_ADMIN = 'ORG_ADMIN',
-  EDITOR = 'EDITOR',
-  USER = 'USER',
-  VIEWER = 'VIEWER',
+  SUPER_ADMIN = "SUPER_ADMIN",
+  ORG_ADMIN = "ORG_ADMIN",
+  EDITOR = "EDITOR",
+  USER = "USER",
+  VIEWER = "VIEWER",
 }
 
 export interface User {
@@ -240,9 +253,11 @@ export interface AuthResponse {
 ```
 
 #### Task 3: Create Auth Module with JWT & Multi-Tenant
+
 **Create**: `apps/api/src/auth/`
 
 **Files**:
+
 - `auth.module.ts` — Import JwtModule, PassportModule
 - `auth.service.ts` — login, register, validate token, refresh token
 - `auth.controller.ts` — POST `/auth/login`, POST `/auth/register`, POST `/auth/refresh`
@@ -251,12 +266,14 @@ export interface AuthResponse {
 - `dtos/` — login.dto, register.dto with validation
 
 **Key Features**:
+
 - Hash passwords with bcrypt
 - Generate JWT with org context (payload includes userId, organizationId, role)
 - Validate org membership on every request
 - Support both user login and super admin login
 
 **Example** (`auth.service.ts`):
+
 ```typescript
 async login(email: string, password: string) {
   const user = await this.prisma.user.findUnique({
@@ -281,15 +298,18 @@ async login(email: string, password: string) {
 ```
 
 #### Task 4: Create Organizations Module (Super Admin)
+
 **Create**: `apps/api/src/organizations/`
 
 **Files**:
+
 - `organizations.module.ts`
 - `organizations.service.ts` — CRUD for orgs, plan changes
 - `organizations.controller.ts` — endpoints
 - `dtos/` — create-org.dto, update-org.dto
 
 **Endpoints** (Super Admin only):
+
 ```
 GET    /api/admin/organizations        — List all orgs (super admin only)
 POST   /api/admin/organizations        — Create new org
@@ -307,15 +327,18 @@ GET    /api/organizations/me          — Get current org (org member)
 ```
 
 #### Task 5: Create Users Module with Multi-Tenant
+
 **Create/Update**: `apps/api/src/users/`
 
 **Files**:
+
 - `users.module.ts`
 - `users.service.ts` — CRUD, role assignment, org scoping
 - `users.controller.ts` — endpoints
 - `dtos/` — create-user.dto, update-user-role.dto
 
 **Endpoints**:
+
 ```
 GET    /api/users                      — List users in my org
 POST   /api/users                      — Create user in my org (ORG_ADMIN only)
@@ -333,21 +356,23 @@ PUT    /api/admin/users/:id/promote    — Promote user to super admin
 ```
 
 #### Task 6: Update App Module
+
 **Update**: `apps/api/src/app.module.ts`
 
 Ensure all modules are imported:
+
 ```typescript
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
-    JwtModule.register({ secret: process.env.JWT_SECRET || 'dev-secret' }),
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: ".env" }),
+    JwtModule.register({ secret: process.env.JWT_SECRET || "dev-secret" }),
     PrismaModule,
     HealthModule,
     AuthModule,
     UsersModule,
     OrganizationsModule,
-    CmsModule,        // Create next
-    CrmModule,        // Create next
+    CmsModule, // Create next
+    CrmModule, // Create next
   ],
 })
 export class AppModule {}
@@ -356,9 +381,11 @@ export class AppModule {}
 ### Phase 2: CMS & CRM Modules (Org-Scoped)
 
 #### Task 7: Create CMS Module
+
 **Create**: `apps/api/src/cms/`
 
 **Files**:
+
 - `cms.module.ts`
 - `cms.service.ts` — Business logic with org scoping
 - `pages.controller.ts` — Page CRUD (org-scoped)
@@ -369,14 +396,16 @@ export class AppModule {}
 - `dtos/` — create-page.dto, update-blog.dto, etc.
 
 **Key Features**:
+
 - All CRUD ops filtered by current org
 - Publish/draft workflow
 - Comment moderation
 - SEO metadata per page
 
 **Example** (`pages.controller.ts`):
+
 ```typescript
-@Controller('cms/pages')
+@Controller("cms/pages")
 @UseGuards(JwtAuthGuard)
 export class PagesController {
   constructor(private cmsService: CmsService) {}
@@ -388,7 +417,7 @@ export class PagesController {
   }
 
   @Post()
-  @Roles('ORG_ADMIN', 'EDITOR')
+  @Roles("ORG_ADMIN", "EDITOR")
   async createPage(@Request() req, @Body() data: CreatePageDto) {
     return this.cmsService.createPage(req.user.organizationId, data);
   }
@@ -396,9 +425,11 @@ export class PagesController {
 ```
 
 #### Task 8: Create CRM Module
+
 **Create**: `apps/api/src/crm/`
 
 **Files**:
+
 - `crm.module.ts`
 - `crm.service.ts` — Business logic with org scoping
 - `leads.controller.ts` — Lead CRUD (org-scoped)
@@ -409,6 +440,7 @@ export class PagesController {
 - `dtos/` — create-lead.dto, update-contact.dto, etc.
 
 **Endpoints** (all org-scoped):
+
 ```
 GET    /api/crm/leads
 POST   /api/crm/leads
@@ -422,9 +454,11 @@ DELETE /api/crm/leads/:id
 ### Phase 3: Middleware & Decorators
 
 #### Task 9: Create Request Scoping & Guards
+
 **Create**: `apps/api/src/common/`
 
 **Files**:
+
 - `guards/jwt-auth.guard.ts` — Extract org context from JWT
 - `guards/roles.guard.ts` — Check user role/permissions
 - `decorators/org.decorator.ts` — @CurrentOrg() to inject org ID
@@ -433,21 +467,24 @@ DELETE /api/crm/leads/:id
 - `filters/exceptions.filter.ts` — Global error handler
 
 **Example** (`org.decorator.ts`):
+
 ```typescript
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { createParamDecorator, ExecutionContext } from "@nestjs/common";
 
 export const CurrentOrg = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
     return request.user?.organizationId;
-  }
+  },
 );
 ```
 
 #### Task 10: Create Middleware for Audit Logging
+
 **Create**: `apps/api/src/common/middleware/audit-log.middleware.ts`
 
 Log all user actions for compliance and debugging:
+
 ```typescript
 @Injectable()
 export class AuditLogMiddleware implements NestMiddleware {
@@ -456,7 +493,7 @@ export class AuditLogMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     const originalSend = res.send;
 
-    res.send = function(data) {
+    res.send = function (data) {
       // Log the action after response
       if (req.user) {
         this.prisma.auditLog.create({
@@ -464,9 +501,9 @@ export class AuditLogMiddleware implements NestMiddleware {
             action: `${req.method} ${req.path}`,
             userId: req.user.id,
             organizationId: req.user.organizationId,
-            resourceType: req.path.split('/')[3],
-            statusCode: res.statusCode
-          }
+            resourceType: req.path.split("/")[3],
+            statusCode: res.statusCode,
+          },
         });
       }
       return originalSend.call(this, data);
@@ -480,50 +517,53 @@ export class AuditLogMiddleware implements NestMiddleware {
 ### Phase 4: Database & Seeding
 
 #### Task 11: Create Prisma Migration
+
 ```bash
 pnpm --filter @vyntra/api prisma generate
 pnpm --filter @vyntra/api prisma migrate dev --name init_multi_tenant
 ```
 
 #### Task 12: Create Seed Script
+
 **Create**: `apps/api/prisma/seed.ts`
 
 Seed sample organizations, users, roles, and CMS/CRM data:
+
 ```typescript
 async function main() {
   // Create super admin
   const superAdmin = await prisma.user.create({
     data: {
-      email: 'superadmin@vyntra.com',
-      name: 'Super Admin',
-      password: await bcrypt.hash('password123', 10),
-      superAdmin: true
-    }
+      email: "superadmin@vyntra.com",
+      name: "Super Admin",
+      password: await bcrypt.hash("password123", 10),
+      superAdmin: true,
+    },
   });
 
   // Create org 1
   const org1 = await prisma.organization.create({
     data: {
-      name: 'Acme Corp',
-      email: 'admin@acme.com',
-      plan: 'PRO',
+      name: "Acme Corp",
+      email: "admin@acme.com",
+      plan: "PRO",
       subscription: {
-        create: { plan: 'PRO', status: 'ACTIVE' }
-      }
-    }
+        create: { plan: "PRO", status: "ACTIVE" },
+      },
+    },
   });
 
   // Create org admin
   const orgAdmin = await prisma.user.create({
     data: {
-      email: 'admin@acme.com',
-      name: 'Admin',
-      password: await bcrypt.hash('password123', 10),
+      email: "admin@acme.com",
+      name: "Admin",
+      password: await bcrypt.hash("password123", 10),
       organizationId: org1.id,
       roles: {
-        create: { role: 'ORG_ADMIN', organizationId: org1.id }
-      }
-    }
+        create: { role: "ORG_ADMIN", organizationId: org1.id },
+      },
+    },
   });
 
   // Create sample pages, leads, etc.
@@ -536,6 +576,7 @@ async function main() {
 ## API Overview
 
 ### Public Endpoints
+
 ```
 POST   /api/auth/register          — Create account & org
 POST   /api/auth/login             — User login
@@ -544,6 +585,7 @@ GET    /api/health                 — Health check
 ```
 
 ### Organization Member Endpoints (Authenticated)
+
 ```
 GET    /api/organizations/me       — Get my org
 GET    /api/cms/pages              — List pages (org-scoped)
@@ -554,6 +596,7 @@ POST   /api/crm/leads              — Create lead
 ```
 
 ### Organization Admin Endpoints
+
 ```
 GET    /api/users                  — List users in my org
 POST   /api/users                  — Create user
@@ -562,6 +605,7 @@ PUT    /api/users/:id/role         — Update user role
 ```
 
 ### Super Admin Endpoints
+
 ```
 GET    /api/admin/organizations    — List all orgs
 POST   /api/admin/organizations    — Create org
@@ -573,6 +617,7 @@ PUT    /api/admin/users/:id/promote — Make super admin
 ---
 
 ## Environment Variables
+
 ```bash
 # .env
 DATABASE_URL=postgresql://vyntra:vyntra_dev_password@localhost:5432/vyntra_db

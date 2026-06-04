@@ -33,7 +33,7 @@ const VISIBILITY: { id: BlogVisibility; title: string; desc: string }[] = [
 
 const TOGGLES: { label: string; prop: keyof BlogFormState }[] = [
   { label: "Allow interactive user discussions", prop: "allowComments" },
-  { label: "Feature post on Vyntra home carousel", prop: "isFeatured" },
+  { label: "Feature post on ERVFlow home carousel", prop: "isFeatured" },
   { label: "Pin content to top of index feeds", prop: "pinToTop" },
 ];
 

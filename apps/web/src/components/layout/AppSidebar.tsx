@@ -330,20 +330,20 @@ export function AppSidebar({
       transition={{ type: "tween", duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
       className="relative flex h-full flex-col bg-sidebar border-r border-sidebar-border overflow-hidden"
     >
-      {/* Logo — icon stays put, "Vyntra" fades */}
+      {/* Logo — icon stays put, "ERVFlow" fades */}
       <div className="flex h-16 flex-shrink-0 items-center border-b border-sidebar-border px-4">
         <Link
           href="/dashboard"
           className="flex items-center gap-2.5 cursor-pointer"
         >
           <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-sm bg-primary shadow-glow-brand">
-            <Icon name="Brand" size="24" className="h-6 w-6 text-white" />
+            <Icon name="Logo" size="20" className="h-5 w-5 text-white" />
           </div>
           <FadeLabel
             show={!isCollapsed}
             className="text-base font-bold font-display text-foreground whitespace-nowrap"
           >
-            Vyntra
+            ERVFlow
           </FadeLabel>
         </Link>
       </div>

@@ -26,20 +26,20 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Vyntra — Business Operating Platform",
-    template: "%s | Vyntra",
+    default: "ERVFlow — Business Operating Platform",
+    template: "%s | ERVFlow",
   },
   description:
-    "Vyntra is a modern all-in-one business operating platform — CRM, CMS, SEO, Payments, Store, Email, and more.",
+    "ERVFlow is a modern all-in-one business operating platform — CRM, CMS, SEO, Payments, Store, Email, and more.",
   keywords: [
     "business platform",
     "CRM",
     "CMS",
     "SaaS",
     "admin portal",
-    "Vyntra",
+    "ERVFlow",
   ],
-  authors: [{ name: "Vyntra" }],
+  authors: [{ name: "ERVFlow" }],
   robots: { index: true, follow: true },
   icons: {
     icon: "/icons/favicon.svg",

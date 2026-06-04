@@ -263,7 +263,7 @@ export const SAMPLE_CAMPAIGNS: EmailCampaign[] = [
   {
     id: "camp_03",
     name: "January Kickoff",
-    subject: "Start 2025 strong with Vyntra",
+    subject: "Start 2025 strong with ERVFlow",
     status: "scheduled",
     recipients: 9800,
     sent: 0,

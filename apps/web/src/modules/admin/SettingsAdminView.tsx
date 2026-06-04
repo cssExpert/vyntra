@@ -15,7 +15,7 @@ function Inner() {
   const logoInputRef = useRef<HTMLInputElement>(null);
   const faviconInputRef = useRef<HTMLInputElement>(null);
   const [settings, setSettings] = useState<Partial<AdminSettings>>({
-    siteName: "Vyntra",
+    siteName: "ERVFlow",
     supportEmail: "support@vyntra.com",
     maxOrganizations: 1000,
     maxUsersPerOrganization: 500,
@@ -285,7 +285,7 @@ function Inner() {
                 className={adminInput}
                 value={settings.siteName}
                 onChange={(e) => handleChange("siteName", e.target.value)}
-                placeholder="Vyntra"
+                placeholder="ERVFlow"
               />
             </div>
 
