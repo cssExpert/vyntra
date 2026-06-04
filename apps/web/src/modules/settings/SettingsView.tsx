@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Building2, Palette, Lock, Bell, Upload, Trash2, Save } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { cn } from "@/lib/utils";
+import { apiUpdateOrgSettings } from "@/lib/api";
+import { useSettings } from "@/providers/SettingsProvider";
 
 interface SettingsState {
   organizationName: string;
@@ -12,11 +14,10 @@ interface SettingsState {
   primaryColor: string;
   secondaryColor: string;
   accentColor: string;
-  logoUrl: string;
-  faviconUrl: string;
+  logoUrl: string | null;
+  faviconUrl: string | null;
   emailNotifications: boolean;
   slackNotifications: boolean;
-  twoFactorEnabled: boolean;
 }
 
 const PRESET_COLORS = [
@@ -31,36 +32,69 @@ const PRESET_COLORS = [
 ];
 
 export function SettingsView() {
+  const { settings: savedSettings, loading: contextLoading, refreshSettings } = useSettings();
   const [activeTab, setActiveTab] = useState<"branding" | "notifications" | "security">("branding");
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
   const [settings, setSettings] = useState<SettingsState>({
-    organizationName: "My Organization",
-    organizationSlug: "my-organization",
-    organizationEmail: "hello@myorg.com",
+    organizationName: "",
+    organizationSlug: "",
+    organizationEmail: "",
     primaryColor: "#3b82f6",
     secondaryColor: "#8b5cf6",
     accentColor: "#ec4899",
-    logoUrl: "",
-    faviconUrl: "",
+    logoUrl: null,
+    faviconUrl: null,
     emailNotifications: true,
     slackNotifications: false,
-    twoFactorEnabled: false,
   });
+
+  // Load settings from API when they become available
+  useEffect(() => {
+    if (savedSettings) {
+      setSettings({
+        organizationName: savedSettings.name,
+        organizationSlug: savedSettings.slug,
+        organizationEmail: savedSettings.email || "",
+        primaryColor: savedSettings.primaryColor,
+        secondaryColor: savedSettings.secondaryColor,
+        accentColor: savedSettings.accentColor,
+        logoUrl: savedSettings.logoUrl,
+        faviconUrl: savedSettings.faviconUrl,
+        emailNotifications: savedSettings.emailNotifications,
+        slackNotifications: savedSettings.slackNotifications,
+      });
+    }
+  }, [savedSettings]);
 
   const handleChange = (field: keyof SettingsState, value: any) => {
     setSettings((prev) => ({ ...prev, [field]: value }));
     setSaved(false);
+    setError("");
   };
 
   const handleSave = async () => {
     setLoading(true);
+    setError("");
     try {
-      // TODO: Connect to actual API
-      // await api.updateSettings(settings);
-      await new Promise((r) => setTimeout(r, 1000));
+      await apiUpdateOrgSettings({
+        name: settings.organizationName,
+        email: settings.organizationEmail || null,
+        logoUrl: settings.logoUrl,
+        faviconUrl: settings.faviconUrl,
+        primaryColor: settings.primaryColor,
+        secondaryColor: settings.secondaryColor,
+        accentColor: settings.accentColor,
+        emailNotifications: settings.emailNotifications,
+        slackNotifications: settings.slackNotifications,
+      });
+      await refreshSettings();
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to save settings";
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -72,12 +106,26 @@ export function SettingsView() {
     { id: "security", label: "Security", icon: Lock },
   ];
 
+  if (contextLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-muted-foreground">Loading settings...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="Settings"
         description="Manage your workspace, branding, and preferences."
       />
+
+      {error && (
+        <div className="rounded-lg bg-error/10 border border-error/20 px-4 py-3 text-sm text-error">
+          {error}
+        </div>
+      )}
 
       {saved && (
         <div className="rounded-lg bg-success/10 border border-success/20 px-4 py-3 text-sm text-success">
@@ -172,8 +220,8 @@ export function SettingsView() {
                     <div className="flex-1">
                       <input
                         type="text"
-                        value={settings.logoUrl}
-                        onChange={(e) => handleChange("logoUrl", e.target.value)}
+                        value={settings.logoUrl || ""}
+                        onChange={(e) => handleChange("logoUrl", e.target.value || null)}
                         placeholder="https://example.com/logo.png"
                         className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
                       />
@@ -196,8 +244,8 @@ export function SettingsView() {
                     <div className="flex-1">
                       <input
                         type="text"
-                        value={settings.faviconUrl}
-                        onChange={(e) => handleChange("faviconUrl", e.target.value)}
+                        value={settings.faviconUrl || ""}
+                        onChange={(e) => handleChange("faviconUrl", e.target.value || null)}
                         placeholder="https://example.com/favicon.ico"
                         className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
                       />
@@ -336,18 +384,7 @@ export function SettingsView() {
               <h3 className="text-lg font-semibold mb-6">Security Settings</h3>
 
               <div className="space-y-4">
-                <label className="flex items-center justify-between cursor-pointer p-3 rounded-lg hover:bg-muted/40 transition">
-                  <div>
-                    <span className="block text-sm font-medium">Two-Factor Authentication</span>
-                    <span className="text-xs text-muted-foreground">Add an extra layer of security</span>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={settings.twoFactorEnabled}
-                    onChange={(e) => handleChange("twoFactorEnabled", e.target.checked)}
-                    className="w-4 h-4 rounded border border-border bg-background cursor-pointer"
-                  />
-                </label>
+                <p className="text-sm text-muted-foreground">Security features coming soon.</p>
               </div>
             </div>
 

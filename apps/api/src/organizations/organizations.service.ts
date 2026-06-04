@@ -6,6 +6,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import {
   CreateOrganizationDto,
+  OrganizationSettingsDto,
   UpdateOrganizationDto,
 } from './dto/organization.dto';
 
@@ -74,6 +75,67 @@ export class OrganizationsService {
       create: { organizationId: id, packageId: pkg.id },
       update: { packageId: pkg.id, status: 'ACTIVE' },
       include: { package: true },
+    });
+  }
+
+  /** Get organization settings (branding, notifications, etc). */
+  async getSettings(organizationId: string | null) {
+    if (!organizationId) {
+      throw new BadRequestException('No organization context');
+    }
+    const org = await this.prisma.organization.findUnique({
+      where: { id: organizationId },
+      select: {
+        name: true,
+        email: true,
+        slug: true,
+        logoUrl: true,
+        faviconUrl: true,
+        primaryColor: true,
+        secondaryColor: true,
+        accentColor: true,
+        emailNotifications: true,
+        slackNotifications: true,
+      },
+    });
+    if (!org) throw new NotFoundException('Organization not found');
+    return org;
+  }
+
+  /** Update organization settings. */
+  async updateSettings(
+    organizationId: string | null,
+    dto: OrganizationSettingsDto,
+  ) {
+    if (!organizationId) {
+      throw new BadRequestException('No organization context');
+    }
+    const data: any = {};
+    if (dto.organizationName) data.name = dto.organizationName;
+    if (dto.organizationEmail) data.email = dto.organizationEmail;
+    if (dto.logoUrl !== undefined) data.logoUrl = dto.logoUrl;
+    if (dto.faviconUrl !== undefined) data.faviconUrl = dto.faviconUrl;
+    if (dto.primaryColor) data.primaryColor = dto.primaryColor;
+    if (dto.secondaryColor) data.secondaryColor = dto.secondaryColor;
+    if (dto.accentColor) data.accentColor = dto.accentColor;
+    if (dto.emailNotifications !== undefined) data.emailNotifications = dto.emailNotifications;
+    if (dto.slackNotifications !== undefined) data.slackNotifications = dto.slackNotifications;
+
+    return this.prisma.organization.update({
+      where: { id: organizationId },
+      data,
+      select: {
+        name: true,
+        email: true,
+        slug: true,
+        logoUrl: true,
+        faviconUrl: true,
+        primaryColor: true,
+        secondaryColor: true,
+        accentColor: true,
+        emailNotifications: true,
+        slackNotifications: true,
+      },
     });
   }
 

@@ -103,6 +103,30 @@ export function apiGetMyOrg() {
   return apiFetch<ApiCurrentOrg>("/organizations/me");
 }
 
+export interface OrganizationSettings {
+  name: string;
+  email: string | null;
+  slug: string;
+  logoUrl: string | null;
+  faviconUrl: string | null;
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+  emailNotifications: boolean;
+  slackNotifications: boolean;
+}
+
+export function apiGetOrgSettings() {
+  return apiFetch<OrganizationSettings>("/organizations/settings");
+}
+
+export function apiUpdateOrgSettings(body: Partial<OrganizationSettings>) {
+  return apiFetch<OrganizationSettings>("/organizations/settings", {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+}
+
 // ─── Super-admin shapes ──────────────────────────────────
 export interface AdminOrganization {
   id: string;

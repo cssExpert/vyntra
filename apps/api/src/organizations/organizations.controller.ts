@@ -13,6 +13,7 @@ import { SuperAdminOnly } from '../common/decorators/super-admin.decorator';
 import {
   AssignPackageDto,
   CreateOrganizationDto,
+  OrganizationSettingsDto,
   UpdateOrganizationDto,
 } from './dto/organization.dto';
 import { OrganizationsService } from './organizations.service';
@@ -25,6 +26,20 @@ export class OrganizationsController {
   @Get('organizations/me')
   getMyOrg(@CurrentOrg() organizationId: string | null) {
     return this.organizationsService.getCurrentOrg(organizationId);
+  }
+
+  // ── Organization Settings ──
+  @Get('organizations/settings')
+  getSettings(@CurrentOrg() organizationId: string | null) {
+    return this.organizationsService.getSettings(organizationId);
+  }
+
+  @Put('organizations/settings')
+  updateSettings(
+    @CurrentOrg() organizationId: string | null,
+    @Body() dto: OrganizationSettingsDto,
+  ) {
+    return this.organizationsService.updateSettings(organizationId, dto);
   }
 
   // ── Super admin management ──

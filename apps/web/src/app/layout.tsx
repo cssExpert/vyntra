@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
+import { SettingsProvider } from "@/providers/SettingsProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -69,7 +70,9 @@ export default function RootLayout({
     >
       <body suppressHydrationWarning className="min-h-screen bg-background font-sans antialiased">
         <ThemeProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <SettingsProvider>{children}</SettingsProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

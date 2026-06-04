@@ -61,3 +61,41 @@ export class AssignPackageDto {
   @IsString()
   packageSlug!: string;
 }
+
+export class OrganizationSettingsDto {
+  @IsOptional()
+  @IsString()
+  organizationName?: string;
+
+  @IsOptional()
+  @IsEmail()
+  organizationEmail?: string;
+
+  @IsOptional()
+  @IsString()
+  logoUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  faviconUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  primaryColor?: string;
+
+  @IsOptional()
+  @IsString()
+  secondaryColor?: string;
+
+  @IsOptional()
+  @IsString()
+  accentColor?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  emailNotifications?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  slackNotifications?: boolean;
+}
