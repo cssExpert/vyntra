@@ -12,11 +12,12 @@ interface GalleryGridProps {
   onToggleStatus: (id: string, status: GalleryStatus) => void;
   onDelete: (id: string, title: string) => void;
   onResetFilters: () => void;
+  onNavigate: (id: string) => void;
 }
 
 export function GalleryGrid({
   galleries, activeDropdownId, setActiveDropdownId,
-  onToggleStatus, onDelete, onResetFilters,
+  onToggleStatus, onDelete, onResetFilters, onNavigate,
 }: GalleryGridProps) {
   if (galleries.length === 0) {
     return (
@@ -57,6 +58,7 @@ export function GalleryGrid({
           setActiveDropdownId={setActiveDropdownId}
           onToggleStatus={onToggleStatus}
           onDelete={onDelete}
+          onNavigate={onNavigate}
         />
       ))}
     </motion.div>

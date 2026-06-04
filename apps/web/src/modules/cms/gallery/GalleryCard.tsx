@@ -11,18 +11,23 @@ interface GalleryCardProps {
   setActiveDropdownId: (id: string | null) => void;
   onToggleStatus: (id: string, status: GalleryStatus) => void;
   onDelete: (id: string, title: string) => void;
+  onNavigate: (id: string) => void;
 }
 
 export function GalleryCard({
-  gallery, activeDropdownId, setActiveDropdownId, onToggleStatus, onDelete,
+  gallery, activeDropdownId, setActiveDropdownId,
+  onToggleStatus, onDelete, onNavigate,
 }: GalleryCardProps) {
   return (
     <motion.div
       layout
       className="group relative bg-card border border-border rounded-3xl overflow-hidden hover:border-primary/30 hover:shadow-card-hover transition-all duration-300 flex flex-col h-full"
     >
-      {/* Cover */}
-      <div className="relative aspect-[16/10] overflow-hidden bg-muted">
+      {/* Clickable cover area */}
+      <button
+        onClick={() => onNavigate(gallery.id)}
+        className="relative aspect-[16/10] overflow-hidden bg-muted w-full text-left cursor-pointer"
+      >
         <img
           src={gallery.coverUrl}
           alt={gallery.title}
@@ -41,23 +46,31 @@ export function GalleryCard({
               ? "bg-emerald-950/80 text-emerald-300 border-emerald-500/20"
               : "bg-amber-950/80 text-amber-300 border-amber-500/20",
           )}>
-            {gallery.status === "published" ? <><Globe className="w-3 h-3" /> Published</> : <><Lock className="w-3 h-3" /> Draft</>}
+            {gallery.status === "published"
+              ? <><Globe className="w-3 h-3" /> Published</>
+              : <><Lock className="w-3 h-3" /> Draft</>}
           </span>
         </div>
 
-        <div className="absolute bottom-4 left-4 flex items-center gap-1.5 bg-background/70 backdrop-blur-md text-xs font-semibold px-2.5 py-1 rounded-lg border border-border/60">
+        {/* Items count — clickable to open detail */}
+        <div className="absolute bottom-4 left-4 flex items-center gap-1.5 bg-background/70 backdrop-blur-md text-xs font-semibold px-2.5 py-1 rounded-lg border border-border/60 hover:bg-background/90 transition-colors">
           <ImageIcon className="w-3.5 h-3.5 text-primary" />
           <span className="text-foreground">{gallery.itemCount} items</span>
         </div>
-      </div>
+      </button>
 
-      {/* Body */}
+      {/* Card body */}
       <div className="p-6 flex flex-col flex-1 justify-between">
         <div>
           <div className="flex items-start justify-between gap-2">
-            <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+            <button
+              onClick={() => onNavigate(gallery.id)}
+              className="text-base font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1 text-left"
+            >
               {gallery.title}
-            </h3>
+            </button>
+
+            {/* Actions dropdown */}
             <div className="relative shrink-0">
               <button
                 onClick={(e) => {
@@ -98,7 +111,10 @@ export function GalleryCard({
               </AnimatePresence>
             </div>
           </div>
-          <p className="text-xs text-muted-foreground line-clamp-2 mt-2 leading-relaxed">{gallery.description}</p>
+
+          <p className="text-xs text-muted-foreground line-clamp-2 mt-2 leading-relaxed">
+            {gallery.description}
+          </p>
         </div>
 
         <div className="mt-5 pt-4 border-t border-border/60">

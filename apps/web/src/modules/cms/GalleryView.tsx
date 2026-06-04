@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { AnimatePresence } from "framer-motion";
-import { motion } from "framer-motion";
-import { Plus, AlertCircle, CheckCircle2, Info, X } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
+import { Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SectionTitle from "@/components/common/SectionTitle";
 import type { Gallery, GalleryStatus, ViewMode, SortKey, Toast } from "./gallery/gallery.types";
 import { INITIAL_GALLERIES } from "./gallery/gallery.data";
+import { loadGalleries, saveGalleries } from "./gallery/gallery.store";
 import { GalleryStats } from "./gallery/GalleryStats";
 import { GalleryControls } from "./gallery/GalleryControls";
 import { GalleryGrid } from "./gallery/GalleryGrid";
@@ -15,7 +16,10 @@ import { GalleryTable } from "./gallery/GalleryTable";
 import { GalleryCreateModal } from "./gallery/GalleryCreateModal";
 
 export function GalleryView() {
-  const [galleries, setGalleries] = useState<Gallery[]>(INITIAL_GALLERIES);
+  const router = useRouter();
+
+  // Load from localStorage on first render, fall back to INITIAL_GALLERIES
+  const [galleries, setGalleries] = useState<Gallery[]>(() => loadGalleries());
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -23,6 +27,9 @@ export function GalleryView() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
   const [toasts, setToasts] = useState<Toast[]>([]);
+
+  // Persist to localStorage whenever galleries change
+  useEffect(() => { saveGalleries(galleries); }, [galleries]);
 
   const addToast = (message: string, type: Toast["type"] = "success") => {
     const id = Date.now();
@@ -46,6 +53,10 @@ export function GalleryView() {
     setGalleries((prev) => prev.map((g) => g.id === id ? { ...g, status: next } : g));
     addToast(`Gallery marked as ${next}.`, "info");
     setActiveDropdownId(null);
+  };
+
+  const handleNavigate = (id: string) => {
+    router.push(`/cms/gallery/${id}`);
   };
 
   const stats = useMemo(() => ({
@@ -82,36 +93,35 @@ export function GalleryView() {
 
   return (
     <div className="font-sans text-foreground pb-20">
-      {/* Toasts */}
-      <div className="fixed top-5 right-5 z-50 flex flex-col gap-3 pointer-events-none max-w-sm w-full">
+      {/* Toasts — matches UsersView exactly */}
+      <div className="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
         <AnimatePresence>
           {toasts.map((toast) => (
             <motion.div
               key={toast.id}
-              initial={{ opacity: 0, y: -20, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
+              layout
+              initial={{ opacity: 0, y: -20, scale: 0.9, x: 50 }}
+              animate={{ opacity: 1, y: 0, scale: 1, x: 0 }}
+              exit={{ opacity: 0, scale: 0.85, x: 100 }}
+              transition={{ type: "spring", stiffness: 350, damping: 25 }}
               className={cn(
-                "p-4 rounded-xl shadow-glass-lg backdrop-blur-md flex items-center justify-between gap-3 pointer-events-auto border",
-                toast.type === "error"
-                  ? "bg-destructive/10 border-destructive/30 text-destructive"
-                  : toast.type === "info"
-                    ? "bg-card border-border text-foreground"
-                    : "bg-emerald-500/10 border-emerald-500/30 text-emerald-500",
+                "pointer-events-auto flex items-center justify-between p-4 rounded-xl shadow-lg border text-sm font-medium",
+                toast.type === "success"
+                  ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-100 dark:border-emerald-800/50"
+                  : toast.type === "error"
+                    ? "bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-100 dark:border-rose-800/50"
+                    : "bg-primary/5 dark:bg-primary/10 text-primary border-primary/20 dark:border-primary/30",
               )}
             >
-              <div className="flex items-center gap-3">
-                {toast.type === "error" ? (
-                  <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                ) : toast.type === "info" ? (
-                  <Info className="w-5 h-5 flex-shrink-0 text-primary" />
-                ) : (
-                  <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
-                )}
-                <span className="text-sm font-medium">{toast.message}</span>
+              <div className="flex items-center gap-2">
+                <span className={cn("w-2 h-2 rounded-full", toast.type === "success" ? "bg-emerald-500" : toast.type === "error" ? "bg-rose-500" : "bg-primary")} />
+                <p>{toast.message}</p>
               </div>
-              <button onClick={() => setToasts((p) => p.filter((t) => t.id !== toast.id))} className="hover:bg-foreground/10 p-1 rounded-lg transition-colors">
-                <X className="w-4 h-4 opacity-60 hover:opacity-100" />
+              <button
+                onClick={() => setToasts((p) => p.filter((t) => t.id !== toast.id))}
+                className="text-muted-foreground hover:text-foreground transition-colors ml-4"
+              >
+                <X size={16} />
               </button>
             </motion.div>
           ))}
@@ -119,7 +129,7 @@ export function GalleryView() {
       </div>
 
       {/* Page header */}
-      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-8">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
         <SectionTitle
           mb="0"
           title="Galleries Hub"
@@ -127,15 +137,13 @@ export function GalleryView() {
           width="100%"
           className="max-w-full"
         />
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+        <button
           onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl shadow-glow-brand transition-all text-sm shrink-0"
+          className="inline-flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all duration-200 cursor-pointer group transform active:scale-[0.98] shrink-0"
         >
-          <Plus className="w-5 h-5" />
-          Add New Gallery
-        </motion.button>
+          <Plus size={18} className="stroke-[3] transition-transform group-hover:rotate-90 duration-300" />
+          <span>Add New Gallery</span>
+        </button>
       </div>
 
       <GalleryStats stats={stats} />
@@ -157,6 +165,7 @@ export function GalleryView() {
             onToggleStatus={handleToggleStatus}
             onDelete={handleDelete}
             onResetFilters={() => { setSearchQuery(""); setSelectedCategory("All"); }}
+            onNavigate={handleNavigate}
           />
         ) : (
           <GalleryTable

@@ -18,38 +18,51 @@ interface GalleryControlsProps {
 }
 
 export function GalleryControls({
-  searchQuery, setSearchQuery,
-  sortBy, setSortBy,
-  viewMode, setViewMode,
-  selectedCategory, setSelectedCategory,
+  searchQuery,
+  setSearchQuery,
+  sortBy,
+  setSortBy,
+  viewMode,
+  setViewMode,
+  selectedCategory,
+  setSelectedCategory,
 }: GalleryControlsProps) {
   return (
     <div className="space-y-4 mb-6">
-      {/* Search + sort + view mode */}
-      <div className="bg-card/50 border border-border p-4 rounded-2xl flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60 pointer-events-none" />
+      {/* Search + sort + view toggle */}
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        {/* Search */}
+        <div className="relative max-w-sm">
+          <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted-foreground">
+            <Search size={17} />
+          </span>
           <input
             type="text"
             placeholder="Search by name, category, or tag..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-9 py-2.5 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm text-foreground placeholder:text-muted-foreground/40 transition-colors"
+            className="w-full pl-10 pr-9 py-2.5 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200 shadow-sm"
           />
           {searchQuery && (
-            <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-              <X className="w-4 h-4" />
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X size={16} />
             </button>
           )}
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+          {/* Sort */}
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground hidden sm:inline">Sort:</span>
+            <span className="text-xs text-muted-foreground hidden sm:inline font-medium">
+              Sort:
+            </span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortKey)}
-              className="bg-background border border-border text-xs text-foreground py-2.5 px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary hover:border-border/80 transition-colors cursor-pointer"
+              className="bg-background border border-border text-sm text-foreground py-2.5 px-3 rounded-sm outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200 shadow-sm font-medium"
             >
               <option value="newest">Newest First</option>
               <option value="oldest">Oldest First</option>
@@ -61,14 +74,19 @@ export function GalleryControls({
 
           {/* Animated Grid/List toggle */}
           <div className="p-1 rounded-xl flex items-center gap-1 border border-border bg-card">
-            {([{ mode: "grid" as ViewMode, Icon: Grid }, { mode: "table" as ViewMode, Icon: List }]).map(({ mode, Icon }) => (
+            {[
+              { mode: "grid" as ViewMode, Icon: Grid, title: "Grid View" },
+              { mode: "table" as ViewMode, Icon: List, title: "Table View" },
+            ].map(({ mode, Icon, title }) => (
               <button
                 key={mode}
                 onClick={() => setViewMode(mode)}
-                title={mode === "grid" ? "Grid View" : "Table View"}
+                title={title}
                 className={cn(
                   "relative p-2 rounded-lg transition-colors",
-                  viewMode === mode ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+                  viewMode === mode
+                    ? "text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {viewMode === mode && (
@@ -86,7 +104,7 @@ export function GalleryControls({
       </div>
 
       {/* Category filter pills */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
         <div className="flex-shrink-0 flex items-center gap-1.5 text-muted-foreground text-xs font-semibold uppercase tracking-wider mr-2">
           <Sliders className="w-3.5 h-3.5 text-primary" /> Filter:
         </div>
