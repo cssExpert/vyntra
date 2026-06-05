@@ -13,6 +13,7 @@ interface MailListProps {
   selectedId: string | null;
   onSelect: (email: Email) => void;
   onToggleStar: (id: string) => void;
+  titleOverride?: string;
 }
 
 export function MailList({
@@ -21,6 +22,7 @@ export function MailList({
   selectedId,
   onSelect,
   onToggleStar,
+  titleOverride,
 }: MailListProps) {
   const [search, setSearch] = useState("");
 
@@ -40,7 +42,7 @@ export function MailList({
       <div className="px-4 py-4 border-b border-border">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-bold text-foreground">
-            {FOLDER_LABELS[folder]}
+            {titleOverride ?? FOLDER_LABELS[folder]}
           </h2>
           <span className="text-[11px] text-muted-foreground font-mono">
             {emails.length} {emails.length === 1 ? "message" : "messages"}

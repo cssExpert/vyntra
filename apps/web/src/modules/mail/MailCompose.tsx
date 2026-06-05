@@ -233,9 +233,9 @@ export function MailCompose({
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Fullscreen backdrop */}
+          {/* Fullscreen backdrop — hidden while minimized */}
           <AnimatePresence>
-            {fullscreen && (
+            {fullscreen && !minimized && (
               <motion.div
                 key="backdrop"
                 initial={{ opacity: 0 }}
@@ -260,7 +260,7 @@ export function MailCompose({
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ type: "spring", damping: 28, stiffness: 300 }}
             style={
-              fullscreen
+              fullscreen && !minimized
                 ? { top: "7.5vh", left: "10vw", right: "10vw", bottom: "7.5vh" }
                 : { bottom: "1.5rem", right: "1.5rem" }
             }
@@ -276,7 +276,10 @@ export function MailCompose({
               </span>
               <div className="flex items-center gap-1">
                 <button
-                  onClick={() => setMinimized(!minimized)}
+                  onClick={() => {
+                    if (!minimized && fullscreen) setFullscreen(false);
+                    setMinimized(!minimized);
+                  }}
                   title="Minimize"
                   className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-[#000]/5 transition-colors"
                 >

@@ -1,6 +1,11 @@
 "use client";
 
-import { Star, Trash2, Reply, Forward, Paperclip, X, MoreVertical, FileText, Image as ImageIcon, FileCode } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
+import {
+  Star, Trash2, Reply, Forward, Paperclip, X,
+  MoreVertical, FileText, Image as ImageIcon, FileCode,
+  MailOpen, Bookmark,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Email } from "./mail.types";
 import { LABELS } from "./mail.data";
@@ -9,8 +14,11 @@ interface MailDetailProps {
   email: Email;
   onClose: () => void;
   onToggleStar: (id: string) => void;
+  onMarkUnread: (id: string) => void;
+  onMarkImportant: (id: string) => void;
   onDelete: (id: string) => void;
   onReply: (email: Email) => void;
+  onForward: (email: Email) => void;
 }
 
 function getInitials(name: string) {
@@ -31,8 +39,52 @@ function AttachmentIcon({ type }: { type: string }) {
   return <Paperclip size={16} className="text-muted-foreground" />;
 }
 
-export function MailDetail({ email, onClose, onToggleStar, onDelete, onReply }: MailDetailProps) {
+export function MailDetail({
+  email, onClose, onToggleStar, onMarkUnread, onMarkImportant, onDelete, onReply, onForward,
+}: MailDetailProps) {
   const emailLabels = LABELS.filter((l) => email.labels.includes(l.id));
+  const isImportant = email.labels.includes("important");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [menuOpen]);
+
+  const menuItems = [
+    {
+      icon: <Star size={16} className={email.starred ? "fill-amber-400 text-amber-400" : ""} />,
+      label: email.starred ? "Remove star" : "Add star",
+      onClick: () => { onToggleStar(email.id); setMenuOpen(false); },
+    },
+    {
+      icon: <MailOpen size={16} />,
+      label: "Mark as unread",
+      onClick: () => { onMarkUnread(email.id); setMenuOpen(false); },
+    },
+    {
+      icon: (
+        <Bookmark
+          size={16}
+          className={isImportant ? "fill-primary text-primary" : ""}
+        />
+      ),
+      label: isImportant ? "Remove important" : "Mark as important",
+      onClick: () => { onMarkImportant(email.id); setMenuOpen(false); },
+    },
+    {
+      icon: <Forward size={16} />,
+      label: "Forward all",
+      onClick: () => { onForward(email); setMenuOpen(false); },
+    },
+  ];
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -45,7 +97,10 @@ export function MailDetail({ email, onClose, onToggleStar, onDelete, onReply }: 
           >
             <Reply size={14} /> Reply
           </button>
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+          <button
+            onClick={() => onForward(email)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          >
             <Forward size={14} /> Forward
           </button>
         </div>
@@ -68,9 +123,37 @@ export function MailDetail({ email, onClose, onToggleStar, onDelete, onReply }: 
           >
             <Trash2 size={15} />
           </button>
-          <button className="p-1.5 rounded-sm text-muted-foreground hover:text-foreground transition-colors">
-            <MoreVertical size={15} />
-          </button>
+
+          {/* More menu */}
+          <div ref={menuRef} className="relative">
+            <button
+              onClick={() => setMenuOpen((v) => !v)}
+              className={cn(
+                "p-1.5 rounded-sm transition-colors",
+                menuOpen
+                  ? "bg-muted text-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted",
+              )}
+            >
+              <MoreVertical size={15} />
+            </button>
+
+            {menuOpen && (
+              <div className="absolute right-0 top-full mt-1.5 z-50 w-52 bg-popover border border-border rounded-xl shadow-lg overflow-hidden py-1">
+                {menuItems.map((item) => (
+                  <button
+                    key={item.label}
+                    onClick={item.onClick}
+                    className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
+                  >
+                    <span className="text-muted-foreground shrink-0">{item.icon}</span>
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           <button
             onClick={onClose}
             className="p-1.5 rounded-sm text-muted-foreground hover:text-foreground transition-colors ml-1"
@@ -82,21 +165,16 @@ export function MailDetail({ email, onClose, onToggleStar, onDelete, onReply }: 
 
       {/* Email content */}
       <div className="flex-1 overflow-y-auto px-6 py-6">
-        {/* Subject */}
         <h1 className="text-xl font-bold text-foreground leading-snug mb-4">
           {email.subject}
         </h1>
 
-        {/* Labels */}
         {emailLabels.length > 0 && (
           <div className="flex items-center gap-2 mb-4">
             {emailLabels.map((l) => (
               <span
                 key={l.id}
-                className={cn(
-                  "flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full border",
-                  "bg-muted text-muted-foreground border-border",
-                )}
+                className="flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full border bg-muted text-muted-foreground border-border"
               >
                 <span className={cn("w-1.5 h-1.5 rounded-full", l.color)} />
                 {l.name}
