@@ -1,0 +1,379 @@
+"use client";
+
+import { useState, useMemo, useEffect } from "react";
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { usePageLoad } from "@/hooks/usePageLoad";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { TableActionMenu } from "@/components/common/TableActionMenu";
+import {
+  useReactTable, getCoreRowModel, getSortedRowModel, getPaginationRowModel, flexRender,
+  createColumnHelper,
+  type SortingState, type Column, type ColumnPinningState, type PaginationState,
+} from "@tanstack/react-table";
+import {
+  Search, X, Download, Users,
+  Eye, Pencil, Trash2, Mail, Star,
+  TrendingUp, ChevronUp, ChevronDown, ChevronsUpDown,
+} from "lucide-react";
+import { SAMPLE_CUSTOMERS } from "../store.data";
+import type { StoreCustomer } from "../store.types";
+
+const columnHelper = createColumnHelper<StoreCustomer>();
+
+function formatCurrency(v: number) {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(v);
+}
+
+function getInitials(name: string) {
+  return name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+}
+
+function pageWindow(current: number, total: number): (number | "…")[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i);
+  const pages: (number | "…")[] = [];
+  const add = (n: number) => { if (!pages.includes(n)) pages.push(n); };
+  add(0);
+  if (current > 2) pages.push("…");
+  for (let i = Math.max(1, current - 1); i <= Math.min(total - 2, current + 1); i++) add(i);
+  if (current < total - 3) pages.push("…");
+  add(total - 1);
+  return pages;
+}
+
+function getCommonPinningStyles(column: Column<StoreCustomer>): React.CSSProperties {
+  const isPinned = column.getIsPinned();
+  const isLastLeft   = isPinned === "left"  && column.getIsLastColumn("left");
+  const isFirstRight = isPinned === "right" && column.getIsFirstColumn("right");
+  return {
+    boxShadow: isLastLeft
+      ? "3px 0 6px -2px rgba(0,0,0,0.12)"
+      : isFirstRight
+        ? "-3px 0 6px -2px rgba(0,0,0,0.12)"
+        : undefined,
+    left:     isPinned === "left"  ? `${column.getStart("left")}px`  : undefined,
+    right:    isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
+    position: isPinned ? "sticky" : "relative",
+    zIndex:   isPinned ? 1 : 0,
+    width:    column.getSize(),
+    background: "inherit",
+  };
+}
+
+const SEGMENT_BADGE: Record<string, { variant: "success" | "warning" | "error" | "info" | "muted" | "purple"; label: string }> = {
+  new:      { variant: "info",    label: "New" },
+  regular:  { variant: "muted",   label: "Regular" },
+  vip:      { variant: "warning", label: "VIP" },
+  at_risk:  { variant: "error",   label: "At Risk" },
+  inactive: { variant: "muted",   label: "Inactive" },
+};
+
+const COLUMNS = [
+  columnHelper.accessor("name", {
+    header: "Customer",
+    size: 220,
+    cell: ({ row }) => {
+      const c = row.original;
+      return (
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 shrink-0 rounded-full bg-gradient-brand flex items-center justify-center text-[10px] font-bold text-white relative">
+            {getInitials(c.name)}
+            {c.isVip && (
+              <span className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-warning flex items-center justify-center">
+                <Star size={8} className="text-white fill-white" />
+              </span>
+            )}
+          </div>
+          <div className="min-w-0">
+            <p className="font-semibold text-foreground text-[13px] truncate">{c.name}</p>
+            <p className="text-[11px] text-muted-foreground truncate">{c.email}</p>
+          </div>
+        </div>
+      );
+    },
+  }),
+  columnHelper.accessor("totalOrders", {
+    header: "Orders",
+    size: 90,
+    cell: ({ getValue }) => (
+      <span className="font-semibold text-foreground tabular-nums">{getValue()}</span>
+    ),
+  }),
+  columnHelper.accessor("totalSpent", {
+    header: "Total Spent",
+    size: 120,
+    cell: ({ getValue }) => (
+      <span className="font-bold text-success tabular-nums">{formatCurrency(getValue())}</span>
+    ),
+  }),
+  columnHelper.accessor("averageOrderValue", {
+    header: "AOV",
+    size: 100,
+    cell: ({ getValue }) => (
+      <span className="text-xs text-foreground tabular-nums">{formatCurrency(getValue())}</span>
+    ),
+  }),
+  columnHelper.accessor("rewardPoints", {
+    header: "Points",
+    size: 90,
+    cell: ({ getValue }) => (
+      <div className="flex items-center gap-1">
+        <TrendingUp size={11} className="text-warning" />
+        <span className="text-xs font-semibold text-foreground tabular-nums">{getValue().toLocaleString()}</span>
+      </div>
+    ),
+  }),
+  columnHelper.accessor("storeCredit", {
+    header: "Credit",
+    size: 90,
+    cell: ({ getValue }) => {
+      const v = getValue();
+      return v > 0
+        ? <span className="text-xs font-semibold text-info tabular-nums">{formatCurrency(v)}</span>
+        : <span className="text-muted-foreground/40 text-xs">—</span>;
+    },
+  }),
+  columnHelper.accessor("segment", {
+    header: "Segment",
+    size: 100,
+    cell: ({ getValue }) => {
+      const seg = getValue();
+      if (!seg) return <span className="text-muted-foreground/40 text-xs">—</span>;
+      const badge = SEGMENT_BADGE[seg];
+      return <StatusBadge variant={badge.variant} label={badge.label} size="sm" />;
+    },
+  }),
+  columnHelper.accessor("lastOrderDate", {
+    header: "Last Order",
+    size: 110,
+    cell: ({ getValue }) => (
+      <span className="text-xs text-muted-foreground tabular-nums">{getValue() ?? "—"}</span>
+    ),
+  }),
+  columnHelper.display({
+    id: "actions",
+    size: 56,
+    enableSorting: false,
+    header: "",
+    cell: ({ row }) => (
+      <TableActionMenu
+        items={[
+          { label: "View Profile", icon: <Eye size={14} />,    onClick: () => {} },
+          { label: "Send Email",   icon: <Mail size={14} />,   onClick: () => {} },
+          { label: "Edit",         icon: <Pencil size={14} />, onClick: () => {} },
+          { label: "Delete",       icon: <Trash2 size={14} />, onClick: () => {}, variant: "danger", separator: true },
+        ]}
+      />
+    ),
+  }),
+];
+
+export function CustomersView() {
+  const isLoaded = usePageLoad(700);
+  const [search,  setSearch]  = useState("");
+  const [segment, setSegment] = useState("");
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
+  const [columnPinning] = useState<ColumnPinningState>({
+    left:  ["name"],
+    right: ["actions"],
+  });
+
+  const filtered = useMemo(() => {
+    let r = SAMPLE_CUSTOMERS;
+    if (segment) r = r.filter((c) => c.segment === segment);
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      r = r.filter((c) => c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q));
+    }
+    return r;
+  }, [search, segment]);
+
+  useEffect(() => { setPagination((p) => ({ ...p, pageIndex: 0 })); }, [search, segment]);
+
+  const table = useReactTable({
+    data: filtered,
+    columns: COLUMNS,
+    state: { sorting, columnPinning, pagination },
+    onSortingChange: setSorting,
+    onPaginationChange: setPagination,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  });
+
+  const { pageIndex, pageSize } = table.getState().pagination;
+  const filteredCount = filtered.length;
+  const fromEntry = filteredCount === 0 ? 0 : pageIndex * pageSize + 1;
+  const toEntry = Math.min((pageIndex + 1) * pageSize, filteredCount);
+  const pageCount = table.getPageCount();
+
+  const totalSpent = SAMPLE_CUSTOMERS.reduce((s, c) => s + c.totalSpent, 0);
+  const vipCount   = SAMPLE_CUSTOMERS.filter((c) => c.isVip).length;
+
+  return (
+    <AnimatePresence mode="wait" initial={false}>
+      {!isLoaded ? (
+        <motion.div key="sk" exit={{ opacity: 0 }} className="space-y-4">
+          <div className="h-9 w-48 rounded-sm bg-muted animate-pulse" />
+          <div className="h-72 w-full rounded-xl bg-muted animate-pulse" />
+        </motion.div>
+      ) : (
+        <motion.div
+          key="content"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.28, ease: "easeOut" }}
+          className="flex flex-col gap-4"
+        >
+          <PageHeader
+            title="Customers"
+            description={`${SAMPLE_CUSTOMERS.length} customers · ${vipCount} VIP · $${totalSpent.toFixed(0)} lifetime value`}
+            breadcrumbs={[{ label: "Store", href: "/store" }, { label: "Customers" }]}
+          >
+            <button className="flex items-center gap-2 rounded-sm border border-border px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer">
+              <Download className="h-3.5 w-3.5" />
+              Export
+            </button>
+          </PageHeader>
+
+          {/* Quick stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { label: "Total",    value: SAMPLE_CUSTOMERS.length,                              color: "text-foreground" },
+              { label: "VIP",      value: vipCount,                                              color: "text-warning" },
+              { label: "New",      value: SAMPLE_CUSTOMERS.filter((c) => c.segment === "new").length, color: "text-info" },
+              { label: "At Risk",  value: SAMPLE_CUSTOMERS.filter((c) => c.segment === "at_risk").length, color: "text-error" },
+            ].map((s) => (
+              <div key={s.label} className="glass-card p-3 flex items-center gap-3">
+                <Users size={16} className={s.color} />
+                <div>
+                  <p className={`text-lg font-extrabold ${s.color}`}>{s.value}</p>
+                  <p className="text-[11px] text-muted-foreground">{s.label}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Toolbar */}
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="relative w-full sm:w-72">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted-foreground">
+                <Search size={17} />
+              </span>
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search customers…"
+                className="w-full pl-10 pr-4 py-2.5 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm"
+              />
+              {search && (
+                <button onClick={() => setSearch("")} className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+            <select
+              value={segment}
+              onChange={(e) => setSegment(e.target.value)}
+              className="rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all cursor-pointer"
+            >
+              <option value="">All Segments</option>
+              <option value="new">New</option>
+              <option value="regular">Regular</option>
+              <option value="vip">VIP</option>
+              <option value="at_risk">At Risk</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+
+          {/* Table */}
+          <div className="bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-clip">
+
+            <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: "calc(100vh - 340px)" }}>
+              <table className="text-left border-collapse" style={{ tableLayout: "fixed", width: "100%", minWidth: "1100px" }}>
+                <thead>
+                  {table.getHeaderGroups().map((hg) => (
+                    <tr key={hg.id} className="text-[13px] font-semibold text-muted-foreground select-none">
+                      {hg.headers.map((header) => {
+                        const canSort   = header.column.getCanSort();
+                        const sorted    = header.column.getIsSorted();
+                        const isActions = header.id === "actions";
+                        return (
+                          <th
+                            key={header.id}
+                            onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
+                            className={[
+                              "sticky top-0 bg-muted border-b border-border font-semibold py-4 px-4",
+                              isActions ? "text-right" : "",
+                              canSort ? "cursor-pointer hover:text-foreground transition-colors" : "",
+                            ].join(" ")}
+                            style={getCommonPinningStyles(header.column)}
+                          >
+                            <div className={`flex items-center gap-1 ${isActions ? "justify-end" : ""}`}>
+                              {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                              {canSort && (
+                                sorted === "asc"  ? <ChevronUp size={13} className="text-primary shrink-0" /> :
+                                sorted === "desc" ? <ChevronDown size={13} className="text-primary shrink-0" /> :
+                                                   <ChevronsUpDown size={13} className="text-muted-foreground/40 shrink-0" />
+                              )}
+                            </div>
+                          </th>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </thead>
+                <tbody className="divide-y divide-border text-[14px]">
+                  <AnimatePresence initial={false}>
+                    {table.getRowModel().rows.map((row) => (
+                      <motion.tr
+                        key={row.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="group hover:bg-muted/40 transition-colors"
+                      >
+                        {row.getVisibleCells().map((cell) => (
+                          <td
+                            key={cell.id}
+                            className={`py-4 px-4 ${cell.column.getIsPinned() ? "transition-colors group-hover:bg-muted/40 bg-card" : ""}`}
+                            style={getCommonPinningStyles(cell.column)}
+                          >
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </td>
+                        ))}
+                      </motion.tr>
+                    ))}
+                  </AnimatePresence>
+                </tbody>
+              </table>
+            </div>
+            <div className="px-6 py-4 border-t border-border bg-muted/30 flex items-center justify-between gap-4 flex-wrap text-sm">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <span>Show</span>
+                <select value={pageSize} onChange={(e) => table.setPageSize(Number(e.target.value))} className="px-2 py-1.5 bg-background border border-border rounded-sm text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 cursor-pointer">
+                  {[10, 25, 50, 100].map((s) => <option key={s} value={s}>{s}</option>)}
+                </select>
+                <span>entries</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-muted-foreground">Showing {fromEntry} to {toEntry} of {filteredCount} entries</span>
+                <div className="flex items-center gap-1">
+                  <button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()} className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer">← Previous</button>
+                  {pageWindow(pageIndex, pageCount).map((p, idx) =>
+                    p === "…" ? <span key={`e-${idx}`} className="w-8 text-center text-muted-foreground">…</span> : (
+                      <button key={p} onClick={() => table.setPageIndex(p)} className={`w-8 h-8 text-sm font-semibold rounded-sm transition-all cursor-pointer ${pageIndex === p ? "bg-primary text-primary-foreground" : "border border-border text-muted-foreground hover:bg-muted hover:text-foreground"}`}>{(p as number) + 1}</button>
+                    )
+                  )}
+                  <button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()} className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer">Next →</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
