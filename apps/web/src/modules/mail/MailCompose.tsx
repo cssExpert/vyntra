@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   X,
@@ -69,14 +69,20 @@ const FONT_SIZES = [
 ];
 
 const TEXT_COLORS = [
-  "#ef4444", "#f97316", "#eab308", "#22c55e",
-  "#3b82f6", "#8b5cf6", "#ec4899", "#000000",
+  "#ef4444",
+  "#f97316",
+  "#eab308",
+  "#22c55e",
+  "#3b82f6",
+  "#8b5cf6",
+  "#ec4899",
+  "#111827",
 ];
 
 const inputCls =
-  "w-full px-3 py-2 bg-transparent border-0 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none transition-colors";
+  "w-full px-3 py-2 bg-transparent border-0 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none transition-colors !ring-0 focus:!ring-0";
 
-function ToolbarBtn({
+function TBtn({
   onClick,
   active,
   title,
@@ -90,7 +96,10 @@ function ToolbarBtn({
   return (
     <button
       type="button"
-      onMouseDown={(e) => { e.preventDefault(); onClick(); }}
+      onMouseDown={(e) => {
+        e.preventDefault();
+        onClick();
+      }}
       title={title}
       className={cn(
         "p-1.5 rounded transition-colors shrink-0",
@@ -104,7 +113,7 @@ function ToolbarBtn({
   );
 }
 
-function ToolbarDivider() {
+function TDivider() {
   return <div className="w-px h-4 bg-border mx-0.5 shrink-0" />;
 }
 
@@ -127,7 +136,7 @@ export function MailCompose({
   const [showFontFamily, setShowFontFamily] = useState(false);
   const [showFontSize, setShowFontSize] = useState(false);
   const [showAlign, setShowAlign] = useState(false);
-  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showColor, setShowColor] = useState(false);
   const [fontSize, setFontSize] = useState("14px");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -143,31 +152,22 @@ export function MailCompose({
     editorProps: {
       attributes: {
         class:
-          "focus:outline-none min-h-[120px] text-sm text-foreground leading-relaxed",
+          "focus:outline-none min-h-[120px] text-sm text-foreground leading-relaxed prose prose-sm max-w-none dark:prose-invert",
       },
     },
   });
 
-  const applyFontSize = useCallback(
-    (size: string) => {
-      setFontSize(size);
-      editor?.chain().focus().setMark("textStyle", { fontSize: size }).run();
-      setShowFontSize(false);
-    },
-    [editor],
-  );
+  const closeAllDropdowns = () => {
+    setShowFontFamily(false);
+    setShowFontSize(false);
+    setShowAlign(false);
+    setShowColor(false);
+  };
 
-  const applyColor = useCallback(
-    (color: string) => {
-      editor?.chain().focus().setColor(color).run();
-      setShowColorPicker(false);
-    },
-    [editor],
-  );
-
-  const currentFontFamily =
-    FONT_FAMILIES.find((f) => editor?.isActive("textStyle", { fontFamily: f.value }))
-      ?.label ?? "Sans Serif";
+  const currentFontLabel =
+    FONT_FAMILIES.find((f) =>
+      editor?.isActive("textStyle", { fontFamily: f.value }),
+    )?.label ?? "Sans Serif";
 
   const currentAlign = editor?.isActive({ textAlign: "center" })
     ? "center"
@@ -194,7 +194,11 @@ export function MailCompose({
       bcc: bcc.trim() || undefined,
       subject,
       body: editor.getHTML(),
-      attachments: attachments.map(({ name, size, type }) => ({ name, size, type })),
+      attachments: attachments.map(({ name, size, type }) => ({
+        name,
+        size,
+        type,
+      })),
     });
     setTo("");
     setCc("");
@@ -212,18 +216,18 @@ export function MailCompose({
     const files = Array.from(e.target.files ?? []);
     setAttachments((prev) => [
       ...prev,
-      ...files.map((file) => ({
-        name: file.name,
-        size: formatFileSize(file.size),
-        type: file.type,
-        file,
+      ...files.map((f) => ({
+        name: f.name,
+        size: formatFileSize(f.size),
+        type: f.type,
+        file: f,
       })),
     ]);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const removeAttachment = (index: number) =>
-    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  const removeAttachment = (i: number) =>
+    setAttachments((prev) => prev.filter((_, idx) => idx !== i));
 
   return (
     <AnimatePresence>
@@ -243,28 +247,29 @@ export function MailCompose({
             )}
           </AnimatePresence>
 
+          {/*
+            Fullscreen fix: don't use animate x/y (they conflict with CSS positioning).
+            Instead, drive position entirely through inline style and let the `layout`
+            prop FLIP-animate size/position between the two states.
+          */}
           <motion.div
             layout
             key="compose"
-            initial={{ opacity: 0, y: 60, scale: 0.95 }}
-            animate={
-              fullscreen
-                ? { opacity: 1, y: "-50%", x: "-50%", scale: 1 }
-                : { opacity: 1, y: 0, x: 0, scale: 1 }
-            }
-            exit={{ opacity: 0, y: 60, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
             transition={{ type: "spring", damping: 28, stiffness: 300 }}
             style={
               fullscreen
-                ? { top: "50%", left: "50%" }
+                ? { top: "7.5vh", left: "10vw", right: "10vw", bottom: "7.5vh" }
                 : { bottom: "1.5rem", right: "1.5rem" }
             }
             className={cn(
               "fixed z-50 bg-card border border-border rounded-2xl shadow-glass-lg overflow-hidden flex flex-col",
-              fullscreen ? "w-[80vw] max-h-[85vh]" : "w-full max-w-md",
+              fullscreen ? "w-auto" : "w-full max-w-lg",
             )}
           >
-            {/* Header */}
+            {/* ── Header ───────────────────────────────────────────── */}
             <div className="flex items-center justify-between px-4 py-3 bg-foreground/5 border-b border-border shrink-0">
               <span className="text-sm font-bold text-foreground">
                 {initialSubject ? `Re: ${initialSubject}` : "New Message"}
@@ -273,16 +278,20 @@ export function MailCompose({
                 <button
                   onClick={() => setMinimized(!minimized)}
                   title="Minimize"
-                  className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                  className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-[#000]/5 transition-colors"
                 >
                   <Minus size={14} />
                 </button>
                 <button
                   onClick={() => setFullscreen(!fullscreen)}
                   title={fullscreen ? "Restore" : "Fullscreen"}
-                  className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                  className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-[#000]/5 transition-colors"
                 >
-                  {fullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+                  {fullscreen ? (
+                    <Minimize2 size={14} />
+                  ) : (
+                    <Maximize2 size={14} />
+                  )}
                 </button>
                 <button
                   onClick={onClose}
@@ -304,11 +313,13 @@ export function MailCompose({
                     fullscreen && "flex flex-col flex-1 min-h-0",
                   )}
                 >
-                  {/* Address fields */}
+                  {/* ── Address fields ───────────────────────────────── */}
                   <div className="border-b border-border shrink-0">
                     {/* To */}
                     <div className="flex items-center px-4 border-b border-border/50">
-                      <span className="text-xs text-muted-foreground w-12 shrink-0">To</span>
+                      <span className="text-xs text-muted-foreground w-12 shrink-0">
+                        To
+                      </span>
                       <input
                         type="email"
                         value={to}
@@ -336,7 +347,7 @@ export function MailCompose({
                       </div>
                     </div>
 
-                    {/* CC */}
+                    {/* Cc */}
                     <AnimatePresence>
                       {showCc && (
                         <motion.div
@@ -346,7 +357,9 @@ export function MailCompose({
                           transition={{ duration: 0.15 }}
                           className="flex items-center px-4 border-b border-border/50 overflow-hidden"
                         >
-                          <span className="text-xs text-muted-foreground w-12 shrink-0">Cc</span>
+                          <span className="text-xs text-muted-foreground w-12 shrink-0">
+                            Cc
+                          </span>
                           <input
                             type="email"
                             value={cc}
@@ -356,7 +369,10 @@ export function MailCompose({
                             autoFocus
                           />
                           <button
-                            onClick={() => { setShowCc(false); setCc(""); }}
+                            onClick={() => {
+                              setShowCc(false);
+                              setCc("");
+                            }}
                             className="ml-1 p-0.5 rounded text-muted-foreground hover:text-rose-500 transition-colors"
                           >
                             <X size={12} />
@@ -365,7 +381,7 @@ export function MailCompose({
                       )}
                     </AnimatePresence>
 
-                    {/* BCC */}
+                    {/* Bcc */}
                     <AnimatePresence>
                       {showBcc && (
                         <motion.div
@@ -375,7 +391,9 @@ export function MailCompose({
                           transition={{ duration: 0.15 }}
                           className="flex items-center px-4 border-b border-border/50 overflow-hidden"
                         >
-                          <span className="text-xs text-muted-foreground w-12 shrink-0">Bcc</span>
+                          <span className="text-xs text-muted-foreground w-12 shrink-0">
+                            Bcc
+                          </span>
                           <input
                             type="email"
                             value={bcc}
@@ -385,7 +403,10 @@ export function MailCompose({
                             autoFocus
                           />
                           <button
-                            onClick={() => { setShowBcc(false); setBcc(""); }}
+                            onClick={() => {
+                              setShowBcc(false);
+                              setBcc("");
+                            }}
                             className="ml-1 p-0.5 rounded text-muted-foreground hover:text-rose-500 transition-colors"
                           >
                             <X size={12} />
@@ -396,7 +417,9 @@ export function MailCompose({
 
                     {/* Subject */}
                     <div className="flex items-center px-4">
-                      <span className="text-xs text-muted-foreground w-12 shrink-0">Subject</span>
+                      <span className="text-xs text-muted-foreground w-12 shrink-0">
+                        Subject
+                      </span>
                       <input
                         type="text"
                         value={subject}
@@ -407,27 +430,34 @@ export function MailCompose({
                     </div>
                   </div>
 
-                  {/* Formatting toolbar */}
-                  <div className="flex items-center gap-0.5 px-3 py-1.5 border-b border-border bg-muted/20 flex-wrap shrink-0">
-                    {/* Font family */}
+                  {/* ── Formatting toolbar ───────────────────────────── */}
+                  <div className="flex items-center gap-0.5 px-2 py-1.5 border-b border-border bg-muted/20 flex-wrap shrink-0">
+                    {/* Font family dropdown */}
                     <div className="relative">
                       <button
                         type="button"
-                        onMouseDown={(e) => { e.preventDefault(); setShowFontFamily(!showFontFamily); setShowFontSize(false); setShowAlign(false); setShowColorPicker(false); }}
-                        className="flex items-center gap-1 px-2 py-1 rounded text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          closeAllDropdowns();
+                          setShowFontFamily(!showFontFamily);
+                        }}
+                        className="flex items-center gap-0.5 px-2 py-1 rounded text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                       >
-                        <span>{currentFontFamily}</span>
-                        <ChevronDown size={10} />
+                        {currentFontLabel} <ChevronDown size={10} />
                       </button>
                       {showFontFamily && (
-                        <div className="absolute top-full left-0 z-10 mt-1 w-36 bg-popover border border-border rounded-lg shadow-lg overflow-hidden">
+                        <div className="absolute top-full left-0 z-20 mt-1 w-36 bg-popover border border-border rounded-lg shadow-xl overflow-hidden">
                           {FONT_FAMILIES.map((f) => (
                             <button
                               key={f.value}
                               type="button"
                               onMouseDown={(e) => {
                                 e.preventDefault();
-                                editor?.chain().focus().setFontFamily(f.value).run();
+                                editor
+                                  ?.chain()
+                                  .focus()
+                                  .setFontFamily(f.value)
+                                  .run();
                                 setShowFontFamily(false);
                               }}
                               className="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors"
@@ -440,29 +470,42 @@ export function MailCompose({
                       )}
                     </div>
 
-                    <ToolbarDivider />
+                    <TDivider />
 
-                    {/* Font size */}
+                    {/* Font size dropdown */}
                     <div className="relative">
                       <button
                         type="button"
-                        onMouseDown={(e) => { e.preventDefault(); setShowFontSize(!showFontSize); setShowFontFamily(false); setShowAlign(false); setShowColorPicker(false); }}
-                        className="flex items-center gap-0.5 px-1.5 py-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          closeAllDropdowns();
+                          setShowFontSize(!showFontSize);
+                        }}
                         title="Font size"
+                        className="flex items-center gap-0.5 px-1.5 py-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                       >
-                        <Type size={14} />
-                        <ChevronDown size={10} />
+                        <Type size={14} /> <ChevronDown size={10} />
                       </button>
                       {showFontSize && (
-                        <div className="absolute top-full left-0 z-10 mt-1 w-28 bg-popover border border-border rounded-lg shadow-lg overflow-hidden">
+                        <div className="absolute top-full left-0 z-20 mt-1 w-28 bg-popover border border-border rounded-lg shadow-xl overflow-hidden">
                           {FONT_SIZES.map((s) => (
                             <button
                               key={s.value}
                               type="button"
-                              onMouseDown={(e) => { e.preventDefault(); applyFontSize(s.value); }}
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                setFontSize(s.value);
+                                editor
+                                  ?.chain()
+                                  .focus()
+                                  .setMark("textStyle", { fontSize: s.value })
+                                  .run();
+                                setShowFontSize(false);
+                              }}
                               className={cn(
                                 "w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors",
-                                fontSize === s.value && "text-primary font-medium",
+                                fontSize === s.value &&
+                                  "text-primary font-medium",
                               )}
                             >
                               {s.label}
@@ -472,54 +515,61 @@ export function MailCompose({
                       )}
                     </div>
 
-                    <ToolbarDivider />
+                    <TDivider />
 
-                    {/* Bold */}
-                    <ToolbarBtn
+                    <TBtn
                       onClick={() => editor?.chain().focus().toggleBold().run()}
                       active={editor?.isActive("bold")}
                       title="Bold"
                     >
                       <Bold size={14} />
-                    </ToolbarBtn>
-
-                    {/* Italic */}
-                    <ToolbarBtn
-                      onClick={() => editor?.chain().focus().toggleItalic().run()}
+                    </TBtn>
+                    <TBtn
+                      onClick={() =>
+                        editor?.chain().focus().toggleItalic().run()
+                      }
                       active={editor?.isActive("italic")}
                       title="Italic"
                     >
                       <Italic size={14} />
-                    </ToolbarBtn>
-
-                    {/* Underline */}
-                    <ToolbarBtn
-                      onClick={() => editor?.chain().focus().toggleUnderline().run()}
+                    </TBtn>
+                    <TBtn
+                      onClick={() =>
+                        editor?.chain().focus().toggleUnderline().run()
+                      }
                       active={editor?.isActive("underline")}
                       title="Underline"
                     >
                       <Underline size={14} />
-                    </ToolbarBtn>
+                    </TBtn>
 
                     {/* Text color */}
                     <div className="relative">
                       <button
                         type="button"
-                        onMouseDown={(e) => { e.preventDefault(); setShowColorPicker(!showColorPicker); setShowFontFamily(false); setShowFontSize(false); setShowAlign(false); }}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          closeAllDropdowns();
+                          setShowColor(!showColor);
+                        }}
                         title="Text color"
-                        className="flex flex-col items-center gap-0.5 p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                        className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                       >
-                        <Baseline size={13} />
+                        <Baseline size={14} />
                       </button>
-                      {showColorPicker && (
-                        <div className="absolute top-full left-0 z-10 mt-1 p-2 bg-popover border border-border rounded-lg shadow-lg">
+                      {showColor && (
+                        <div className="absolute top-full left-0 z-20 mt-1 p-2 bg-popover border border-border rounded-lg shadow-xl">
                           <div className="grid grid-cols-4 gap-1">
                             {TEXT_COLORS.map((color) => (
                               <button
                                 key={color}
                                 type="button"
-                                onMouseDown={(e) => { e.preventDefault(); applyColor(color); }}
-                                className="w-5 h-5 rounded-sm border border-border/50 hover:scale-110 transition-transform"
+                                onMouseDown={(e) => {
+                                  e.preventDefault();
+                                  editor?.chain().focus().setColor(color).run();
+                                  setShowColor(false);
+                                }}
+                                className="w-5 h-5 rounded-sm border border-border/40 hover:scale-110 transition-transform"
                                 style={{ backgroundColor: color }}
                                 title={color}
                               />
@@ -529,33 +579,56 @@ export function MailCompose({
                       )}
                     </div>
 
-                    <ToolbarDivider />
+                    <TDivider />
 
-                    {/* Text align */}
+                    {/* Alignment dropdown */}
                     <div className="relative">
                       <button
                         type="button"
-                        onMouseDown={(e) => { e.preventDefault(); setShowAlign(!showAlign); setShowFontFamily(false); setShowFontSize(false); setShowColorPicker(false); }}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          closeAllDropdowns();
+                          setShowAlign(!showAlign);
+                        }}
+                        title="Text alignment"
                         className="flex items-center gap-0.5 p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                        title="Text align"
                       >
-                        <AlignIcon size={14} />
-                        <ChevronDown size={10} />
+                        <AlignIcon size={14} /> <ChevronDown size={10} />
                       </button>
                       {showAlign && (
-                        <div className="absolute top-full left-0 z-10 mt-1 bg-popover border border-border rounded-lg shadow-lg overflow-hidden">
+                        <div className="absolute top-full left-0 z-20 mt-1 bg-popover border border-border rounded-lg shadow-xl overflow-hidden min-w-[130px]">
                           {[
-                            { icon: AlignLeft, value: "left", title: "Align left" },
-                            { icon: AlignCenter, value: "center", title: "Align center" },
-                            { icon: AlignRight, value: "right", title: "Align right" },
-                            { icon: AlignJustify, value: "justify", title: "Justify" },
-                          ].map(({ icon: Icon, value, title }) => (
+                            {
+                              Icon: AlignLeft,
+                              value: "left",
+                              label: "Align left",
+                            },
+                            {
+                              Icon: AlignCenter,
+                              value: "center",
+                              label: "Align center",
+                            },
+                            {
+                              Icon: AlignRight,
+                              value: "right",
+                              label: "Align right",
+                            },
+                            {
+                              Icon: AlignJustify,
+                              value: "justify",
+                              label: "Justify",
+                            },
+                          ].map(({ Icon, value, label }) => (
                             <button
                               key={value}
                               type="button"
                               onMouseDown={(e) => {
                                 e.preventDefault();
-                                editor?.chain().focus().setTextAlign(value).run();
+                                editor
+                                  ?.chain()
+                                  .focus()
+                                  .setTextAlign(value)
+                                  .run();
                                 setShowAlign(false);
                               }}
                               className={cn(
@@ -563,81 +636,82 @@ export function MailCompose({
                                 currentAlign === value && "text-primary",
                               )}
                             >
-                              <Icon size={13} />
-                              {title}
+                              <Icon size={13} /> {label}
                             </button>
                           ))}
                         </div>
                       )}
                     </div>
 
-                    {/* Ordered list */}
-                    <ToolbarBtn
-                      onClick={() => editor?.chain().focus().toggleOrderedList().run()}
+                    <TBtn
+                      onClick={() =>
+                        editor?.chain().focus().toggleOrderedList().run()
+                      }
                       active={editor?.isActive("orderedList")}
                       title="Numbered list"
                     >
                       <ListOrdered size={14} />
-                    </ToolbarBtn>
-
-                    {/* Bullet list */}
-                    <ToolbarBtn
-                      onClick={() => editor?.chain().focus().toggleBulletList().run()}
+                    </TBtn>
+                    <TBtn
+                      onClick={() =>
+                        editor?.chain().focus().toggleBulletList().run()
+                      }
                       active={editor?.isActive("bulletList")}
                       title="Bullet list"
                     >
                       <List size={14} />
-                    </ToolbarBtn>
-
-                    {/* Outdent */}
-                    <ToolbarBtn
-                      onClick={() => editor?.chain().focus().liftListItem("listItem").run()}
+                    </TBtn>
+                    <TBtn
+                      onClick={() =>
+                        editor?.chain().focus().liftListItem("listItem").run()
+                      }
                       title="Decrease indent"
                     >
                       <Outdent size={14} />
-                    </ToolbarBtn>
-
-                    {/* Indent */}
-                    <ToolbarBtn
-                      onClick={() => editor?.chain().focus().sinkListItem("listItem").run()}
+                    </TBtn>
+                    <TBtn
+                      onClick={() =>
+                        editor?.chain().focus().sinkListItem("listItem").run()
+                      }
                       title="Increase indent"
                     >
                       <Indent size={14} />
-                    </ToolbarBtn>
+                    </TBtn>
 
-                    <ToolbarDivider />
+                    <TDivider />
 
-                    {/* Blockquote */}
-                    <ToolbarBtn
-                      onClick={() => editor?.chain().focus().toggleBlockquote().run()}
+                    <TBtn
+                      onClick={() =>
+                        editor?.chain().focus().toggleBlockquote().run()
+                      }
                       active={editor?.isActive("blockquote")}
-                      title="Quote"
+                      title="Blockquote"
                     >
                       <Quote size={14} />
-                    </ToolbarBtn>
-
-                    {/* Strikethrough */}
-                    <ToolbarBtn
-                      onClick={() => editor?.chain().focus().toggleStrike().run()}
+                    </TBtn>
+                    <TBtn
+                      onClick={() =>
+                        editor?.chain().focus().toggleStrike().run()
+                      }
                       active={editor?.isActive("strike")}
                       title="Strikethrough"
                     >
                       <Strikethrough size={14} />
-                    </ToolbarBtn>
+                    </TBtn>
                   </div>
 
-                  {/* Rich text body */}
+                  {/* ── Rich text body ───────────────────────────────── */}
                   <div
                     className={cn(
-                      "px-4 py-3 overflow-y-auto",
-                      fullscreen ? "flex-1 min-h-0" : "min-h-[160px] max-h-60",
+                      "px-4 py-3 overflow-y-auto cursor-text",
+                      fullscreen ? "flex-1 min-h-0" : "min-h-[160px] max-h-64",
                     )}
                     onClick={() => editor?.commands.focus()}
                   >
                     <EditorContent editor={editor} />
                   </div>
 
-                  {/* Attachment chips */}
+                  {/* ── Attachment chips ─────────────────────────────── */}
                   {attachments.length > 0 && (
                     <div className="px-4 py-2 border-t border-border flex flex-wrap gap-2 shrink-0">
                       {attachments.map((att, i) => (
@@ -645,7 +719,10 @@ export function MailCompose({
                           key={i}
                           className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-muted text-xs text-foreground max-w-[180px]"
                         >
-                          <FileText size={11} className="shrink-0 text-muted-foreground" />
+                          <FileText
+                            size={11}
+                            className="shrink-0 text-muted-foreground"
+                          />
                           <span className="truncate">{att.name}</span>
                           <span className="text-muted-foreground/60 shrink-0 text-[10px]">
                             {att.size}
@@ -661,7 +738,7 @@ export function MailCompose({
                     </div>
                   )}
 
-                  {/* Footer */}
+                  {/* ── Footer ──────────────────────────────────────── */}
                   <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-muted/30 shrink-0">
                     <div className="flex items-center gap-1">
                       <input
@@ -679,25 +756,13 @@ export function MailCompose({
                         <Paperclip size={15} />
                       </button>
                     </div>
-
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={handleSend}
-                        disabled={!to.trim()}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-sm bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold transition-all disabled:opacity-50 active:scale-[0.98]"
-                      >
-                        <Send size={13} /> Send
-                      </button>
-                      <button className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
-                        <ChevronDown size={15} />
-                      </button>
-                      <button
-                        onClick={onClose}
-                        className="p-1.5 rounded text-muted-foreground hover:text-rose-500 transition-colors"
-                      >
-                        <X size={15} />
-                      </button>
-                    </div>
+                    <button
+                      onClick={handleSend}
+                      disabled={!to.trim()}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-sm bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold transition-all disabled:opacity-50 active:scale-[0.98]"
+                    >
+                      <Send size={13} /> Send
+                    </button>
                   </div>
                 </motion.div>
               )}
