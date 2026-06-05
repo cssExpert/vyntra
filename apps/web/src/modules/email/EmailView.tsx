@@ -6,6 +6,7 @@ import { usePageLoad } from "@/hooks/usePageLoad";
 import { EmailPageSkeleton } from "@/components/common/DashboardSkeleton";
 import { Play } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Toaster, useToaster } from "@/components/common/Toaster";
 
 import { WorkflowBuilder } from "./components/WorkflowBuilder";
 import { AICopilot } from "./components/AICopilot";
@@ -58,15 +59,7 @@ const tabVariants = {
 export function EmailView() {
   const [activeTab, setActiveTab] = useState<TabId>("builder");
 
-  const [notifications, setNotifications] = useState<Toast[]>([]);
-  const notify = (message: string, type: Toast["type"] = "success") => {
-    const id = Date.now();
-    setNotifications((prev) => [...prev, { id, message, type }]);
-    setTimeout(
-      () => setNotifications((prev) => prev.filter((n) => n.id !== id)),
-      4000,
-    );
-  };
+  const { toasts: notifications, addToast: notify, dismiss: dismissNotification } = useToaster();
 
   const [mainSteps, setMainSteps] = useState<WorkflowStep[]>(
     INITIAL_WORKFLOW_STEPS,
@@ -269,43 +262,7 @@ export function EmailView() {
           transition={{ duration: 0.28, ease: "easeOut" }}
         >
     <>
-      {/* Toasts */}
-      <div className="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none">
-        <AnimatePresence>
-          {notifications.map((n) => (
-            <motion.div
-              key={n.id}
-              initial={{ opacity: 0, y: -20, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9, y: 10 }}
-              className={cn(
-                "p-4 rounded-xl shadow-xl border text-sm flex items-center gap-3 w-80 backdrop-blur-md pointer-events-auto",
-                n.type === "success"
-                  ? "bg-success/10 border-success/30 text-success"
-                  : n.type === "warning"
-                    ? "bg-warning/10 border-warning/30 text-warning"
-                    : n.type === "error"
-                      ? "bg-error/10 border-error/30 text-error"
-                      : "bg-primary/10 border-primary/30 text-primary",
-              )}
-            >
-              <div
-                className={cn(
-                  "w-2 h-2 rounded-full flex-shrink-0",
-                  n.type === "success"
-                    ? "bg-success"
-                    : n.type === "warning"
-                      ? "bg-warning"
-                      : n.type === "error"
-                        ? "bg-error"
-                        : "bg-primary",
-                )}
-              />
-              <p className="flex-1 font-medium">{n.message}</p>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
+      <Toaster toasts={notifications} onDismiss={dismissNotification} />
 
       {/* Page header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between">

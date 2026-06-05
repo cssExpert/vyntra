@@ -2,20 +2,21 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
-import { Plus, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { AnimatePresence } from "framer-motion";
+import { Plus } from "lucide-react";
 import SectionTitle from "@/components/common/SectionTitle";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
+import { Toaster, useToaster } from "@/components/common/Toaster";
 import type {
   Gallery,
   GalleryStatus,
   ViewMode,
   SortKey,
-  Toast,
 } from "./gallery/gallery.types";
 import { THEMES_DATA } from "./themes/themes.data";
-import { loadCustomThemes } from "./themes/theme-store";
+import { loadCustomThemes, deleteCustomTheme, loadThemeNodes } from "./themes/theme-store";
+import { TEMPLATES } from "@/components/editor/TemplatePicker";
+import { useEditorStore } from "@/store/editorStore";
 import { ThemeStats } from "./themes/ThemeStats";
 import { ThemeControls } from "./themes/ThemeControls";
 import { ThemeGrid } from "./themes/ThemeGrid";
@@ -30,7 +31,7 @@ export function ThemesView() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState<SortKey>("newest");
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
-  const [toasts, setToasts] = useState<Toast[]>([]);
+  const { toasts, addToast, dismiss } = useToaster();
 
   // Confirm-before-delete state
   const [pendingDelete, setPendingDelete] = useState<{ id: string; title: string } | null>(null);
@@ -39,15 +40,6 @@ export function ThemesView() {
     const custom = loadCustomThemes();
     if (custom.length > 0) setThemes([...custom, ...THEMES_DATA]);
   }, []);
-
-  const addToast = (message: string, type: Toast["type"] = "success") => {
-    const id = Date.now();
-    setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(
-      () => setToasts((prev) => prev.filter((t) => t.id !== id)),
-      4000,
-    );
-  };
 
   // Called by ThemeCard/ThemeTable — opens the confirm dialog
   const handleDeleteRequest = (id: string, title: string) => {
@@ -58,6 +50,7 @@ export function ThemesView() {
   // Called when user clicks "Delete" inside the dialog
   const handleConfirmDelete = () => {
     if (!pendingDelete) return;
+    deleteCustomTheme(pendingDelete.id);          // persist removal from localStorage
     setThemes((prev) => prev.filter((t) => t.id !== pendingDelete.id));
     addToast(`"${pendingDelete.title}" has been removed.`, "info");
     setPendingDelete(null);
@@ -72,8 +65,37 @@ export function ThemesView() {
     setActiveDropdownId(null);
   };
 
-  const handleNavigate = (_id: string) => {
-    router.push(`/cms/editor`);
+  const handleNavigate = (id: string) => {
+    const { setPendingNodes } = useEditorStore.getState();
+
+    // ── Custom (uploaded) theme ───────────────────────────────────────────────
+    // Custom theme IDs are prefixed "theme-" (set in UploadView handlePublish).
+    if (id.startsWith("theme-")) {
+      const customNodes = loadThemeNodes(id);
+      if (customNodes && customNodes.length > 0) {
+        setPendingNodes(customNodes);
+        router.push("/cms/editor");
+      } else {
+        // Nodes weren't saved — theme was published before editor-support was added.
+        // Ask the user to re-upload so nodes are captured this time.
+        addToast(
+          "Re-upload this theme's ZIP to enable editing in the Editor.",
+          "info",
+        );
+      }
+      return;
+    }
+
+    // ── Built-in template ─────────────────────────────────────────────────────
+    const template = TEMPLATES.find((t) => t.id === id);
+    if (template) {
+      setPendingNodes(template.buildNodes());
+      router.push("/cms/editor");
+      return;
+    }
+
+    // Fallback — open editor normally
+    router.push("/cms/editor");
   };
 
   const stats = useMemo(
@@ -115,49 +137,7 @@ export function ThemesView() {
 
   return (
     <div className="font-sans text-foreground pb-20">
-      {/* Toasts */}
-      <div className="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
-        <AnimatePresence>
-          {toasts.map((toast) => (
-            <motion.div
-              key={toast.id}
-              layout
-              initial={{ opacity: 0, y: -20, scale: 0.9, x: 50 }}
-              animate={{ opacity: 1, y: 0, scale: 1, x: 0 }}
-              exit={{ opacity: 0, scale: 0.85, x: 100 }}
-              transition={{ type: "spring", stiffness: 350, damping: 25 }}
-              className={cn(
-                "pointer-events-auto flex items-center justify-between p-4 rounded-xl shadow-lg border text-sm font-medium",
-                toast.type === "success"
-                  ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-100 dark:border-emerald-800/50"
-                  : toast.type === "error"
-                    ? "bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-100 dark:border-rose-800/50"
-                    : "bg-primary/5 dark:bg-primary/10 text-primary border-primary/20 dark:border-primary/30",
-              )}
-            >
-              <div className="flex items-center gap-2">
-                <span
-                  className={cn(
-                    "w-2 h-2 rounded-full",
-                    toast.type === "success"
-                      ? "bg-emerald-500"
-                      : toast.type === "error"
-                        ? "bg-rose-500"
-                        : "bg-primary",
-                  )}
-                />
-                <p>{toast.message}</p>
-              </div>
-              <button
-                onClick={() => setToasts((p) => p.filter((t) => t.id !== toast.id))}
-                className="text-muted-foreground hover:text-foreground transition-colors ml-4"
-              >
-                <X size={16} />
-              </button>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
+      <Toaster toasts={toasts} onDismiss={dismiss} />
 
       {/* Page header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">

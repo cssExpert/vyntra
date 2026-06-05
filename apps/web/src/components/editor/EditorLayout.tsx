@@ -103,10 +103,19 @@ export default function EditorLayout() {
     setBlockPickerOpen,
     showTemplatePicker,
     setShowTemplatePicker,
+    clearCanvas,
   } = useEditorStore();
 
-  // On mount: show picker only for new pages, never for existing ones
+  // On mount: load pending theme nodes if set, otherwise show/hide picker normally
   useEffect(() => {
+    const { pendingNodes, setPendingNodes } = useEditorStore.getState();
+    if (pendingNodes && pendingNodes.length > 0) {
+      clearCanvas();
+      pendingNodes.map(deepCloneWithNewIds).forEach((node) => addNode(node));
+      setPendingNodes(null);
+      setShowTemplatePicker(false);
+      return;
+    }
     setShowTemplatePicker(!isEditingExisting);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

@@ -11,7 +11,8 @@ import {
   generateMockPages,
   generateMockAssets,
 } from "@/lib/theme-parser";
-import { saveCustomTheme } from "../theme-store";
+import { saveCustomTheme, saveThemeNodes } from "../theme-store";
+import { convertHtmlToNodes } from "@/lib/theme-parser";
 import type {
   UploadStep,
   ProcessingStep,
@@ -216,6 +217,9 @@ export function UploadView() {
     };
 
     saveCustomTheme(gallery);
+    // Save the extracted nodes so "Open in Editor" can load them
+    const nodes = convertHtmlToNodes(result.previewHtml);
+    if (nodes.length > 0) saveThemeNodes(gallery.id, nodes);
     setIsPublishing(false);
     setStep("success");
   };

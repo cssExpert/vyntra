@@ -2369,7 +2369,7 @@ interface Template {
   buildNodes: () => EditorNode[];
 }
 
-const TEMPLATES: Template[] = [
+export const TEMPLATES: Template[] = [
   {
     id: "LUMIÈRE",
     name: "LUMIÈRE",

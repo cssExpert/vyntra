@@ -65,6 +65,10 @@ interface EditorState {
   // Template picker
   showTemplatePicker: boolean
   setShowTemplatePicker: (v: boolean) => void
+
+  // Pending nodes to load on next editor mount (set from Themes Hub)
+  pendingNodes: EditorNode[] | null
+  setPendingNodes: (nodes: EditorNode[] | null) => void
 }
 
 function findNodeById(nodes: EditorNode[], id: string): EditorNode | null {
@@ -131,6 +135,7 @@ export const useEditorStore = create<EditorState>()(
     showOutlines: true,
     blockPickerOpen: false,
     showTemplatePicker: false,
+    pendingNodes: null,
     // history[historyIndex] always reflects the current canvas state
     history: [[]],
     historyIndex: 0,
@@ -312,5 +317,6 @@ export const useEditorStore = create<EditorState>()(
 
     setBlockPickerOpen: (open) => set((state) => { state.blockPickerOpen = open }),
     setShowTemplatePicker: (v) => set((state) => { state.showTemplatePicker = v }),
+    setPendingNodes: (nodes) => set((state) => { state.pendingNodes = nodes }),
   }))
 )
