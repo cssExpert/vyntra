@@ -14,7 +14,8 @@ import type {
   SortKey,
 } from "./gallery/gallery.types";
 import { THEMES_DATA } from "./themes/themes.data";
-import { loadCustomThemes, deleteCustomTheme, loadThemeNodes } from "./themes/theme-store";
+import { loadCustomThemes, deleteCustomTheme, updateCustomTheme, loadThemeNodes } from "./themes/theme-store";
+import { ThemeEditModal } from "./themes/ThemeEditModal";
 import { TEMPLATES } from "@/components/editor/TemplatePicker";
 import { useEditorStore } from "@/store/editorStore";
 import { ThemeStats } from "./themes/ThemeStats";
@@ -36,10 +37,25 @@ export function ThemesView() {
   // Confirm-before-delete state
   const [pendingDelete, setPendingDelete] = useState<{ id: string; title: string } | null>(null);
 
+  // Edit modal state
+  const [editingTheme, setEditingTheme] = useState<Gallery | null>(null);
+
   useEffect(() => {
     const custom = loadCustomThemes();
     if (custom.length > 0) setThemes([...custom, ...THEMES_DATA]);
   }, []);
+
+  const handleEditRequest = (id: string) => {
+    const theme = themes.find((t) => t.id === id) ?? null;
+    setEditingTheme(theme);
+    setActiveDropdownId(null);
+  };
+
+  const handleSaveEdit = (id: string, patch: Partial<Gallery>) => {
+    updateCustomTheme(id, patch);
+    setThemes((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)));
+    addToast("Theme updated successfully.", "success");
+  };
 
   // Called by ThemeCard/ThemeTable — opens the confirm dialog
   const handleDeleteRequest = (id: string, title: string) => {
@@ -184,6 +200,7 @@ export function ThemesView() {
             onDelete={handleDeleteRequest}
             onResetFilters={() => { setSearchQuery(""); setSelectedCategory("All"); }}
             onNavigate={handleNavigate}
+            onEdit={handleEditRequest}
           />
         ) : (
           <ThemeTable
@@ -194,9 +211,17 @@ export function ThemesView() {
             onToggleStatus={handleToggleStatus}
             onDelete={handleDeleteRequest}
             onNavigate={handleNavigate}
+            onEdit={handleEditRequest}
           />
         )}
       </AnimatePresence>
+
+      {/* Edit modal */}
+      <ThemeEditModal
+        theme={editingTheme}
+        onClose={() => setEditingTheme(null)}
+        onSave={handleSaveEdit}
+      />
 
       {/* Delete confirmation dialog */}
       <ConfirmDialog

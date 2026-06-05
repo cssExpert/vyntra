@@ -13,6 +13,7 @@ interface ThemeGridProps {
   onDelete: (id: string, title: string) => void;
   onResetFilters: () => void;
   onNavigate: (id: string) => void;
+  onEdit: (id: string) => void;
 }
 
 export function ThemeGrid({
@@ -23,6 +24,7 @@ export function ThemeGrid({
   onDelete,
   onResetFilters,
   onNavigate,
+  onEdit,
 }: ThemeGridProps) {
   if (themes.length === 0) {
     return (
@@ -68,6 +70,7 @@ export function ThemeGrid({
           onToggleStatus={onToggleStatus}
           onDelete={onDelete}
           onNavigate={onNavigate}
+          onEdit={onEdit}
         />
       ))}
     </motion.div>

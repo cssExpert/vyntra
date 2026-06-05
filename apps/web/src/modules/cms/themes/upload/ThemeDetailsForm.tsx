@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { THEME_CATEGORIES } from "../themes.data";
 import type { ThemeFormData } from "../upload-types";
@@ -21,8 +21,10 @@ const themeCategories = THEME_CATEGORIES.filter((c) => c !== "All");
 export function ThemeDetailsForm({ data, onChange }: ThemeDetailsFormProps) {
   const [tagInput, setTagInput] = useState("");
 
-  const set = <K extends keyof ThemeFormData>(key: K, value: ThemeFormData[K]) =>
-    onChange({ ...data, [key]: value });
+  const set = <K extends keyof ThemeFormData>(
+    key: K,
+    value: ThemeFormData[K],
+  ) => onChange({ ...data, [key]: value });
 
   const addTag = (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -33,7 +35,11 @@ export function ThemeDetailsForm({ data, onChange }: ThemeDetailsFormProps) {
     }
   };
 
-  const removeTag = (tag: string) => set("tags", data.tags.filter((t) => t !== tag));
+  const removeTag = (tag: string) =>
+    set(
+      "tags",
+      data.tags.filter((t) => t !== tag),
+    );
 
   return (
     <div className="space-y-5">
@@ -73,7 +79,9 @@ export function ThemeDetailsForm({ data, onChange }: ThemeDetailsFormProps) {
             className={cn(inputCls, "cursor-pointer font-semibold")}
           >
             {themeCategories.map((c) => (
-              <option key={c} value={c}>{c}</option>
+              <option key={c} value={c}>
+                {c}
+              </option>
             ))}
           </select>
         </div>
@@ -104,7 +112,12 @@ export function ThemeDetailsForm({ data, onChange }: ThemeDetailsFormProps) {
           />
         </div>
         <div>
-          <label className={labelCls}>Thumbnail URL <span className="text-muted-foreground/60 lowercase normal-case font-normal">(optional)</span></label>
+          <label className={labelCls}>
+            Thumbnail URL{" "}
+            <span className="text-muted-foreground/60 lowercase normal-case font-normal">
+              (optional)
+            </span>
+          </label>
           <input
             type="url"
             value={data.thumbnailUrl}
@@ -124,14 +137,20 @@ export function ThemeDetailsForm({ data, onChange }: ThemeDetailsFormProps) {
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
             placeholder="Tag name & press Enter..."
-            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                addTag();
+              }
+            }}
             className={cn(inputCls, "flex-1")}
           />
           <button
             type="button"
             onClick={() => addTag()}
-            className="px-3 py-2.5 bg-muted hover:bg-muted/80 text-foreground rounded-sm text-xs font-bold transition-colors border border-border cursor-pointer"
+            className="px-3 py-2.5 inline-flex items-center gap-1 bg-muted hover:bg-muted/80 text-foreground rounded-sm text-xs font-bold transition-colors border border-border cursor-pointer"
           >
+            <Plus className="w-3.5 h-3.5" />
             Add
           </button>
         </div>
