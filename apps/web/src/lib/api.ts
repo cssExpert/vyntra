@@ -201,6 +201,57 @@ export interface AdminUser {
   organization?: { id: string; name: string } | null;
 }
 
+// ─── Domain types ────────────────────────────────────────
+export interface OrgDomain {
+  id: string;
+  subdomain: string | null;
+  customDomain: string | null;
+  customDomainVerified: boolean;
+  domainVerificationToken: string | null;
+}
+
+export interface DnsRecord {
+  type: "A" | "CNAME" | "TXT";
+  name: string;
+  value: string;
+  ttl: number;
+  note: string;
+}
+
+export interface DnsInfo {
+  subdomain: string | null;
+  subdomainUrl: string | null;
+  platformDomain: string;
+  platformIp: string;
+  customDomain: string | null;
+  customDomainVerified: boolean;
+  dnsRecords: DnsRecord[];
+}
+
+export interface VerifyDomainResult {
+  verified: boolean;
+  message: string;
+}
+
+// ─── Org admin domain endpoints ──────────────────────────
+export const orgDomain = {
+  get: () => apiFetch<OrgDomain>("/organizations/me/domain"),
+  setCustom: (customDomain: string) =>
+    apiFetch<OrgDomain>("/organizations/me/domain/custom", {
+      method: "PATCH",
+      body: JSON.stringify({ customDomain }),
+    }),
+  clearCustom: () =>
+    apiFetch<OrgDomain>("/organizations/me/domain/custom", {
+      method: "DELETE",
+    }),
+  verify: () =>
+    apiFetch<VerifyDomainResult>("/organizations/me/domain/verify", {
+      method: "POST",
+    }),
+  dnsInfo: () => apiFetch<DnsInfo>("/organizations/me/domain/dns-info"),
+};
+
 // ─── Super-admin endpoints ───────────────────────────────
 export const admin = {
   // Organizations
@@ -255,4 +306,33 @@ export const admin = {
   listUsers: () => apiFetch<AdminUser[]>("/admin/users"),
   promoteUser: (id: string) =>
     apiFetch<AdminUser>(`/admin/users/${id}/promote`, { method: "PUT" }),
+
+  // Domains
+  getDomain: (id: string) =>
+    apiFetch<OrgDomain>(`/admin/organizations/${id}/domain`),
+  setSubdomain: (id: string, subdomain: string) =>
+    apiFetch<OrgDomain>(`/admin/organizations/${id}/domain/subdomain`, {
+      method: "PATCH",
+      body: JSON.stringify({ subdomain }),
+    }),
+  clearSubdomain: (id: string) =>
+    apiFetch<OrgDomain>(`/admin/organizations/${id}/domain/subdomain`, {
+      method: "DELETE",
+    }),
+  setCustomDomain: (id: string, customDomain: string) =>
+    apiFetch<OrgDomain>(`/admin/organizations/${id}/domain/custom`, {
+      method: "PATCH",
+      body: JSON.stringify({ customDomain }),
+    }),
+  clearCustomDomain: (id: string) =>
+    apiFetch<OrgDomain>(`/admin/organizations/${id}/domain/custom`, {
+      method: "DELETE",
+    }),
+  verifyDomain: (id: string) =>
+    apiFetch<VerifyDomainResult>(
+      `/admin/organizations/${id}/domain/verify`,
+      { method: "POST" },
+    ),
+  getDnsInfo: (id: string) =>
+    apiFetch<DnsInfo>(`/admin/organizations/${id}/domain/dns-info`),
 };

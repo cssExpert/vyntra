@@ -7,6 +7,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { ModuleAccessGuard } from './common/guards/module-access.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { AuditLogInterceptor } from './common/interceptors/audit-log.interceptor';
+import { DomainsModule } from './domains/domains.module';
 import { HealthModule } from './health/health.module';
 import { ModulesModule } from './modules/modules.module';
 import { OrganizationsModule } from './organizations/organizations.module';
@@ -24,6 +25,7 @@ import { UsersModule } from './users/users.module';
     OrganizationsModule,
     PackagesModule,
     ModulesModule,
+    DomainsModule,
     // CmsModule + CrmModule added in the next phase.
   ],
   providers: [

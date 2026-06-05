@@ -89,6 +89,12 @@ model Organization {
   emailNotifications Boolean @default(true)
   slackNotifications Boolean @default(false)
 
+  // Domain / hosting
+  subdomain               String?  @unique // e.g. "acme" → acme.vyntra.com; set by super admin
+  customDomain            String?  @unique // e.g. "acme.com"; set by super admin or org admin
+  customDomainVerified    Boolean  @default(false)
+  domainVerificationToken String?  @unique
+
   // Relations
   users        User[]        @relation("OrganizationUsers")
   userRoles    UserRole[]
