@@ -2,7 +2,7 @@
 
 import { useRef, useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { UploadCloud, FileArchive, CheckCircle2, X, AlertCircle } from "lucide-react";
+import { UploadCloud, FileArchive, CheckCircle2, X, AlertCircle, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ThemeUploadCardProps {
@@ -101,13 +101,19 @@ export function ThemeUploadCard({ file, onChange, error }: ThemeUploadCardProps)
                 <p className="text-sm text-muted-foreground mt-0.5">or click to browse</p>
               </div>
               <div className="flex flex-wrap items-center justify-center gap-1.5 mt-1">
-                {["HTML", "CSS", "JS", "Images", "Fonts", "Assets", "Thumbnail"].map((label) => (
+                {["HTML", "CSS", "JS", "Images", "Fonts", "Assets"].map((label) => (
                   <span key={label} className="px-2 py-0.5 text-[11px] font-medium bg-muted text-muted-foreground border border-border rounded-full">
                     {label}
                   </span>
                 ))}
               </div>
               <p className="text-xs text-muted-foreground/70 mt-1">Max size: {MAX_SIZE_MB} MB</p>
+              <div className="flex items-start gap-1.5 mt-2 px-3 py-2 bg-primary/5 border border-primary/20 rounded-lg text-left max-w-xs">
+                <Info className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Include <span className="font-semibold text-foreground font-mono">thumbnail.png</span> in the ZIP root — it will be auto-used as the cover image on the listings page.
+                </p>
+              </div>
             </motion.div>
           ) : (
             <motion.div
@@ -136,6 +142,9 @@ export function ThemeUploadCard({ file, onChange, error }: ThemeUploadCardProps)
                 <X className="w-3.5 h-3.5" />
                 Remove
               </button>
+              <p className="text-[11px] text-muted-foreground/70 mt-1">
+                <span className="font-mono font-semibold text-foreground/60">thumbnail.png</span> in root → auto cover image
+              </p>
             </motion.div>
           )}
         </AnimatePresence>

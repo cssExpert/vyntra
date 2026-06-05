@@ -162,15 +162,14 @@ export function UploadView() {
       extracted?.pages.length ? extracted.pages : generateMockPages(formData.category);
     const assets = extracted?.assets ?? generateMockAssets();
 
-    setResult({
-      pages,
-      assets,
-      previewHtml,
-      coverUrl:
-        formData.thumbnailUrl ||
-        FALLBACK_COVERS[formData.category] ||
-        FALLBACK_COVERS.Portfolio,
-    });
+    // Thumbnail priority: auto-detected from ZIP > manually entered URL > category fallback
+    const coverUrl =
+      extracted?.thumbnailDataUrl ||
+      formData.thumbnailUrl ||
+      FALLBACK_COVERS[formData.category] ||
+      FALLBACK_COVERS.Portfolio;
+
+    setResult({ pages, assets, previewHtml, coverUrl });
     setStep("preview");
   };
 
@@ -211,10 +210,7 @@ export function UploadView() {
       itemCount: result.pages.length,
       createdAt: today,
       status: "published" as const,
-      coverUrl:
-        formData.thumbnailUrl ||
-        FALLBACK_COVERS[formData.category] ||
-        FALLBACK_COVERS.Portfolio,
+      coverUrl: result.coverUrl,
       tags: formData.tags.length > 0 ? formData.tags : ["Custom"],
       views: 0,
     };

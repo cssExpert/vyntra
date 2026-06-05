@@ -13,6 +13,8 @@ export interface ZipExtractResult {
   html: string;
   pages: ThemePage[];
   assets: ThemeAssets;
+  /** base64 data URI of thumbnail.png (or equivalent) if found in the ZIP root */
+  thumbnailDataUrl?: string;
 }
 
 const IMG_EXTS  = /\.(png|jpe?g|gif|svg|webp|ico|avif)$/i;
@@ -201,10 +203,41 @@ export async function extractZipHtml(file: File): Promise<ZipExtractResult> {
     if (!isExternal) s.remove();
   }
 
+  // ── Detect thumbnail — case-insensitive scan of all paths ───────────────────
+  // Map.get() is case-sensitive, so we scan every path and compare lowercase.
+  // Accepted stems (case-insensitive): thumbnail, preview, screenshot, cover.
+  // Prefer shallow paths (root first), then baseDir, then anywhere in the ZIP.
+  const THUMB_STEMS  = new Set(["thumbnail", "preview", "screenshot", "cover"]);
+  const THUMB_EXTS   = new Set(["png", "jpg", "jpeg", "webp"]);
+
+  // Sort paths: shallower first so root-level files win over nested ones.
+  const sortedPaths = [...paths].sort(
+    (a, b) => a.split("/").length - b.split("/").length,
+  );
+
+  let thumbnailDataUrl: string | undefined;
+  for (const p of sortedPaths) {
+    const lowerName = (p.split("/").pop() ?? "").toLowerCase();
+    const dotIdx    = lowerName.lastIndexOf(".");
+    if (dotIdx === -1) continue;
+    const stem = lowerName.slice(0, dotIdx);
+    const ex   = lowerName.slice(dotIdx + 1);
+    if (!THUMB_STEMS.has(stem) || !THUMB_EXTS.has(ex)) continue;
+
+    const loader = b64Map.get(p);
+    if (!loader) continue;
+    try {
+      const b64  = await loader();
+      const mime = MIME[ex] ?? "image/png";
+      thumbnailDataUrl = `data:${mime};base64,${b64}`;
+    } catch { /* skip */ }
+    break; // first match wins
+  }
+
   // ── Serialize back to a full HTML document ──────────────────────────────────
   const finalHtml = "<!DOCTYPE html>\n" + doc.documentElement.outerHTML;
 
-  return { html: finalHtml, pages, assets };
+  return { html: finalHtml, pages, assets, thumbnailDataUrl };
 }
 
 // ---------------------------------------------------------------------------
