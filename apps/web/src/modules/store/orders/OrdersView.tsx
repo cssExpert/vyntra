@@ -11,26 +11,29 @@ import type { OrderStatus } from "../store.types";
 import { cn } from "@/lib/utils";
 
 const ORDER_TABS: { id: "all" | OrderStatus; label: string }[] = [
-  { id: "all",        label: "All Orders" },
-  { id: "pending",    label: "Pending" },
+  { id: "all", label: "All Orders" },
+  { id: "pending", label: "Pending" },
   { id: "processing", label: "Processing" },
-  { id: "shipped",    label: "Shipped" },
-  { id: "delivered",  label: "Delivered" },
-  { id: "cancelled",  label: "Cancelled" },
-  { id: "refunded",   label: "Refunded" },
+  { id: "shipped", label: "Shipped" },
+  { id: "delivered", label: "Delivered" },
+  { id: "cancelled", label: "Cancelled" },
+  { id: "refunded", label: "Refunded" },
 ];
 
-const selectCls = "rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all cursor-pointer";
+const selectCls =
+  "rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all cursor-pointer";
 
 export function OrdersView() {
   const isLoaded = usePageLoad(700);
 
   useEffect(() => {
     document.documentElement.style.overflow = "hidden";
-    return () => { document.documentElement.style.overflow = ""; };
+    return () => {
+      document.documentElement.style.overflow = "";
+    };
   }, []);
   const [activeTab, setActiveTab] = useState<"all" | OrderStatus>("all");
-  const [search,    setSearch]    = useState("");
+  const [search, setSearch] = useState("");
   const [payFilter, setPayFilter] = useState("");
 
   const filtered = useMemo(() => {
@@ -54,7 +57,12 @@ export function OrdersView() {
   return (
     <AnimatePresence mode="wait" initial={false}>
       {!isLoaded ? (
-        <motion.div key="sk" exit={{ opacity: 0 }} transition={{ duration: 0.12 }} className="space-y-4">
+        <motion.div
+          key="sk"
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.12 }}
+          className="space-y-4"
+        >
           <div className="h-9 w-48 rounded-sm bg-muted animate-pulse" />
           <div className="h-8 w-full rounded-sm bg-muted animate-pulse" />
           <div className="h-72 w-full rounded-xl bg-muted animate-pulse" />
@@ -70,7 +78,10 @@ export function OrdersView() {
           <PageHeader
             title="Orders"
             description={`${SAMPLE_ORDERS.length} orders · $${total.toFixed(2)} total revenue`}
-            breadcrumbs={[{ label: "Store", href: "/store" }, { label: "Orders" }]}
+            breadcrumbs={[
+              { label: "Store", href: "/store" },
+              { label: "Orders" },
+            ]}
           >
             <button className="flex items-center gap-2 rounded-sm border border-border bg-transparent px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer">
               <Download className="h-3.5 w-3.5" />
@@ -85,18 +96,20 @@ export function OrdersView() {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  "relative flex items-center px-3 min-h-10 max-h-10 rounded-lg text-sm font-medium whitespace-nowrap cursor-pointer transition-colors duration-150",
-                  activeTab === tab.id ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                  "relative flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold cursor-pointer transition-colors duration-150 text-primary-foreground",
+                  activeTab === tab.id
+                    ? "text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {activeTab === tab.id && (
                   <motion.div
                     layoutId="store-orders-tab"
-                    className="absolute inset-0 rounded-lg bg-background shadow-sm -z-10"
+                    className="absolute inset-0 rounded-lg bg-primary shadow-md"
                     transition={{ type: "spring", bounce: 0.2, duration: 0.35 }}
                   />
                 )}
-                {tab.label}
+                <span className="relative z-10">{tab.label}</span>
               </button>
             ))}
           </div>
@@ -114,12 +127,19 @@ export function OrdersView() {
                 className="w-full pl-10 pr-4 py-2.5 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm"
               />
               {search && (
-                <button onClick={() => setSearch("")} className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+                <button
+                  onClick={() => setSearch("")}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                >
                   <X size={16} />
                 </button>
               )}
             </div>
-            <select value={payFilter} onChange={(e) => setPayFilter(e.target.value)} className={selectCls}>
+            <select
+              value={payFilter}
+              onChange={(e) => setPayFilter(e.target.value)}
+              className={selectCls}
+            >
               <option value="">All Payments</option>
               <option value="paid">Paid</option>
               <option value="pending">Pending</option>
