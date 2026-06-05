@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import EditorLayout from "@/components/editor/EditorLayout";
 
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function CmsEditorPage() {
-  return <EditorLayout />;
+  return (
+    <Suspense>
+      <EditorLayout />
+    </Suspense>
+  );
 }

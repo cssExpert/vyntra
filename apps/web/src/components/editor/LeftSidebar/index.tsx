@@ -184,7 +184,7 @@ export default function LeftSidebar() {
                 className={cn(
                   "relative z-10 flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-medium transition-colors duration-200",
                   active
-                    ? "text-dark dark:text-primary-foreground font-semibold"
+                    ? "text-foreground dark:text-primary-foreground font-semibold"
                     : "text-muted-foreground dark:text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground",
                 )}
               >

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useCallback, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   DndContext,
   DragOverlay,
@@ -44,13 +45,20 @@ function deepCloneWithNewIds(node: EditorNode): EditorNode {
   };
 }
 
-function EditorHeader() {
+function EditorHeader({ pageSlug }: { pageSlug: string | null }) {
+  const pageTitle = pageSlug
+    ? pageSlug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+    : "New Page";
+
   return (
     <header
       className="shrink-0 h-auto flex items-center justify-between px-8 pt-4 z-40
       bg-transparent"
     >
-      <ThemeToggle />
+      <div className="flex items-center gap-3">
+        <ThemeToggle />
+        <span className="text-sm font-semibold text-foreground">{pageTitle}</span>
+      </div>
       {/* Right actions */}
       <div className="flex items-center gap-3">
         <div className="inline-flex items-center gap-2">
@@ -80,6 +88,10 @@ function containsNode(node: EditorNode, id: string): boolean {
 }
 
 export default function EditorLayout() {
+  const searchParams = useSearchParams();
+  const pageSlug = searchParams.get("page");
+  const isEditingExisting = Boolean(pageSlug);
+
   const {
     addNode,
     reorderNodes,
@@ -88,7 +100,8 @@ export default function EditorLayout() {
     blockPickerOpen,
     setBlockPickerOpen,
   } = useEditorStore();
-  const [showTemplatePicker, setShowTemplatePicker] = useState(true);
+  // Skip template picker when editing an existing page; show it only for new pages
+  const [showTemplatePicker, setShowTemplatePicker] = useState(!isEditingExisting);
 
   function handleInsertBlock(block: ComponentBlock) {
     const { nodes, selectedId } = useEditorStore.getState();
@@ -207,7 +220,7 @@ export default function EditorLayout() {
         <div className="flex flex-1 min-h-0 overflow-hidden select-none">
           <LeftSidebar />
           <div className="flex-1 flex flex-col min-w-0 canvas-container overflow-hidden bg-muted dark:bg-background">
-            <EditorHeader />
+            <EditorHeader pageSlug={pageSlug} />
             <Canvas />
             <BottomToolbar />
           </div>

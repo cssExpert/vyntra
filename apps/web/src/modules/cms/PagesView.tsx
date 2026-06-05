@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
@@ -270,6 +271,7 @@ function parseMDY(s: string): Date | null {
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export function PagesView() {
+  const router = useRouter();
   const [pages, setPages] = useState<CmsPage[]>(INITIAL_PAGES);
   const [searchTerm, setSearchTerm] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -342,14 +344,7 @@ export function PagesView() {
   }, [pages, activeFilters]);
 
   const handleEditPageClick = (page: CmsPage) => {
-    setEditingPage(page);
-    setEditFormData({
-      title: page.title,
-      slug: page.slug,
-      author: page.author,
-      status: page.status,
-    });
-    setIsModalOpen(true);
+    router.push(`/cms/editor?page=${encodeURIComponent(page.slug)}`);
   };
 
   const handleEditSubmit = (e: React.FormEvent) => {
@@ -544,9 +539,7 @@ export function PagesView() {
   const pageCount = table.getPageCount();
   const selectedCount = Object.keys(rowSelection).length;
   const handleAddPageClick = () => {
-    setEditingPage(null);
-    setEditFormData({ title: "", slug: "", author: "", status: "Public" });
-    setIsModalOpen(true);
+    router.push("/cms/editor");
   };
 
   return (

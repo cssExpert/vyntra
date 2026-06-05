@@ -26,26 +26,26 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "section",
       "section",
-      "relative bg-gradient-to-br from-slate-900 to-slate-800 py-24 px-6 text-center min-h-[600px] flex items-center justify-center",
+      "relative bg-gradient-to-br from-slate-900 to-slate-800 py-24 px-6 text-center min-h-[560px] flex items-center justify-center",
       undefined,
       [
         makeNode("div", "div", "max-w-4xl mx-auto", undefined, [
           makeNode(
             "span",
             "span",
-            "inline-block bg-indigo-500/20 text-indigo-400 text-xs font-semibold px-3 py-1 rounded-full mb-4 uppercase tracking-widest",
+            "inline-block bg-indigo-500/20 text-indigo-300 text-xs font-semibold px-3 py-1 rounded-full mb-6 uppercase tracking-widest border border-indigo-500/30",
             "New Release",
           ),
           makeNode(
             "h1",
             "h1",
-            "text-5xl @md:text-7xl font-extrabold text-white mb-6 leading-tight tracking-tight",
+            "text-5xl font-extrabold text-white mb-6 leading-tight tracking-tight",
             "Build beautiful websites faster",
           ),
           makeNode(
             "p",
             "p",
-            "text-xl text-slate-400 mb-8 max-w-2xl mx-auto",
+            "text-lg text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed",
             "The most powerful drag-and-drop builder for modern web projects. No code required.",
           ),
           makeNode(
@@ -57,7 +57,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
               makeNode(
                 "a",
                 "a",
-                "bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-8 py-3 rounded-xl transition-all",
+                "bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-8 py-3 rounded-xl transition-colors inline-block",
                 "Get Started Free",
                 undefined,
                 { href: "#" },
@@ -65,7 +65,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
               makeNode(
                 "a",
                 "a",
-                "border border-slate-600 hover:border-slate-400 text-slate-300 hover:text-white font-semibold px-8 py-3 rounded-xl transition-all",
+                "border border-slate-500 hover:border-slate-300 text-slate-300 hover:text-white font-semibold px-8 py-3 rounded-xl transition-colors inline-block",
                 "View Demo",
                 undefined,
                 { href: "#" },
@@ -81,45 +81,64 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     label: "Hero Split",
     category: "Hero",
     icon: "layout",
-    template: makeNode("section", "section", "bg-white py-20 px-6", undefined, [
-      makeNode(
-        "div",
-        "div",
-        "max-w-6xl mx-auto grid grid-cols-1 @md:grid-cols-2 gap-12 items-center",
-        undefined,
-        [
-          makeNode("div", "div", "", undefined, [
+    template: makeNode(
+      "section",
+      "section",
+      "bg-white py-20 px-6",
+      undefined,
+      [
+        makeNode(
+          "div",
+          "div",
+          "max-w-6xl mx-auto grid grid-cols-1 @md:grid-cols-2 gap-12 items-center",
+          undefined,
+          [
+            makeNode("div", "div", "", undefined, [
+              makeNode(
+                "span",
+                "span",
+                "inline-block text-blue-600 text-xs font-semibold uppercase tracking-widest mb-4",
+                "Welcome",
+              ),
+              makeNode(
+                "h1",
+                "h1",
+                "text-4xl font-bold text-gray-900 mb-5 leading-tight",
+                "The future of web design is here",
+              ),
+              makeNode(
+                "p",
+                "p",
+                "text-gray-500 text-lg mb-8 leading-relaxed",
+                "Create stunning pages visually with our next-generation editor.",
+              ),
+              makeNode(
+                "a",
+                "a",
+                "bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-lg inline-block transition-colors",
+                "Start Building",
+                undefined,
+                { href: "#" },
+              ),
+            ]),
             makeNode(
-              "h1",
-              "h1",
-              "text-5xl font-bold text-gray-900 mb-5 leading-tight",
-              "The future of web design is here",
-            ),
-            makeNode(
-              "p",
-              "p",
-              "text-gray-500 text-lg mb-8",
-              "Create stunning pages visually with our next-generation editor.",
-            ),
-            makeNode(
-              "a",
-              "a",
-              "bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-lg inline-block",
-              "Start Building",
+              "div",
+              "div",
+              "bg-gradient-to-br from-blue-100 to-indigo-200 rounded-2xl aspect-video flex items-center justify-center",
               undefined,
-              { href: "#" },
+              [
+                makeNode(
+                  "span",
+                  "span",
+                  "text-4xl",
+                  "🖼️",
+                ),
+              ],
             ),
-          ]),
-          makeNode(
-            "div",
-            "div",
-            "bg-gradient-to-br from-blue-100 to-indigo-200 rounded-2xl aspect-video",
-            undefined,
-            [],
-          ),
-        ],
-      ),
-    ]),
+          ],
+        ),
+      ],
+    ),
   },
 
   // ─── NAVBAR ────────────────────────────────────────────────────
@@ -131,7 +150,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "nav",
       "nav",
-      "bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-50",
+      "bg-white border-b border-gray-200 px-6 py-4",
       undefined,
       [
         makeNode(
@@ -157,7 +176,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
                 makeNode(
                   "a",
                   "a",
-                  "text-gray-600 hover:text-gray-900 text-sm font-medium",
+                  "text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors",
                   "Features",
                   undefined,
                   { href: "#" },
@@ -165,7 +184,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
                 makeNode(
                   "a",
                   "a",
-                  "text-gray-600 hover:text-gray-900 text-sm font-medium",
+                  "text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors",
                   "Pricing",
                   undefined,
                   { href: "#" },
@@ -173,7 +192,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
                 makeNode(
                   "a",
                   "a",
-                  "text-gray-600 hover:text-gray-900 text-sm font-medium",
+                  "text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors",
                   "About",
                   undefined,
                   { href: "#" },
@@ -181,7 +200,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
                 makeNode(
                   "a",
                   "a",
-                  "bg-blue-600 text-white text-sm font-semibold px-5 py-2 rounded-lg",
+                  "bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors",
                   "Get Started",
                   undefined,
                   { href: "#" },
@@ -201,7 +220,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "nav",
       "nav",
-      "bg-slate-900 px-6 py-4 sticky top-0 z-50",
+      "bg-slate-900 px-6 py-4",
       undefined,
       [
         makeNode(
@@ -222,7 +241,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
               makeNode(
                 "a",
                 "a",
-                "text-slate-400 hover:text-white text-sm",
+                "text-slate-400 hover:text-white text-sm transition-colors",
                 "Home",
                 undefined,
                 { href: "#" },
@@ -230,7 +249,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
               makeNode(
                 "a",
                 "a",
-                "text-slate-400 hover:text-white text-sm",
+                "text-slate-400 hover:text-white text-sm transition-colors",
                 "Docs",
                 undefined,
                 { href: "#" },
@@ -238,7 +257,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
               makeNode(
                 "a",
                 "a",
-                "bg-indigo-600 text-white text-sm font-semibold px-5 py-2 rounded-lg",
+                "bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors",
                 "Sign Up",
                 undefined,
                 { href: "#" },
@@ -273,7 +292,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
             makeNode(
               "p",
               "p",
-              "text-gray-500 max-w-xl mx-auto",
+              "text-gray-500 max-w-xl mx-auto text-lg",
               "Powerful features to help you build, ship, and scale your website.",
             ),
           ]),
@@ -284,37 +303,17 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
             undefined,
             [
               ...[
-                [
-                  "⚡",
-                  "Lightning Fast",
-                  "Optimized for performance with zero compromises.",
-                ],
-                [
-                  "🎨",
-                  "Beautiful Design",
-                  "Pixel-perfect components ready to use.",
-                ],
-                [
-                  "🔒",
-                  "Secure by Default",
-                  "Enterprise-grade security out of the box.",
-                ],
+                ["⚡", "Lightning Fast", "Optimized for performance with zero compromises."],
+                ["🎨", "Beautiful Design", "Pixel-perfect components ready to use."],
+                ["🔒", "Secure by Default", "Enterprise-grade security out of the box."],
                 ["📱", "Fully Responsive", "Looks great on every screen size."],
-                [
-                  "🔧",
-                  "Easy to Customize",
-                  "Tailor everything to match your brand.",
-                ],
-                [
-                  "🚀",
-                  "Quick Deploy",
-                  "Go live in minutes with one-click deployment.",
-                ],
+                ["🔧", "Easy to Customize", "Tailor everything to match your brand."],
+                ["🚀", "Quick Deploy", "Go live in minutes with one-click deployment."],
               ].map(([icon, title, desc]) =>
                 makeNode(
                   "div",
                   "div",
-                  "bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow",
+                  "bg-white rounded-2xl p-6 border border-gray-100 shadow-sm",
                   undefined,
                   [
                     makeNode("div", "div", "text-3xl mb-4", icon as string),
@@ -346,115 +345,116 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     label: "Pricing Cards",
     category: "Pricing",
     icon: "dollar-sign",
-    template: makeNode("section", "section", "py-20 px-6 bg-white", undefined, [
-      makeNode("div", "div", "max-w-5xl mx-auto", undefined, [
-        makeNode("div", "div", "text-center mb-14", undefined, [
+    template: makeNode(
+      "section",
+      "section",
+      "py-20 px-6 bg-white",
+      undefined,
+      [
+        makeNode("div", "div", "max-w-5xl mx-auto", undefined, [
+          makeNode("div", "div", "text-center mb-14", undefined, [
+            makeNode(
+              "h2",
+              "h2",
+              "text-4xl font-bold text-gray-900 mb-3",
+              "Simple, transparent pricing",
+            ),
+            makeNode(
+              "p",
+              "p",
+              "text-gray-500 text-lg",
+              "Choose the plan that works best for you.",
+            ),
+          ]),
           makeNode(
-            "h2",
-            "h2",
-            "text-4xl font-bold text-gray-900 mb-3",
-            "Simple, transparent pricing",
-          ),
-          makeNode(
-            "p",
-            "p",
-            "text-gray-500",
-            "Choose the plan that works best for you.",
-          ),
-        ]),
-        makeNode(
-          "div",
-          "div",
-          "grid grid-cols-1 @md:grid-cols-3 gap-8",
-          undefined,
-          [
-            ...[
-              {
-                name: "Starter",
-                price: "$9",
-                features: ["5 Projects", "10GB Storage", "Basic Support"],
-              },
-              {
-                name: "Pro",
-                price: "$29",
-                features: [
-                  "Unlimited Projects",
-                  "100GB Storage",
-                  "Priority Support",
-                  "Custom Domain",
-                ],
-                highlighted: true,
-              },
-              {
-                name: "Enterprise",
-                price: "$99",
-                features: [
-                  "Everything in Pro",
-                  "SSO",
-                  "SLA",
-                  "Dedicated Manager",
-                ],
-              },
-            ].map((plan) =>
-              makeNode(
-                "div",
-                "div",
-                `rounded-2xl p-8 border ${
-                  (plan as typeof plan & { highlighted?: boolean }).highlighted
-                    ? "bg-indigo-600 border-indigo-600 text-white"
-                    : "bg-gray-50 border-gray-200"
-                }`,
-                undefined,
-                [
-                  makeNode(
-                    "h3",
-                    "h3",
-                    `text-lg font-semibold mb-2 ${(plan as typeof plan & { highlighted?: boolean }).highlighted ? "text-white" : "text-gray-900"}`,
-                    plan.name,
-                  ),
-                  makeNode("div", "div", "mb-6", undefined, [
+            "div",
+            "div",
+            "grid grid-cols-1 @md:grid-cols-3 gap-8",
+            undefined,
+            [
+              ...[
+                {
+                  name: "Starter",
+                  price: "$9",
+                  period: "/mo",
+                  features: ["5 Projects", "10 GB Storage", "Basic Support"],
+                  highlighted: false,
+                },
+                {
+                  name: "Pro",
+                  price: "$29",
+                  period: "/mo",
+                  features: ["Unlimited Projects", "100 GB Storage", "Priority Support", "Custom Domain"],
+                  highlighted: true,
+                },
+                {
+                  name: "Enterprise",
+                  price: "$99",
+                  period: "/mo",
+                  features: ["Everything in Pro", "SSO", "SLA", "Dedicated Manager"],
+                  highlighted: false,
+                },
+              ].map((plan) =>
+                makeNode(
+                  "div",
+                  "div",
+                  `rounded-2xl p-8 border flex flex-col ${
+                    plan.highlighted
+                      ? "bg-indigo-600 border-indigo-600"
+                      : "bg-gray-50 border-gray-200"
+                  }`,
+                  undefined,
+                  [
                     makeNode(
-                      "span",
-                      "span",
-                      `text-4xl font-bold ${(plan as typeof plan & { highlighted?: boolean }).highlighted ? "text-white" : "text-gray-900"}`,
-                      plan.price,
+                      "h3",
+                      "h3",
+                      `text-lg font-semibold mb-1 ${plan.highlighted ? "text-indigo-100" : "text-gray-500"}`,
+                      plan.name,
                     ),
-                    makeNode(
-                      "span",
-                      "span",
-                      `text-sm ${(plan as typeof plan & { highlighted?: boolean }).highlighted ? "text-indigo-200" : "text-gray-500"}`,
-                      "/month",
-                    ),
-                  ]),
-                  makeNode(
-                    "ul",
-                    "ul",
-                    "space-y-2 mb-8",
-                    undefined,
-                    plan.features.map((f) =>
+                    makeNode("div", "div", "flex items-end gap-1 mb-6", undefined, [
                       makeNode(
-                        "li",
-                        "li",
-                        `text-sm ${(plan as typeof plan & { highlighted?: boolean }).highlighted ? "text-indigo-100" : "text-gray-600"}`,
-                        `✓ ${f}`,
+                        "span",
+                        "span",
+                        `text-4xl font-bold ${plan.highlighted ? "text-white" : "text-gray-900"}`,
+                        plan.price,
+                      ),
+                      makeNode(
+                        "span",
+                        "span",
+                        `text-sm pb-1 ${plan.highlighted ? "text-indigo-200" : "text-gray-400"}`,
+                        plan.period,
+                      ),
+                    ]),
+                    makeNode(
+                      "ul",
+                      "ul",
+                      "space-y-3 mb-8 flex-1",
+                      undefined,
+                      plan.features.map((f) =>
+                        makeNode(
+                          "li",
+                          "li",
+                          `flex items-center gap-2 text-sm ${plan.highlighted ? "text-indigo-100" : "text-gray-600"}`,
+                          `✓ ${f}`,
+                        ),
                       ),
                     ),
-                  ),
-                  makeNode(
-                    "a",
-                    "a",
-                    `block text-center py-2 px-4 rounded-lg font-semibold text-sm ${(plan as typeof plan & { highlighted?: boolean }).highlighted ? "bg-white text-indigo-600 hover:bg-indigo-50" : "bg-indigo-600 text-white hover:bg-indigo-700"}`,
-                    "Get Started",
-                    undefined,
-                    { href: "#" },
-                  ),
-                ],
+                    makeNode(
+                      "a",
+                      "a",
+                      `block text-center py-2.5 px-4 rounded-xl font-semibold text-sm transition-colors ${plan.highlighted ? "bg-white text-indigo-600 hover:bg-indigo-50" : "bg-indigo-600 text-white hover:bg-indigo-700"}`,
+                      "Get Started",
+                      undefined,
+                      { href: "#" },
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-      ]),
-    ]),
+            ],
+          ),
+        ]),
+      ],
+    ),
   },
 
   // ─── TESTIMONIALS ──────────────────────────────────────────────
@@ -470,12 +470,20 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
       undefined,
       [
         makeNode("div", "div", "max-w-6xl mx-auto", undefined, [
-          makeNode(
-            "h2",
-            "h2",
-            "text-4xl font-bold text-center text-gray-900 mb-14",
-            "What people are saying",
-          ),
+          makeNode("div", "div", "text-center mb-14", undefined, [
+            makeNode(
+              "h2",
+              "h2",
+              "text-4xl font-bold text-gray-900 mb-3",
+              "What people are saying",
+            ),
+            makeNode(
+              "p",
+              "p",
+              "text-gray-500 text-lg",
+              "Trusted by thousands of teams worldwide.",
+            ),
+          ]),
           makeNode(
             "div",
             "div",
@@ -486,42 +494,45 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
                 {
                   name: "Sarah Johnson",
                   role: "CEO, TechCorp",
+                  avatar: "S",
                   text: "This tool saved us months of development time. Absolutely love it!",
                 },
                 {
                   name: "Mark Williams",
                   role: "Designer at Figma",
+                  avatar: "M",
                   text: "The best visual builder I've ever used. The DX is incredible.",
                 },
                 {
                   name: "Emily Chen",
                   role: "Startup Founder",
+                  avatar: "E",
                   text: "We shipped our landing page in 2 hours. Mind-blowing tool.",
                 },
               ].map((t) =>
                 makeNode(
                   "div",
                   "div",
-                  "bg-white rounded-2xl p-6 shadow-sm border border-gray-100",
+                  "bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col gap-4",
                   undefined,
                   [
                     makeNode(
                       "p",
                       "p",
-                      "text-gray-600 mb-5 text-sm leading-relaxed",
+                      "text-gray-600 text-sm leading-relaxed italic",
                       `"${t.text}"`,
                     ),
                     makeNode(
                       "div",
                       "div",
-                      "flex items-center gap-3",
+                      "flex items-center gap-3 pt-2 border-t border-gray-100",
                       undefined,
                       [
                         makeNode(
                           "div",
                           "div",
-                          "w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-sm font-bold",
-                          t.name[0],
+                          "w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-sm font-bold shrink-0",
+                          t.avatar,
                         ),
                         makeNode("div", "div", "", undefined, [
                           makeNode(
@@ -555,63 +566,73 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     label: "FAQ Simple",
     category: "FAQ",
     icon: "help-circle",
-    template: makeNode("section", "section", "py-20 px-6 bg-white", undefined, [
-      makeNode("div", "div", "max-w-3xl mx-auto", undefined, [
-        makeNode(
-          "h2",
-          "h2",
-          "text-4xl font-bold text-center text-gray-900 mb-12",
-          "Frequently Asked Questions",
-        ),
-        makeNode("div", "div", "space-y-4", undefined, [
-          ...[
-            [
-              "Is there a free plan?",
-              "Yes! We offer a free plan with 5 projects and basic features.",
-            ],
-            [
-              "Can I export my code?",
-              "Absolutely. Export clean HTML, CSS, and React code at any time.",
-            ],
-            [
-              "Do I need to know how to code?",
-              "No coding skills required. Our visual editor makes it simple.",
-            ],
-            [
-              "What integrations are available?",
-              "We support Stripe, Mailchimp, Google Analytics, and 50+ more.",
-            ],
-          ].map(([q, a]) =>
+    template: makeNode(
+      "section",
+      "section",
+      "py-20 px-6 bg-white",
+      undefined,
+      [
+        makeNode("div", "div", "max-w-3xl mx-auto", undefined, [
+          makeNode("div", "div", "text-center mb-12", undefined, [
             makeNode(
-              "div",
-              "div",
-              "border border-gray-200 rounded-xl overflow-hidden",
-              undefined,
-              [
-                makeNode(
-                  "div",
-                  "div",
-                  "flex justify-between items-center px-6 py-4 bg-gray-50 cursor-pointer",
-                  undefined,
-                  [
-                    makeNode(
-                      "span",
-                      "span",
-                      "font-medium text-gray-900",
-                      q as string,
-                    ),
-                    makeNode("span", "span", "text-gray-400", "+"),
-                  ],
-                ),
-                makeNode("div", "div", "px-6 py-4", undefined, [
-                  makeNode("p", "p", "text-gray-500 text-sm", a as string),
-                ]),
-              ],
+              "h2",
+              "h2",
+              "text-4xl font-bold text-gray-900 mb-3",
+              "Frequently Asked Questions",
             ),
-          ),
+            makeNode(
+              "p",
+              "p",
+              "text-gray-500 text-lg",
+              "Everything you need to know.",
+            ),
+          ]),
+          makeNode("div", "div", "divide-y divide-gray-200 border border-gray-200 rounded-2xl overflow-hidden", undefined, [
+            ...[
+              ["Is there a free plan?", "Yes! We offer a free plan with 5 projects and basic features."],
+              ["Can I export my code?", "Absolutely. Export clean HTML, CSS, and React code at any time."],
+              ["Do I need to know how to code?", "No coding skills required. Our visual editor makes it simple."],
+              ["What integrations are available?", "We support Stripe, Mailchimp, Google Analytics, and 50+ more."],
+            ].map(([q, a]) =>
+              makeNode(
+                "div",
+                "div",
+                "px-6 py-5 bg-white",
+                undefined,
+                [
+                  makeNode(
+                    "div",
+                    "div",
+                    "flex justify-between items-start gap-4 mb-2",
+                    undefined,
+                    [
+                      makeNode(
+                        "span",
+                        "span",
+                        "font-semibold text-gray-900 text-sm",
+                        q as string,
+                      ),
+                      makeNode(
+                        "span",
+                        "span",
+                        "text-gray-400 text-lg leading-none shrink-0",
+                        "＋",
+                      ),
+                    ],
+                  ),
+                  makeNode(
+                    "p",
+                    "p",
+                    "text-gray-500 text-sm leading-relaxed",
+                    a as string,
+                  ),
+                ],
+              ),
+            ),
+          ]),
         ]),
-      ]),
-    ]),
+      ],
+    ),
   },
 
   // ─── TEAM ──────────────────────────────────────────────────────
@@ -620,41 +641,55 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     label: "Team Cards",
     category: "Team",
     icon: "users",
-    template: makeNode("section", "section", "py-20 px-6 bg-white", undefined, [
-      makeNode("div", "div", "max-w-6xl mx-auto", undefined, [
-        makeNode(
-          "h2",
-          "h2",
-          "text-4xl font-bold text-center text-gray-900 mb-12",
-          "Meet the team",
-        ),
-        makeNode(
-          "div",
-          "div",
-          "grid grid-cols-2 @md:grid-cols-4 gap-8",
-          undefined,
-          [
-            ...[
-              { name: "Alice Kim", role: "CEO" },
-              { name: "Bob Lee", role: "CTO" },
-              { name: "Carol Wu", role: "Designer" },
-              { name: "Dan Park", role: "Engineer" },
-            ].map((m) =>
-              makeNode("div", "div", "text-center", undefined, [
-                makeNode(
-                  "div",
-                  "div",
-                  "w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold",
-                  m.name[0],
-                ),
-                makeNode("h3", "h3", "font-semibold text-gray-900", m.name),
-                makeNode("p", "p", "text-gray-400 text-sm", m.role),
-              ]),
+    template: makeNode(
+      "section",
+      "section",
+      "py-20 px-6 bg-white",
+      undefined,
+      [
+        makeNode("div", "div", "max-w-6xl mx-auto", undefined, [
+          makeNode("div", "div", "text-center mb-14", undefined, [
+            makeNode(
+              "h2",
+              "h2",
+              "text-4xl font-bold text-gray-900 mb-3",
+              "Meet the team",
             ),
-          ],
-        ),
-      ]),
-    ]),
+            makeNode(
+              "p",
+              "p",
+              "text-gray-500 text-lg",
+              "The talented people building great things.",
+            ),
+          ]),
+          makeNode(
+            "div",
+            "div",
+            "grid grid-cols-2 @md:grid-cols-4 gap-8",
+            undefined,
+            [
+              ...[
+                { name: "Alice Kim", role: "CEO", color: "from-blue-400 to-indigo-500" },
+                { name: "Bob Lee", role: "CTO", color: "from-purple-400 to-pink-500" },
+                { name: "Carol Wu", role: "Designer", color: "from-orange-400 to-rose-500" },
+                { name: "Dan Park", role: "Engineer", color: "from-green-400 to-teal-500" },
+              ].map((m) =>
+                makeNode("div", "div", "text-center", undefined, [
+                  makeNode(
+                    "div",
+                    "div",
+                    `w-24 h-24 rounded-full bg-gradient-to-br ${m.color} mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold shadow-sm`,
+                    m.name[0],
+                  ),
+                  makeNode("h3", "h3", "font-semibold text-gray-900 text-sm", m.name),
+                  makeNode("p", "p", "text-gray-400 text-xs mt-0.5", m.role),
+                ]),
+              ),
+            ],
+          ),
+        ]),
+      ],
+    ),
   },
 
   // ─── FOOTER ────────────────────────────────────────────────────
@@ -666,46 +701,44 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "footer",
       "footer",
-      "bg-slate-900 text-slate-400 py-12 px-6",
+      "bg-slate-900 text-slate-400 py-14 px-6",
       undefined,
       [
         makeNode("div", "div", "max-w-6xl mx-auto", undefined, [
+          makeNode("div", "div", "flex items-center justify-between mb-10", undefined, [
+            makeNode("span", "span", "text-white text-xl font-bold", "Brand"),
+            makeNode("span", "span", "text-slate-500 text-sm", "Your tagline here"),
+          ]),
           makeNode(
             "div",
             "div",
-            "grid grid-cols-2 @md:grid-cols-4 gap-8 mb-8",
+            "grid grid-cols-2 @md:grid-cols-4 gap-8 mb-10",
             undefined,
             [
               ...[
-                {
-                  label: "Product",
-                  links: ["Features", "Pricing", "Changelog"],
-                },
+                { label: "Product", links: ["Features", "Pricing", "Changelog"] },
                 { label: "Company", links: ["About", "Blog", "Careers"] },
-                {
-                  label: "Legal",
-                  links: ["Privacy", "Terms", "Cookie Policy"],
-                },
+                { label: "Legal", links: ["Privacy", "Terms", "Cookie Policy"] },
                 { label: "Support", links: ["Docs", "Help Center", "Status"] },
               ].map((col) =>
                 makeNode("div", "div", "", undefined, [
                   makeNode(
                     "h4",
                     "h4",
-                    "text-white font-semibold mb-3 text-sm uppercase tracking-wider",
+                    "text-white font-semibold mb-4 text-sm uppercase tracking-wider",
                     col.label,
                   ),
                   makeNode(
                     "ul",
                     "ul",
-                    "space-y-2",
+                    "space-y-2.5",
                     undefined,
                     col.links.map((l) =>
                       makeNode("li", "li", "", undefined, [
                         makeNode(
                           "a",
                           "a",
-                          "hover:text-white text-sm transition-colors",
+                          "hover:text-slate-200 text-sm transition-colors",
                           l,
                           undefined,
                           { href: "#" },
@@ -720,8 +753,12 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
           makeNode(
             "div",
             "div",
-            "border-t border-slate-800 pt-8 text-sm text-center",
-            "© 2024 Brand. All rights reserved.",
+            "border-t border-slate-800 pt-8 flex flex-col @md:flex-row items-center justify-between gap-3 text-sm",
+            undefined,
+            [
+              makeNode("span", "span", "", "© 2024 Brand. All rights reserved."),
+              makeNode("span", "span", "text-slate-600", "Built with ♥"),
+            ],
           ),
         ]),
       ],
@@ -741,67 +778,83 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
       undefined,
       [
         makeNode("div", "div", "max-w-2xl mx-auto", undefined, [
-          makeNode(
-            "h2",
-            "h2",
-            "text-4xl font-bold text-gray-900 mb-3 text-center",
-            "Get in touch",
-          ),
-          makeNode(
-            "p",
-            "p",
-            "text-gray-500 text-center mb-10",
-            "We'd love to hear from you. Send us a message!",
-          ),
-          makeNode("form", "form", "space-y-4", undefined, [
+          makeNode("div", "div", "text-center mb-10", undefined, [
             makeNode(
-              "div",
-              "div",
-              "grid grid-cols-1 @md:grid-cols-2 gap-4",
-              undefined,
-              [
+              "h2",
+              "h2",
+              "text-4xl font-bold text-gray-900 mb-3",
+              "Get in touch",
+            ),
+            makeNode(
+              "p",
+              "p",
+              "text-gray-500 text-lg",
+              "We'd love to hear from you. Send us a message!",
+            ),
+          ]),
+          makeNode("div", "div", "bg-white rounded-2xl shadow-sm border border-gray-100 p-8", undefined, [
+            makeNode("form", "form", "space-y-4", undefined, [
+              makeNode(
+                "div",
+                "div",
+                "grid grid-cols-1 @md:grid-cols-2 gap-4",
+                undefined,
+                [
+                  makeNode("div", "div", "flex flex-col gap-1.5", undefined, [
+                    makeNode("label", "label", "text-sm font-medium text-gray-700", "First name"),
+                    makeNode(
+                      "input",
+                      "input",
+                      "w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all",
+                      undefined,
+                      undefined,
+                      { type: "text", placeholder: "John" },
+                    ),
+                  ]),
+                  makeNode("div", "div", "flex flex-col gap-1.5", undefined, [
+                    makeNode("label", "label", "text-sm font-medium text-gray-700", "Last name"),
+                    makeNode(
+                      "input",
+                      "input",
+                      "w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all",
+                      undefined,
+                      undefined,
+                      { type: "text", placeholder: "Doe" },
+                    ),
+                  ]),
+                ],
+              ),
+              makeNode("div", "div", "flex flex-col gap-1.5", undefined, [
+                makeNode("label", "label", "text-sm font-medium text-gray-700", "Email"),
                 makeNode(
                   "input",
                   "input",
-                  "w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500",
+                  "w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all",
                   undefined,
                   undefined,
-                  { type: "text", placeholder: "First name" },
+                  { type: "email", placeholder: "john@example.com" },
                 ),
+              ]),
+              makeNode("div", "div", "flex flex-col gap-1.5", undefined, [
+                makeNode("label", "label", "text-sm font-medium text-gray-700", "Message"),
                 makeNode(
-                  "input",
-                  "input",
-                  "w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500",
+                  "textarea",
+                  "textarea",
+                  "w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[120px] resize-none transition-all",
+                  "Write your message here...",
                   undefined,
-                  undefined,
-                  { type: "text", placeholder: "Last name" },
+                  {},
                 ),
-              ],
-            ),
-            makeNode(
-              "input",
-              "input",
-              "w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500",
-              undefined,
-              undefined,
-              { type: "email", placeholder: "Email address" },
-            ),
-            makeNode(
-              "textarea",
-              "textarea",
-              "w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[120px]",
-              "Your message...",
-              undefined,
-              {},
-            ),
-            makeNode(
-              "button",
-              "button",
-              "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors",
-              "Send Message",
-              undefined,
-              { type: "submit" },
-            ),
+              ]),
+              makeNode(
+                "button",
+                "button",
+                "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors",
+                "Send Message",
+                undefined,
+                { type: "submit" },
+              ),
+            ]),
           ]),
         ]),
       ],
@@ -814,60 +867,74 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     label: "Portfolio Grid",
     category: "Portfolio",
     icon: "image",
-    template: makeNode("section", "section", "py-20 px-6 bg-white", undefined, [
-      makeNode("div", "div", "max-w-6xl mx-auto", undefined, [
-        makeNode(
-          "h2",
-          "h2",
-          "text-4xl font-bold text-center text-gray-900 mb-12",
-          "Our Work",
-        ),
-        makeNode(
-          "div",
-          "div",
-          "grid grid-cols-2 @md:grid-cols-3 gap-4",
-          undefined,
-          [
-            ...[
-              ["from-blue-400 to-cyan-400", "Project Alpha"],
-              ["from-purple-400 to-pink-400", "Project Beta"],
-              ["from-orange-400 to-amber-400", "Project Gamma"],
-              ["from-green-400 to-teal-400", "Project Delta"],
-              ["from-rose-400 to-red-400", "Project Epsilon"],
-              ["from-indigo-400 to-blue-400", "Project Zeta"],
-            ].map(([gradient, name]) =>
-              makeNode(
-                "div",
-                "div",
-                "relative group cursor-pointer rounded-xl overflow-hidden",
-                undefined,
-                [
-                  makeNode(
-                    "div",
-                    "div",
-                    `bg-gradient-to-br ${gradient} aspect-video`,
-                  ),
-                  makeNode(
-                    "div",
-                    "div",
-                    "absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center",
-                    undefined,
-                    [
-                      makeNode(
-                        "span",
-                        "span",
-                        "text-white font-semibold",
-                        name as string,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+    template: makeNode(
+      "section",
+      "section",
+      "py-20 px-6 bg-white",
+      undefined,
+      [
+        makeNode("div", "div", "max-w-6xl mx-auto", undefined, [
+          makeNode("div", "div", "text-center mb-12", undefined, [
+            makeNode(
+              "h2",
+              "h2",
+              "text-4xl font-bold text-gray-900 mb-3",
+              "Our Work",
             ),
-          ],
-        ),
-      ]),
-    ]),
+            makeNode(
+              "p",
+              "p",
+              "text-gray-500 text-lg",
+              "A selection of our best projects.",
+            ),
+          ]),
+          makeNode(
+            "div",
+            "div",
+            "grid grid-cols-2 @md:grid-cols-3 gap-4",
+            undefined,
+            [
+              ...[
+                ["from-blue-400 to-cyan-400", "Project Alpha"],
+                ["from-purple-400 to-pink-400", "Project Beta"],
+                ["from-orange-400 to-amber-400", "Project Gamma"],
+                ["from-green-400 to-teal-400", "Project Delta"],
+                ["from-rose-400 to-red-400", "Project Epsilon"],
+                ["from-indigo-400 to-blue-400", "Project Zeta"],
+              ].map(([gradient, name]) =>
+                makeNode(
+                  "div",
+                  "div",
+                  "relative group cursor-pointer rounded-xl overflow-hidden shadow-sm",
+                  undefined,
+                  [
+                    makeNode(
+                      "div",
+                      "div",
+                      `bg-gradient-to-br ${gradient} aspect-video`,
+                    ),
+                    makeNode(
+                      "div",
+                      "div",
+                      "absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center",
+                      undefined,
+                      [
+                        makeNode(
+                          "span",
+                          "span",
+                          "text-white font-semibold text-sm",
+                          name as string,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ]),
+      ],
+    ),
   },
 
   // ─── CARDS ─────────────────────────────────────────────────────
@@ -885,7 +952,11 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
         makeNode(
           "div",
           "div",
-          "bg-gradient-to-r from-blue-500 to-indigo-600 h-48",
+          "bg-gradient-to-r from-blue-500 to-indigo-600 h-48 flex items-center justify-center",
+          undefined,
+          [
+            makeNode("span", "span", "text-5xl", "🖼️"),
+          ],
         ),
         makeNode("div", "div", "p-6", undefined, [
           makeNode(
@@ -897,19 +968,19 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
           makeNode(
             "h3",
             "h3",
-            "text-xl font-bold text-gray-900 mt-1 mb-2",
+            "text-xl font-bold text-gray-900 mt-1.5 mb-2",
             "Card Title",
           ),
           makeNode(
             "p",
             "p",
-            "text-gray-500 text-sm mb-4",
+            "text-gray-500 text-sm mb-5 leading-relaxed",
             "A short description of the card content goes here.",
           ),
           makeNode(
             "a",
             "a",
-            "text-blue-600 hover:text-blue-700 text-sm font-semibold",
+            "inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-semibold transition-colors",
             "Read more →",
             undefined,
             { href: "#" },
@@ -928,7 +999,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "h1",
       "h1",
-      "text-6xl font-extrabold text-gray-900 tracking-tight",
+      "text-6xl font-extrabold text-gray-900 tracking-tight leading-tight",
       "Your Headline Here",
     ),
   },
@@ -940,8 +1011,20 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "h2",
       "h2",
-      "text-4xl font-bold text-gray-900",
+      "text-4xl font-bold text-gray-900 leading-snug",
       "Section Heading",
+    ),
+  },
+  {
+    id: "heading-md",
+    label: "Heading Medium",
+    category: "Typography",
+    icon: "type",
+    template: makeNode(
+      "h3",
+      "h3",
+      "text-2xl font-semibold text-gray-900",
+      "Sub Heading",
     ),
   },
   {
@@ -964,8 +1047,19 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "span",
       "span",
-      "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800",
-      "New Badge",
+      "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 border border-blue-200",
+      "New Feature",
+    ),
+  },
+  {
+    id: "divider",
+    label: "Divider",
+    category: "Typography",
+    icon: "minus",
+    template: makeNode(
+      "hr",
+      "hr",
+      "border-0 border-t border-gray-200 my-8",
     ),
   },
 
@@ -978,7 +1072,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "button",
       "button",
-      "bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-lg transition-colors",
+      "bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-lg transition-colors cursor-pointer",
       "Click Me",
     ),
   },
@@ -990,7 +1084,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "button",
       "button",
-      "border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white font-semibold px-6 py-2.5 rounded-lg transition-all",
+      "border-2 border-gray-800 text-gray-800 hover:bg-gray-800 hover:text-white font-semibold px-6 py-2.5 rounded-lg transition-all cursor-pointer",
       "Click Me",
     ),
   },
@@ -1002,8 +1096,20 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "button",
       "button",
-      "text-gray-700 hover:bg-gray-100 font-semibold px-6 py-2.5 rounded-lg transition-colors",
+      "text-gray-700 bg-gray-100 hover:bg-gray-200 font-semibold px-6 py-2.5 rounded-lg transition-colors cursor-pointer",
       "Click Me",
+    ),
+  },
+  {
+    id: "btn-danger",
+    label: "Button Danger",
+    category: "Buttons",
+    icon: "mouse-pointer",
+    template: makeNode(
+      "button",
+      "button",
+      "bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2.5 rounded-lg transition-colors cursor-pointer",
+      "Delete",
     ),
   },
 
@@ -1026,7 +1132,13 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     label: "Div Container",
     category: "Containers",
     icon: "box",
-    template: makeNode("div", "div", "max-w-6xl mx-auto", undefined, []),
+    template: makeNode(
+      "div",
+      "div",
+      "max-w-6xl mx-auto px-6",
+      undefined,
+      [],
+    ),
   },
   {
     id: "grid-2col",
@@ -1039,8 +1151,20 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
       "grid grid-cols-1 @md:grid-cols-2 gap-8",
       undefined,
       [
-        makeNode("div", "div", "bg-gray-100 rounded-xl p-6 min-h-[100px]"),
-        makeNode("div", "div", "bg-gray-100 rounded-xl p-6 min-h-[100px]"),
+        makeNode(
+          "div",
+          "div",
+          "bg-gray-50 border border-gray-200 rounded-xl p-6 min-h-[120px] flex items-center justify-center",
+          undefined,
+          [makeNode("span", "span", "text-gray-400 text-sm", "Column 1")],
+        ),
+        makeNode(
+          "div",
+          "div",
+          "bg-gray-50 border border-gray-200 rounded-xl p-6 min-h-[120px] flex items-center justify-center",
+          undefined,
+          [makeNode("span", "span", "text-gray-400 text-sm", "Column 2")],
+        ),
       ],
     ),
   },
@@ -1055,9 +1179,27 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
       "grid grid-cols-1 @md:grid-cols-3 gap-6",
       undefined,
       [
-        makeNode("div", "div", "bg-gray-100 rounded-xl p-6 min-h-[100px]"),
-        makeNode("div", "div", "bg-gray-100 rounded-xl p-6 min-h-[100px]"),
-        makeNode("div", "div", "bg-gray-100 rounded-xl p-6 min-h-[100px]"),
+        makeNode(
+          "div",
+          "div",
+          "bg-gray-50 border border-gray-200 rounded-xl p-6 min-h-[120px] flex items-center justify-center",
+          undefined,
+          [makeNode("span", "span", "text-gray-400 text-sm", "Column 1")],
+        ),
+        makeNode(
+          "div",
+          "div",
+          "bg-gray-50 border border-gray-200 rounded-xl p-6 min-h-[120px] flex items-center justify-center",
+          undefined,
+          [makeNode("span", "span", "text-gray-400 text-sm", "Column 2")],
+        ),
+        makeNode(
+          "div",
+          "div",
+          "bg-gray-50 border border-gray-200 rounded-xl p-6 min-h-[120px] flex items-center justify-center",
+          undefined,
+          [makeNode("span", "span", "text-gray-400 text-sm", "Column 3")],
+        ),
       ],
     ),
   },
@@ -1084,7 +1226,11 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "div",
       "div",
-      "bg-gradient-to-br from-gray-200 to-gray-300 rounded-xl aspect-video flex items-center justify-center text-gray-400",
+      "bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl aspect-video flex items-center justify-center border border-gray-200",
+      undefined,
+      [
+        makeNode("span", "span", "text-4xl", "🖼️"),
+      ],
     ),
   },
   {
@@ -1095,8 +1241,11 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "div",
       "div",
-      "bg-gradient-to-br from-blue-200 to-indigo-300 rounded-2xl w-48 h-48 mx-auto flex items-center justify-center text-white font-semibold",
-      "Photo",
+      "bg-gradient-to-br from-blue-200 to-indigo-300 rounded-2xl w-48 h-48 mx-auto flex items-center justify-center border border-blue-200",
+      undefined,
+      [
+        makeNode("span", "span", "text-4xl", "📷"),
+      ],
     ),
   },
 
@@ -1106,12 +1255,12 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     label: "Text Input",
     category: "Forms",
     icon: "edit-2",
-    template: makeNode("div", "div", "flex flex-col gap-1.5", undefined, [
+    template: makeNode("div", "div", "flex flex-col gap-1.5 max-w-sm", undefined, [
       makeNode("label", "label", "text-sm font-medium text-gray-700", "Label"),
       makeNode(
         "input",
         "input",
-        "border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full",
+        "border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full transition-all",
         undefined,
         undefined,
         { type: "text", placeholder: "Enter text..." },
@@ -1123,22 +1272,32 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     label: "Newsletter",
     category: "Forms",
     icon: "mail",
-    template: makeNode("div", "div", "flex gap-3 max-w-md", undefined, [
-      makeNode(
-        "input",
-        "input",
-        "flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500",
-        undefined,
-        undefined,
-        { type: "email", placeholder: "Enter your email" },
-      ),
-      makeNode(
-        "button",
-        "button",
-        "bg-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold whitespace-nowrap hover:bg-blue-700",
-        "Subscribe",
-      ),
-    ]),
+    template: makeNode(
+      "div",
+      "div",
+      "bg-gray-50 border border-gray-200 rounded-2xl p-8 max-w-md text-center",
+      undefined,
+      [
+        makeNode("h3", "h3", "text-xl font-bold text-gray-900 mb-2", "Stay in the loop"),
+        makeNode("p", "p", "text-gray-500 text-sm mb-6", "Get the latest updates delivered to your inbox."),
+        makeNode("div", "div", "flex gap-3", undefined, [
+          makeNode(
+            "input",
+            "input",
+            "flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all",
+            undefined,
+            undefined,
+            { type: "email", placeholder: "Enter your email" },
+          ),
+          makeNode(
+            "button",
+            "button",
+            "bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-semibold whitespace-nowrap transition-colors cursor-pointer",
+            "Subscribe",
+          ),
+        ]),
+      ],
+    ),
   },
 ];
 
