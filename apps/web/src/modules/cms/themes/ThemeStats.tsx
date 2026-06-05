@@ -6,7 +6,7 @@ import type { GalleryStats } from "../gallery/gallery.types";
 export function ThemeStats({ stats }: { stats: GalleryStats }) {
   const cards = [
     { label: "Total Themes", value: stats.total, sub: "Available", subCls: "text-primary" },
-    { label: "Total Sections", value: stats.totalItems, sub: "Across All", subCls: "text-emerald-500" },
+    { label: "Total Sections", value: stats.totalItems, sub: "Across All", subCls: "text-accent" },
     { label: "Published", value: stats.published, sub: "Live", subCls: "text-muted-foreground" },
     { label: "Draft Status", value: stats.drafts, sub: "In Progress", subCls: "text-amber-500" },
   ];

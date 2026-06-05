@@ -85,7 +85,7 @@ function SubNavItem({ item, isActive }: { item: NavItem; isActive: boolean }) {
       <span
         className={cn(
           "h-1.5 w-1.5 rounded-full flex-shrink-0 transition-colors duration-150",
-          isActive ? "bg-primary" : "bg-muted-foreground/35",
+          isActive ? "bg-accent" : "bg-muted-foreground/35",
         )}
       />
       <span className="truncate">{item.label}</span>

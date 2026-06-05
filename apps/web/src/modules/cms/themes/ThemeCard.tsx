@@ -80,13 +80,13 @@ export function ThemeCard({
 
         {/* Sections count */}
         <div className="absolute bottom-4 left-4 flex items-center gap-1.5 bg-background/70 backdrop-blur-md text-xs font-semibold px-2.5 py-1 rounded-lg border border-border/60">
-          <Layers className="w-3.5 h-3.5 text-primary" />
+          <Layers className="w-3.5 h-3.5 text-accent" />
           <span className="text-foreground">{theme.itemCount} sections</span>
         </div>
 
         {/* Open in editor overlay hint */}
         <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-          <span className="flex items-center gap-1 bg-background/80 backdrop-blur-md text-[10px] font-semibold px-2 py-1 rounded-md border border-border/60 text-foreground">
+          <span className="flex items-center gap-1 bg-background/80 backdrop-blur-md text-[10px] font-semibold px-2 py-1 rounded-md border border-accent/30 text-accent">
             <ExternalLink className="w-3 h-3" /> Open in Editor
           </span>
         </div>
@@ -179,7 +179,7 @@ export function ThemeCard({
                 key={tag}
                 className="inline-flex items-center gap-1 text-[10px] font-medium bg-muted text-muted-foreground px-2 py-0.5 rounded border border-border/60"
               >
-                <Tag className="w-2.5 h-2.5 text-primary" />
+                <Tag className="w-2.5 h-2.5 text-accent" />
                 {tag}
               </span>
             ))}

@@ -103,7 +103,7 @@ export function ThemeControls({
       {/* Category filter pills */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
         <div className="flex-shrink-0 flex items-center gap-1.5 text-muted-foreground text-xs font-semibold uppercase tracking-wider mr-2">
-          <Sliders className="w-3.5 h-3.5 text-primary" /> Filter:
+          <Sliders className="w-3.5 h-3.5 text-accent" /> Filter:
         </div>
         {THEME_CATEGORIES.map((cat) => (
           <button

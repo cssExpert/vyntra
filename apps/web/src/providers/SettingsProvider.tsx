@@ -97,6 +97,8 @@ function hexToHslParts(hex: string): [number, number, number] {
   return [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
 }
 
+const clamp = (v: number, lo: number, hi: number) => Math.min(Math.max(v, lo), hi);
+
 function applyTheme(settings: OrganizationSettings) {
   const root = document.documentElement;
 
@@ -110,12 +112,25 @@ function applyTheme(settings: OrganizationSettings) {
 
   // Core semantic variables (consumed as hsl(var(--primary)))
   root.style.setProperty("--primary",       `${ph} ${ps}% ${pl}%`);
+  root.style.setProperty("--primary-light", `${ph} ${ps}% ${clamp(pl + 8, 0, 95)}%`);
   root.style.setProperty("--ring",          `${ph} ${ps}% ${pl}%`);
   root.style.setProperty("--secondary",     `${sh} ${ss}% ${sl}%`);
   root.style.setProperty("--accent",        `${ah} ${as_}% ${al}%`);
 
-  // Lighter tint of primary (+8 L) — used by gradients so they update too
-  root.style.setProperty("--primary-light", `${ph} ${ps}% ${Math.min(pl + 8, 95)}%`);
+  // Full brand palette — same H/S as primary, fixed lightness steps.
+  // This makes every brand-* Tailwind utility (from-brand-400, text-brand-700, etc.)
+  // follow the primary color instead of staying hardcoded flamingo.
+  root.style.setProperty("--brand-50",  `${ph} ${ps}% ${clamp(pl + 47, 0, 98)}%`);
+  root.style.setProperty("--brand-100", `${ph} ${ps}% ${clamp(pl + 40, 0, 95)}%`);
+  root.style.setProperty("--brand-200", `${ph} ${ps}% ${clamp(pl + 30, 0, 90)}%`);
+  root.style.setProperty("--brand-300", `${ph} ${ps}% ${clamp(pl + 19, 0, 85)}%`);
+  root.style.setProperty("--brand-400", `${ph} ${ps}% ${clamp(pl + 8,  0, 80)}%`);
+  root.style.setProperty("--brand-500", `${ph} ${ps}% ${pl}%`);
+  root.style.setProperty("--brand-600", `${ph} ${ps}% ${clamp(pl - 8,  5, 100)}%`);
+  root.style.setProperty("--brand-700", `${ph} ${ps}% ${clamp(pl - 18, 5, 100)}%`);
+  root.style.setProperty("--brand-800", `${ph} ${ps}% ${clamp(pl - 27, 5, 100)}%`);
+  root.style.setProperty("--brand-900", `${ph} ${ps}% ${clamp(pl - 36, 5, 100)}%`);
+  root.style.setProperty("--brand-950", `${ph} ${ps}% ${clamp(pl - 40, 5, 100)}%`);
 
   if (settings.faviconUrl) {
     const link = document.querySelector('link[rel="icon"]') as HTMLLinkElement;

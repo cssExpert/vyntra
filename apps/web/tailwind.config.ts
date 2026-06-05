@@ -23,19 +23,20 @@ const config: Config = {
         ],
       },
       colors: {
-        // Brand (Flamingo)
+        // Brand palette — backed by CSS variables, updated by applyTheme when
+        // the user changes the primary colour in Settings.
         brand: {
-          50: "#feedeb",
-          100: "#fcd2ce",
-          200: "#faa89c",
-          300: "#f87d66",
-          400: "#eb5729",
-          500: "#d14c23",
-          600: "#ae3e1c",
-          700: "#882f13",
-          800: "#611f0a",
-          900: "#3a0f04",
-          950: "#250702",
+          50:  "hsl(var(--brand-50))",
+          100: "hsl(var(--brand-100))",
+          200: "hsl(var(--brand-200))",
+          300: "hsl(var(--brand-300))",
+          400: "hsl(var(--brand-400))",
+          500: "hsl(var(--brand-500))",
+          600: "hsl(var(--brand-600))",
+          700: "hsl(var(--brand-700))",
+          800: "hsl(var(--brand-800))",
+          900: "hsl(var(--brand-900))",
+          950: "hsl(var(--brand-950))",
         },
         // Sidebar
         sidebar: {

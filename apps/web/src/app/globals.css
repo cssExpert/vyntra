@@ -47,6 +47,19 @@
     --primary-light: 14 71% 56%; /* Flamingo tint (+8 L) — updated by applyTheme */
     --primary-foreground: 0 0% 100%;
 
+    /* Brand palette — seeded with Flamingo, rewritten by applyTheme on primary change */
+    --brand-50:  14 71% 95%;
+    --brand-100: 14 71% 88%;
+    --brand-200: 14 71% 78%;
+    --brand-300: 14 71% 67%;
+    --brand-400: 14 71% 56%;
+    --brand-500: 14 71% 48%;
+    --brand-600: 14 71% 40%;
+    --brand-700: 14 71% 30%;
+    --brand-800: 14 71% 21%;
+    --brand-900: 14 71% 12%;
+    --brand-950: 14 71% 8%;
+
     --secondary: 230 94% 60%; /* Blue */
     --secondary-foreground: 0 0% 100%;
 
@@ -96,6 +109,19 @@
     --primary: 14 71% 48%; /* Flamingo 500 — #d14c23 */
     --primary-light: 14 71% 56%; /* Flamingo tint (+8 L) — updated by applyTheme */
     --primary-foreground: 0 0% 100%;
+
+    /* Brand palette — seeded with Flamingo, rewritten by applyTheme on primary change */
+    --brand-50:  14 71% 95%;
+    --brand-100: 14 71% 88%;
+    --brand-200: 14 71% 78%;
+    --brand-300: 14 71% 67%;
+    --brand-400: 14 71% 56%;
+    --brand-500: 14 71% 48%;
+    --brand-600: 14 71% 40%;
+    --brand-700: 14 71% 30%;
+    --brand-800: 14 71% 21%;
+    --brand-900: 14 71% 12%;
+    --brand-950: 14 71% 8%;
 
     --secondary: 230 94% 60%; /* Blue */
     --secondary-foreground: 0 0% 100%;
