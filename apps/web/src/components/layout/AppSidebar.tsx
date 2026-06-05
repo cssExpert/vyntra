@@ -17,7 +17,7 @@ import {
   TrendingUp,
   TowerControl,
   CreditCard,
-  ShoppingBag,
+  Store,
   Phone,
   Mail,
   UserCog,
@@ -48,7 +48,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   TrendingUp,
   TowerControl,
   CreditCard,
-  ShoppingBag,
+  Store,
   Phone,
   Mail,
   UserCog,
@@ -414,9 +414,10 @@ export function AppSidebar({
                         >
                           <div className="py-1">
                             {item.children!.map((child) => {
+                              const childHasSubPath = child.href.split("/").filter(Boolean).length > 1;
                               const childActive =
                                 pathname === child.href ||
-                                pathname.startsWith(child.href);
+                                (childHasSubPath && pathname.startsWith(child.href));
                               return (
                                 <SubNavItem
                                   key={child.id}
