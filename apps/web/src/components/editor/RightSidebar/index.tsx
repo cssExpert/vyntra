@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, ChevronRight, X, Plus, Code2, Palette, Layout, AlignCenter, Box, Type, Sliders } from 'lucide-react'
+import { ChevronDown, ChevronRight, X, Plus, Code2, Palette, Layout, AlignCenter, Box, PencilRuler, Type, Sliders } from 'lucide-react'
 import { useEditorStore } from '@/store/editorStore'
 import { cn } from '@/lib/utils'
 
@@ -333,7 +333,7 @@ export default function RightSidebar() {
         </Section>
 
         {/* Size */}
-        <Section title="Size" icon={Box} defaultOpen={false}>
+        <Section title="Size" icon={PencilRuler} defaultOpen={false}>
           <div className="grid grid-cols-2 gap-2">
             {[
               { label: 'Width', prefix: 'w' }, { label: 'Height', prefix: 'h' },
