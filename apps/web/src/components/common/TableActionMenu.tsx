@@ -54,6 +54,11 @@ export interface TableActionItem {
 export interface TableActionMenuProps {
   items: TableActionItem[];
   align?: "start" | "center" | "end";
+  /** Keeps the menu positioned inside this element (e.g. table card container). */
+  boundaryElement?: HTMLElement | null;
+  /** Portal target; defaults to `boundaryElement` when set. */
+  parentElement?: HTMLElement | null;
+  boundaryInset?: number;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -61,10 +66,14 @@ export interface TableActionMenuProps {
 export function TableActionMenu({
   items,
   align = "end",
+  boundaryElement,
+  parentElement,
+  boundaryInset = 8,
 }: TableActionMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const close = () => setIsOpen(false);
+  const bounded = boundaryElement != null;
 
   return (
     <Popover
@@ -72,8 +81,16 @@ export function TableActionMenu({
       positions={["bottom", "top"]}
       align={align}
       padding={6}
+      reposition
       onClickOutside={close}
       containerStyle={{ zIndex: "9999" }}
+      {...(bounded
+        ? {
+            boundaryElement,
+            parentElement: parentElement ?? boundaryElement,
+            boundaryInset,
+          }
+        : {})}
       content={
         <AnimatePresence>
           {isOpen && (

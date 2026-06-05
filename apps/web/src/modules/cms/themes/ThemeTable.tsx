@@ -51,6 +51,7 @@ export function ThemeTable({
   });
 
   // Scroll-aware pinned-column shadow — same pattern as UsersView
+  const [tableContainerEl, setTableContainerEl] = useState<HTMLDivElement | null>(null);
   const [scrollEl, setScrollEl] = useState<HTMLDivElement | null>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
 
@@ -177,6 +178,7 @@ export function ThemeTable({
           return (
             <div className="flex justify-end">
               <TableActionMenu
+                boundaryElement={tableContainerEl}
                 items={[
                   {
                     label: "Edit",
@@ -209,8 +211,7 @@ export function ThemeTable({
         },
       }),
     ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [tableContainerEl, onEdit, onNavigate, onToggleStatus, onDelete],
   );
 
   const table = useReactTable({
@@ -224,6 +225,7 @@ export function ThemeTable({
 
   return (
     <motion.div
+      ref={setTableContainerEl}
       key="table"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
