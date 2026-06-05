@@ -744,3 +744,8 @@
   outline: none !important;
   box-shadow: none !important;
 }
+
+/* Select */
+select {
+  padding-inline-end: 1.5rem !important; /* 30px to accommodate dropdown arrow */
+}

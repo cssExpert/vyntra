@@ -3,10 +3,10 @@
 import { motion } from "framer-motion";
 import { Search, Grid, List, X, Sliders } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { ViewMode, SortKey } from "./gallery.types";
-import { CATEGORIES } from "./gallery.data";
+import type { ViewMode, SortKey } from "../gallery/gallery.types";
+import { THEME_CATEGORIES } from "./themes.data";
 
-interface GalleryControlsProps {
+interface ThemeControlsProps {
   searchQuery: string;
   setSearchQuery: (v: string) => void;
   sortBy: SortKey;
@@ -15,10 +15,9 @@ interface GalleryControlsProps {
   setViewMode: (v: ViewMode) => void;
   selectedCategory: string;
   setSelectedCategory: (v: string) => void;
-  categories?: string[];
 }
 
-export function GalleryControls({
+export function ThemeControls({
   searchQuery,
   setSearchQuery,
   sortBy,
@@ -27,12 +26,9 @@ export function GalleryControls({
   setViewMode,
   selectedCategory,
   setSelectedCategory,
-  categories: categoriesOverride,
-}: GalleryControlsProps) {
-  const cats = categoriesOverride ?? CATEGORIES;
+}: ThemeControlsProps) {
   return (
     <div className="space-y-4 mb-6">
-      {/* Search + sort + view toggle */}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         {/* Search */}
         <div className="relative max-w-sm">
@@ -59,9 +55,7 @@ export function GalleryControls({
         <div className="flex flex-wrap items-center gap-3">
           {/* Sort */}
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground hidden sm:inline font-medium">
-              Sort:
-            </span>
+            <span className="text-xs text-muted-foreground hidden sm:inline font-medium">Sort:</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortKey)}
@@ -69,13 +63,13 @@ export function GalleryControls({
             >
               <option value="newest">Newest First</option>
               <option value="oldest">Oldest First</option>
-              <option value="items">Asset Count</option>
+              <option value="items">Section Count</option>
               <option value="views">Total Views</option>
               <option value="alphabetical">A to Z</option>
             </select>
           </div>
 
-          {/* Animated Grid/List toggle */}
+          {/* Grid/List toggle */}
           <div className="p-1 rounded-xl flex items-center gap-1 border border-border bg-card">
             {[
               { mode: "grid" as ViewMode, Icon: Grid, title: "Grid View" },
@@ -94,7 +88,7 @@ export function GalleryControls({
               >
                 {viewMode === mode && (
                   <motion.div
-                    layoutId="gallery-view-indicator"
+                    layoutId="theme-view-indicator"
                     className="absolute inset-0 rounded-lg bg-primary"
                     transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
                   />
@@ -111,7 +105,7 @@ export function GalleryControls({
         <div className="flex-shrink-0 flex items-center gap-1.5 text-muted-foreground text-xs font-semibold uppercase tracking-wider mr-2">
           <Sliders className="w-3.5 h-3.5 text-primary" /> Filter:
         </div>
-        {cats.map((cat) => (
+        {THEME_CATEGORIES.map((cat) => (
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}

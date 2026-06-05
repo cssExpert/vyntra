@@ -598,6 +598,200 @@ function buildFooter(
 
 // ─── Full-page template node builders ────────────────────────────────────────
 
+function buildLUMIÈRE(): EditorNode[] {
+  const products = [
+    { name: "Radiance Serum", desc: "Illuminate your skin with our vitamin C-infused brightening serum", price: "$89" },
+    { name: "Hydra Luxe Moisturizer", desc: "Deep hydration with hyaluronic acid and botanical extracts", price: "$125" },
+    { name: "Youth Revival Eye Cream", desc: "Target fine lines and dark circles with our advanced peptide formula", price: "$95" },
+    { name: "Gentle Cleansing Balm", desc: "Melt away impurities while nourishing your skin barrier", price: "$68" },
+    { name: "Night Renewal Elixir", desc: "Overnight repair treatment with retinol and botanical oils", price: "$145" },
+    { name: "Glow Essence Mist", desc: "Refreshing facial mist with rose water and probiotics", price: "$52" },
+  ];
+
+  const commitments = [
+    { icon: "🌿", title: "Clean Beauty", desc: "Formulated without parabens, sulfates, or synthetic fragrances" },
+    { icon: "♻️", title: "Sustainably Sourced", desc: "Ethically harvested botanical ingredients from around the world" },
+    { icon: "🔬", title: "Clinically Tested", desc: "Dermatologist-tested formulas with proven results" },
+    { icon: "🐰", title: "Cruelty Free", desc: "Never tested on animals, certified by leading organizations" },
+  ];
+
+  const testimonials = [
+    { name: "Sophie Anderson", role: "Beauty Editor", text: "LUMIÈRE has transformed my skincare routine. The Radiance Serum alone is worth every penny!" },
+    { name: "Emma Richardson", role: "Skincare Enthusiast", text: "Finally found products that deliver on their promises. My skin has never looked better." },
+    { name: "Isabella Martinez", role: "Dermatologist", text: "As a dermatologist, I'm impressed by the quality ingredients and visible results." },
+  ];
+
+  const footerCols = [
+    { label: "Shop", links: ["All Products", "Bestsellers", "New Arrivals", "Gift Sets"] },
+    { label: "Company", links: ["About Us", "Our Story", "Sustainability", "Press"] },
+    { label: "Support", links: ["Contact", "FAQ", "Shipping", "Returns"] },
+  ];
+
+  return [
+    // NAV
+    n("nav", "nav", "bg-teal-900 px-8 py-5", undefined, [
+      n("div", "div", "max-w-6xl mx-auto flex items-center justify-between", undefined, [
+        n("span", "span", "text-lg font-light tracking-[0.3em] text-white", "LUMIÈRE"),
+        n("div", "div", "flex items-center gap-8", undefined, [
+          n("a", "a", "text-sm text-white/70 hover:text-white transition-colors", "Shop"),
+          n("a", "a", "text-sm text-white/70 hover:text-white transition-colors", "About"),
+          n("a", "a", "text-sm text-white/70 hover:text-white transition-colors", "Ingredients"),
+          n("a", "a", "text-sm text-white/70 hover:text-white transition-colors", "Contact"),
+        ]),
+      ]),
+    ]),
+    // HERO
+    n("section", "section", "bg-gradient-to-br from-teal-900 via-teal-800 to-teal-700 py-24 px-8", undefined, [
+      n("div", "div", "max-w-6xl mx-auto flex items-center gap-12", undefined, [
+        n("div", "div", "flex-1 flex flex-col gap-6", undefined, [
+          n("span", "span", "inline-flex items-center gap-2 text-xs font-semibold tracking-widest text-amber-400 border border-amber-400/40 px-4 py-1.5 rounded-full w-fit", "✦ LUXURY COSMETICS"),
+          n("div", "div", "flex flex-col", undefined, [
+            n("h1", "h1", "text-6xl font-light text-white leading-tight", "Discover"),
+            n("span", "span", "text-6xl italic font-light text-amber-400 leading-tight", "Pure"),
+            n("span", "span", "text-6xl italic font-light text-amber-400 leading-tight", "Elegance"),
+          ]),
+          n("p", "p", "text-white/70 text-base max-w-sm leading-relaxed", "Experience the transformative power of premium beauty products, crafted with the finest ingredients to reveal your natural radiance."),
+          n("div", "div", "flex gap-4 flex-wrap", undefined, [
+            n("a", "a", "bg-amber-400 hover:bg-amber-300 text-teal-900 px-7 py-3 rounded-full text-sm font-semibold transition-colors", "Explore Collection →"),
+            n("a", "a", "border border-white/40 text-white hover:bg-white/10 px-7 py-3 rounded-full text-sm font-medium transition-colors", "Our Story"),
+          ]),
+          n("div", "div", "flex gap-10 pt-4", undefined, [
+            n("div", "div", "flex flex-col", undefined, [
+              n("span", "span", "text-2xl font-semibold text-white", "100+"),
+              n("p", "p", "text-xs text-white/50 uppercase tracking-wider mt-0.5", "Products"),
+            ]),
+            n("div", "div", "flex flex-col", undefined, [
+              n("span", "span", "text-2xl font-semibold text-white", "50K+"),
+              n("p", "p", "text-xs text-white/50 uppercase tracking-wider mt-0.5", "Clients"),
+            ]),
+            n("div", "div", "flex flex-col", undefined, [
+              n("span", "span", "text-2xl font-semibold text-white", "15+"),
+              n("p", "p", "text-xs text-white/50 uppercase tracking-wider mt-0.5", "Awards"),
+            ]),
+          ]),
+        ]),
+        n("div", "div", "hidden @md:flex flex-1 items-center justify-center", undefined, [
+          n("div", "div", "w-72 h-72 rounded-full bg-teal-700/50 border border-amber-400/20 flex items-center justify-center", undefined, [
+            n("div", "div", "w-36 h-56 bg-teal-600 rounded-2xl flex items-center justify-center text-white/30 text-xs", "Product"),
+          ]),
+        ]),
+      ]),
+    ]),
+    // FEATURED PRODUCTS
+    n("section", "section", "bg-white py-20 px-8", undefined, [
+      n("div", "div", "max-w-6xl mx-auto", undefined, [
+        n("div", "div", "text-center mb-14", undefined, [
+          n("p", "p", "text-xs font-semibold tracking-widest text-teal-600 uppercase mb-3", "OUR COLLECTION"),
+          n("h2", "h2", "text-4xl font-light text-gray-900 mb-4", "Featured Products"),
+          n("p", "p", "text-gray-500 max-w-md mx-auto text-sm leading-relaxed", "Discover our carefully curated selection of luxury skincare, formulated with the finest natural ingredients."),
+        ]),
+        n("div", "div", "grid grid-cols-1 @md:grid-cols-3 gap-6 mb-12", undefined,
+          products.map(({ name, desc, price }) =>
+            n("div", "div", "border border-gray-100 rounded-xl overflow-hidden", undefined, [
+              n("div", "div", "bg-gray-50 h-48 flex items-center justify-center text-gray-300 text-xs", "Product Image"),
+              n("div", "div", "p-4", undefined, [
+                n("h3", "h3", "text-sm font-semibold text-gray-900 mb-1", name),
+                n("p", "p", "text-xs text-gray-500 leading-relaxed mb-3", desc),
+                n("div", "div", "flex items-center justify-between", undefined, [
+                  n("span", "span", "text-sm font-medium text-gray-900", price),
+                  n("a", "a", "text-xs text-teal-700 font-medium hover:text-teal-900 transition-colors", "Learn More →"),
+                ]),
+              ]),
+            ]),
+          ),
+        ),
+        n("div", "div", "flex justify-center", undefined, [
+          n("a", "a", "border border-gray-300 text-gray-700 hover:border-teal-700 hover:text-teal-700 px-8 py-3 rounded-full text-sm font-medium transition-colors", "View Full Collection"),
+        ]),
+      ]),
+    ]),
+    // OUR COMMITMENT
+    n("section", "section", "bg-gray-50 py-20 px-8", undefined, [
+      n("div", "div", "max-w-6xl mx-auto", undefined, [
+        n("div", "div", "text-center mb-14", undefined, [
+          n("p", "p", "text-xs font-semibold tracking-widest text-teal-600 uppercase mb-3", "WHY CHOOSE US"),
+          n("h2", "h2", "text-4xl font-light italic text-gray-900", "Our Commitment"),
+        ]),
+        n("div", "div", "grid grid-cols-1 @md:grid-cols-4 gap-6", undefined,
+          commitments.map(({ icon, title, desc }) =>
+            n("div", "div", "bg-white rounded-2xl p-7 text-center", undefined, [
+              n("div", "div", "w-14 h-14 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-2xl mx-auto mb-4", icon),
+              n("h3", "h3", "text-sm font-semibold text-gray-900 mb-2", title),
+              n("p", "p", "text-xs text-gray-500 leading-relaxed", desc),
+            ]),
+          ),
+        ),
+      ]),
+    ]),
+    // TESTIMONIALS
+    n("section", "section", "bg-stone-50 py-20 px-8", undefined, [
+      n("div", "div", "max-w-6xl mx-auto", undefined, [
+        n("div", "div", "text-center mb-14", undefined, [
+          n("p", "p", "text-xs font-semibold tracking-widest text-teal-600 uppercase mb-3", "TESTIMONIALS"),
+          n("h2", "h2", "text-4xl font-light text-gray-900", "What Our Clients Say"),
+        ]),
+        n("div", "div", "grid grid-cols-1 @md:grid-cols-3 gap-6", undefined,
+          testimonials.map(({ name, role, text }) =>
+            n("div", "div", "bg-white rounded-2xl p-7 border border-gray-100", undefined, [
+              n("p", "p", "text-amber-400 text-base mb-4", "★★★★★"),
+              n("p", "p", "text-sm text-gray-600 leading-relaxed mb-6 italic", `"${text}"`),
+              n("div", "div", "flex items-center gap-3", undefined, [
+                n("div", "div", "w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 text-sm font-semibold shrink-0", name[0]),
+                n("div", "div", "min-w-0", undefined, [
+                  n("p", "p", "text-sm font-semibold text-gray-900", name),
+                  n("p", "p", "text-xs text-gray-400", role),
+                ]),
+              ]),
+            ]),
+          ),
+        ),
+      ]),
+    ]),
+    // NEWSLETTER
+    n("section", "section", "bg-gray-900 py-20 px-8", undefined, [
+      n("div", "div", "max-w-2xl mx-auto text-center", undefined, [
+        n("h2", "h2", "text-3xl font-light text-white mb-3", "Join Our Beauty Community"),
+        n("p", "p", "text-white/60 text-sm mb-10", "Subscribe to receive exclusive offers and skincare tips"),
+        n("div", "div", "flex gap-3 max-w-md mx-auto", undefined, [
+          n("div", "div", "flex-1 bg-white/10 border border-white/20 px-5 py-3 rounded-lg text-white/40 text-sm", "Enter your email"),
+          n("button", "button", "bg-white text-gray-900 px-6 py-3 rounded-lg text-sm font-semibold hover:bg-gray-100 transition-colors whitespace-nowrap", "Subscribe"),
+        ]),
+      ]),
+    ]),
+    // FOOTER
+    n("footer", "footer", "bg-gray-900 border-t border-white/10 py-16 px-8", undefined, [
+      n("div", "div", "max-w-6xl mx-auto", undefined, [
+        n("div", "div", "grid grid-cols-2 @md:grid-cols-4 gap-8 mb-12", undefined, [
+          n("div", "div", "", undefined, [
+            n("span", "span", "text-lg font-light tracking-[0.3em] text-white block mb-3", "LUMIÈRE"),
+            n("p", "p", "text-white/40 text-xs leading-relaxed", "Luxury skincare crafted with nature's finest ingredients for your radiant beauty."),
+          ]),
+          ...footerCols.map(({ label, links }) =>
+            n("div", "div", "", undefined, [
+              n("h4", "h4", "text-white/80 text-xs font-semibold uppercase tracking-wider mb-4", label),
+              n("ul", "ul", "space-y-2.5", undefined,
+                links.map((lnk) =>
+                  n("li", "li", "", undefined, [
+                    n("a", "a", "text-white/40 text-xs hover:text-white/70 transition-colors", lnk),
+                  ]),
+                ),
+              ),
+            ]),
+          ),
+        ]),
+        n("div", "div", "border-t border-white/10 pt-8 flex items-center justify-between", undefined, [
+          n("span", "span", "text-white/30 text-xs", "© 2024 LUMIÈRE. All rights reserved."),
+          n("div", "div", "flex gap-4", undefined, [
+            n("a", "a", "text-white/30 text-xs hover:text-white/60 transition-colors", "Instagram"),
+            n("a", "a", "text-white/30 text-xs hover:text-white/60 transition-colors", "Facebook"),
+            n("a", "a", "text-white/30 text-xs hover:text-white/60 transition-colors", "Pinterest"),
+          ]),
+        ]),
+      ]),
+    ]),
+  ];
+}
+
 function buildLando(): EditorNode[] {
   return [
     buildHeader(
@@ -2076,7 +2270,12 @@ function buildVivid(): EditorNode[] {
         },
       ],
     ),
-    buildGallery("bg-emerald-50", "Projects", "text-foreground", RESUME_GALLERY),
+    buildGallery(
+      "bg-emerald-50",
+      "Projects",
+      "text-foreground",
+      RESUME_GALLERY,
+    ),
     buildTestimonials(
       "bg-card",
       "Recommendations",
@@ -2141,7 +2340,13 @@ function buildVivid(): EditorNode[] {
 
 // ─── Types & data ─────────────────────────────────────────────────────────────
 
-type Category = "All" | "Portfolio" | "Business" | "Agency" | "Resume";
+type Category =
+  | "All"
+  | "Cosmetics"
+  | "Portfolio"
+  | "Business"
+  | "Agency"
+  | "Resume";
 
 interface ThumbnailTheme {
   header: string;
@@ -2165,6 +2370,24 @@ interface Template {
 }
 
 const TEMPLATES: Template[] = [
+  {
+    id: "LUMIÈRE",
+    name: "LUMIÈRE",
+    author: "Ravi Gupta",
+    category: "Cosmetics",
+    theme: {
+      header: "bg-teal-900",
+      hero: "bg-gradient-to-br from-teal-900 to-teal-700",
+      heroLine: "bg-amber-400/70",
+      featured: "bg-white",
+      gallery: "bg-gray-50",
+      testimonial: "bg-stone-50",
+      newsletter: "bg-gray-900",
+      newsletterBtn: "bg-white",
+      footer: "bg-gray-900",
+    },
+    buildNodes: buildLUMIÈRE,
+  },
   {
     id: "porto-lando",
     name: "Lando",
@@ -2444,10 +2667,7 @@ function PageThumbnail({ theme }: { theme: ThumbnailTheme }) {
       {/* Gallery */}
       <div className={cn(theme.gallery, "h-[16%] shrink-0 flex gap-0.5 p-1.5")}>
         {[0, 1, 2, 3, 4, 5].map((i) => (
-          <div
-            key={i}
-            className="flex-1 rounded bg-black/15 dark:bg-card/15"
-          />
+          <div key={i} className="flex-1 rounded bg-black/15 dark:bg-card/15" />
         ))}
       </div>
       {/* Testimonials */}
@@ -2495,6 +2715,7 @@ export default function TemplatePicker({ open, onClose }: TemplatePickerProps) {
 
   const categories: Category[] = [
     "All",
+    "Cosmetics",
     "Portfolio",
     "Business",
     "Agency",
@@ -2532,69 +2753,69 @@ export default function TemplatePicker({ open, onClose }: TemplatePickerProps) {
         </MotionModalClose>
       </div>
 
-          {/* Body */}
-          <div className="flex flex-1 min-h-0">
-            {/* Sidebar */}
-            <aside className="w-52 shrink-0 flex flex-col border-r border-border dark:border-white/10 p-5">
-              <nav className="flex flex-col gap-0.5 flex-1">
-                {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setActiveCategory(cat)}
-                    className={cn(
-                      "text-left px-3 py-2 rounded-sm text-sm transition-colors",
-                      activeCategory === cat
-                        ? "bg-muted dark:bg-card/10 text-foreground dark:text-white font-medium"
-                        : "text-muted-foreground dark:text-muted-foreground hover:text-foreground dark:hover:text-white hover:bg-muted dark:hover:bg-card/5",
-                    )}
-                  >
-                    {cat === "All" ? "All Templates" : cat}
-                  </button>
-                ))}
-              </nav>
+      {/* Body */}
+      <div className="flex flex-1 min-h-0">
+        {/* Sidebar */}
+        <aside className="w-52 shrink-0 flex flex-col border-r border-border dark:border-white/10 p-5">
+          <nav className="flex flex-col gap-0.5 flex-1">
+            {categories.map((cat) => (
               <button
-                onClick={onClose}
-                className="mt-4 flex items-center justify-center gap-2 px-4 py-2.5 rounded-sm border border-border shadow-xs dark:border-white/10
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={cn(
+                  "text-left px-3 py-2 rounded-sm text-sm transition-colors",
+                  activeCategory === cat
+                    ? "bg-muted dark:bg-card/10 text-foreground dark:text-white font-medium"
+                    : "text-muted-foreground dark:text-muted-foreground hover:text-foreground dark:hover:text-white hover:bg-muted dark:hover:bg-card/5",
+                )}
+              >
+                {cat === "All" ? "All Templates" : cat}
+              </button>
+            ))}
+          </nav>
+          <button
+            onClick={onClose}
+            className="mt-4 flex items-center justify-center gap-2 px-4 py-2.5 rounded-sm border border-border shadow-xs dark:border-white/10
                   text-sm font-medium text-muted-foreground dark:text-muted-foreground
                   hover:bg-muted dark:hover:bg-card/5 transition-colors text-left"
-              >
-                <LayersPlus className="w-4 h-4" />
-                Start blank
-              </button>
-            </aside>
+          >
+            <LayersPlus className="w-4 h-4" />
+            Start blank
+          </button>
+        </aside>
 
-            {/* Grid */}
-            <div className="flex-1 overflow-y-auto p-6 bg-muted min-h-[calc(100vh-150px)] max-h-[calc(100vh-150px)]">
-              <div className="grid grid-cols-3 gap-5">
-                {visible.map((template) => (
-                  <button
-                    key={template.id}
-                    onClick={() => handleSelect(template)}
-                    className="group text-left flex flex-col gap-2.5 focus:outline-none"
-                  >
-                    <div
-                      className={cn(
-                        "w-full rounded-xl overflow-hidden",
-                        "ring-2 ring-transparent group-hover:ring-ring dark:group-hover:ring-primary",
-                        "group-focus-visible:ring-ring dark:group-focus-visible:ring-primary",
-                        "transition-all duration-150 shadow-sm",
-                      )}
-                    >
-                      <PageThumbnail theme={template.theme} />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-foreground dark:text-white leading-tight">
-                        {template.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-0.5">
-                        {template.author}
-                      </p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
+        {/* Grid */}
+        <div className="flex-1 overflow-y-auto p-6 bg-muted min-h-[calc(100vh-150px)] max-h-[calc(100vh-150px)]">
+          <div className="grid grid-cols-3 gap-5">
+            {visible.map((template) => (
+              <button
+                key={template.id}
+                onClick={() => handleSelect(template)}
+                className="group text-left flex flex-col gap-2.5 focus:outline-none"
+              >
+                <div
+                  className={cn(
+                    "w-full rounded-xl overflow-hidden",
+                    "ring-2 ring-transparent group-hover:ring-ring dark:group-hover:ring-primary",
+                    "group-focus-visible:ring-ring dark:group-focus-visible:ring-primary",
+                    "transition-all duration-150 shadow-sm",
+                  )}
+                >
+                  <PageThumbnail theme={template.theme} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-foreground dark:text-white leading-tight">
+                    {template.name}
+                  </p>
+                  <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-0.5">
+                    {template.author}
+                  </p>
+                </div>
+              </button>
+            ))}
           </div>
-      </MotionModal>
+        </div>
+      </div>
+    </MotionModal>
   );
 }
