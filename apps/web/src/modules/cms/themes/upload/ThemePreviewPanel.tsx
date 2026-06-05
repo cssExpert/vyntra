@@ -72,7 +72,7 @@ export function ThemePreviewPanel({ result, formData, onPublish, isPublishing }:
           >
             <iframe
               srcDoc={result.previewHtml}
-              sandbox="allow-same-origin"
+              sandbox="allow-scripts allow-same-origin"
               title="Theme Preview"
               className="w-full block"
               style={{ height: 500, border: "none" }}

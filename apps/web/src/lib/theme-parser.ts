@@ -3,6 +3,211 @@ import type { ThemePage, ThemeAssets } from "@/modules/cms/themes/upload-types";
 import { nanoid } from "nanoid";
 
 // ---------------------------------------------------------------------------
+// extractZipHtml
+// Reads the uploaded ZIP, inlines all CSS (incl. @import + url() assets),
+// converts <img> to base64, and returns live-renderable HTML.
+// Uses DOMParser so attribute order never matters.
+// ---------------------------------------------------------------------------
+
+export interface ZipExtractResult {
+  html: string;
+  pages: ThemePage[];
+  assets: ThemeAssets;
+}
+
+const IMG_EXTS  = /\.(png|jpe?g|gif|svg|webp|ico|avif)$/i;
+const FONT_EXTS = /\.(ttf|woff2?|eot|otf)$/i;
+const MIME: Record<string, string> = {
+  png:  "image/png",   jpg:  "image/jpeg",  jpeg: "image/jpeg",
+  gif:  "image/gif",   svg:  "image/svg+xml", webp: "image/webp",
+  ico:  "image/x-icon", avif: "image/avif",
+  ttf:  "font/ttf",   woff: "font/woff",   woff2: "font/woff2",
+  eot:  "application/vnd.ms-fontobject",   otf:  "font/otf",
+};
+
+function fileExt(path: string) {
+  return (path.split(".").pop() ?? "").toLowerCase();
+}
+
+/** Normalise slashes and strip leading ./ */
+function normRef(ref: string) {
+  return ref.replace(/\\/g, "/").replace(/^\.\//, "");
+}
+
+/** Return the directory prefix of a zip-internal path, e.g. "theme/css/" */
+function dirOf(path: string) {
+  const idx = path.lastIndexOf("/");
+  return idx >= 0 ? path.slice(0, idx + 1) : "";
+}
+
+/** Look up a file in the zip map; tries baseDir + ref first, then ref bare. */
+function lookup<T>(
+  map: Map<string, T>,
+  baseDir: string,
+  ref: string,
+): T | null {
+  const clean = normRef(ref);
+  return map.get(baseDir + clean) ?? map.get(clean) ?? null;
+}
+
+/** Inline all url() tokens in a CSS string with base64 data URIs. */
+async function inlineCssUrls(
+  css: string,
+  cssDir: string,
+  b64Map: Map<string, () => Promise<string>>,
+): Promise<string> {
+  const urlRe = /url\(["']?([^"')#?]+)["']?\)/gi;
+  for (const m of [...css.matchAll(urlRe)]) {
+    const ref = m[1];
+    if (ref.startsWith("data:") || ref.startsWith("http") || ref.startsWith("//")) continue;
+    const loader = lookup(b64Map, cssDir, ref);
+    if (!loader) continue;
+    try {
+      const b64  = await loader();
+      const mime = MIME[fileExt(ref)] ?? "application/octet-stream";
+      css = css.split(m[0]).join(`url("data:${mime};base64,${b64}")`);
+    } catch { /* skip */ }
+  }
+  return css;
+}
+
+/** Resolve @import statements recursively (one level deep is enough for most themes). */
+async function resolveImports(
+  css: string,
+  cssDir: string,
+  strMap: Map<string, () => Promise<string>>,
+  b64Map: Map<string, () => Promise<string>>,
+): Promise<string> {
+  const importRe = /@import\s+(?:url\(["']?([^"')]+)["']?\)|["']([^"']+)["'])[^;]*;/gi;
+  for (const m of [...css.matchAll(importRe)]) {
+    const ref = m[1] ?? m[2];
+    if (!ref || ref.startsWith("http") || ref.startsWith("//")) continue;
+    const loader = lookup(strMap, cssDir, ref);
+    if (!loader) continue;
+    try {
+      const importedDir = dirOf(cssDir + normRef(ref));
+      let importedCss   = await loader();
+      importedCss       = await inlineCssUrls(importedCss, importedDir, b64Map);
+      css = css.split(m[0]).join(importedCss);
+    } catch { /* skip */ }
+  }
+  return css;
+}
+
+export async function extractZipHtml(file: File): Promise<ZipExtractResult> {
+  const JSZip = (await import("jszip")).default;
+  const zip   = await JSZip.loadAsync(file);
+
+  // ── Build file maps (normalise all paths to forward slashes) ────────────────
+  const strMap = new Map<string, () => Promise<string>>();
+  const b64Map = new Map<string, () => Promise<string>>();
+  zip.forEach((rawPath, entry) => {
+    if (entry.dir) return;
+    const p = rawPath.replace(/\\/g, "/");
+    strMap.set(p, () => entry.async("string"));
+    b64Map.set(p, () => entry.async("base64"));
+  });
+
+  const paths = [...strMap.keys()];
+
+  // ── Asset counts ────────────────────────────────────────────────────────────
+  const assets: ThemeAssets = {
+    images:   paths.filter(p => IMG_EXTS.test(p)).length,
+    cssFiles: paths.filter(p => p.endsWith(".css")).length,
+    jsFiles:  paths.filter(p => p.endsWith(".js")).length,
+    fonts:    paths.filter(p => FONT_EXTS.test(p)).length,
+  };
+
+  // ── Detect pages ────────────────────────────────────────────────────────────
+  const htmlPaths = paths.filter(p => p.endsWith(".html") || p.endsWith(".htm"));
+  const pages: ThemePage[] = htmlPaths.map(p => {
+    const fileName = p.split("/").pop() ?? p;
+    const rawName  = fileName.replace(/\.html?$/i, "").replace(/[-_]/g, " ");
+    return {
+      name:   rawName.charAt(0).toUpperCase() + rawName.slice(1),
+      file:   fileName,
+      isMain: fileName.toLowerCase() === "index.html",
+    };
+  });
+  if (pages.length > 0 && !pages.some(pg => pg.isMain)) pages[0].isMain = true;
+
+  // ── Find main HTML file ─────────────────────────────────────────────────────
+  // Prefer a root-level index.html; fall back to any index.html; then any .html
+  const mainPath =
+    htmlPaths.find(p => p.toLowerCase() === "index.html") ??
+    htmlPaths.find(p => p.split("/").pop()?.toLowerCase() === "index.html") ??
+    htmlPaths[0];
+
+  if (!mainPath) throw new Error("No .html file found in the ZIP.");
+
+  const htmlStr = await strMap.get(mainPath)!();
+  const baseDir = dirOf(mainPath);   // e.g. "mytheme/" or ""
+
+  // ── Parse with DOMParser (handles any attribute order) ──────────────────────
+  const doc = new DOMParser().parseFromString(htmlStr, "text/html");
+
+  // ── Inline stylesheet <link> elements ───────────────────────────────────────
+  // querySelectorAll handles href-before-rel, extra attributes, etc.
+  for (const link of Array.from(doc.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]'))) {
+    const href = link.getAttribute("href");
+    if (!href || href.startsWith("http") || href.startsWith("//") || href.startsWith("data:")) continue;
+
+    const cssLoader = lookup(strMap, baseDir, href);
+    if (!cssLoader) continue;
+    try {
+      const cssDir = dirOf(baseDir + normRef(href));
+      let css      = await cssLoader();
+      css          = await resolveImports(css, cssDir, strMap, b64Map);
+      css          = await inlineCssUrls(css, cssDir, b64Map);
+
+      const style = doc.createElement("style");
+      style.textContent = css;
+      link.replaceWith(style);
+    } catch { /* leave the <link> in place */ }
+  }
+
+  // ── Inline <style> blocks that contain url() (e.g. background images) ───────
+  for (const style of Array.from(doc.querySelectorAll("style"))) {
+    try {
+      style.textContent = await inlineCssUrls(style.textContent ?? "", baseDir, b64Map);
+    } catch { /* skip */ }
+  }
+
+  // ── Convert <img src> to base64 ─────────────────────────────────────────────
+  for (const img of Array.from(doc.querySelectorAll<HTMLImageElement>("img[src]"))) {
+    const src = img.getAttribute("src");
+    if (!src || src.startsWith("http") || src.startsWith("//") || src.startsWith("data:")) continue;
+    const loader = lookup(b64Map, baseDir, src);
+    if (!loader) continue;
+    try {
+      img.setAttribute("src", `data:${MIME[fileExt(src)] ?? "image/png"};base64,${await loader()}`);
+    } catch { /* skip */ }
+  }
+
+  // ── Convert CSS background / src on other elements (via inline style) ───────
+  for (const el of Array.from(doc.querySelectorAll<HTMLElement>("[style]"))) {
+    const inlineStyle = el.getAttribute("style") ?? "";
+    if (!inlineStyle.includes("url(")) continue;
+    try {
+      el.setAttribute("style", await inlineCssUrls(inlineStyle, baseDir, b64Map));
+    } catch { /* skip */ }
+  }
+
+  // ── Remove only LOCAL scripts; keep CDN scripts (e.g. Tailwind CDN) ──────────
+  // Removing cdn.tailwindcss.com or similar would strip all Tailwind styling.
+  for (const s of Array.from(doc.querySelectorAll("script[src]"))) {
+    const src = s.getAttribute("src") ?? "";
+    const isExternal = src.startsWith("http") || src.startsWith("//");
+    if (!isExternal) s.remove();
+  }
+
+  // ── Serialize back to a full HTML document ──────────────────────────────────
+  const finalHtml = "<!DOCTYPE html>\n" + doc.documentElement.outerHTML;
+
+  return { html: finalHtml, pages, assets };
+}
+
+// ---------------------------------------------------------------------------
 // convertHtmlToNodes
 // ---------------------------------------------------------------------------
 export function convertHtmlToNodes(html: string): EditorNode[] {

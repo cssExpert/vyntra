@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, Wand2, CheckCircle2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
+  extractZipHtml,
   generatePreviewHtml,
   generateMockPages,
   generateMockAssets,
@@ -120,12 +121,16 @@ export function UploadView() {
     setSteps(makeInitialSteps());
     setProgress(0);
 
-    let elapsed = 0;
+    // Kick off the real ZIP extraction immediately, in parallel with the
+    // animated progress steps so the user sees progress while we work.
+    const extractionPromise = zipFile
+      ? extractZipHtml(zipFile).catch(() => null)
+      : Promise.resolve(null);
 
+    let elapsed = 0;
     for (let i = 0; i < PROCESSING_STEPS_CONFIG.length; i++) {
       const cfg = PROCESSING_STEPS_CONFIG[i];
 
-      // Mark active
       setCurrentStepLabel(cfg.label);
       setSteps((prev) =>
         prev.map((s, idx) => ({
@@ -137,7 +142,6 @@ export function UploadView() {
       await sleep(cfg.ms);
       elapsed += cfg.ms;
 
-      // Mark done + update progress
       setSteps((prev) =>
         prev.map((s, idx) => ({
           ...s,
@@ -147,14 +151,16 @@ export function UploadView() {
       setProgress((elapsed / TOTAL_MS) * 100);
     }
 
-    // Generate result
-    const previewHtml = generatePreviewHtml(
-      formData.name,
-      formData.description,
-      formData.category,
-    );
-    const pages = generateMockPages(formData.category);
-    const assets = generateMockAssets();
+    // Wait for actual extraction (already running; usually done by now)
+    const extracted = await extractionPromise;
+
+    // Use real content when available, fall back to generated mock
+    const previewHtml =
+      extracted?.html ??
+      generatePreviewHtml(formData.name, formData.description, formData.category);
+    const pages =
+      extracted?.pages.length ? extracted.pages : generateMockPages(formData.category);
+    const assets = extracted?.assets ?? generateMockAssets();
 
     setResult({
       pages,
