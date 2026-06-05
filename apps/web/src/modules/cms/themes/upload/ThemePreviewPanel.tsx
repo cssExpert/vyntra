@@ -2,7 +2,18 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Monitor, Tablet, Smartphone, FileText, UploadCloud, Loader2, Image as ImageIcon, Code2, Zap, Type } from "lucide-react";
+import {
+  Monitor,
+  Tablet,
+  Smartphone,
+  FileText,
+  UploadCloud,
+  Loader2,
+  Image as ImageIcon,
+  Code2,
+  Zap,
+  Type,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ProcessedResult, ThemeFormData } from "../upload-types";
 
@@ -27,7 +38,12 @@ const DEVICE_ICONS = {
   mobile: Smartphone,
 } as const;
 
-export function ThemePreviewPanel({ result, formData, onPublish, isPublishing }: ThemePreviewPanelProps) {
+export function ThemePreviewPanel({
+  result,
+  formData,
+  onPublish,
+  isPublishing,
+}: ThemePreviewPanelProps) {
   const [device, setDevice] = useState<DeviceMode>("desktop");
 
   const fadeUp = {
@@ -37,11 +53,17 @@ export function ThemePreviewPanel({ result, formData, onPublish, isPublishing }:
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6 w-full">
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 w-full">
       {/* LEFT — Live Preview */}
-      <motion.div {...fadeUp} transition={{ ...fadeUp.transition, delay: 0 }} className="space-y-3">
+      <motion.div
+        {...fadeUp}
+        transition={{ ...fadeUp.transition, delay: 0 }}
+        className="lg:col-span-3 space-y-3"
+      >
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">Live Preview</h3>
+          <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+            Live Preview
+          </h3>
           <div className="flex items-center gap-1 bg-muted p-1 rounded-lg border border-border">
             {(["desktop", "tablet", "mobile"] as DeviceMode[]).map((d) => {
               const Icon = DEVICE_ICONS[d];
@@ -67,7 +89,11 @@ export function ThemePreviewPanel({ result, formData, onPublish, isPublishing }:
 
         <div className="bg-muted/40 border border-border rounded-xl p-4 overflow-auto flex justify-center min-h-[500px]">
           <div
-            style={{ width: DEVICE_WIDTHS[device], transition: "width 0.3s ease", maxWidth: "100%" }}
+            style={{
+              width: DEVICE_WIDTHS[device],
+              transition: "width 0.3s ease",
+              maxWidth: "100%",
+            }}
             className="overflow-hidden rounded-xl border border-border shadow-lg"
           >
             <iframe
@@ -82,17 +108,30 @@ export function ThemePreviewPanel({ result, formData, onPublish, isPublishing }:
       </motion.div>
 
       {/* RIGHT — Info panels */}
-      <div className="space-y-4">
+      <div className="lg:col-span-1 space-y-4">
         {/* Detected Pages */}
-        <motion.div {...fadeUp} transition={{ ...fadeUp.transition, delay: 0.1 }} className="bg-card border border-border rounded-xl p-5 space-y-3">
-          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Detected Pages</h3>
+        <motion.div
+          {...fadeUp}
+          transition={{ ...fadeUp.transition, delay: 0.1 }}
+          className="bg-card border border-border rounded-xl p-5 space-y-3"
+        >
+          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+            Detected Pages
+          </h3>
           <ul className="space-y-2">
             {result.pages.map((page) => (
-              <li key={page.file} className="flex items-center justify-between gap-2">
+              <li
+                key={page.file}
+                className="flex items-center justify-between gap-2"
+              >
                 <div className="flex items-center gap-2 min-w-0">
                   <FileText className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                  <span className="text-sm text-foreground font-medium truncate">{page.name}</span>
-                  <span className="text-xs text-muted-foreground/70 truncate hidden sm:block">{page.file}</span>
+                  <span className="text-sm text-foreground font-medium truncate">
+                    {page.name}
+                  </span>
+                  <span className="text-xs text-muted-foreground/70 truncate hidden sm:block">
+                    {page.file}
+                  </span>
                 </div>
                 {page.isMain && (
                   <span className="shrink-0 px-1.5 py-0.5 text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 rounded-full uppercase tracking-wide">
@@ -105,20 +144,60 @@ export function ThemePreviewPanel({ result, formData, onPublish, isPublishing }:
         </motion.div>
 
         {/* Assets */}
-        <motion.div {...fadeUp} transition={{ ...fadeUp.transition, delay: 0.2 }} className="bg-card border border-border rounded-xl p-5 space-y-3">
-          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Assets</h3>
+        <motion.div
+          {...fadeUp}
+          transition={{ ...fadeUp.transition, delay: 0.2 }}
+          className="bg-card border border-border rounded-xl p-5 space-y-3"
+        >
+          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+            Assets
+          </h3>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { label: "Images", value: result.assets.images, Icon: ImageIcon, color: "text-amber-500", bg: "bg-amber-500/10" },
-              { label: "CSS Files", value: result.assets.cssFiles, Icon: Code2, color: "text-blue-500", bg: "bg-blue-500/10" },
-              { label: "JS Files", value: result.assets.jsFiles, Icon: Zap, color: "text-violet-500", bg: "bg-violet-500/10" },
-              { label: "Fonts", value: result.assets.fonts, Icon: Type, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+              {
+                label: "Images",
+                value: result.assets.images,
+                Icon: ImageIcon,
+                color: "text-amber-500",
+                bg: "bg-amber-500/10",
+              },
+              {
+                label: "CSS Files",
+                value: result.assets.cssFiles,
+                Icon: Code2,
+                color: "text-blue-500",
+                bg: "bg-blue-500/10",
+              },
+              {
+                label: "JS Files",
+                value: result.assets.jsFiles,
+                Icon: Zap,
+                color: "text-violet-500",
+                bg: "bg-violet-500/10",
+              },
+              {
+                label: "Fonts",
+                value: result.assets.fonts,
+                Icon: Type,
+                color: "text-emerald-500",
+                bg: "bg-emerald-500/10",
+              },
             ].map(({ label, value, Icon, color, bg }) => (
-              <div key={label} className={cn("flex items-center gap-2.5 p-3 rounded-lg border border-border", bg)}>
+              <div
+                key={label}
+                className={cn(
+                  "flex items-center gap-2.5 p-3 rounded-lg border border-border",
+                  bg,
+                )}
+              >
                 <Icon className={cn("w-4 h-4 shrink-0", color)} />
                 <div>
-                  <p className={cn("text-lg font-bold leading-none", color)}>{value}</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">{label}</p>
+                  <p className={cn("text-lg font-bold leading-none", color)}>
+                    {value}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    {label}
+                  </p>
                 </div>
               </div>
             ))}
@@ -126,7 +205,10 @@ export function ThemePreviewPanel({ result, formData, onPublish, isPublishing }:
         </motion.div>
 
         {/* Publish */}
-        <motion.div {...fadeUp} transition={{ ...fadeUp.transition, delay: 0.3 }}>
+        <motion.div
+          {...fadeUp}
+          transition={{ ...fadeUp.transition, delay: 0.3 }}
+        >
           <button
             type="button"
             onClick={onPublish}
