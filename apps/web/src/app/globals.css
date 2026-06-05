@@ -369,7 +369,9 @@
     border: 0 none !important;
   }
 
-  .rounded-sm,
+  .rounded-sm {
+    border-radius: calc(var(--radius) / 2) !important;
+  }
   .rounded-lg,
   .rounded-xl,
   .rs__control {

@@ -358,7 +358,7 @@ export default function BottomToolbar() {
         </div>
       )}
 
-      <div className="shrink-0 h-10 flex items-center px-3 gap-1 border-t bg-card border-border dark:border-border">
+      <div className="shrink-0 h-10 flex items-center px-5 gap-1 border-t bg-card border-border dark:border-border">
         {/* Tool switcher */}
         <div className="relative flex items-center gap-0 rounded-sm p-0.5 mr-0 bg-muted dark:bg-muted">
           {/* Dynamic Sliding Background */}

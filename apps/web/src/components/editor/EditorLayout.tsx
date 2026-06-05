@@ -52,12 +52,14 @@ function EditorHeader({ pageSlug }: { pageSlug: string | null }) {
 
   return (
     <header
-      className="shrink-0 h-auto flex items-center justify-between px-8 pt-4 z-40
+      className="shrink-0 h-auto flex items-center justify-between px-5 pt-4 z-40
       bg-transparent"
     >
       <div className="flex items-center gap-3">
         <ThemeToggle />
-        <span className="text-sm font-semibold text-foreground">{pageTitle}</span>
+        <span className="text-sm font-semibold text-foreground">
+          {pageTitle}
+        </span>
       </div>
       {/* Right actions */}
       <div className="flex items-center gap-3">
@@ -106,7 +108,7 @@ export default function EditorLayout() {
   // On mount: hide template picker when editing an existing page
   useEffect(() => {
     if (isEditingExisting) setShowTemplatePicker(false);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function handleInsertBlock(block: ComponentBlock) {

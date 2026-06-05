@@ -57,7 +57,7 @@ export default function Canvas() {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-trnsparent">
-      <div className="flex-1 flex overflow-hidden px-8 py-5">
+      <div className="flex-1 flex overflow-hidden px-5 py-5">
         <div
           className={cn(
             "relative flex flex-col transition-all mx-auto duration-300 w-full rounded-xl overflow-hidden",
