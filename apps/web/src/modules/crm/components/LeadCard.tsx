@@ -116,7 +116,7 @@ export function LeadCard({ contact, index = 0 }: LeadCardProps) {
         {/* Name + value */}
         <div className="flex items-start justify-between gap-2 mb-2">
           <div className="flex items-center gap-2 min-w-0">
-            <div className="h-6 w-6 flex-shrink-0 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-[9px] font-bold text-white">
+            <div className="h-6 w-6 flex-shrink-0 rounded-full bg-gradient-brand flex items-center justify-center text-[9px] font-bold text-white">
               {initials}
             </div>
             <p className="text-sm font-semibold text-primary hover:text-primary/80 truncate transition-colors">

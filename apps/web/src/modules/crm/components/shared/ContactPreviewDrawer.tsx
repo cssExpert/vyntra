@@ -213,7 +213,7 @@ export function ContactPreviewDrawer({
                   <div
                     className={cn(
                       "h-12 w-12 flex-shrink-0 rounded-full",
-                      "bg-gradient-to-br from-brand-400 to-brand-600",
+                      "bg-gradient-brand",
                       "flex items-center justify-center text-sm font-bold text-white",
                     )}
                   >

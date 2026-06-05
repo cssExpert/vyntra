@@ -64,7 +64,7 @@ const COLUMNS = [
       const name = getValue();
       return (
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 shrink-0 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-[11px] font-bold text-white">
+          <div className="h-8 w-8 shrink-0 rounded-full bg-gradient-brand flex items-center justify-center text-[11px] font-bold text-white">
             {getInitials(name)}
           </div>
           <span className="font-semibold text-foreground truncate">{name}</span>

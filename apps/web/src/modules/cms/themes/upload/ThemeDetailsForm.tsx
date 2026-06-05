@@ -114,7 +114,7 @@ export function ThemeDetailsForm({ data, onChange }: ThemeDetailsFormProps) {
         <div>
           <label className={labelCls}>
             Thumbnail URL{" "}
-            <span className="text-muted-foreground/60 lowercase normal-case font-normal">
+            <span className="text-muted-foreground/60 normal-case font-normal">
               (optional)
             </span>
           </label>

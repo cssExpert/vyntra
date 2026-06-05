@@ -163,7 +163,7 @@ export function ProfileMenu() {
         )}
       >
         {/* Avatar */}
-        <div className="h-6 w-6 flex-shrink-0 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-[10px] font-bold text-white">
+        <div className="h-6 w-6 flex-shrink-0 rounded-full bg-gradient-brand flex items-center justify-center text-[10px] font-bold text-white">
           {user?.initials ?? "??"}
         </div>
         <span className="hidden sm:block text-sm font-medium">
@@ -211,7 +211,7 @@ export function ProfileMenu() {
                 className="flex items-center gap-3 p-4 border-b border-border bg-muted/40"
               >
                 <div className="relative flex-shrink-0">
-                  <div className="h-11 w-11 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-sm font-bold text-white shadow-glow-brand">
+                  <div className="h-11 w-11 rounded-full bg-gradient-brand flex items-center justify-center text-sm font-bold text-white shadow-glow-brand">
                     {user?.initials ?? "??"}
                   </div>
                   <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-success border-2 border-card" />

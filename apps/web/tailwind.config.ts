@@ -114,21 +114,22 @@ const config: Config = {
           "0 8px 32px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.10)",
         "glass-lg":
           "0 16px 48px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.12)",
-        "glow-brand": "0 0 24px rgba(209,76,35,0.40)",
+        "glow-brand": "0 0 24px hsl(var(--primary) / 0.40)",
         "glow-success": "0 0 16px rgba(34,197,94,0.30)",
         "glow-error": "0 0 16px rgba(239,68,68,0.30)",
         "card-hover": "0 12px 40px rgba(0,0,0,0.22)",
       },
       backgroundImage: {
-        "gradient-brand": "linear-gradient(135deg, #eb5729 0%, #d14c23 100%)",
+        "gradient-brand":
+          "linear-gradient(135deg, hsl(var(--primary-light)) 0%, hsl(var(--primary)) 100%)",
         "gradient-brand-subtle":
-          "linear-gradient(135deg, rgba(209,76,35,0.15) 0%, rgba(174,62,28,0.15) 100%)",
+          "linear-gradient(135deg, hsl(var(--primary) / 0.15) 0%, hsl(var(--primary) / 0.15) 100%)",
         "gradient-dark": "linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 100%)",
         "gradient-card":
           "linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)",
         "gradient-sidebar": "linear-gradient(180deg, #171717 0%, #141414 100%)",
         "gradient-mesh":
-          "radial-gradient(at 40% 20%, rgba(209,76,35,0.15) 0px, transparent 50%), radial-gradient(at 80% 0%, rgba(235,87,41,0.10) 0px, transparent 50%), radial-gradient(at 0% 50%, rgba(6,182,212,0.08) 0px, transparent 50%)",
+          "radial-gradient(at 40% 20%, hsl(var(--primary) / 0.15) 0px, transparent 50%), radial-gradient(at 80% 0%, hsl(var(--primary-light) / 0.10) 0px, transparent 50%), radial-gradient(at 0% 50%, hsl(var(--accent) / 0.08) 0px, transparent 50%)",
       },
       animation: {
         "fade-in": "fadeIn 0.3s ease-out",

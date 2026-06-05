@@ -76,9 +76,8 @@ const BRAND_DEFAULTS = {
   accent:    "#ec4899", // Pink
 } as const;
 
-function hexToHslComponents(hex: string): string {
-  // Fallback for null/undefined/invalid values
-  if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) return "14 71% 48%"; // Flamingo
+function hexToHslParts(hex: string): [number, number, number] {
+  if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) return [14, 71, 48]; // Flamingo fallback
   const r = parseInt(hex.slice(1, 3), 16) / 255;
   const g = parseInt(hex.slice(3, 5), 16) / 255;
   const b = parseInt(hex.slice(5, 7), 16) / 255;
@@ -95,22 +94,28 @@ function hexToHslComponents(hex: string): string {
       case b: h = ((r - g) / d + 4) / 6; break;
     }
   }
-  return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
+  return [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
 }
 
 function applyTheme(settings: OrganizationSettings) {
   const root = document.documentElement;
 
-  // Use brand Flamingo as fallback for any unset/invalid color
   const primary   = settings.primaryColor   || BRAND_DEFAULTS.primary;
   const secondary = settings.secondaryColor || BRAND_DEFAULTS.secondary;
   const accent    = settings.accentColor    || BRAND_DEFAULTS.accent;
 
-  // CSS variables use HSL components (consumed as hsl(var(--primary)))
-  root.style.setProperty("--primary",   hexToHslComponents(primary));
-  root.style.setProperty("--ring",      hexToHslComponents(primary));
-  root.style.setProperty("--secondary", hexToHslComponents(secondary));
-  root.style.setProperty("--accent",    hexToHslComponents(accent));
+  const [ph, ps, pl] = hexToHslParts(primary);
+  const [sh, ss, sl] = hexToHslParts(secondary);
+  const [ah, as_, al] = hexToHslParts(accent);
+
+  // Core semantic variables (consumed as hsl(var(--primary)))
+  root.style.setProperty("--primary",       `${ph} ${ps}% ${pl}%`);
+  root.style.setProperty("--ring",          `${ph} ${ps}% ${pl}%`);
+  root.style.setProperty("--secondary",     `${sh} ${ss}% ${sl}%`);
+  root.style.setProperty("--accent",        `${ah} ${as_}% ${al}%`);
+
+  // Lighter tint of primary (+8 L) — used by gradients so they update too
+  root.style.setProperty("--primary-light", `${ph} ${ps}% ${Math.min(pl + 8, 95)}%`);
 
   if (settings.faviconUrl) {
     const link = document.querySelector('link[rel="icon"]') as HTMLLinkElement;
