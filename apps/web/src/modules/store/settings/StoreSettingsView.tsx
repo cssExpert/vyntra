@@ -51,7 +51,7 @@ const TABS = [
 type TabId = (typeof TABS)[number]["id"];
 
 const inputCls =
-  "w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none";
+  "w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15";
 const labelCls = "block text-xs font-semibold text-foreground mb-1";
 
 function FieldGroup({
