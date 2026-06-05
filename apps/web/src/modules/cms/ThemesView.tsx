@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SectionTitle from "@/components/common/SectionTitle";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import type {
   Gallery,
   GalleryStatus,
@@ -31,6 +32,9 @@ export function ThemesView() {
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
   const [toasts, setToasts] = useState<Toast[]>([]);
 
+  // Confirm-before-delete state
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; title: string } | null>(null);
+
   useEffect(() => {
     const custom = loadCustomThemes();
     if (custom.length > 0) setThemes([...custom, ...THEMES_DATA]);
@@ -45,10 +49,18 @@ export function ThemesView() {
     );
   };
 
-  const handleDelete = (id: string, title: string) => {
-    setThemes((prev) => prev.filter((t) => t.id !== id));
-    addToast(`"${title}" removed.`, "info");
+  // Called by ThemeCard/ThemeTable — opens the confirm dialog
+  const handleDeleteRequest = (id: string, title: string) => {
     setActiveDropdownId(null);
+    setPendingDelete({ id, title });
+  };
+
+  // Called when user clicks "Delete" inside the dialog
+  const handleConfirmDelete = () => {
+    if (!pendingDelete) return;
+    setThemes((prev) => prev.filter((t) => t.id !== pendingDelete.id));
+    addToast(`"${pendingDelete.title}" has been removed.`, "info");
+    setPendingDelete(null);
   };
 
   const handleToggleStatus = (id: string, current: GalleryStatus) => {
@@ -91,16 +103,11 @@ export function ThemesView() {
       result = result.filter((t) => t.category === selectedCategory);
     result.sort((a, b) => {
       switch (sortBy) {
-        case "oldest":
-          return +new Date(a.createdAt) - +new Date(b.createdAt);
-        case "items":
-          return b.itemCount - a.itemCount;
-        case "views":
-          return b.views - a.views;
-        case "alphabetical":
-          return a.title.localeCompare(b.title);
-        default:
-          return +new Date(b.createdAt) - +new Date(a.createdAt);
+        case "oldest":  return +new Date(a.createdAt) - +new Date(b.createdAt);
+        case "items":   return b.itemCount - a.itemCount;
+        case "views":   return b.views - a.views;
+        case "alphabetical": return a.title.localeCompare(b.title);
+        default:        return +new Date(b.createdAt) - +new Date(a.createdAt);
       }
     });
     return result;
@@ -142,9 +149,7 @@ export function ThemesView() {
                 <p>{toast.message}</p>
               </div>
               <button
-                onClick={() =>
-                  setToasts((p) => p.filter((t) => t.id !== toast.id))
-                }
+                onClick={() => setToasts((p) => p.filter((t) => t.id !== toast.id))}
                 className="text-muted-foreground hover:text-foreground transition-colors ml-4"
               >
                 <X size={16} />
@@ -196,11 +201,8 @@ export function ThemesView() {
             activeDropdownId={activeDropdownId}
             setActiveDropdownId={setActiveDropdownId}
             onToggleStatus={handleToggleStatus}
-            onDelete={handleDelete}
-            onResetFilters={() => {
-              setSearchQuery("");
-              setSelectedCategory("All");
-            }}
+            onDelete={handleDeleteRequest}
+            onResetFilters={() => { setSearchQuery(""); setSelectedCategory("All"); }}
             onNavigate={handleNavigate}
           />
         ) : (
@@ -210,12 +212,30 @@ export function ThemesView() {
             activeDropdownId={activeDropdownId}
             setActiveDropdownId={setActiveDropdownId}
             onToggleStatus={handleToggleStatus}
-            onDelete={handleDelete}
+            onDelete={handleDeleteRequest}
             onNavigate={handleNavigate}
           />
         )}
       </AnimatePresence>
 
+      {/* Delete confirmation dialog */}
+      <ConfirmDialog
+        open={!!pendingDelete}
+        title="Delete this theme?"
+        description={
+          pendingDelete ? (
+            <>
+              <span className="font-semibold text-foreground">{pendingDelete.title}</span>{" "}
+              will be permanently removed from the Themes Hub. This action cannot be undone.
+            </>
+          ) : undefined
+        }
+        confirmLabel="Yes, Delete Theme"
+        cancelLabel="Keep It"
+        variant="danger"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   );
 }
