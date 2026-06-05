@@ -31,7 +31,7 @@ export function ThemeControls({
     <div className="space-y-4 mb-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         {/* Search */}
-        <div className="relative max-w-sm">
+        <div className="relative flex-1 max-w-sm md:max-w-md">
           <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted-foreground">
             <Search size={17} />
           </span>
@@ -40,7 +40,7 @@ export function ThemeControls({
             placeholder="Search by name, category, or tag..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-9 py-2.5 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200 shadow-sm"
+            className="w-full pl-10 pr-2 py-2.5 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200 shadow-sm"
           />
           {searchQuery && (
             <button
@@ -55,7 +55,9 @@ export function ThemeControls({
         <div className="flex flex-wrap items-center gap-3">
           {/* Sort */}
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground hidden sm:inline font-medium">Sort:</span>
+            <span className="text-xs text-muted-foreground hidden sm:inline font-medium">
+              Sort:
+            </span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortKey)}
