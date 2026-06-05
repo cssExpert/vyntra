@@ -37,6 +37,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 import { cn } from "@/lib/utils";
 import { nanoid } from "nanoid";
+import { useEditorStore } from "@/store/editorStore";
 
 import MetaTitle from "./MetaTitle";
 import OpenGraphs from "./OpenGraphs";
@@ -204,6 +205,7 @@ function PageSettingsDialog({
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 const AddressBar = () => {
+  const { clearCanvas, setShowTemplatePicker } = useEditorStore();
   const [pageList, setPageList] = useState<Page[]>(INITIAL_PAGES);
   const [activePageId, setActivePageId] = useState("home");
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -241,8 +243,13 @@ const AddressBar = () => {
         settings: { pageTitle: trimmed, metaTags: [] },
       },
     ]);
+    setActivePageId(id);
     setNewPageName("");
     setIsAdding(false);
+    setDropdownOpen(false);
+    // Clear canvas and open template picker for the new blank page
+    clearCanvas();
+    setShowTemplatePicker(true);
   };
 
   const handleDuplicate = (page: Page) => {
@@ -393,7 +400,7 @@ const AddressBar = () => {
                               if (e.key === "Escape") setEditingPageId(null);
                             }}
                             onBlur={() => handleEditSave(page.id)}
-                            className="flex-1 text-xs border border-primary dark:border-primary rounded px-2 py-1 bg-card text-foreground dark:text-foreground outline-none"
+                            className="flex-1 text-xs border border-primary dark:border-primary rounded px-2 py-1 bg-card text-foreground dark:text-foreground outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200"
                           />
                           <button
                             onPointerDown={stopProp}
@@ -483,7 +490,7 @@ const AddressBar = () => {
                           if (e.key === "Escape") setIsAdding(false);
                         }}
                         placeholder="Page name…"
-                        className="flex-1 text-xs rounded-sm border border-border dark:border-border bg-card text-foreground dark:text-foreground px-2 py-1.5 min-h-8 max-h-8 outline-none focus:border-primary dark:focus:border-primary placeholder:text-muted-foreground"
+                        className="flex-1 text-xs rounded-sm border border-border dark:border-border bg-card text-foreground dark:text-foreground px-2 py-1.5 min-h-8 max-h-8 outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200"
                       />
                       <button
                         onPointerDown={stopProp}
@@ -510,7 +517,7 @@ const AddressBar = () => {
                       setIsAdding(true);
                       setTimeout(() => addInputRef.current?.focus(), 0);
                     }}
-                    className="flex items-center justify-center gap-2 p-2.25 rounded-md text-sm cursor-pointer text-muted-foreground dark:text-muted-foreground hover:text-primary dark:hover:text-primary hover:bg-primary/10 dark:hover:bg-primary/10 transition-colors"
+                    className="flex items-center justify-center gap-2 p-2.5 rounded-sm text-sm cursor-pointer text-muted-foreground dark:text-muted-foreground hover:text-primary dark:hover:text-primary hover:bg-primary/10 dark:hover:bg-primary/10 transition-colors"
                   >
                     <ListPlus className="h-4 w-4" />
                     Add a page

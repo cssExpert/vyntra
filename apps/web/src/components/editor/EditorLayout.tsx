@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   DndContext,
@@ -99,9 +99,15 @@ export default function EditorLayout() {
     wrapInRow,
     blockPickerOpen,
     setBlockPickerOpen,
+    showTemplatePicker,
+    setShowTemplatePicker,
   } = useEditorStore();
-  // Skip template picker when editing an existing page; show it only for new pages
-  const [showTemplatePicker, setShowTemplatePicker] = useState(!isEditingExisting);
+
+  // On mount: hide template picker when editing an existing page
+  useEffect(() => {
+    if (isEditingExisting) setShowTemplatePicker(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function handleInsertBlock(block: ComponentBlock) {
     const { nodes, selectedId } = useEditorStore.getState();
