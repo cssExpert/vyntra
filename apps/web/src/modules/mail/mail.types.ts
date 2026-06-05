@@ -32,8 +32,17 @@ export interface Email {
   attachments?: EmailAttachment[];
 }
 
+export interface ComposeAttachment {
+  name: string;
+  size: string;
+  type: string;
+}
+
 export interface ComposeData {
   to: string;
+  cc?: string;
+  bcc?: string;
   subject: string;
   body: string;
+  attachments?: ComposeAttachment[];
 }
