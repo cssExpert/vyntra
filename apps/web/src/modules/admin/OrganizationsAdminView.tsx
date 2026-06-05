@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Building2, Plus, Trash2 } from "lucide-react";
+import { Building2, Globe, Plus, Trash2 } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Modal } from "@/components/common/Modal";
@@ -11,6 +11,7 @@ import {
   type AdminPackage,
 } from "@/lib/api";
 import { AdminGuard, adminInput } from "./AdminGuard";
+import { DomainManagementModal } from "./DomainManagementModal";
 
 function Inner() {
   const [orgs, setOrgs] = useState<AdminOrganization[]>([]);
@@ -20,6 +21,7 @@ function Inner() {
   const [modalOpen, setModalOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", packageSlug: "" });
+  const [domainOrg, setDomainOrg] = useState<AdminOrganization | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -109,6 +111,7 @@ function Inner() {
               <th className="px-4 py-3 font-medium">Plan</th>
               <th className="px-4 py-3 font-medium">Users</th>
               <th className="px-4 py-3 font-medium">Status</th>
+              <th className="px-4 py-3 font-medium">Domains</th>
               <th className="px-4 py-3 font-medium text-right">Actions</th>
             </tr>
           </thead>
@@ -163,6 +166,15 @@ function Inner() {
                       size="sm"
                     />
                   </td>
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => setDomainOrg(org)}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition cursor-pointer"
+                    >
+                      <Globe className="h-3.5 w-3.5" />
+                      Domains
+                    </button>
+                  </td>
                   <td className="px-4 py-3 text-right">
                     <button
                       onClick={() => remove(org)}
@@ -178,6 +190,15 @@ function Inner() {
           </tbody>
         </table>
       </div>
+
+      {domainOrg && (
+        <DomainManagementModal
+          orgId={domainOrg.id}
+          orgName={domainOrg.name}
+          isOpen={!!domainOrg}
+          onClose={() => setDomainOrg(null)}
+        />
+      )}
 
       <Modal
         isOpen={modalOpen}

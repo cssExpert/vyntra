@@ -23,7 +23,10 @@
     "db:down": "docker compose -f infrastructure/docker-compose.yml down",
     "db:migrate": "pnpm --filter @vyntra/api exec prisma migrate dev",
     "db:seed": "pnpm --filter @vyntra/api exec prisma db seed",
-    "db:studio": "pnpm --filter @vyntra/api exec prisma studio"
+    "db:studio": "pnpm --filter @vyntra/api exec prisma studio",
+    "db:push": "pnpm --filter @vyntra/api exec prisma db push",
+    "db:push:reset": "pnpm --filter @vyntra/api exec prisma db push --force-reset",
+    "db:generate": "pnpm --filter @vyntra/api exec prisma generate"
   },
   "engines": {
     "node": ">=20",
