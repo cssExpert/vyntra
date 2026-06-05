@@ -130,7 +130,7 @@ export const useEditorStore = create<EditorState>()(
     showGrid: false,
     showOutlines: true,
     blockPickerOpen: false,
-    showTemplatePicker: true,
+    showTemplatePicker: false,
     // history[historyIndex] always reflects the current canvas state
     history: [[]],
     historyIndex: 0,

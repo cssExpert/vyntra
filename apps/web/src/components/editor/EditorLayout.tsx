@@ -105,9 +105,9 @@ export default function EditorLayout() {
     setShowTemplatePicker,
   } = useEditorStore();
 
-  // On mount: hide template picker when editing an existing page
+  // On mount: show picker only for new pages, never for existing ones
   useEffect(() => {
-    if (isEditingExisting) setShowTemplatePicker(false);
+    setShowTemplatePicker(!isEditingExisting);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
