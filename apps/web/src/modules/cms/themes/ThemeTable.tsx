@@ -18,19 +18,17 @@ import {
   Trash2,
   Palette,
   ExternalLink,
-  MoreVertical,
   ChevronUp,
   ChevronDown,
   ChevronsUpDown,
   PencilLine,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TableActionMenu } from "@/components/common/TableActionMenu";
 import type { Gallery, GalleryStatus } from "../gallery/gallery.types";
 
 interface ThemeTableProps {
   themes: Gallery[];
-  activeDropdownId: string | null;
-  setActiveDropdownId: (id: string | null) => void;
   onToggleStatus: (id: string, status: GalleryStatus) => void;
   onDelete: (id: string, title: string) => void;
   onNavigate: (id: string) => void;
@@ -41,8 +39,6 @@ const columnHelper = createColumnHelper<Gallery>();
 
 export function ThemeTable({
   themes,
-  activeDropdownId,
-  setActiveDropdownId,
   onToggleStatus,
   onDelete,
   onNavigate,
@@ -180,66 +176,41 @@ export function ThemeTable({
           const theme = row.original;
           return (
             <div className="flex justify-end">
-              <div className="relative">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setActiveDropdownId(activeDropdownId === theme.id ? null : theme.id);
-                  }}
-                  className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
-                >
-                  <MoreVertical className="w-4 h-4" />
-                </button>
-                <AnimatePresence>
-                  {activeDropdownId === theme.id && (
-                    <>
-                      <div className="fixed inset-0 z-10" onClick={() => setActiveDropdownId(null)} />
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: -6 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: -6 }}
-                        className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-xl shadow-glass-md p-1.5 z-20 text-left"
-                      >
-                        <button
-                          onClick={() => { onEdit(theme.id); setActiveDropdownId(null); }}
-                          className="flex w-full items-center gap-2 px-3 py-2 text-xs text-foreground hover:bg-muted rounded-lg transition-colors"
-                        >
-                          <PencilLine className="w-3.5 h-3.5" /> Edit
-                        </button>
-                        <button
-                          onClick={() => onNavigate(theme.id)}
-                          className="flex w-full items-center gap-2 px-3 py-2 text-xs text-foreground hover:bg-muted rounded-lg transition-colors"
-                        >
-                          <ExternalLink className="w-3.5 h-3.5" /> Open in Editor
-                        </button>
-                        <button
-                          onClick={() => onToggleStatus(theme.id, theme.status)}
-                          className="flex w-full items-center gap-2 px-3 py-2 text-xs text-foreground hover:bg-muted rounded-lg transition-colors"
-                        >
-                          {theme.status === "published"
-                            ? <Lock className="w-3.5 h-3.5" />
-                            : <Globe className="w-3.5 h-3.5" />}
-                          Mark as {theme.status === "published" ? "Draft" : "Published"}
-                        </button>
-                        <div className="h-px bg-border my-1" />
-                        <button
-                          onClick={() => onDelete(theme.id, theme.title)}
-                          className="flex w-full items-center gap-2 px-3 py-2 text-xs text-rose-500 hover:bg-rose-500/10 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" /> Delete Theme
-                        </button>
-                      </motion.div>
-                    </>
-                  )}
-                </AnimatePresence>
-              </div>
+              <TableActionMenu
+                items={[
+                  {
+                    label: "Edit",
+                    icon: <PencilLine size={13} className="stroke-[2.5]" />,
+                    onClick: () => onEdit(theme.id),
+                  },
+                  {
+                    label: "Open in Editor",
+                    icon: <ExternalLink size={13} />,
+                    onClick: () => onNavigate(theme.id),
+                  },
+                  {
+                    label: `Mark as ${theme.status === "published" ? "Draft" : "Published"}`,
+                    icon: theme.status === "published"
+                      ? <Lock size={13} />
+                      : <Globe size={13} />,
+                    onClick: () => onToggleStatus(theme.id, theme.status),
+                  },
+                  {
+                    label: "Delete Theme",
+                    icon: <Trash2 size={13} />,
+                    onClick: () => onDelete(theme.id, theme.title),
+                    variant: "danger",
+                    separator: true,
+                  },
+                ]}
+              />
             </div>
           );
         },
       }),
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [activeDropdownId],
+    [],
   );
 
   const table = useReactTable({

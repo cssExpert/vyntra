@@ -206,8 +206,6 @@ export function ThemesView() {
           <ThemeTable
             key="table"
             themes={processedThemes}
-            activeDropdownId={activeDropdownId}
-            setActiveDropdownId={setActiveDropdownId}
             onToggleStatus={handleToggleStatus}
             onDelete={handleDeleteRequest}
             onNavigate={handleNavigate}
