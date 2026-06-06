@@ -158,11 +158,12 @@ async function main() {
   // ── Sample company on the Pro plan ──────────────────────
   const org = await prisma.organization.upsert({
     where: { slug: "acme-corp" },
-    update: {},
+    update: { subdomain: "acme" },
     create: {
       name: "Acme Corp",
       slug: "acme-corp",
       email: "admin@acme.com",
+      subdomain: "acme",
       maxUsers: 10,
       subscription: {
         create: { packageId: bySlug["pro"], billingEmail: "admin@acme.com" },
@@ -223,11 +224,12 @@ async function main() {
   // ── Second company on the Free plan (shows package-based nav gating) ──
   const bloom = await prisma.organization.upsert({
     where: { slug: "bloom-studio" },
-    update: {},
+    update: { subdomain: "bloom" },
     create: {
       name: "Bloom Studio",
       slug: "bloom-studio",
       email: "admin@bloom.com",
+      subdomain: "bloom",
       maxUsers: 3,
       subscription: {
         create: { packageId: bySlug["free"], billingEmail: "admin@bloom.com" },
@@ -241,6 +243,53 @@ async function main() {
     Role.ORG_ADMIN,
   );
 
+  // ── CMS pages for Acme Corp ─────────────────────────────
+  const acmePages = [
+    {
+      slug: "home",
+      title: "Home",
+      content: "<h1>Welcome to Acme Corp</h1><p>We build world-class products.</p>",
+      metaDesc: "Welcome to Acme Corp",
+    },
+    {
+      slug: "about-us",
+      title: "About Us",
+      content: "<h1>About Acme Corp</h1><p>Founded in 2020, Acme Corp is on a mission to simplify business operations.</p>",
+      metaDesc: "Learn about Acme Corp",
+    },
+  ];
+  for (const p of acmePages) {
+    await prisma.page.upsert({
+      where: { organizationId_slug: { organizationId: org.id, slug: p.slug } },
+      update: { title: p.title, content: p.content, metaDesc: p.metaDesc, published: true, publishedAt: new Date("2026-01-01") },
+      create: { ...p, organizationId: org.id, published: true, publishedAt: new Date("2026-01-01") },
+    });
+  }
+
+  // ── CMS pages for Bloom Studio ───────────────────────────
+  const bloomPages = [
+    {
+      slug: "home",
+      title: "Home",
+      content: "<h1>Welcome to Bloom Studio</h1><p>We craft beautiful digital experiences.</p>",
+      metaDesc: "Welcome to Bloom Studio",
+    },
+    {
+      slug: "about-us",
+      title: "About Us",
+      content: "<h1>About Bloom Studio</h1><p>A creative studio focused on design and storytelling.</p>",
+      metaDesc: "About Bloom Studio",
+    },
+  ];
+  for (const p of bloomPages) {
+    await prisma.page.upsert({
+      where: { organizationId_slug: { organizationId: bloom.id, slug: p.slug } },
+      update: { title: p.title, content: p.content, metaDesc: p.metaDesc, published: true, publishedAt: new Date("2026-01-01") },
+      create: { ...p, organizationId: bloom.id, published: true, publishedAt: new Date("2026-01-01") },
+    });
+  }
+
+  const platformDomain = process.env.PLATFORM_DOMAIN ?? "lvh.me";
   console.log(`✅ Seed complete  (password for all accounts: ${PASSWORD})`);
   console.log("   SUPER_ADMIN : superadmin@vyntra.com");
   console.log("   ORG_ADMIN   : admin@acme.com    (Acme Corp · Pro)");
@@ -248,6 +297,10 @@ async function main() {
   console.log("   USER        : user@acme.com     (Acme Corp · Pro)");
   console.log("   VIEWER      : viewer@acme.com   (Acme Corp · Pro)");
   console.log("   ORG_ADMIN   : admin@bloom.com   (Bloom Studio · Free)");
+  console.log("");
+  console.log("   CMS preview URLs (port 3000):");
+  console.log(`   Acme  → http://acme.${platformDomain}:3000`);
+  console.log(`   Bloom → http://bloom.${platformDomain}:3000`);
 }
 
 main()
