@@ -3,15 +3,39 @@
 import { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Settings,
-  HardDrive,
-  Mail,
-  CreditCard,
-} from "lucide-react";
+import { Settings, HardDrive, Mail, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MotionTabs } from "@/components/ui/MotionTabs";
+import type { MotionTabItem } from "@/components/ui/MotionTabs";
 
-const SETTINGS_TABS = [
+const SETTINGS_TABS: MotionTabItem[] = [
+  {
+    id: "app",
+    label: "App Settings",
+    icon: Settings,
+    href: "/admin/settings",
+  },
+  {
+    id: "storage",
+    label: "Storage",
+    icon: HardDrive,
+    href: "/admin/settings/storage",
+  },
+  {
+    id: "email",
+    label: "Email",
+    icon: Mail,
+    href: "/admin/settings/email",
+  },
+  {
+    id: "payment",
+    label: "Payment",
+    icon: CreditCard,
+    href: "/admin/settings/payment",
+  },
+];
+
+const SETTINGS_SIDEBAR = [
   {
     id: "app",
     label: "App Settings",
@@ -58,8 +82,8 @@ export function AdminSettingsLayout({ children }: { children: ReactNode }) {
     <div className="flex gap-6 lg:gap-8">
       {/* ── Sidebar ─────────────────────────────────────────────────────────── */}
       <aside className="hidden lg:block w-64 shrink-0">
-        <nav className="sticky top-24 space-y-1">
-          {SETTINGS_TABS.map((tab) => {
+        <nav className="sticky top-6 space-y-1">
+          {SETTINGS_SIDEBAR.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             return (
@@ -80,18 +104,20 @@ export function AdminSettingsLayout({ children }: { children: ReactNode }) {
                   )}
                 />
                 <div className="min-w-0">
-                  <p className={cn(
-                    "text-sm font-semibold",
-                    isActive ? "text-primary" : "text-foreground",
-                  )}>
+                  <p
+                    className={cn(
+                      "text-sm font-semibold",
+                      isActive ? "text-primary" : "text-foreground",
+                    )}
+                  >
                     {tab.label}
                   </p>
-                  <p className={cn(
-                    "text-xs mt-0.5 truncate",
-                    isActive
-                      ? "text-primary/70"
-                      : "text-muted-foreground",
-                  )}>
+                  <p
+                    className={cn(
+                      "text-xs mt-0.5 truncate",
+                      isActive ? "text-primary/70" : "text-muted-foreground",
+                    )}
+                  >
                     {tab.description}
                   </p>
                 </div>
@@ -102,34 +128,15 @@ export function AdminSettingsLayout({ children }: { children: ReactNode }) {
       </aside>
 
       {/* ── Mobile tabs ─────────────────────────────────────────────────────── */}
-      <div className="lg:hidden mb-6 overflow-x-auto">
-        <div className="flex gap-2 pb-2">
-          {SETTINGS_TABS.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <Link
-                key={tab.id}
-                href={tab.href}
-                className={cn(
-                  "flex items-center gap-2 rounded-lg px-3 py-2 whitespace-nowrap text-sm font-medium transition-all duration-200 shrink-0",
-                  isActive
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80",
-                )}
-              >
-                <Icon className="h-4 w-4" />
-                {tab.label}
-              </Link>
-            );
-          })}
-        </div>
-      </div>
+      <MotionTabs
+        tabs={SETTINGS_TABS}
+        active={activeTab}
+        layoutId="admin-settings-tabs"
+        className="lg:hidden mb-6"
+      />
 
       {/* ── Content ─────────────────────────────────────────────────────────── */}
-      <main className="flex-1 min-w-0">
-        {children}
-      </main>
+      <main className="flex-1 min-w-0">{children}</main>
     </div>
   );
 }

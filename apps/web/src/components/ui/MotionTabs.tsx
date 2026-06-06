@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
@@ -12,6 +13,8 @@ export interface MotionTabItem<T extends string = string> {
   /** Badge count or label shown as a pill next to the tab label. */
   badge?: number | string;
   content?: React.ReactNode;
+  /** When set, renders the tab as a Next.js Link for route-based navigation. */
+  href?: string;
 }
 
 interface MotionTabsProps<T extends string = string> {
@@ -50,20 +53,17 @@ export function MotionTabs<T extends string = string>({
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = active === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => handleChange(tab.id)}
-              className={cn(
-                "relative flex-1 py-2 px-2.5 rounded-lg",
-                "flex items-center justify-center gap-2",
-                "text-xs lg:text-sm font-medium cursor-pointer",
-                "transition-colors duration-150 md:text-nowrap",
-                isActive
-                  ? "text-primary-foreground font-semibold"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
+          const sharedClass = cn(
+            "relative flex-1 py-2 px-2.5 rounded-lg",
+            "flex items-center justify-center gap-2",
+            "text-xs lg:text-sm font-medium cursor-pointer",
+            "transition-colors duration-150 md:text-nowrap",
+            isActive
+              ? "text-primary-foreground font-semibold"
+              : "text-muted-foreground hover:text-foreground",
+          );
+          const inner = (
+            <>
               {isActive && (
                 <motion.div
                   layoutId={layoutId}
@@ -72,9 +72,7 @@ export function MotionTabs<T extends string = string>({
                 />
               )}
               {Icon && <Icon className="relative z-10 w-3.5 h-3.5 shrink-0" />}
-              <span className="relative z-10 hidden sm:inline">
-                {tab.label}
-              </span>
+              <span className="relative z-10 hidden sm:inline">{tab.label}</span>
               {tab.badge !== undefined && (
                 <span
                   className={cn(
@@ -87,6 +85,25 @@ export function MotionTabs<T extends string = string>({
                   {tab.badge}
                 </span>
               )}
+            </>
+          );
+          return tab.href ? (
+            <Link
+              key={tab.id}
+              href={tab.href}
+              onClick={() => handleChange(tab.id)}
+              className={sharedClass}
+            >
+              {inner}
+            </Link>
+          ) : (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => handleChange(tab.id)}
+              className={sharedClass}
+            >
+              {inner}
             </button>
           );
         })}
