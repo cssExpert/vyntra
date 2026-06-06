@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MotionTabs, type MotionTabItem } from "@/components/ui/MotionTabs";
 import SectionTitle from "@/components/common/SectionTitle";
 import { type TabId, type DeviceType, type AuditResults } from "./lighthouse.types";
 import { CONSOLE_LOGS, copyToClipboard } from "./lighthouse.utils";
@@ -125,21 +126,16 @@ export function LighthouseView() {
         <header className="flex flex-col md:flex-row md:items-center md:justify-between pb-5 mb-5 gap-4">
           <SectionTitle mb="0" title="Lighthouse Keeper" paragraph="Next-gen performance diagnostic suite & optimizer" className="max-w-full" width="100%" />
 
-          <nav className="flex rounded-xl bg-card/80 p-1 border border-border w-fit">
-            {(["dashboard", "ai-optimizer"] as TabId[]).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={cn(
-                  "px-4 py-2 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-all",
-                  activeTab === tab ? "bg-primary text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {tab === "ai-optimizer" && <Sparkles size={13} />}
-                {tab === "dashboard" ? "Dashboard" : "AI Optimizer"}
-              </button>
-            ))}
-          </nav>
+          <MotionTabs
+            tabs={[
+              { id: "dashboard" as TabId, label: "Dashboard" },
+              { id: "ai-optimizer" as TabId, label: "AI Optimizer", icon: Sparkles },
+            ] satisfies MotionTabItem<TabId>[]}
+            active={activeTab}
+            onChange={setActiveTab}
+            layoutId="lighthouse-tab-indicator"
+            className="w-fit"
+          />
         </header>
 
         {/* Audit bar */}

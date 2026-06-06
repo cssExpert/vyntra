@@ -6,7 +6,12 @@ import { AnimatePresence } from "framer-motion";
 import { Plus } from "lucide-react";
 import SectionTitle from "@/components/common/SectionTitle";
 import { Toaster, useToaster } from "@/components/common/Toaster";
-import type { Gallery, GalleryStatus, ViewMode, SortKey } from "./gallery/gallery.types";
+import type {
+  Gallery,
+  GalleryStatus,
+  ViewMode,
+  SortKey,
+} from "./gallery/gallery.types";
 import { INITIAL_GALLERIES } from "./gallery/gallery.data";
 import { loadGalleries, saveGalleries } from "./gallery/gallery.store";
 import { GalleryStats } from "./gallery/GalleryStats";
@@ -29,7 +34,9 @@ export function GalleryView() {
   const { toasts, addToast, dismiss } = useToaster();
 
   // Persist to localStorage whenever galleries change
-  useEffect(() => { saveGalleries(galleries); }, [galleries]);
+  useEffect(() => {
+    saveGalleries(galleries);
+  }, [galleries]);
 
   const handleCreate = (gallery: Gallery) => {
     setGalleries((prev) => [gallery, ...prev]);
@@ -44,7 +51,9 @@ export function GalleryView() {
 
   const handleToggleStatus = (id: string, current: GalleryStatus) => {
     const next: GalleryStatus = current === "published" ? "draft" : "published";
-    setGalleries((prev) => prev.map((g) => g.id === id ? { ...g, status: next } : g));
+    setGalleries((prev) =>
+      prev.map((g) => (g.id === id ? { ...g, status: next } : g)),
+    );
     addToast(`Gallery marked as ${next}.`, "info");
     setActiveDropdownId(null);
   };
@@ -53,33 +62,43 @@ export function GalleryView() {
     router.push(`/cms/gallery/${id}`);
   };
 
-  const stats = useMemo(() => ({
-    total: galleries.length,
-    published: galleries.filter((g) => g.status === "published").length,
-    drafts: galleries.filter((g) => g.status === "draft").length,
-    totalViews: galleries.reduce((acc, g) => acc + g.views, 0),
-    totalItems: galleries.reduce((acc, g) => acc + g.itemCount, 0),
-  }), [galleries]);
+  const stats = useMemo(
+    () => ({
+      total: galleries.length,
+      published: galleries.filter((g) => g.status === "published").length,
+      drafts: galleries.filter((g) => g.status === "draft").length,
+      totalViews: galleries.reduce((acc, g) => acc + g.views, 0),
+      totalItems: galleries.reduce((acc, g) => acc + g.itemCount, 0),
+    }),
+    [galleries],
+  );
 
   const processedGalleries = useMemo(() => {
     let result = [...galleries];
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      result = result.filter((g) =>
-        g.title.toLowerCase().includes(q) ||
-        g.description.toLowerCase().includes(q) ||
-        g.category.toLowerCase().includes(q) ||
-        g.tags.some((t) => t.toLowerCase().includes(q)),
+      result = result.filter(
+        (g) =>
+          g.title.toLowerCase().includes(q) ||
+          g.description.toLowerCase().includes(q) ||
+          g.category.toLowerCase().includes(q) ||
+          g.tags.some((t) => t.toLowerCase().includes(q)),
       );
     }
-    if (selectedCategory !== "All") result = result.filter((g) => g.category === selectedCategory);
+    if (selectedCategory !== "All")
+      result = result.filter((g) => g.category === selectedCategory);
     result.sort((a, b) => {
       switch (sortBy) {
-        case "oldest": return +new Date(a.createdAt) - +new Date(b.createdAt);
-        case "items": return b.itemCount - a.itemCount;
-        case "views": return b.views - a.views;
-        case "alphabetical": return a.title.localeCompare(b.title);
-        default: return +new Date(b.createdAt) - +new Date(a.createdAt);
+        case "oldest":
+          return +new Date(a.createdAt) - +new Date(b.createdAt);
+        case "items":
+          return b.itemCount - a.itemCount;
+        case "views":
+          return b.views - a.views;
+        case "alphabetical":
+          return a.title.localeCompare(b.title);
+        default:
+          return +new Date(b.createdAt) - +new Date(a.createdAt);
       }
     });
     return result;
@@ -100,9 +119,12 @@ export function GalleryView() {
         />
         <button
           onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all duration-200 cursor-pointer group transform active:scale-[0.98] shrink-0"
+          className="inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all duration-200 cursor-pointer group transform active:scale-[0.98] shrink-0"
         >
-          <Plus size={18} className="stroke-[3] transition-transform group-hover:rotate-90 duration-300" />
+          <Plus
+            size={18}
+            className="stroke-[3] transition-transform group-hover:rotate-90 duration-300"
+          />
           <span>Add New Gallery</span>
         </button>
       </div>
@@ -110,10 +132,14 @@ export function GalleryView() {
       <GalleryStats stats={stats} />
 
       <GalleryControls
-        searchQuery={searchQuery} setSearchQuery={setSearchQuery}
-        sortBy={sortBy} setSortBy={setSortBy}
-        viewMode={viewMode} setViewMode={setViewMode}
-        selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        selectedCategory={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
       />
 
       <AnimatePresence mode="wait">
@@ -125,7 +151,10 @@ export function GalleryView() {
             setActiveDropdownId={setActiveDropdownId}
             onToggleStatus={handleToggleStatus}
             onDelete={handleDelete}
-            onResetFilters={() => { setSearchQuery(""); setSelectedCategory("All"); }}
+            onResetFilters={() => {
+              setSearchQuery("");
+              setSelectedCategory("All");
+            }}
             onNavigate={handleNavigate}
           />
         ) : (

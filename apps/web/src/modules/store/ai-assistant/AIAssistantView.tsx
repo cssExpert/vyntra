@@ -5,7 +5,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { PageHeader } from "@/components/ui/PageHeader";
 import {
-  Send, Sparkles, Bot, User, ShoppingCart, Package, Tag, Zap, BarChart2, Lightbulb,
+  Send,
+  Sparkles,
+  Bot,
+  User,
+  ShoppingCart,
+  Package,
+  Tag,
+  Zap,
+  BarChart2,
+  Lightbulb,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -17,12 +26,37 @@ interface Message {
 }
 
 const QUICK_PROMPTS = [
-  { label: "Low stock products?",            icon: <Package size={12} />,     prompt: "Which products are low in stock?" },
-  { label: "Top revenue products",           icon: <BarChart2 size={12} />,   prompt: "Show me the top 5 products by revenue this month." },
-  { label: "Create 20% weekend discount",    icon: <Tag size={12} />,         prompt: "Create a 20% discount coupon for digital products this weekend." },
-  { label: "Abandoned carts > $100",         icon: <ShoppingCart size={12} />,prompt: "Show abandoned carts above $100 in the last 7 days." },
-  { label: "Generate product description",   icon: <Sparkles size={12} />,    prompt: "Generate an SEO-optimised product description for a premium SaaS dashboard template." },
-  { label: "Customer win-back automation",   icon: <Zap size={12} />,         prompt: "Create an automation to win back customers inactive for 60 days." },
+  {
+    label: "Low stock products?",
+    icon: <Package size={12} />,
+    prompt: "Which products are low in stock?",
+  },
+  {
+    label: "Top revenue products",
+    icon: <BarChart2 size={12} />,
+    prompt: "Show me the top 5 products by revenue this month.",
+  },
+  {
+    label: "Create 20% weekend discount",
+    icon: <Tag size={12} />,
+    prompt: "Create a 20% discount coupon for digital products this weekend.",
+  },
+  {
+    label: "Abandoned carts > $100",
+    icon: <ShoppingCart size={12} />,
+    prompt: "Show abandoned carts above $100 in the last 7 days.",
+  },
+  {
+    label: "Generate product description",
+    icon: <Sparkles size={12} />,
+    prompt:
+      "Generate an SEO-optimised product description for a premium SaaS dashboard template.",
+  },
+  {
+    label: "Customer win-back automation",
+    icon: <Zap size={12} />,
+    prompt: "Create an automation to win back customers inactive for 60 days.",
+  },
 ];
 
 const SAMPLE_RESPONSES: Record<string, string> = {
@@ -34,7 +68,10 @@ const SAMPLE_RESPONSES: Record<string, string> = {
 
 function getResponse(prompt: string): string {
   const key = prompt.toLowerCase().trim();
-  return SAMPLE_RESPONSES[key] ?? `I understand you want to: *"${prompt}"*\n\nThis AI Store Assistant is connected to your store data. In a production environment, I would:\n- Query your database in real-time\n- Run the requested action or analysis\n- Show you results with actionable next steps\n\n_Connect your AI provider (Anthropic/OpenAI) in Store Settings → AI Assistant to enable live responses._`;
+  return (
+    SAMPLE_RESPONSES[key] ??
+    `I understand you want to: *"${prompt}"*\n\nThis AI Store Assistant is connected to your store data. In a production environment, I would:\n- Query your database in real-time\n- Run the requested action or analysis\n- Show you results with actionable next steps\n\n_Connect your AI provider (Anthropic/OpenAI) in Store Settings → AI Assistant to enable live responses._`
+  );
 }
 
 export function AIAssistantView() {
@@ -43,7 +80,8 @@ export function AIAssistantView() {
     {
       id: "welcome",
       role: "assistant",
-      content: "Hi! I'm your ERVFlow Store AI Assistant. I can help you manage your store, generate content, analyse data, and build automations.\n\nWhat would you like to do today?",
+      content:
+        "Hi! I'm your ERVFlow Store AI Assistant. I can help you manage your store, generate content, analyse data, and build automations.\n\nWhat would you like to do today?",
       timestamp: new Date(),
     },
   ]);
@@ -57,14 +95,27 @@ export function AIAssistantView() {
 
   const send = async (text: string) => {
     if (!text.trim()) return;
-    const userMsg: Message = { id: Date.now().toString(), role: "user", content: text.trim(), timestamp: new Date() };
+    const userMsg: Message = {
+      id: Date.now().toString(),
+      role: "user",
+      content: text.trim(),
+      timestamp: new Date(),
+    };
     setMessages((p) => [...p, userMsg]);
     setInput("");
     setIsTyping(true);
     await new Promise((r) => setTimeout(r, 900 + Math.random() * 600));
     const response = getResponse(text.trim());
     setIsTyping(false);
-    setMessages((p) => [...p, { id: (Date.now() + 1).toString(), role: "assistant", content: response, timestamp: new Date() }]);
+    setMessages((p) => [
+      ...p,
+      {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: response,
+        timestamp: new Date(),
+      },
+    ]);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -91,39 +142,65 @@ export function AIAssistantView() {
           <PageHeader
             title="AI Store Assistant"
             description="Powered by AI — ask anything about your store."
-            breadcrumbs={[{ label: "Store", href: "/store" }, { label: "AI Assistant" }]}
+            breadcrumbs={[
+              { label: "Store", href: "/store" },
+              { label: "AI Assistant" },
+            ]}
           >
             <div className="flex items-center gap-1.5 rounded-sm bg-success/10 border border-success/20 px-3 py-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
-              <span className="text-xs font-medium text-success">Connected</span>
+              <span className="text-xs font-medium text-success">
+                Connected
+              </span>
             </div>
           </PageHeader>
 
           {/* Chat area */}
-          <div className="flex-1 overflow-y-auto bg-card rounded-xl border border-border p-4 space-y-4" style={{ minHeight: 0 }}>
+          <div
+            className="flex-1 overflow-y-auto bg-card rounded-xl border border-border p-4 space-y-4"
+            style={{ minHeight: 0 }}
+          >
             {messages.map((msg) => (
               <motion.div
                 key={msg.id}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.2 }}
-                className={cn("flex gap-3", msg.role === "user" ? "flex-row-reverse" : "flex-row")}
+                className={cn(
+                  "flex gap-3",
+                  msg.role === "user" ? "flex-row-reverse" : "flex-row",
+                )}
               >
-                <div className={cn(
-                  "h-7 w-7 shrink-0 rounded-full flex items-center justify-center text-white",
-                  msg.role === "assistant" ? "bg-primary" : "bg-gradient-brand",
-                )}>
-                  {msg.role === "assistant" ? <Bot size={13} /> : <User size={13} />}
+                <div
+                  className={cn(
+                    "h-7 w-7 shrink-0 rounded-full flex items-center justify-center text-white",
+                    msg.role === "assistant"
+                      ? "bg-primary"
+                      : "bg-gradient-brand",
+                  )}
+                >
+                  {msg.role === "assistant" ? (
+                    <Bot size={13} />
+                  ) : (
+                    <User size={13} />
+                  )}
                 </div>
-                <div className={cn(
-                  "max-w-[75%] rounded-xl px-4 py-3 text-[13px] leading-relaxed",
-                  msg.role === "assistant"
-                    ? "bg-muted text-foreground"
-                    : "bg-primary text-primary-foreground",
-                )}>
-                  <pre className="font-sans whitespace-pre-wrap">{msg.content}</pre>
+                <div
+                  className={cn(
+                    "max-w-[75%] rounded-xl px-4 py-3 text-[13px] leading-relaxed",
+                    msg.role === "assistant"
+                      ? "bg-muted text-foreground"
+                      : "bg-primary text-primary-foreground",
+                  )}
+                >
+                  <pre className="font-sans whitespace-pre-wrap">
+                    {msg.content}
+                  </pre>
                   <p className="text-[10px] opacity-50 mt-1.5">
-                    {msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    {msg.timestamp.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </p>
                 </div>
               </motion.div>
@@ -131,7 +208,11 @@ export function AIAssistantView() {
 
             {/* Typing indicator */}
             {isTyping && (
-              <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className="flex gap-3">
+              <motion.div
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex gap-3"
+              >
                 <div className="h-7 w-7 shrink-0 rounded-full bg-primary flex items-center justify-center">
                   <Bot size={13} className="text-white" />
                 </div>
@@ -140,7 +221,11 @@ export function AIAssistantView() {
                     <motion.span
                       key={i}
                       animate={{ y: [0, -4, 0] }}
-                      transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15 }}
+                      transition={{
+                        duration: 0.6,
+                        repeat: Infinity,
+                        delay: i * 0.15,
+                      }}
                       className="h-1.5 w-1.5 rounded-full bg-muted-foreground block"
                     />
                   ))}
@@ -168,7 +253,10 @@ export function AIAssistantView() {
           {/* Input */}
           <form onSubmit={handleSubmit} className="flex gap-2">
             <div className="relative flex-1">
-              <Lightbulb className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
+              <Lightbulb
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                size={14}
+              />
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -180,7 +268,7 @@ export function AIAssistantView() {
             <button
               type="submit"
               disabled={!input.trim() || isTyping}
-              className="flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+              className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
             >
               <Send size={14} />
               Send

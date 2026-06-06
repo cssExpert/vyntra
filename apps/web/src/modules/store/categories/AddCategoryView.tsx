@@ -165,7 +165,7 @@ export function AddCategoryView({ mode = "add" }: AddCategoryViewProps) {
           >
             Cancel
           </button>
-          <button className="flex items-center gap-2 rounded-sm bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer">
+          <button className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer">
             <Save size={14} />
             {isEdit ? "Save Changes" : "Save"}
           </button>
@@ -328,7 +328,7 @@ export function AddCategoryView({ mode = "add" }: AddCategoryViewProps) {
             >
               Cancel
             </button>
-            <button className="flex items-center gap-2 rounded-sm bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer shadow-sm shadow-primary/20">
+            <button className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer shadow-sm shadow-primary/20">
               <Send size={14} />
               Publish
             </button>

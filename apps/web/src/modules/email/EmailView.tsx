@@ -7,6 +7,7 @@ import { EmailPageSkeleton } from "@/components/common/DashboardSkeleton";
 import { Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Toaster, useToaster } from "@/components/common/Toaster";
+import { MotionTabs, type MotionTabItem } from "@/components/ui/MotionTabs";
 
 import { WorkflowBuilder } from "./components/WorkflowBuilder";
 import { AICopilot } from "./components/AICopilot";
@@ -21,13 +22,13 @@ import type { Toast, WorkflowStep, SimLog } from "./types";
 
 import SectionTitle from "@/components/common/SectionTitle";
 
-const TABS = [
-  { id: "builder", label: "Builder" },
-  { id: "copilot", label: "AI Copilot" },
-  { id: "templates", label: "Templates" },
-] as const;
+type TabId = "builder" | "copilot" | "templates";
 
-type TabId = (typeof TABS)[number]["id"];
+const TABS: MotionTabItem<TabId>[] = [
+  { id: "builder",   label: "Builder" },
+  { id: "copilot",   label: "AI Copilot" },
+  { id: "templates", label: "Templates" },
+];
 
 const TAB_TITLE: Record<TabId, string> = {
   builder: "Automation Blueprint Canvas",
@@ -280,22 +281,13 @@ export function EmailView() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 rounded-xl border border-border bg-muted/50 p-1">
-            {TABS.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => switchTab(t.id)}
-                className={cn(
-                  "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150",
-                  activeTab === t.id
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
+          <MotionTabs
+            tabs={TABS}
+            active={activeTab}
+            onChange={switchTab}
+            layoutId="email-tab-indicator"
+            className="w-fit"
+          />
           {activeTab === "builder" && (
             <motion.button
               whileHover={{ scale: 1.04 }}

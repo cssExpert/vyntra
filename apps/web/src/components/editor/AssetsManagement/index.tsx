@@ -537,8 +537,8 @@ export default function AssetsManagement() {
             <div className="rounded-xl bottom-0 sticky border p-3 border-border bg-card shadow-sm dark:border-border dark:bg-card">
               <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
                 <span className="flex items-center gap-1.5">
-                  <HardDrive className="h-3.5 w-3.5 text-muted-foreground" /> Storage
-                  Pool
+                  <HardDrive className="h-3.5 w-3.5 text-muted-foreground" />{" "}
+                  Storage Pool
                 </span>
                 <span className="font-semibold text-muted-foreground dark:text-muted-foreground">
                   23.8 MB / 100 MB
@@ -649,7 +649,7 @@ export default function AssetsManagement() {
                     <div className="flex items-end gap-2 pt-4 sm:pt-0">
                       <button
                         type="submit"
-                        className="rounded-sm bg-primary px-4 py-2 text-xs font-semibold text-white hover:bg-primary transition"
+                        className="rounded-sm bg-primary px-5 py-2.5 text-xs font-semibold text-white hover:bg-primary transition"
                       >
                         Create
                       </button>
@@ -709,7 +709,7 @@ export default function AssetsManagement() {
                     <div className="mt-5 flex gap-3">
                       <button
                         onClick={handleSimulatedUpload}
-                        className="rounded-sm bg-primary px-4 py-2 text-xs font-semibold text-white hover:bg-primary transition"
+                        className="rounded-sm bg-primary px-5 py-2.5 text-xs font-semibold text-white hover:bg-primary transition"
                       >
                         Upload Asset
                       </button>
@@ -893,7 +893,9 @@ export default function AssetsManagement() {
                             <td className="py-3 px-4 text-muted-foreground">
                               Directory
                             </td>
-                            <td className="py-3 px-4 text-muted-foreground">--</td>
+                            <td className="py-3 px-4 text-muted-foreground">
+                              --
+                            </td>
                             <td className="py-3 px-4 text-muted-foreground">
                               Folder Path
                             </td>
@@ -1074,7 +1076,9 @@ export default function AssetsManagement() {
                     </div>
                     {selectedAsset.resolution && (
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Resolution</span>
+                        <span className="text-muted-foreground">
+                          Resolution
+                        </span>
                         <span className="font-semibold text-foreground dark:text-muted-foreground">
                           {selectedAsset.resolution}
                         </span>

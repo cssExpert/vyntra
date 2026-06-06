@@ -47,11 +47,36 @@ import { usePageLoad } from "@/hooks/usePageLoad";
 // Skeleton column layout mirrors the real table columns below.
 const SKELETON_COLUMNS: TableSkeletonColumn[] = [
   { width: "w-12", shape: "checkbox", align: "center" },
-  { width: "flex-[2.3]", shape: "text", cellWidth: "w-40", headerWidth: "w-10" },
-  { width: "flex-[1.6]", shape: "text", cellWidth: "w-24", headerWidth: "w-14" },
-  { width: "flex-[1.1]", shape: "badge", cellWidth: "w-16", headerWidth: "w-12" },
-  { width: "flex-[1.4]", shape: "text", cellWidth: "w-24", headerWidth: "w-14" },
-  { width: "flex-[1.4]", shape: "text", cellWidth: "w-24", headerWidth: "w-20" },
+  {
+    width: "flex-[2.3]",
+    shape: "text",
+    cellWidth: "w-40",
+    headerWidth: "w-10",
+  },
+  {
+    width: "flex-[1.6]",
+    shape: "text",
+    cellWidth: "w-24",
+    headerWidth: "w-14",
+  },
+  {
+    width: "flex-[1.1]",
+    shape: "badge",
+    cellWidth: "w-16",
+    headerWidth: "w-12",
+  },
+  {
+    width: "flex-[1.4]",
+    shape: "text",
+    cellWidth: "w-24",
+    headerWidth: "w-14",
+  },
+  {
+    width: "flex-[1.4]",
+    shape: "text",
+    cellWidth: "w-24",
+    headerWidth: "w-20",
+  },
   { width: "w-20", shape: "actions", align: "end", headerWidth: "w-12" },
 ];
 
@@ -571,7 +596,7 @@ export function PagesView() {
             <div className="flex items-center gap-2">
               <button
                 onClick={handleAddPageClick}
-                className="inline-flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer group active:scale-[0.98]"
+                className="inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer group active:scale-[0.98]"
               >
                 <Plus
                   size={16}

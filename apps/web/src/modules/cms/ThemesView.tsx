@@ -14,7 +14,12 @@ import type {
   SortKey,
 } from "./gallery/gallery.types";
 import { THEMES_DATA } from "./themes/themes.data";
-import { loadCustomThemes, deleteCustomTheme, updateCustomTheme, loadThemeNodes } from "./themes/theme-store";
+import {
+  loadCustomThemes,
+  deleteCustomTheme,
+  updateCustomTheme,
+  loadThemeNodes,
+} from "./themes/theme-store";
 import { ThemeEditModal } from "./themes/ThemeEditModal";
 import { TEMPLATES } from "@/components/editor/TemplatePicker";
 import { useEditorStore } from "@/store/editorStore";
@@ -35,7 +40,10 @@ export function ThemesView() {
   const { toasts, addToast, dismiss } = useToaster();
 
   // Confirm-before-delete state
-  const [pendingDelete, setPendingDelete] = useState<{ id: string; title: string } | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
 
   // Edit modal state
   const [editingTheme, setEditingTheme] = useState<Gallery | null>(null);
@@ -53,7 +61,9 @@ export function ThemesView() {
 
   const handleSaveEdit = (id: string, patch: Partial<Gallery>) => {
     updateCustomTheme(id, patch);
-    setThemes((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)));
+    setThemes((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, ...patch } : t)),
+    );
     addToast("Theme updated successfully.", "success");
   };
 
@@ -66,7 +76,7 @@ export function ThemesView() {
   // Called when user clicks "Delete" inside the dialog
   const handleConfirmDelete = () => {
     if (!pendingDelete) return;
-    deleteCustomTheme(pendingDelete.id);          // persist removal from localStorage
+    deleteCustomTheme(pendingDelete.id); // persist removal from localStorage
     setThemes((prev) => prev.filter((t) => t.id !== pendingDelete.id));
     addToast(`"${pendingDelete.title}" has been removed.`, "info");
     setPendingDelete(null);
@@ -141,11 +151,16 @@ export function ThemesView() {
       result = result.filter((t) => t.category === selectedCategory);
     result.sort((a, b) => {
       switch (sortBy) {
-        case "oldest":  return +new Date(a.createdAt) - +new Date(b.createdAt);
-        case "items":   return b.itemCount - a.itemCount;
-        case "views":   return b.views - a.views;
-        case "alphabetical": return a.title.localeCompare(b.title);
-        default:        return +new Date(b.createdAt) - +new Date(a.createdAt);
+        case "oldest":
+          return +new Date(a.createdAt) - +new Date(b.createdAt);
+        case "items":
+          return b.itemCount - a.itemCount;
+        case "views":
+          return b.views - a.views;
+        case "alphabetical":
+          return a.title.localeCompare(b.title);
+        default:
+          return +new Date(b.createdAt) - +new Date(a.createdAt);
       }
     });
     return result;
@@ -166,7 +181,7 @@ export function ThemesView() {
         />
         <button
           onClick={() => router.push("/cms/themes/upload")}
-          className="inline-flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all duration-200 cursor-pointer group transform active:scale-[0.98] shrink-0"
+          className="inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all duration-200 cursor-pointer group transform active:scale-[0.98] shrink-0"
         >
           <Plus
             size={18}
@@ -198,7 +213,10 @@ export function ThemesView() {
             setActiveDropdownId={setActiveDropdownId}
             onToggleStatus={handleToggleStatus}
             onDelete={handleDeleteRequest}
-            onResetFilters={() => { setSearchQuery(""); setSelectedCategory("All"); }}
+            onResetFilters={() => {
+              setSearchQuery("");
+              setSelectedCategory("All");
+            }}
             onNavigate={handleNavigate}
             onEdit={handleEditRequest}
           />
@@ -228,8 +246,11 @@ export function ThemesView() {
         description={
           pendingDelete ? (
             <>
-              <span className="font-semibold text-foreground">{pendingDelete.title}</span>{" "}
-              will be permanently removed from the Themes Hub. This action cannot be undone.
+              <span className="font-semibold text-foreground">
+                {pendingDelete.title}
+              </span>{" "}
+              will be permanently removed from the Themes Hub. This action
+              cannot be undone.
             </>
           ) : undefined
         }

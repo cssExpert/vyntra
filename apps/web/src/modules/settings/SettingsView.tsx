@@ -27,6 +27,7 @@ import { ImageUploader } from "@/components/common/ImageUploader";
 import { cn } from "@/lib/utils";
 import { apiUpdateOrgSettings, orgDomain, type OrgDomain, type DnsInfo } from "@/lib/api";
 import { useSettings } from "@/providers/SettingsProvider";
+import { MotionTabs, type MotionTabItem } from "@/components/ui/MotionTabs";
 
 interface SettingsState {
   organizationName: string;
@@ -586,12 +587,12 @@ export function SettingsView() {
     }
   };
 
-  const tabs = [
-    { id: "branding", label: "Branding", icon: ImagePlus },
-    { id: "notifications", label: "Notifications", icon: Bell },
-    { id: "domain", label: "Domain", icon: Globe },
-    { id: "security", label: "Security", icon: Lock },
-  ] as const;
+  const tabs: MotionTabItem<"branding" | "notifications" | "domain" | "security">[] = [
+    { id: "branding",      label: "Branding",       icon: ImagePlus },
+    { id: "notifications", label: "Notifications",  icon: Bell },
+    { id: "domain",        label: "Domain",          icon: Globe },
+    { id: "security",      label: "Security",        icon: Lock },
+  ];
 
   // ── Loading / no-org states ──────────────────────────────────────────────
   if (contextLoading) {
@@ -647,32 +648,13 @@ export function SettingsView() {
         </div>
       )}
 
-      {/* Tab bar — same style as Blog Editor MotionTabs */}
-      <div className="p-1 rounded-xl flex items-center gap-1 border border-border bg-card w-fit">
-        {tabs.map(({ id, label, icon: Icon }) => {
-          const isActive = activeTab === id;
-          return (
-            <button
-              key={id}
-              onClick={() => setActiveTab(id)}
-              className={cn(
-                "relative flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold cursor-pointer transition-colors duration-150",
-                isActive ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {isActive && (
-                <motion.div
-                  layoutId="settings-tab-indicator"
-                  className="absolute inset-0 rounded-lg bg-primary shadow-md"
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
-                />
-              )}
-              <Icon className="relative z-10 h-4 w-4 shrink-0" />
-              <span className="relative z-10">{label}</span>
-            </button>
-          );
-        })}
-      </div>
+      <MotionTabs
+        tabs={tabs}
+        active={activeTab}
+        onChange={setActiveTab}
+        layoutId="settings-tab-indicator"
+        className="w-fit"
+      />
 
       {/* Tab content — same y:8→0 fade-in as MotionTabs */}
       <AnimatePresence mode="wait">

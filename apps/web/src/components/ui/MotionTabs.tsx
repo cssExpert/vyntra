@@ -9,6 +9,8 @@ export interface MotionTabItem<T extends string = string> {
   id: T;
   label: string;
   icon?: LucideIcon;
+  /** Badge count or label shown as a pill next to the tab label. */
+  badge?: number | string;
   content?: React.ReactNode;
 }
 
@@ -55,10 +57,10 @@ export function MotionTabs<T extends string = string>({
               className={cn(
                 "relative flex-1 py-2 px-2.5 rounded-lg",
                 "flex items-center justify-center gap-2",
-                "text-xs font-semibold cursor-pointer",
-                "transition-colors duration-150",
+                "text-xs lg:text-sm font-medium cursor-pointer",
+                "transition-colors duration-150 md:text-nowrap",
                 isActive
-                  ? "text-primary-foreground"
+                  ? "text-primary-foreground font-semibold"
                   : "text-muted-foreground hover:text-foreground",
               )}
             >
@@ -69,10 +71,22 @@ export function MotionTabs<T extends string = string>({
                   transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
                 />
               )}
-              {Icon && (
-                <Icon className="relative z-10 w-3.5 h-3.5 shrink-0" />
+              {Icon && <Icon className="relative z-10 w-3.5 h-3.5 shrink-0" />}
+              <span className="relative z-10 hidden sm:inline">
+                {tab.label}
+              </span>
+              {tab.badge !== undefined && (
+                <span
+                  className={cn(
+                    "relative z-10 min-w-[1.25rem] h-5 px-1.5 rounded-full text-[10px] font-bold leading-5 text-center tabular-nums",
+                    isActive
+                      ? "bg-primary-foreground/20 text-primary-foreground"
+                      : "bg-muted text-muted-foreground",
+                  )}
+                >
+                  {tab.badge}
+                </span>
               )}
-              <span className="relative z-10 hidden sm:inline">{tab.label}</span>
             </button>
           );
         })}

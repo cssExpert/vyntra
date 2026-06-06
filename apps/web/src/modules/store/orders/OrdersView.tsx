@@ -9,8 +9,9 @@ import { OrdersTable } from "./components/OrdersTable";
 import { SAMPLE_ORDERS } from "../store.data";
 import type { OrderStatus } from "../store.types";
 import { cn } from "@/lib/utils";
+import { MotionTabs, type MotionTabItem } from "@/components/ui/MotionTabs";
 
-const ORDER_TABS: { id: "all" | OrderStatus; label: string }[] = [
+const ORDER_TABS: MotionTabItem<"all" | OrderStatus>[] = [
   { id: "all", label: "All Orders" },
   { id: "pending", label: "Pending" },
   { id: "processing", label: "Processing" },
@@ -89,30 +90,13 @@ export function OrdersView() {
             </button>
           </PageHeader>
 
-          {/* Tabs */}
-          <div className="flex items-center gap-1 rounded-xl border border-border bg-muted/50 p-1 w-fit overflow-x-auto">
-            {ORDER_TABS.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={cn(
-                  "relative flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold cursor-pointer transition-colors duration-150 text-primary-foreground",
-                  activeTab === tab.id
-                    ? "text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {activeTab === tab.id && (
-                  <motion.div
-                    layoutId="store-orders-tab"
-                    className="absolute inset-0 rounded-lg bg-primary shadow-md"
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.35 }}
-                  />
-                )}
-                <span className="relative z-10">{tab.label}</span>
-              </button>
-            ))}
-          </div>
+          <MotionTabs
+            tabs={ORDER_TABS}
+            active={activeTab}
+            onChange={setActiveTab}
+            layoutId="store-orders-tab"
+            className="w-fit"
+          />
 
           {/* Toolbar */}
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">

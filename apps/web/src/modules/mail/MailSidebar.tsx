@@ -16,11 +16,11 @@ interface MailSidebarProps {
 }
 
 const FOLDERS: { id: MailFolder; label: string; icon: React.ElementType }[] = [
-  { id: "inbox",   label: "Inbox",   icon: Inbox    },
-  { id: "sent",    label: "Sent",    icon: Send     },
-  { id: "drafts",  label: "Drafts",  icon: FileText },
-  { id: "starred", label: "Starred", icon: Star     },
-  { id: "deleted", label: "Deleted", icon: Trash2   },
+  { id: "inbox", label: "Inbox", icon: Inbox },
+  { id: "sent", label: "Sent", icon: Send },
+  { id: "drafts", label: "Drafts", icon: FileText },
+  { id: "starred", label: "Starred", icon: Star },
+  { id: "deleted", label: "Deleted", icon: Trash2 },
 ];
 
 export function MailSidebar({
@@ -32,7 +32,8 @@ export function MailSidebar({
   onCompose,
 }: MailSidebarProps) {
   const countUnread = (folder: MailFolder) => {
-    if (folder === "starred") return emails.filter((e) => e.starred && !e.read).length;
+    if (folder === "starred")
+      return emails.filter((e) => e.starred && !e.read).length;
     return emails.filter((e) => e.folder === folder && !e.read).length;
   };
 
@@ -44,7 +45,7 @@ export function MailSidebar({
       {/* Compose */}
       <button
         onClick={onCompose}
-        className="inline-flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-all active:scale-[0.98] group shadow-glow-brand w-full justify-center"
+        className="inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-all active:scale-[0.98] group shadow-glow-brand w-full justify-center"
       >
         <Pencil size={15} className="stroke-[2.5]" />
         Compose
@@ -61,7 +62,9 @@ export function MailSidebar({
               onClick={() => setActiveFolder(id)}
               className={cn(
                 "relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors duration-150 text-left",
-                isActive ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted",
+                isActive
+                  ? "text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted",
               )}
             >
               {isActive && (
@@ -74,12 +77,14 @@ export function MailSidebar({
               <Icon className="relative z-10 h-4 w-4 shrink-0" />
               <span className="relative z-10 flex-1">{label}</span>
               {unread > 0 && (
-                <span className={cn(
-                  "relative z-10 text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center leading-none",
-                  isActive
-                    ? "bg-primary-foreground/20 text-primary-foreground"
-                    : "bg-primary/10 text-primary",
-                )}>
+                <span
+                  className={cn(
+                    "relative z-10 text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center leading-none",
+                    isActive
+                      ? "bg-primary-foreground/20 text-primary-foreground"
+                      : "bg-primary/10 text-primary",
+                  )}
+                >
                   {unread}
                 </span>
               )}
@@ -103,7 +108,9 @@ export function MailSidebar({
                 onClick={() => onLabelChange(label.id)}
                 className={cn(
                   "relative w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-semibold transition-colors duration-150 text-left",
-                  isActive ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted",
+                  isActive
+                    ? "text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted",
                 )}
               >
                 {isActive && (
@@ -113,15 +120,22 @@ export function MailSidebar({
                     transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
                   />
                 )}
-                <span className={cn("relative z-10 w-2 h-2 rounded-full shrink-0", label.color)} />
+                <span
+                  className={cn(
+                    "relative z-10 w-2 h-2 rounded-full shrink-0",
+                    label.color,
+                  )}
+                />
                 <span className="relative z-10 flex-1">{label.name}</span>
                 {count > 0 && (
-                  <span className={cn(
-                    "relative z-10 text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center leading-none",
-                    isActive
-                      ? "bg-primary-foreground/20 text-primary-foreground"
-                      : "bg-primary/10 text-primary",
-                  )}>
+                  <span
+                    className={cn(
+                      "relative z-10 text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center leading-none",
+                      isActive
+                        ? "bg-primary-foreground/20 text-primary-foreground"
+                        : "bg-primary/10 text-primary",
+                    )}
+                  >
                     {count}
                   </span>
                 )}

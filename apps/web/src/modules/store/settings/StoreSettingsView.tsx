@@ -14,41 +14,18 @@ import {
   Cpu,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MotionTabs, type MotionTabItem } from "@/components/ui/MotionTabs";
 
-const TABS = [
-  {
-    id: "general",
-    label: <span className="relative z-10 shrink-0">General</span>,
-    icon: <Store size={14} className="relative z-10 h-4 w-4 shrink-0" />,
-  },
-  {
-    id: "payment",
-    label: <span className="relative z-10 shrink-0">Payment</span>,
-    icon: <CreditCard size={14} className="relative z-10 h-4 w-4 shrink-0" />,
-  },
-  {
-    id: "shipping",
-    label: <span className="relative z-10 shrink-0">Shipping</span>,
-    icon: <Truck size={14} className="relative z-10 h-4 w-4 shrink-0" />,
-  },
-  {
-    id: "tax",
-    label: <span className="relative z-10 shrink-0">Tax</span>,
-    icon: <DollarSign size={14} className="relative z-10 h-4 w-4 shrink-0" />,
-  },
-  {
-    id: "notifications",
-    label: <span className="relative z-10 shrink-0">Notifications</span>,
-    icon: <Bell size={14} className="relative z-10 h-4 w-4 shrink-0" />,
-  },
-  {
-    id: "ai",
-    label: <span className="relative z-10 shrink-0">AI & Integrations</span>,
-    icon: <Cpu size={14} className="relative z-10 h-4 w-4 shrink-0" />,
-  },
-] as const;
+type TabId = "general" | "payment" | "shipping" | "tax" | "notifications" | "ai";
 
-type TabId = (typeof TABS)[number]["id"];
+const TABS: MotionTabItem<TabId>[] = [
+  { id: "general",       label: "General",          icon: Store },
+  { id: "payment",       label: "Payment",           icon: CreditCard },
+  { id: "shipping",      label: "Shipping",          icon: Truck },
+  { id: "tax",           label: "Tax",               icon: DollarSign },
+  { id: "notifications", label: "Notifications",     icon: Bell },
+  { id: "ai",            label: "AI & Integrations", icon: Cpu },
+];
 
 const inputCls =
   "w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15";
@@ -162,37 +139,19 @@ export function StoreSettingsView() {
             >
               Cancel
             </button>
-            <button className="flex items-center gap-2 rounded-sm bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer">
+            <button className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer">
               <Save className="h-3.5 w-3.5" />
               Save Changes
             </button>
           </PageHeader>
 
-          {/* Tabs */}
-          <div className="flex items-center gap-1 rounded-xl border border-border bg-muted/50 p-1 w-fit overflow-x-auto flex-wrap">
-            {TABS.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={cn(
-                  "relative flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold cursor-pointer transition-colors duration-150 text-primary-foreground",
-                  activeTab === tab.id
-                    ? "text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {activeTab === tab.id && (
-                  <motion.div
-                    layoutId="store-settings-tab"
-                    className="absolute inset-0 rounded-lg bg-primary shadow-md"
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.35 }}
-                  />
-                )}
-                {tab.icon}
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          <MotionTabs
+            tabs={TABS}
+            active={activeTab}
+            onChange={setActiveTab}
+            layoutId="store-settings-tab"
+            className="w-fit"
+          />
 
           {/* Tab content */}
           <AnimatePresence mode="wait" initial={false}>
@@ -421,7 +380,7 @@ export function StoreSettingsView() {
                 >
                   Cancel
                 </button>
-                <button className="flex items-center gap-2 rounded-sm bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer">
+                <button className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer">
                   <Save className="h-3.5 w-3.5" />
                   Save Changes
                 </button>

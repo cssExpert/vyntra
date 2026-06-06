@@ -290,7 +290,7 @@ export function CategoriesView() {
           >
             <button
               onClick={() => router.push("/store/categories/add")}
-              className="flex items-center gap-2 rounded-sm bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer"
+              className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer"
             >
               <Plus size={18} className="stroke-[3]" />
               Add Category

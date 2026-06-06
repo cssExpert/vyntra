@@ -545,7 +545,7 @@ export function UsersView() {
               <div>
                 <button
                   onClick={handleAddUserClick}
-                  className="inline-flex items-center gap-2 rounded-sm bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all duration-200 cursor-pointer group transform active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all duration-200 cursor-pointer group transform active:scale-[0.98]"
                 >
                   <Plus
                     size={18}

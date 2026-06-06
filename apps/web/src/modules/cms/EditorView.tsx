@@ -603,7 +603,7 @@ export function EditorView() {
             <div className="flex items-center gap-2">
               <button
                 onClick={handleAddPageClick}
-                className="inline-flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer group active:scale-[0.98]"
+                className="inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer group active:scale-[0.98]"
               >
                 <Plus
                   size={16}
