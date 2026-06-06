@@ -47,16 +47,22 @@ function deepCloneWithNewIds(node: EditorNode): EditorNode {
   };
 }
 
-type PublishState = "idle" | "saving" | "saved" | "error";
+type SaveState = "idle" | "saving" | "saved" | "error";
 
 function EditorHeader({
   pageSlug,
   onPublish,
   publishState,
+  onSaveDraft,
+  draftState,
+  isLandingPage,
 }: {
   pageSlug: string | null;
   onPublish: () => void;
-  publishState: PublishState;
+  publishState: SaveState;
+  onSaveDraft: () => void;
+  draftState: SaveState;
+  isLandingPage: boolean;
 }) {
   const pageTitle = pageSlug
     ? pageSlug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
@@ -65,7 +71,7 @@ function EditorHeader({
   const { previewUrl } = useSitePreviewUrl();
   const href = previewUrl(pageSlug ?? undefined) ?? undefined;
 
-  const btnLabel =
+  const publishLabel =
     publishState === "saving"
       ? "Publishing…"
       : publishState === "saved"
@@ -73,6 +79,15 @@ function EditorHeader({
         : publishState === "error"
           ? "Error — retry"
           : "Publish";
+
+  const draftLabel =
+    draftState === "saving"
+      ? "Saving…"
+      : draftState === "saved"
+        ? "Saved ✓"
+        : draftState === "error"
+          ? "Error"
+          : "Save Draft";
 
   return (
     <header
@@ -99,13 +114,23 @@ function EditorHeader({
             Preview in new tab
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
+          {!isLandingPage && (
+            <button
+              onClick={onSaveDraft}
+              disabled={draftState === "saving" || publishState === "saving"}
+              className={`text-xs font-semibold px-4 py-1.5 rounded-lg transition-colors disabled:opacity-60 border
+                ${draftState === "saved" ? "border-emerald-500 text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30" : draftState === "error" ? "border-rose-400 text-rose-600 bg-rose-50 dark:bg-rose-950/30" : "border-border text-muted-foreground hover:text-foreground hover:bg-muted bg-transparent"}`}
+            >
+              {draftLabel}
+            </button>
+          )}
           <button
             onClick={onPublish}
-            disabled={publishState === "saving"}
+            disabled={publishState === "saving" || draftState === "saving"}
             className={`text-xs font-semibold px-4 py-1.5 rounded-lg transition-colors disabled:opacity-60
               ${publishState === "saved" ? "bg-emerald-600 text-white" : publishState === "error" ? "bg-rose-600 text-white" : "bg-primary hover:bg-primary/90 text-primary-foreground"}`}
           >
-            {btnLabel}
+            {publishLabel}
           </button>
         </div>
       </div>
@@ -122,7 +147,9 @@ export default function EditorLayout() {
   const searchParams = useSearchParams();
   const pageSlug = searchParams.get("page");
   const isEditingExisting = Boolean(pageSlug);
-  const [publishState, setPublishState] = useState<PublishState>("idle");
+  const [publishState, setPublishState] = useState<SaveState>("idle");
+  const [draftState, setDraftState] = useState<SaveState>("idle");
+  const [isLandingPage, setIsLandingPage] = useState(false);
 
   const {
     addNode,
@@ -148,6 +175,7 @@ export default function EditorLayout() {
     }
     if (isEditingExisting && pageSlug) {
       cmsPages.load(pageSlug).then((page) => {
+        if (page.isLandingPage) setIsLandingPage(true);
         if (page.content) {
           try {
             const nodes = JSON.parse(page.content);
@@ -180,6 +208,20 @@ export default function EditorLayout() {
     } catch {
       setPublishState("error");
       setTimeout(() => setPublishState("idle"), 3000);
+    }
+  }, [pageSlug]);
+
+  const handleSaveDraft = useCallback(async () => {
+    if (!pageSlug) return;
+    const { nodes } = useEditorStore.getState();
+    setDraftState("saving");
+    try {
+      await cmsPages.save(pageSlug, JSON.stringify(nodes), false);
+      setDraftState("saved");
+      setTimeout(() => setDraftState("idle"), 2500);
+    } catch {
+      setDraftState("error");
+      setTimeout(() => setDraftState("idle"), 3000);
     }
   }, [pageSlug]);
 
@@ -300,7 +342,7 @@ export default function EditorLayout() {
         <div className="flex flex-1 min-h-0 overflow-hidden select-none">
           <LeftSidebar />
           <div className="flex-1 flex flex-col min-w-0 canvas-container overflow-hidden bg-muted dark:bg-background">
-            <EditorHeader pageSlug={pageSlug} onPublish={handlePublish} publishState={publishState} />
+            <EditorHeader pageSlug={pageSlug} onPublish={handlePublish} publishState={publishState} onSaveDraft={handleSaveDraft} draftState={draftState} isLandingPage={isLandingPage} />
             <Canvas />
             <BottomToolbar />
           </div>

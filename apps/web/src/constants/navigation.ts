@@ -82,6 +82,12 @@ export const NAV_SECTIONS: NavSection[] = [
             href: "/cms/preview",
             icon: "",
           },
+          {
+            id: "cms-settings",
+            label: "Settings",
+            href: "/cms/settings",
+            icon: "",
+          },
         ],
       },
       {

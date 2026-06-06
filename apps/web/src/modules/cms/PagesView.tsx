@@ -322,6 +322,7 @@ export function PagesView() {
   const [filterDraft, setFilterDraft] = useState<PageFilters>(DEFAULT_FILTERS);
   const [activeFilters, setActiveFilters] =
     useState<PageFilters>(DEFAULT_FILTERS);
+  const [addFormData, setAddFormData] = useState({ title: "", slug: "" });
   const isLoaded = usePageLoad(700);
   const { previewUrl, hasDomain } = useSitePreviewUrl();
 
@@ -618,7 +619,17 @@ export function PagesView() {
   const pageCount = table.getPageCount();
   const selectedCount = Object.keys(rowSelection).length;
   const handleAddPageClick = () => {
-    router.push("/cms/editor");
+    setAddFormData({ title: "", slug: "" });
+    setEditingPage(null);
+    setIsModalOpen(true);
+  };
+
+  const handleAddSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const slug = addFormData.slug.trim();
+    if (!slug) return;
+    router.push(`/cms/editor?page=${encodeURIComponent(slug)}`);
+    setIsModalOpen(false);
   };
 
   return (
@@ -970,27 +981,27 @@ export function PagesView() {
             </div>
           </div>
 
-          {/* ── Edit Page Modal ─────────────────────────────────────────────── */}
+          {/* ── Add / Edit Page Modal ──────────────────────────────────────── */}
           <Modal
             isOpen={isModalOpen}
             onClose={() => {
               setIsModalOpen(false);
               setEditingPage(null);
             }}
-            title={editingPage ? `Edit ${editingPage.title}` : "Add New Page"}
+            title={editingPage ? `Edit "${editingPage.title}"` : "New Page"}
             description={
               editingPage
-                ? "Update page parameters and content."
-                : "Add a new page to your website with fully editable sections and dynamic content support."
+                ? "Update page details."
+                : "Set a title and URL slug, then build the page in the editor."
             }
             icon={
               editingPage ? (
                 <PencilLine size={18} className="stroke-[2.5]" />
               ) : (
-                <ListFilterPlus size={18} />
+                <Plus size={18} className="stroke-[2.5]" />
               )
             }
-            maxWidth="xxxl"
+            maxWidth="md"
             footer={
               <>
                 <button
@@ -1005,17 +1016,89 @@ export function PagesView() {
                 </button>
                 <button
                   type="submit"
-                  form="page-edit-form"
+                  form="page-form"
                   className="px-5 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-sm text-sm font-semibold transition-all shadow-sm active:scale-95"
                 >
-                  Save Changes
+                  {editingPage ? "Save Changes" : "Open in Editor →"}
                 </button>
               </>
             }
           >
-            <form id="page-edit-form" onSubmit={handleEditSubmit}>
-              <div className="p-6 space-y-4">RG</div>
-            </form>
+            {editingPage ? (
+              <form id="page-form" onSubmit={handleEditSubmit}>
+                <div className="p-6 space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="block text-sm font-medium text-foreground">Title</label>
+                    <input
+                      required
+                      value={editFormData.title}
+                      onChange={(e) => setEditFormData((f) => ({ ...f, title: e.target.value }))}
+                      placeholder="Page title"
+                      className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="block text-sm font-medium text-foreground">Status</label>
+                    <select
+                      value={editFormData.status}
+                      onChange={(e) => setEditFormData((f) => ({ ...f, status: e.target.value as PageStatus }))}
+                      className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
+                    >
+                      <option value="Public">Public</option>
+                      <option value="Draft">Draft</option>
+                      <option value="Private">Private</option>
+                    </select>
+                  </div>
+                </div>
+              </form>
+            ) : (
+              <form id="page-form" onSubmit={handleAddSubmit}>
+                <div className="p-6 space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="block text-sm font-medium text-foreground">Page Title</label>
+                    <input
+                      required
+                      autoFocus
+                      value={addFormData.title}
+                      onChange={(e) => {
+                        const title = e.target.value;
+                        const slug = title
+                          .toLowerCase()
+                          .replace(/[^a-z0-9\s-]/g, "")
+                          .trim()
+                          .replace(/\s+/g, "-");
+                        setAddFormData({ title, slug });
+                      }}
+                      placeholder="e.g. About Us"
+                      className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="block text-sm font-medium text-foreground">URL Slug</label>
+                    <div className="flex items-center rounded-lg border border-border bg-background focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15 transition-all overflow-hidden">
+                      <span className="px-3 py-2.5 text-sm text-muted-foreground border-r border-border bg-muted/50 shrink-0 select-none">
+                        /
+                      </span>
+                      <input
+                        required
+                        value={addFormData.slug}
+                        onChange={(e) =>
+                          setAddFormData((f) => ({
+                            ...f,
+                            slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""),
+                          }))
+                        }
+                        placeholder="about-us"
+                        className="flex-1 px-3 py-2.5 text-sm text-foreground bg-transparent outline-none placeholder:text-muted-foreground/50"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      This will be the page URL — e.g. <span className="font-mono">yourdomain.com/about-us</span>
+                    </p>
+                  </div>
+                </div>
+              </form>
+            )}
           </Modal>
 
           {/* ── Delete confirmation modal ───────────────────────────────────── */}
