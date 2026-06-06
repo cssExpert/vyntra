@@ -3,39 +3,9 @@
 import { useEffect, useState } from "react";
 import { Globe, CheckCircle2, AlertCircle, Key } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { SectionCard } from "@/components/ui/SectionCard";
 import { cn } from "@/lib/utils";
 import { orgDomain, type OrgDomain, type DnsInfo } from "@/lib/api";
-
-// ── Shared sub-components (same pattern as SettingsView) ──────────────────────
-
-function SectionCard({
-  icon: Icon,
-  title,
-  description,
-  children,
-}: {
-  icon: React.ElementType;
-  title: string;
-  description?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-2xl border border-border bg-card overflow-hidden">
-      <div className="flex items-start gap-3 px-6 py-5 border-b border-border bg-muted/20">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary mt-0.5">
-          <Icon className="h-4.5 w-4.5" size={18} />
-        </div>
-        <div>
-          <h3 className="text-[15px] font-semibold text-foreground">{title}</h3>
-          {description && (
-            <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
-          )}
-        </div>
-      </div>
-      <div className="px-6 py-6">{children}</div>
-    </div>
-  );
-}
 
 function FieldGroup({
   label,

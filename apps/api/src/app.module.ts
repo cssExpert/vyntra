@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -14,6 +15,7 @@ import { ModulesModule } from './modules/modules.module';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { PackagesModule } from './packages/packages.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { UploadModule } from './upload/upload.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -22,12 +24,14 @@ import { UsersModule } from './users/users.module';
     PrismaModule,
     HealthModule,
     AuthModule,
+    AdminModule,
     UsersModule,
     OrganizationsModule,
     PackagesModule,
     ModulesModule,
     DomainsModule,
     CmsModule,
+    UploadModule,
     // CrmModule added in the next phase.
   ],
   providers: [

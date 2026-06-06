@@ -253,8 +253,8 @@ export const SUPER_ADMIN_NAV: NavSection[] = [
     items: [
       {
         id: "sa-dashboard",
-        label: "Dashboard",
-        href: "/dashboard",
+        label: "Admin Dashboard",
+        href: "/admin/dashboard",
         icon: "LayoutDashboard",
       },
     ],
