@@ -20,13 +20,17 @@ interface StatusBadgeProps {
 // Light-mode text uses darker semantic shades to pass WCAG AA (4.5:1) on tinted bg.
 // Dark-mode overrides restore the vivid color since the tinted bg is nearly black.
 const variantStyles: Record<BadgeVariant, string> = {
-  default: "bg-primary/10 text-primary/80  dark:text-primary    border-primary/20",
-  success: "bg-success/10 text-green-800  dark:text-success    border-success/20",
-  warning: "bg-warning/10 text-amber-800  dark:text-warning    border-warning/20",
-  error:   "bg-error/10   text-red-700    dark:text-error      border-error/20",
-  info:    "bg-info/10    text-cyan-800   dark:text-info       border-info/20",
-  purple:  "bg-purple-500/10 text-purple-800 dark:text-purple-400 border-purple-500/20",
-  muted:   "bg-muted text-muted-foreground border-border",
+  default:
+    "bg-primary/10 text-primary/80  dark:text-primary    border-primary/20",
+  success:
+    "bg-success/10 text-green-800  dark:text-success    border-success/20",
+  warning:
+    "bg-warning/10 text-amber-800  dark:text-warning    border-warning/20",
+  error: "bg-error/10   text-red-700    dark:text-error      border-error/20",
+  info: "bg-info/10    text-cyan-800   dark:text-info       border-info/20",
+  purple:
+    "bg-purple-500/10 text-purple-800 dark:text-purple-400 border-purple-500/20",
+  muted: "bg-muted text-muted-foreground border-border",
 };
 
 const dotStyles: Record<BadgeVariant, string> = {
@@ -50,9 +54,9 @@ export function StatusBadge({
     <span
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full border font-medium",
-        size === "sm" ? "px-2 py-0.5 text-xs" : "px-3 py-1 text-sm",
+        size === "sm" ? "px-2 py-0.5 text-[10px]" : "px-3 py-1 text-[10px]",
         variantStyles[variant],
-        className
+        className,
       )}
     >
       {dot && (
@@ -60,7 +64,7 @@ export function StatusBadge({
           className={cn(
             "rounded-full",
             size === "sm" ? "h-1.5 w-1.5" : "h-2 w-2",
-            dotStyles[variant]
+            dotStyles[variant],
           )}
         />
       )}

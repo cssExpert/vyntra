@@ -799,3 +799,34 @@
 select {
   padding-inline-end: 1.5rem !important; /* 30px to accommodate dropdown arrow */
 }
+
+/* react-sortable-tree: stretch node content to the container's right edge so
+   our full-width custom row renderer fills correctly */
+.rst__nodeContent {
+  right: 0;
+}
+
+/* Tone down the default black scaffold lines to match the design system */
+.rst__tree {
+  --rst-line-color: hsl(var(--border)) !important;
+  --rst-line-highlight: hsl(var(--primary) / 0.6);
+  --rst-line-highlight-arrow: hsl(var(--primary-foreground));
+}
+.rst__nodeContent {
+  border: 1px solid hsl(var(--border) / 1) !important; /* for better drag handle dropzone visibility */
+}
+
+.drag-handle::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 1px;
+  background-color: hsl(var(--border));
+}
+
+.categ-container {
+  border-bottom: 1px solid hsl(var(--border)) !important;
+}
