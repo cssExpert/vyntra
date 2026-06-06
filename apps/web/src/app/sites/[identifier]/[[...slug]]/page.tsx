@@ -3,6 +3,9 @@ import type { Metadata } from "next";
 import type { EditorNode } from "@/types/editor";
 import { NodeRenderer } from "./NodeRenderer";
 
+// Always fetch fresh — CMS content changes on every publish
+export const dynamic = "force-dynamic";
+
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -57,7 +60,7 @@ async function resolveOrg(
       identifier === "_host" && customHost
         ? `${API}/public/resolve-domain?domain=${encodeURIComponent(customHost)}`
         : `${API}/public/resolve-subdomain/${encodeURIComponent(identifier)}`;
-    const res = await fetch(url, { next: { revalidate: 60 } });
+    const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) return null;
     return res.json();
   } catch {
@@ -68,7 +71,7 @@ async function resolveOrg(
 async function fetchLandingPage(orgId: string): Promise<CmsPage | null> {
   try {
     const res = await fetch(`${API}/public/sites/${orgId}/landing-page`, {
-      next: { revalidate: 60 },
+      cache: "no-store",
     });
     if (!res.ok) return null;
     return res.json();
@@ -80,7 +83,7 @@ async function fetchLandingPage(orgId: string): Promise<CmsPage | null> {
 async function listPages(orgId: string): Promise<PageListItem[]> {
   try {
     const res = await fetch(`${API}/public/sites/${orgId}/pages`, {
-      next: { revalidate: 60 },
+      cache: "no-store",
     });
     if (!res.ok) return [];
     return res.json();
@@ -93,7 +96,7 @@ async function fetchPage(orgId: string, slug: string): Promise<CmsPage | null> {
   try {
     const res = await fetch(
       `${API}/public/sites/${orgId}/pages/${encodeURIComponent(slug)}`,
-      { next: { revalidate: 60 } },
+      { cache: "no-store" },
     );
     if (!res.ok) return null;
     return res.json();
