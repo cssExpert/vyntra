@@ -25,9 +25,9 @@ export function AdminSettingsProvider({ children }: { children: ReactNode }) {
         setSettings(data);
         applyAdminTheme(data);
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Failed to load admin settings";
-        setError(message);
-        console.error("Failed to load admin settings:", err);
+        // Silently fail on load - admin settings are optional and serve as defaults
+        // If user isn't authenticated or can't access admin settings, just use defaults
+        setSettings(null);
       } finally {
         setLoading(false);
       }
