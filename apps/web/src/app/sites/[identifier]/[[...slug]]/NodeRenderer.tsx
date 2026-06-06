@@ -53,16 +53,21 @@ async function LiveMenuBlock({
 
   return (
     <nav className={combinedClass || undefined}>
-      {menu.items.map((item) => (
-        <a
-          key={item.id}
-          href={item.url}
-          target={item.target}
-          rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
-        >
-          {item.label}
-        </a>
-      ))}
+      {menu.items.map((item) => {
+        const itemVis = (item as { visibility?: string[] }).visibility ?? [];
+        const itemVisClass = visibilityToClass(itemVis);
+        return (
+          <a
+            key={item.id}
+            href={item.url}
+            target={item.target}
+            rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
+            className={itemVisClass || undefined}
+          >
+            {item.label}
+          </a>
+        );
+      })}
     </nav>
   );
 }

@@ -14,6 +14,11 @@ import { CurrentOrg } from '../common/decorators/current-org.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CmsService } from './cms.service';
 
+function requireOrg(orgId: string | null): string {
+  if (!orgId) throw new BadRequestException('No organization context');
+  return orgId;
+}
+
 @Controller('cms')
 export class CmsController {
   constructor(private readonly cmsService: CmsService) {}
@@ -23,22 +28,19 @@ export class CmsController {
   @Roles(Role.ORG_ADMIN, Role.EDITOR)
   @Get('pages')
   listPages(@CurrentOrg() orgId: string | null) {
-    if (!orgId) throw new BadRequestException('No organization context');
-    return this.cmsService.listPages(orgId);
+    return this.cmsService.listPages(requireOrg(orgId));
   }
 
   @Roles(Role.ORG_ADMIN, Role.EDITOR)
   @Get('blogs')
   listBlogs(@CurrentOrg() orgId: string | null) {
-    if (!orgId) throw new BadRequestException('No organization context');
-    return this.cmsService.listBlogs(orgId);
+    return this.cmsService.listBlogs(requireOrg(orgId));
   }
 
   @Roles(Role.ORG_ADMIN, Role.EDITOR)
   @Get('pages/:slug')
   load(@CurrentOrg() orgId: string | null, @Param('slug') slug: string) {
-    if (!orgId) throw new BadRequestException('No organization context');
-    return this.cmsService.loadPage(orgId, slug);
+    return this.cmsService.loadPage(requireOrg(orgId), slug);
   }
 
   @Roles(Role.ORG_ADMIN, Role.EDITOR)
@@ -46,10 +48,58 @@ export class CmsController {
   save(
     @CurrentOrg() orgId: string | null,
     @Param('slug') slug: string,
-    @Body() body: { content: string; publish?: boolean },
+    @Body() body: { content: string; publish?: boolean; layoutId?: string | null },
   ) {
-    if (!orgId) throw new BadRequestException('No organization context');
-    return this.cmsService.savePage(orgId, slug, body);
+    return this.cmsService.savePage(requireOrg(orgId), slug, body);
+  }
+
+  // ── Layouts ───────────────────────────────────────────────────────────────
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Get('layouts')
+  listLayouts(@CurrentOrg() orgId: string | null) {
+    return this.cmsService.listLayouts(requireOrg(orgId));
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Post('layouts')
+  createLayout(
+    @CurrentOrg() orgId: string | null,
+    @Body() body: {
+      name: string;
+      isDefault?: boolean;
+      navMenuId?: string | null;
+      footerColumns?: { title: string; menuId: string }[];
+    },
+  ) {
+    return this.cmsService.createLayout(requireOrg(orgId), body);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Get('layouts/:id')
+  getLayout(@CurrentOrg() orgId: string | null, @Param('id') id: string) {
+    return this.cmsService.getLayout(requireOrg(orgId), id);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Patch('layouts/:id')
+  updateLayout(
+    @CurrentOrg() orgId: string | null,
+    @Param('id') id: string,
+    @Body() body: {
+      name?: string;
+      isDefault?: boolean;
+      navMenuId?: string | null;
+      footerColumns?: { title: string; menuId: string }[];
+    },
+  ) {
+    return this.cmsService.updateLayout(requireOrg(orgId), id, body);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Delete('layouts/:id')
+  deleteLayout(@CurrentOrg() orgId: string | null, @Param('id') id: string) {
+    return this.cmsService.deleteLayout(requireOrg(orgId), id);
   }
 
   // ── Menus ─────────────────────────────────────────────────────────────────
@@ -57,8 +107,7 @@ export class CmsController {
   @Roles(Role.ORG_ADMIN, Role.EDITOR)
   @Get('menus')
   listMenus(@CurrentOrg() orgId: string | null) {
-    if (!orgId) throw new BadRequestException('No organization context');
-    return this.cmsService.listMenus(orgId);
+    return this.cmsService.listMenus(requireOrg(orgId));
   }
 
   @Roles(Role.ORG_ADMIN, Role.EDITOR)
@@ -67,15 +116,13 @@ export class CmsController {
     @CurrentOrg() orgId: string | null,
     @Body() body: { name: string; slug: string; visibility: string[] },
   ) {
-    if (!orgId) throw new BadRequestException('No organization context');
-    return this.cmsService.createMenu(orgId, body);
+    return this.cmsService.createMenu(requireOrg(orgId), body);
   }
 
   @Roles(Role.ORG_ADMIN, Role.EDITOR)
   @Get('menus/:id')
   getMenu(@CurrentOrg() orgId: string | null, @Param('id') id: string) {
-    if (!orgId) throw new BadRequestException('No organization context');
-    return this.cmsService.getMenu(orgId, id);
+    return this.cmsService.getMenu(requireOrg(orgId), id);
   }
 
   @Roles(Role.ORG_ADMIN, Role.EDITOR)
@@ -85,15 +132,13 @@ export class CmsController {
     @Param('id') id: string,
     @Body() body: { name?: string; slug?: string; visibility?: string[] },
   ) {
-    if (!orgId) throw new BadRequestException('No organization context');
-    return this.cmsService.updateMenu(orgId, id, body);
+    return this.cmsService.updateMenu(requireOrg(orgId), id, body);
   }
 
   @Roles(Role.ORG_ADMIN, Role.EDITOR)
   @Delete('menus/:id')
   deleteMenu(@CurrentOrg() orgId: string | null, @Param('id') id: string) {
-    if (!orgId) throw new BadRequestException('No organization context');
-    return this.cmsService.deleteMenu(orgId, id);
+    return this.cmsService.deleteMenu(requireOrg(orgId), id);
   }
 
   @Roles(Role.ORG_ADMIN, Role.EDITOR)
@@ -103,7 +148,6 @@ export class CmsController {
     @Param('id') id: string,
     @Body() body: { items: { label: string; url: string; target?: string; visibility?: string[] }[] },
   ) {
-    if (!orgId) throw new BadRequestException('No organization context');
-    return this.cmsService.setMenuItems(orgId, id, body.items);
+    return this.cmsService.setMenuItems(requireOrg(orgId), id, body.items);
   }
 }

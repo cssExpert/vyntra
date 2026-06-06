@@ -1,17 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Globe,
-  CheckCircle2,
-  AlertCircle,
-  Key,
-} from "lucide-react";
+import { Globe, CheckCircle2, AlertCircle, Key } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { cn } from "@/lib/utils";
 import { orgDomain, type OrgDomain, type DnsInfo } from "@/lib/api";
-import { MotionTabs, type MotionTabItem } from "@/components/ui/MotionTabs";
 
 // ── Shared sub-components (same pattern as SettingsView) ──────────────────────
 
@@ -346,43 +339,18 @@ function DomainTab() {
   );
 }
 
+// ── Navigation Tab ────────────────────────────────────────────────────────────
+
 // ── CmsSettingsView ───────────────────────────────────────────────────────────
 
-type CmsSettingsTab = "domain";
-
 export function CmsSettingsView() {
-  const [activeTab, setActiveTab] = useState<CmsSettingsTab>("domain");
-
-  const tabs: MotionTabItem<CmsSettingsTab>[] = [
-    { id: "domain", label: "Domain", icon: Globe },
-  ];
-
   return (
     <div className="space-y-6 pb-0">
       <PageHeader
         title="CMS Settings"
         description="Configure domain, publishing, and site-level options for your CMS."
       />
-
-      <MotionTabs
-        tabs={tabs}
-        active={activeTab}
-        onChange={setActiveTab}
-        layoutId="cms-settings-tab-indicator"
-        className="w-fit"
-      />
-
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={activeTab}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
-        >
-          {activeTab === "domain" && <DomainTab />}
-        </motion.div>
-      </AnimatePresence>
+      <DomainTab />
     </div>
   );
 }

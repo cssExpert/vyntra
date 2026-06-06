@@ -463,6 +463,7 @@ export interface CmsPageData {
   published: boolean;
   publishedAt: string | null;
   isLandingPage: boolean;
+  layoutId: string | null;
 }
 
 export interface CmsPageListItem {
@@ -471,6 +472,7 @@ export interface CmsPageListItem {
   slug: string;
   published: boolean;
   isLandingPage: boolean;
+  layoutId: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -488,10 +490,10 @@ export interface CmsBlogListItem {
 export const cmsPages = {
   list: () => apiFetch<CmsPageListItem[]>("/cms/pages"),
   load: (slug: string) => apiFetch<CmsPageData>(`/cms/pages/${slug}`),
-  save: (slug: string, content: string, publish = false) =>
+  save: (slug: string, body: { content: string; publish?: boolean; layoutId?: string | null }) =>
     apiFetch<CmsPageData>(`/cms/pages/${slug}`, {
       method: "PATCH",
-      body: JSON.stringify({ content, publish }),
+      body: JSON.stringify(body),
     }),
 };
 
@@ -521,6 +523,32 @@ export interface CmsMenu {
   _count?: { items: number };
   items?: CmsMenuItem[];
 }
+
+export interface CmsLayout {
+  id: string;
+  name: string;
+  isDefault: boolean;
+  navMenuId: string | null;
+  footerColumns: { title: string; menuId: string }[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PublicLayoutData {
+  id: string | null;
+  navMenuId: string | null;
+  footerColumns: { title: string; menuId: string }[];
+}
+
+export const cmsLayouts = {
+  list: () => apiFetch<CmsLayout[]>("/cms/layouts"),
+  create: (body: { name: string; isDefault?: boolean; navMenuId?: string | null; footerColumns?: { title: string; menuId: string }[] }) =>
+    apiFetch<CmsLayout>("/cms/layouts", { method: "POST", body: JSON.stringify(body) }),
+  get: (id: string) => apiFetch<CmsLayout>(`/cms/layouts/${id}`),
+  update: (id: string, body: Partial<Omit<CmsLayout, "id" | "createdAt" | "updatedAt">>) =>
+    apiFetch<CmsLayout>(`/cms/layouts/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
+  delete: (id: string) => apiFetch<{ ok: boolean }>(`/cms/layouts/${id}`, { method: "DELETE" }),
+};
 
 export const cmsMenus = {
   list: () => apiFetch<CmsMenu[]>("/cms/menus"),

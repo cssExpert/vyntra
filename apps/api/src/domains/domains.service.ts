@@ -182,10 +182,16 @@ export class DomainsService {
   // ── Public site resolution (used by Next.js public pages) ─────────────────
 
   async resolveBySubdomain(subdomain: string) {
-    const org = await this.prisma.organization.findFirst({
-      where: { subdomain, isActive: true },
-      select: this.publicSelect(),
-    });
+    // Try by subdomain first, then fall back to org slug (used for internal preview)
+    const org =
+      (await this.prisma.organization.findFirst({
+        where: { subdomain, isActive: true },
+        select: this.publicSelect(),
+      })) ??
+      (await this.prisma.organization.findFirst({
+        where: { slug: subdomain, isActive: true },
+        select: this.publicSelect(),
+      }));
     if (!org) throw new NotFoundException('No site found for this subdomain');
     return this.assertCmsEnabled(org);
   }
@@ -216,6 +222,7 @@ export class DomainsService {
         metaKeywords: true,
         publishedAt: true,
         updatedAt: true,
+        layoutId: true,
       },
     });
     if (!page) throw new NotFoundException('No landing page configured');
@@ -249,10 +256,28 @@ export class DomainsService {
         metaKeywords: true,
         publishedAt: true,
         updatedAt: true,
+        layoutId: true,
       },
     });
     if (!page) throw new NotFoundException('Page not found');
     return page;
+  }
+
+  async getPublicLayout(orgId: string, layoutId?: string) {
+    const layout = layoutId
+      ? await this.prisma.layout.findFirst({
+          where: { id: layoutId, organizationId: orgId },
+        })
+      : await this.prisma.layout.findFirst({
+          where: { organizationId: orgId, isDefault: true },
+          orderBy: { createdAt: 'asc' },
+        });
+
+    return {
+      id: layout?.id ?? null,
+      navMenuId: layout?.navMenuId ?? null,
+      footerColumns: (layout?.footerColumns ?? []) as { title: string; menuId: string }[],
+    };
   }
 
   async getPublicMenu(orgId: string, menuId: string) {

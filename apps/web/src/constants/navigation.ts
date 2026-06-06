@@ -83,6 +83,12 @@ export const NAV_SECTIONS: NavSection[] = [
             icon: "",
           },
           {
+            id: "cms-layouts",
+            label: "Layouts",
+            href: "/cms/layouts",
+            icon: "",
+          },
+          {
             id: "cms-preview",
             label: "Preview Website",
             href: "/cms/preview",

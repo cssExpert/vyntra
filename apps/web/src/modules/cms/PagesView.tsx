@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -46,7 +46,7 @@ import {
 } from "@/components/common/TableSkeleton";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { useSitePreviewUrl } from "@/hooks/useSitePreviewUrl";
-import { cmsPages } from "@/lib/api";
+import { cmsPages, cmsLayouts, type CmsLayout } from "@/lib/api";
 
 // Skeleton column layout mirrors the real table columns below.
 const SKELETON_COLUMNS: TableSkeletonColumn[] = [
@@ -217,9 +217,18 @@ export function PagesView() {
   const [filterDraft, setFilterDraft] = useState<PageFilters>(DEFAULT_FILTERS);
   const [activeFilters, setActiveFilters] =
     useState<PageFilters>(DEFAULT_FILTERS);
-  const [addFormData, setAddFormData] = useState({ title: "", slug: "" });
+  const [addFormData, setAddFormData] = useState({ title: "", slug: "", layoutId: "" });
+  const [availableLayouts, setAvailableLayouts] = useState<CmsLayout[]>([]);
   const isLoaded = usePageLoad(700);
-  const { previewUrl, hasDomain } = useSitePreviewUrl();
+  const { previewUrl } = useSitePreviewUrl();
+  // Ref so the memoized columns closure always reads the latest previewUrl
+  // without needing to be recreated on every render.
+  const previewUrlRef = useRef(previewUrl);
+  previewUrlRef.current = previewUrl;
+
+  useEffect(() => {
+    cmsLayouts.list().then(setAvailableLayouts).catch(() => {});
+  }, []);
 
   useEffect(() => {
     cmsPages
@@ -448,14 +457,8 @@ export function PagesView() {
                     label: "Preview",
                     icon: <Eye size={13} />,
                     onClick: () => {
-                      const url = previewUrl(page.slug);
-                      if (url) {
-                        window.open(url, "_blank");
-                      } else if (!hasDomain) {
-                        alert(
-                          "No domain configured for this site yet.\nAsk your super admin to set a subdomain in Organization settings.",
-                        );
-                      }
+                      const url = previewUrlRef.current(page.slug);
+                      if (url) window.open(url, "_blank");
                     },
                   },
                   {
@@ -538,7 +541,8 @@ export function PagesView() {
   const pageCount = table.getPageCount();
   const selectedCount = Object.keys(rowSelection).length;
   const handleAddPageClick = () => {
-    setAddFormData({ title: "", slug: "" });
+    const defaultLayout = availableLayouts.find((l) => l.isDefault);
+    setAddFormData({ title: "", slug: "", layoutId: defaultLayout?.id ?? "" });
     setEditingPage(null);
     setIsModalOpen(true);
   };
@@ -547,7 +551,9 @@ export function PagesView() {
     e.preventDefault();
     const slug = addFormData.slug.trim();
     if (!slug) return;
-    router.push(`/cms/editor?page=${encodeURIComponent(slug)}`);
+    const params = new URLSearchParams({ page: slug });
+    if (addFormData.layoutId) params.set("layoutId", addFormData.layoutId);
+    router.push(`/cms/editor?${params.toString()}`);
     setIsModalOpen(false);
   };
 
@@ -1015,6 +1021,23 @@ export function PagesView() {
                       This will be the page URL — e.g. <span className="font-mono">yourdomain.com/about-us</span>
                     </p>
                   </div>
+                  {availableLayouts.length > 0 && (
+                    <div className="space-y-1.5">
+                      <label className="block text-sm font-medium text-foreground">Layout</label>
+                      <select
+                        value={addFormData.layoutId}
+                        onChange={(e) => setAddFormData((f) => ({ ...f, layoutId: e.target.value }))}
+                        className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
+                      >
+                        <option value="">Use default layout</option>
+                        {availableLayouts.map((l) => (
+                          <option key={l.id} value={l.id}>
+                            {l.name}{l.isDefault ? " (default)" : ""}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                 </div>
               </form>
             )}
