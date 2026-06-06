@@ -40,7 +40,9 @@ interface DropTarget {
   depth: number;
 }
 
-const INDENT = 48; // px per depth level
+const INDENT = 48;    // px per depth level (visual spacing)
+const MAX_DEPTH = 2;
+const DEPTH_ZONE = INDENT * 2; // 96 px per zone — 2× wider, far easier to target
 
 const INIT: FlatCat[] = [
   {
@@ -206,6 +208,8 @@ export function CategoriesView() {
   const isLoaded = usePageLoad(600);
   const router = useRouter();
   const ref = useRef<HTMLDivElement>(null);
+  // ref so calcDrop always reads the current dragId without waiting for a re-render
+  const dragIdRef = useRef<string | null>(null);
   const [items, setItems] = useState<FlatCat[]>(INIT);
   const [expanded, setExpanded] = useState<Set<string>>(
     new Set(["c1", "c3", "c1a"]),
@@ -223,31 +227,46 @@ export function CategoriesView() {
 
   const rows = flatten(buildTree(items), expanded);
 
+  // The row that becomes the parent at the current drop target (for highlight)
+  const potentialParentId = drop
+    ? parentForDrop(rows, drop.afterId, drop.depth)
+    : null;
+
   const calcDrop = (e: React.DragEvent, afterId: string | null) => {
     e.preventDefault();
-    if (!dragId || !ref.current) return;
+    if (!dragIdRef.current || !ref.current) return;
     const x = e.clientX - ref.current.getBoundingClientRect().left;
-    const depth = Math.max(0, Math.min(2, Math.floor(x / INDENT)));
+    // Can only nest one level deeper than the row above — prevents orphan gaps
+    const afterRow = afterId ? rows.find((r) => r.node.id === afterId) : null;
+    const maxDepth = afterRow ? Math.min(afterRow.depth + 1, MAX_DEPTH) : 0;
+    // Wider 96-px zones make each depth level easy to hit deliberately
+    const depth = Math.max(0, Math.min(maxDepth, Math.floor(x / DEPTH_ZONE)));
     setDrop({ afterId, depth });
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    if (!dragId || !drop) {
+    const currentDragId = dragIdRef.current;
+    if (!currentDragId || !drop) {
+      dragIdRef.current = null;
       setDragId(null);
       setDrop(null);
       return;
     }
-    const ids = subtree(dragId, items);
+    const ids = subtree(currentDragId, items);
     if (drop.afterId && ids.includes(drop.afterId)) {
+      dragIdRef.current = null;
       setDragId(null);
       setDrop(null);
       return;
     }
-    setItems((prev) => applyDrop(prev, rows, dragId, drop));
+    dragIdRef.current = null;
+    setItems((prev) => applyDrop(prev, rows, currentDragId, drop));
     setDragId(null);
     setDrop(null);
   };
+
+  const DEPTH_LABELS = ["Root", "Child", "Nested"] as const;
 
   const Line = ({ afterId }: { afterId: string | null }) =>
     drop?.afterId === afterId ? (
@@ -258,10 +277,18 @@ export function CategoriesView() {
           className="absolute h-0.5 bg-primary rounded-full"
           style={{ left: drop.depth * INDENT + INDENT, right: 0 }}
         />
+        {/* dot at line start */}
         <div
           className="absolute w-2 h-2 rounded-full bg-primary border-2 border-background"
           style={{ left: drop.depth * INDENT + INDENT - 4, top: -3 }}
         />
+        {/* depth label */}
+        <div
+          className="absolute top-1 bg-primary text-primary-foreground text-[9px] font-bold px-1.5 py-0.5 rounded leading-none whitespace-nowrap"
+          style={{ left: drop.depth * INDENT + INDENT + 8 }}
+        >
+          {DEPTH_LABELS[drop.depth]}
+        </div>
       </div>
     ) : null;
 
@@ -299,21 +326,49 @@ export function CategoriesView() {
 
           <div
             ref={ref}
-            className="bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden"
-            onDragOver={(e) => calcDrop(e, null)}
+            className="relative bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden"
+            onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
           >
+            {/* Depth guide rails — visible only while dragging */}
+            {dragId && (
+              <div className="absolute inset-0 pointer-events-none z-10">
+                {[1, 2, 3].map((d) => (
+                  <div
+                    key={d}
+                    className="absolute top-0 bottom-0 w-px bg-primary/10"
+                    style={{ left: d * INDENT }}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Sentinel: drop before the first row */}
+            <div
+              className="h-2"
+              onDragOver={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                if (dragIdRef.current) setDrop({ afterId: null, depth: 0 });
+              }}
+            />
             <Line afterId={null} />
+
             {rows.map(({ node, depth, hasChildren }) => (
               <div key={node.id}>
                 <div
                   draggable
                   onDragStart={(e) => {
                     e.dataTransfer.effectAllowed = "move";
+                    dragIdRef.current = node.id;
                     setDragId(node.id);
                   }}
-                  onDragOver={(e) => calcDrop(e, node.id)}
+                  onDragOver={(e) => {
+                    e.stopPropagation();
+                    calcDrop(e, node.id);
+                  }}
                   onDragEnd={() => {
+                    dragIdRef.current = null;
                     setDragId(null);
                     setDrop(null);
                   }}
@@ -322,6 +377,9 @@ export function CategoriesView() {
                   className={cn(
                     "flex items-stretch border-b border-border/40 transition-colors select-none",
                     dragId === node.id && "opacity-30",
+                    potentialParentId === node.id &&
+                      dragId !== node.id &&
+                      "bg-primary/5 ring-1 ring-inset ring-primary/20",
                   )}
                 >
                   {/* depth spacer */}
@@ -345,7 +403,8 @@ export function CategoriesView() {
                     {hasChildren ? (
                       <button
                         onMouseDown={(e) => e.stopPropagation()}
-                        onClick={() => toggle(node.id)}
+                        onDragStart={(e) => { e.stopPropagation(); e.preventDefault(); }}
+                        onClick={(e) => { e.stopPropagation(); toggle(node.id); }}
                         className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
                       >
                         {expanded.has(node.id) ? (
@@ -435,6 +494,15 @@ export function CategoriesView() {
                 <Line afterId={node.id} />
               </div>
             ))}
+
+            {/* Sentinel: drop after the last row */}
+            <div
+              className="h-8"
+              onDragOver={(e) => {
+                e.stopPropagation();
+                calcDrop(e, rows[rows.length - 1]?.node.id ?? null);
+              }}
+            />
           </div>
         </motion.div>
       )}
