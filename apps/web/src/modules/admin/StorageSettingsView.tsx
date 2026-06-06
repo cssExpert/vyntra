@@ -153,9 +153,13 @@ function SectionCard({
           <Icon size={18} />
         </div>
         <div>
-          <h3 className="text-[15px] font-semibold text-foreground">{title}</h3>
+          <h3 className="text-sm md:text-base font-bold text-foreground">
+            {title}
+          </h3>
           {description && (
-            <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
+            <p className="mt-0.5 text-xs md:text-sm text-muted-foreground">
+              {description}
+            </p>
           )}
         </div>
       </div>
@@ -274,7 +278,7 @@ function Inner() {
   const [success, setSuccess] = useState("");
   const [busy, setBusy] = useState(false);
   const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>(
-    {}
+    {},
   );
   const { refreshSettings } = useStorageSettings();
 
@@ -409,7 +413,11 @@ function Inner() {
 
         {/* ── Provider Configuration ────────────────────────────────────── */}
         {provider === "s3" && (
-          <SectionCard icon={HardDrive} title="AWS S3 Configuration">
+          <SectionCard
+            icon={HardDrive}
+            title="AWS S3 Configuration"
+            description="Scalable cloud storage configuration for AWS S3 or compatible services like DigitalOcean Spaces and MinIO. Set up your S3 bucket, region, and access keys for reliable file storage and management. Perfect for production deployments with high scalability needs."
+          >
             <div className="space-y-4">
               <div className="rounded-lg border border-blue-200 bg-blue-50 p-3.5 flex gap-3">
                 <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
@@ -449,9 +457,7 @@ function Inner() {
                     STORAGE_OPTIONS[1].fields.find((f) => f.key === "bucket")!
                   }
                   value={s3Config.bucket}
-                  onChange={(v) =>
-                    setS3Config((p) => ({ ...p, bucket: v }))
-                  }
+                  onChange={(v) => setS3Config((p) => ({ ...p, bucket: v }))}
                   showPassword={false}
                   onTogglePassword={() => {}}
                 />
@@ -460,9 +466,7 @@ function Inner() {
                     STORAGE_OPTIONS[1].fields.find((f) => f.key === "region")!
                   }
                   value={s3Config.region}
-                  onChange={(v) =>
-                    setS3Config((p) => ({ ...p, region: v }))
-                  }
+                  onChange={(v) => setS3Config((p) => ({ ...p, region: v }))}
                   showPassword={false}
                   onTogglePassword={() => {}}
                 />
@@ -471,13 +475,11 @@ function Inner() {
               <ConfigField
                 field={
                   STORAGE_OPTIONS[1].fields.find(
-                    (f) => f.key === "accessKeyId"
+                    (f) => f.key === "accessKeyId",
                   )!
                 }
                 value={s3Config.accessKeyId}
-                onChange={(v) =>
-                  setS3Config((p) => ({ ...p, accessKeyId: v }))
-                }
+                onChange={(v) => setS3Config((p) => ({ ...p, accessKeyId: v }))}
                 showPassword={!showPasswords["accessKeyId"]}
                 onTogglePassword={() =>
                   setShowPasswords((p) => ({
@@ -490,7 +492,7 @@ function Inner() {
               <ConfigField
                 field={
                   STORAGE_OPTIONS[1].fields.find(
-                    (f) => f.key === "secretAccessKey"
+                    (f) => f.key === "secretAccessKey",
                   )!
                 }
                 value={s3Config.secretAccessKey}
@@ -510,7 +512,11 @@ function Inner() {
         )}
 
         {provider === "uploadthing" && (
-          <SectionCard icon={HardDrive} title="Uploadthing Configuration">
+          <SectionCard
+            icon={HardDrive}
+            title="Uploadthing Configuration"
+            description="Modern file upload service configuration for Uploadthing. Easily set up your Uploadthing API key to leverage their managed infrastructure, built-in image optimization, and seamless file handling. Ideal for developers seeking a hassle-free cloud storage solution with a user-friendly interface and robust performance."
+          >
             <div className="space-y-4">
               <div className="rounded-lg border border-purple-200 bg-purple-50 p-3.5 flex gap-3">
                 <Info className="h-5 w-5 text-purple-600 shrink-0 mt-0.5" />
@@ -557,7 +563,11 @@ function Inner() {
         )}
 
         {provider === "vercel-blob" && (
-          <SectionCard icon={HardDrive} title="Vercel Blob Configuration">
+          <SectionCard
+            icon={HardDrive}
+            title="Vercel Blob Configuration"
+            description="Simple blob storage configuration for Vercel Blob. Set up your Vercel Blob token to easily store files and media directly within your Vercel deployment. Perfect for developers hosting on Vercel who want a straightforward, integrated storage solution without the need for external cloud providers."
+          >
             <div className="space-y-4">
               <div className="rounded-lg border border-cyan-200 bg-cyan-50 p-3.5 flex gap-3">
                 <Info className="h-5 w-5 text-cyan-600 shrink-0 mt-0.5" />
@@ -604,7 +614,11 @@ function Inner() {
         )}
 
         {provider === "local" && (
-          <SectionCard icon={HardDrive} title="Local Storage Configuration">
+          <SectionCard
+            icon={HardDrive}
+            title="Local Storage Configuration"
+            description="Files will be stored on your server's filesystem. Make sure to set the upload directory path and ensure it has sufficient space. Remember to include it in your backups!"
+          >
             <div className="space-y-4">
               <div className="rounded-lg border border-amber-200 bg-amber-50 p-3.5 flex gap-3">
                 <Info className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />

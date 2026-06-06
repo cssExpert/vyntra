@@ -173,9 +173,13 @@ function SectionCard({
           <Icon size={18} />
         </div>
         <div>
-          <h3 className="text-[15px] font-semibold text-foreground">{title}</h3>
+          <h3 className="text-sm md:text-base font-bold text-foreground">
+            {title}
+          </h3>
           {description && (
-            <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
+            <p className="mt-0.5 text-xs md:text-sm text-muted-foreground">
+              {description}
+            </p>
           )}
         </div>
       </div>
@@ -229,7 +233,9 @@ function EmailOptionCard({
             </p>
             <p>
               <span className="text-muted-foreground">Setup time:</span>{" "}
-              <span className="font-medium text-foreground">{option.setupTime}</span>
+              <span className="font-medium text-foreground">
+                {option.setupTime}
+              </span>
             </p>
           </div>
         </div>
@@ -322,7 +328,7 @@ function Inner() {
   const [success, setSuccess] = useState("");
   const [busy, setBusy] = useState(false);
   const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>(
-    {}
+    {},
   );
 
   const [provider, setProvider] = useState<EmailProvider>("smtp");
@@ -464,7 +470,11 @@ function Inner() {
 
         {/* ── SMTP Configuration ──────────────────────────────────────────── */}
         {provider === "smtp" && (
-          <SectionCard icon={Mail} title="SMTP Configuration">
+          <SectionCard
+            icon={Mail}
+            title="SMTP Configuration"
+            description="Flexible SMTP configuration for custom email servers, secure authentication, and reliable transactional email delivery."
+          >
             <div className="space-y-4">
               <div className="rounded-lg border border-blue-200 bg-blue-50 p-3.5 flex gap-3">
                 <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
@@ -487,8 +497,8 @@ function Inner() {
                       587, username "apikey"
                     </li>
                     <li>
-                      <strong>AWS SES:</strong> email-smtp.[region].amazonaws.com,
-                      port 587
+                      <strong>AWS SES:</strong>{" "}
+                      email-smtp.[region].amazonaws.com, port 587
                     </li>
                     <li>
                       <strong>Mailgun SMTP:</strong> smtp.mailgun.org, port 587
@@ -499,9 +509,7 @@ function Inner() {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <ConfigField
-                  field={
-                    EMAIL_OPTIONS[0].fields.find((f) => f.key === "host")!
-                  }
+                  field={EMAIL_OPTIONS[0].fields.find((f) => f.key === "host")!}
                   value={smtpConfig.host}
                   onChange={(v) =>
                     setSmtpConfig((p) => ({ ...p, host: String(v) }))
@@ -510,9 +518,7 @@ function Inner() {
                   onTogglePassword={() => {}}
                 />
                 <ConfigField
-                  field={
-                    EMAIL_OPTIONS[0].fields.find((f) => f.key === "port")!
-                  }
+                  field={EMAIL_OPTIONS[0].fields.find((f) => f.key === "port")!}
                   value={smtpConfig.port}
                   onChange={(v) =>
                     setSmtpConfig((p) => ({
@@ -526,9 +532,7 @@ function Inner() {
               </div>
 
               <ConfigField
-                field={
-                  EMAIL_OPTIONS[0].fields.find((f) => f.key === "secure")!
-                }
+                field={EMAIL_OPTIONS[0].fields.find((f) => f.key === "secure")!}
                 value={smtpConfig.secure}
                 onChange={(v) =>
                   setSmtpConfig((p) => ({ ...p, secure: Boolean(v) }))
@@ -583,7 +587,11 @@ function Inner() {
 
         {/* ── SendGrid Configuration ────────────────────────────────────── */}
         {provider === "sendgrid" && (
-          <SectionCard icon={Mail} title="SendGrid Configuration">
+          <SectionCard
+            icon={Mail}
+            title="SendGrid Configuration"
+            description="Complete SendGrid configuration for reliable email delivery, transactional messaging, SMTP integration, and advanced email automation."
+          >
             <div className="space-y-4">
               <div className="rounded-lg border border-cyan-200 bg-cyan-50 p-3.5 flex gap-3">
                 <Info className="h-5 w-5 text-cyan-600 shrink-0 mt-0.5" />
@@ -602,7 +610,9 @@ function Inner() {
                       </a>
                     </li>
                     <li>Click "Create API Key"</li>
-                    <li>Give it a name and select "Full Access" or restrict scopes</li>
+                    <li>
+                      Give it a name and select "Full Access" or restrict scopes
+                    </li>
                     <li>Copy the key and paste it below</li>
                     <li>
                       Verify sender email in Settings → Sender Authentication
@@ -612,9 +622,7 @@ function Inner() {
               </div>
 
               <ConfigField
-                field={
-                  EMAIL_OPTIONS[1].fields.find((f) => f.key === "apiKey")!
-                }
+                field={EMAIL_OPTIONS[1].fields.find((f) => f.key === "apiKey")!}
                 value={sendgridConfig.apiKey}
                 onChange={(v) =>
                   setSendgridConfig((p) => ({ ...p, apiKey: String(v) }))
@@ -645,7 +653,11 @@ function Inner() {
 
         {/* ── Mailgun Configuration ──────────────────────────────────────── */}
         {provider === "mailgun" && (
-          <SectionCard icon={Mail} title="Mailgun Configuration">
+          <SectionCard
+            icon={Mail}
+            title="Mailgun Configuration"
+            description="Professional Mailgun configuration for secure email delivery, transactional automation, SMTP setup, and improved inbox performance."
+          >
             <div className="space-y-4">
               <div className="rounded-lg border border-orange-200 bg-orange-50 p-3.5 flex gap-3">
                 <Info className="h-5 w-5 text-orange-600 shrink-0 mt-0.5" />
@@ -673,9 +685,7 @@ function Inner() {
               </div>
 
               <ConfigField
-                field={
-                  EMAIL_OPTIONS[2].fields.find((f) => f.key === "apiKey")!
-                }
+                field={EMAIL_OPTIONS[2].fields.find((f) => f.key === "apiKey")!}
                 value={mailgunConfig.apiKey}
                 onChange={(v) =>
                   setMailgunConfig((p) => ({ ...p, apiKey: String(v) }))
@@ -690,9 +700,7 @@ function Inner() {
               />
 
               <ConfigField
-                field={
-                  EMAIL_OPTIONS[2].fields.find((f) => f.key === "domain")!
-                }
+                field={EMAIL_OPTIONS[2].fields.find((f) => f.key === "domain")!}
                 value={mailgunConfig.domain}
                 onChange={(v) =>
                   setMailgunConfig((p) => ({ ...p, domain: String(v) }))
