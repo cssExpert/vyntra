@@ -158,7 +158,7 @@ function toTree(flat: FlatCat[]): CatTreeItem[] {
   }) as CatTreeItem[];
 }
 
-const ROW_HEIGHT = 54;
+const ROW_HEIGHT = 48;
 
 // Defined at module scope — never re-creates on re-render, avoiding subtree remounts
 function CatNodeRenderer(props: Record<string, unknown>) {
@@ -365,7 +365,7 @@ export function CategoriesView() {
               nodeContentRenderer={CatNodeRenderer as React.ComponentType<any>}
               generateNodeProps={generateNodeProps}
               getNodeKey={({ node }) => String((node as CatTreeItem).id)}
-              scaffoldBlockPxWidth={48}
+              scaffoldBlockPxWidth={38}
               maxDepth={8}
               rowHeight={ROW_HEIGHT}
               style={{
