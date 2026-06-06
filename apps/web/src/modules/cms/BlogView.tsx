@@ -44,11 +44,16 @@ import {
   type TableSkeletonColumn,
 } from "@/components/common/TableSkeleton";
 import { usePageLoad } from "@/hooks/usePageLoad";
-import {
-  INITIAL_BLOGS,
-  type BlogStatus,
-  type CmsBlog,
-} from "@/modules/cms/blog-data";
+import { cmsBlogs } from "@/lib/api";
+import { type BlogStatus, type CmsBlog } from "@/modules/cms/blog-data";
+
+function formatApiDate(iso: string | null): string {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${mm}-${dd}-${d.getFullYear()}`;
+}
 
 // Skeleton column layout mirrors the real table columns below.
 const SKELETON_COLUMNS: TableSkeletonColumn[] = [
@@ -171,7 +176,8 @@ function parseMDY(s: string): Date | null {
 
 export function BlogView() {
   const router = useRouter();
-  const [blogs, setBlogs] = useState<CmsBlog[]>(INITIAL_BLOGS);
+  const [blogs, setBlogs] = useState<CmsBlog[]>([]);
+  const [isFetching, setIsFetching] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
@@ -184,6 +190,28 @@ export function BlogView() {
   const [activeFilters, setActiveFilters] =
     useState<BlogFilters>(DEFAULT_FILTERS);
   const isLoaded = usePageLoad(700);
+
+  useEffect(() => {
+    cmsBlogs
+      .list()
+      .then((data) => {
+        setBlogs(
+          data.map((b) => ({
+            id: b.id,
+            title: b.title,
+            slug: b.slug,
+            author: b.author ?? "-",
+            status: b.published ? "Public" : "Draft",
+            createdAt: formatApiDate(b.createdAt),
+            publishedAt: formatApiDate(b.publishedAt),
+          })),
+        );
+      })
+      .catch(() => {
+        setBlogs([]);
+      })
+      .finally(() => setIsFetching(false));
+  }, []);
 
   const uniqueAuthors = useMemo(
     () => Array.from(new Set(blogs.map((b) => b.author))).sort(),
@@ -425,7 +453,7 @@ export function BlogView() {
 
   return (
     <AnimatePresence mode="wait" initial={false}>
-      {!isLoaded ? (
+      {!isLoaded || isFetching ? (
         <motion.div
           key="skeleton"
           exit={{ opacity: 0 }}

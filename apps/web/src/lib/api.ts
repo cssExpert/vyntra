@@ -465,11 +465,74 @@ export interface CmsPageData {
   isLandingPage: boolean;
 }
 
+export interface CmsPageListItem {
+  id: string;
+  title: string;
+  slug: string;
+  published: boolean;
+  isLandingPage: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CmsBlogListItem {
+  id: string;
+  title: string;
+  slug: string;
+  published: boolean;
+  author: string | null;
+  createdAt: string;
+  publishedAt: string | null;
+}
+
 export const cmsPages = {
+  list: () => apiFetch<CmsPageListItem[]>("/cms/pages"),
   load: (slug: string) => apiFetch<CmsPageData>(`/cms/pages/${slug}`),
   save: (slug: string, content: string, publish = false) =>
     apiFetch<CmsPageData>(`/cms/pages/${slug}`, {
       method: "PATCH",
       body: JSON.stringify({ content, publish }),
+    }),
+};
+
+export const cmsBlogs = {
+  list: () => apiFetch<CmsBlogListItem[]>("/cms/blogs"),
+};
+
+// ─── CMS menus ───────────────────────────────────────────
+export interface CmsMenuItem {
+  id: string;
+  label: string;
+  url: string;
+  target: string;
+  visibility: string[];
+  order: number;
+  menuId: string;
+}
+
+export interface CmsMenu {
+  id: string;
+  name: string;
+  slug: string;
+  visibility: string[];
+  organizationId: string;
+  createdAt: string;
+  updatedAt: string;
+  _count?: { items: number };
+  items?: CmsMenuItem[];
+}
+
+export const cmsMenus = {
+  list: () => apiFetch<CmsMenu[]>("/cms/menus"),
+  create: (data: { name: string; slug: string; visibility: string[] }) =>
+    apiFetch<CmsMenu>("/cms/menus", { method: "POST", body: JSON.stringify(data) }),
+  get: (id: string) => apiFetch<CmsMenu>(`/cms/menus/${id}`),
+  update: (id: string, data: Partial<Pick<CmsMenu, "name" | "slug" | "visibility">>) =>
+    apiFetch<CmsMenu>(`/cms/menus/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+  delete: (id: string) => apiFetch<{ ok: boolean }>(`/cms/menus/${id}`, { method: "DELETE" }),
+  setItems: (id: string, items: Pick<CmsMenuItem, "label" | "url" | "target" | "visibility">[]) =>
+    apiFetch<CmsMenu>(`/cms/menus/${id}/items`, {
+      method: "PUT",
+      body: JSON.stringify({ items }),
     }),
 };

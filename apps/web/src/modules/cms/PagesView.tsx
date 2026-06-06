@@ -46,6 +46,7 @@ import {
 } from "@/components/common/TableSkeleton";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { useSitePreviewUrl } from "@/hooks/useSitePreviewUrl";
+import { cmsPages } from "@/lib/api";
 
 // Skeleton column layout mirrors the real table columns below.
 const SKELETON_COLUMNS: TableSkeletonColumn[] = [
@@ -98,119 +99,12 @@ export interface CmsPage {
   isLandingPage?: boolean;
 }
 
-// ─── Seed data ───────────────────────────────────────────────────────────────
-
-const INITIAL_PAGES: CmsPage[] = [
-  {
-    id: "1",
-    title: "Home",
-    slug: "home",
-    author: "Ravi Gupta",
-    status: "Public",
-    createdAt: "05-26-2026",
-    updatedAt: "06-01-2026",
-    isLandingPage: true,
-  },
-  {
-    id: "2",
-    title: "About Us",
-    slug: "about-us",
-    author: "Ravi Gupta",
-    status: "Public",
-    createdAt: "05-26-2026",
-    updatedAt: "05-26-2026",
-  },
-  {
-    id: "3",
-    title: "Contact Us",
-    slug: "contact-us",
-    author: "Ravi Gupta",
-    status: "Public",
-    createdAt: "05-26-2026",
-    updatedAt: "05-26-2026",
-  },
-  {
-    id: "4",
-    title: "Services",
-    slug: "services",
-    author: "Vasudev Sharma",
-    status: "Draft",
-    createdAt: "05-28-2026",
-    updatedAt: "05-30-2026",
-  },
-  {
-    id: "5",
-    title: "Blog",
-    slug: "blog",
-    author: "Vasudev Sharma",
-    status: "Public",
-    createdAt: "05-29-2026",
-    updatedAt: "06-01-2026",
-  },
-  {
-    id: "6",
-    title: "Privacy Policy",
-    slug: "privacy-policy",
-    author: "Ravi Gupta",
-    status: "Private",
-    createdAt: "05-30-2026",
-    updatedAt: "05-30-2026",
-  },
-  {
-    id: "7",
-    title: "Terms of Service",
-    slug: "terms",
-    author: "Ravi Gupta",
-    status: "Private",
-    createdAt: "05-30-2026",
-    updatedAt: "05-30-2026",
-  },
-  {
-    id: "8",
-    title: "FAQ",
-    slug: "faq",
-    author: "Vasudev Sharma",
-    status: "Draft",
-    createdAt: "06-01-2026",
-    updatedAt: "06-01-2026",
-  },
-  {
-    id: "9",
-    title: "Pricing",
-    slug: "pricing",
-    author: "Ravi Gupta",
-    status: "Public",
-    createdAt: "06-01-2026",
-    updatedAt: "06-01-2026",
-  },
-  {
-    id: "10",
-    title: "Careers",
-    slug: "careers",
-    author: "Vasudev Sharma",
-    status: "Draft",
-    createdAt: "06-01-2026",
-    updatedAt: "06-01-2026",
-  },
-  {
-    id: "11",
-    title: "Press Kit",
-    slug: "press",
-    author: "Ravi Gupta",
-    status: "Private",
-    createdAt: "06-01-2026",
-    updatedAt: "06-01-2026",
-  },
-  {
-    id: "12",
-    title: "Cookie Policy",
-    slug: "cookies",
-    author: "Ravi Gupta",
-    status: "Public",
-    createdAt: "06-01-2026",
-    updatedAt: "06-01-2026",
-  },
-];
+function formatApiDate(iso: string): string {
+  const d = new Date(iso);
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${mm}-${dd}-${d.getFullYear()}`;
+}
 
 // ─── Module-level TanStack helpers ───────────────────────────────────────────
 
@@ -302,7 +196,8 @@ function parseMDY(s: string): Date | null {
 
 export function PagesView() {
   const router = useRouter();
-  const [pages, setPages] = useState<CmsPage[]>(INITIAL_PAGES);
+  const [pages, setPages] = useState<CmsPage[]>([]);
+  const [isFetching, setIsFetching] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
@@ -325,6 +220,29 @@ export function PagesView() {
   const [addFormData, setAddFormData] = useState({ title: "", slug: "" });
   const isLoaded = usePageLoad(700);
   const { previewUrl, hasDomain } = useSitePreviewUrl();
+
+  useEffect(() => {
+    cmsPages
+      .list()
+      .then((data) => {
+        setPages(
+          data.map((p) => ({
+            id: p.id,
+            title: p.title,
+            slug: p.slug,
+            author: "-",
+            status: p.published ? "Public" : "Draft",
+            isLandingPage: p.isLandingPage,
+            createdAt: formatApiDate(p.createdAt),
+            updatedAt: formatApiDate(p.updatedAt),
+          })),
+        );
+      })
+      .catch(() => {
+        setPages([]);
+      })
+      .finally(() => setIsFetching(false));
+  }, []);
 
   const uniqueAuthors = useMemo(
     () => Array.from(new Set(pages.map((p) => p.author))).sort(),
@@ -372,7 +290,8 @@ export function PagesView() {
           return false;
       }
       return true;
-    });
+    })
+    .sort((a, b) => (b.isLandingPage ? 1 : 0) - (a.isLandingPage ? 1 : 0));
   }, [pages, activeFilters]);
 
   const handleEditPageClick = (page: CmsPage) => {
@@ -634,7 +553,7 @@ export function PagesView() {
 
   return (
     <AnimatePresence mode="wait" initial={false}>
-      {!isLoaded ? (
+      {!isLoaded || isFetching ? (
         <motion.div
           key="skeleton"
           exit={{ opacity: 0 }}

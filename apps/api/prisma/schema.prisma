@@ -110,6 +110,7 @@ model Organization {
   comments       Comment[]
   media          Media[]
   websiteConfigs WebsiteConfig[]
+  menus          Menu[]
 
   // CRM (org-scoped)
   leads      Lead[]
@@ -342,6 +343,36 @@ model WebsiteConfig {
   @@unique([organizationId, key])
   @@index([organizationId])
   @@map("website_config")
+}
+
+model Menu {
+  id             String     @id @default(cuid())
+  name           String
+  slug           String
+  visibility     String[]   @default(["all"])
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  items          MenuItem[]
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+  @@map("menus")
+}
+
+model MenuItem {
+  id         String   @id @default(cuid())
+  label      String
+  url        String
+  target     String   @default("_self")
+  visibility String[] @default(["all"])
+  order      Int      @default(0)
+  menuId     String
+  menu       Menu     @relation(fields: [menuId], references: [id], onDelete: Cascade)
+
+  @@index([menuId])
+  @@map("menu_items")
 }
 
 // ════════════════════════════════════════════════════════════════════

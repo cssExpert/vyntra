@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, ChevronRight, X, Plus, Code2, Palette, Layout, AlignCenter, Box, PencilRuler, Type, Sliders } from 'lucide-react'
+import { ChevronDown, ChevronRight, X, Plus, Code2, Palette, Layout, AlignCenter, Box, PencilRuler, Type, Sliders, Navigation } from 'lucide-react'
 import { useEditorStore } from '@/store/editorStore'
 import { cn } from '@/lib/utils'
+import { cmsMenus, type CmsMenu } from '@/lib/api'
 
 const TYPOGRAPHY_SIZES = ['text-xs','text-sm','text-base','text-lg','text-xl','text-2xl','text-3xl','text-4xl','text-5xl','text-6xl','text-7xl','text-8xl','text-9xl']
 const FONT_WEIGHTS = ['font-thin','font-light','font-normal','font-medium','font-semibold','font-bold','font-extrabold','font-black']
@@ -134,6 +135,63 @@ function ClassBadge({ cls, onRemove }: { cls: string; onRemove: () => void }) {
         <X className="w-2.5 h-2.5" />
       </button>
     </span>
+  )
+}
+
+function MenuSection({ node }: { node: { id: string; props: Record<string, string> } }) {
+  const { updateNode, findNode } = useEditorStore()
+  const [menus, setMenus] = useState<CmsMenu[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    cmsMenus.list().then((data) => { setMenus(data); setLoading(false) }).catch(() => setLoading(false))
+  }, [])
+
+  const currentMenuId = node.props['data-menu-id'] ?? ''
+
+  function handleChange(menuId: string) {
+    const current = findNode(node.id)
+    if (!current) return
+    const props = { ...(current.props ?? {}) }
+    if (menuId) {
+      props['data-menu-id'] = menuId
+    } else {
+      delete props['data-menu-id']
+    }
+    updateNode(node.id, { props })
+  }
+
+  return (
+    <Section title="Menu" icon={Navigation}>
+      <div>
+        <label className="text-[10px] mb-1.5 block text-muted-foreground dark:text-muted-foreground">
+          Linked Menu
+        </label>
+        {loading ? (
+          <div className="h-7 rounded-md bg-muted animate-pulse" />
+        ) : menus.length === 0 ? (
+          <p className="text-[10px] text-muted-foreground italic">
+            No menus found. Create one in CMS → Menus.
+          </p>
+        ) : (
+          <InspectorSelect
+            value={currentMenuId}
+            onChange={(e) => handleChange(e.target.value)}
+            className="w-full"
+          >
+            <option value="">— None —</option>
+            {menus.map((m) => (
+              <option key={m.id} value={m.id}>{m.name}</option>
+            ))}
+          </InspectorSelect>
+        )}
+        {currentMenuId && (
+          <p className="mt-1.5 text-[10px] text-muted-foreground">
+            This block renders the selected menu on the live site.
+          </p>
+        )}
+      </div>
+    </Section>
   )
 }
 
@@ -433,6 +491,13 @@ export default function RightSidebar() {
             </div>
           ))}
         </Section>
+
+        {/* Menu — shown for nav/header/footer blocks */}
+        {(node.tag === 'nav' || node.tag === 'header' || node.tag === 'footer' ||
+          node.type.toLowerCase().includes('nav') ||
+          node.type.toLowerCase().includes('menu')) && (
+          <MenuSection node={{ id: node.id, props: node.props ?? {} }} />
+        )}
       </div>
     </aside>
   )
