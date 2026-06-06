@@ -330,7 +330,12 @@ function Inner() {
         setProvider(data.emailProvider);
       }
       if (data.smtpConfig) {
-        setSmtpConfig(data.smtpConfig);
+        setSmtpConfig((prev) => ({
+          ...prev,
+          ...data.smtpConfig,
+          username: data.smtpConfig!.username ?? "",
+          password: data.smtpConfig!.password ?? "",
+        }));
       }
       if (data.sendgridConfig) {
         setSendgridConfig(data.sendgridConfig);
@@ -487,7 +492,7 @@ function Inner() {
                 />
                 <ConfigField
                   field={EMAIL_OPTIONS[0].fields.find((f) => f.key === "port")!}
-                  value={smtpConfig.port}
+                  value={String(smtpConfig.port)}
                   onChange={(v) =>
                     setSmtpConfig((p) => ({
                       ...p,
