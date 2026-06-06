@@ -225,12 +225,6 @@ export const NAV_SECTIONS: NavSection[] = [
         module: "REPORTS",
       },
       {
-        id: "users",
-        label: "Users",
-        href: "/users",
-        icon: "UserCog",
-      },
-      {
         id: "settings",
         label: "Settings",
         href: "/settings",
@@ -279,7 +273,7 @@ export const SUPER_ADMIN_NAV: NavSection[] = [
       {
         id: "sa-settings",
         label: "Settings",
-        href: "/settings",
+        href: "/admin/settings",
         icon: "Settings2",
       },
     ],
