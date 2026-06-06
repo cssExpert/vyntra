@@ -1,6 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
+interface MenuItemInput {
+  label: string;
+  url: string;
+  target?: string;
+}
+
 @Injectable()
 export class CmsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -55,5 +61,70 @@ export class CmsService {
         publishedAt: dto.publish ? new Date() : null,
       },
     });
+  }
+
+  // ── Menu CRUD ─────────────────────────────────────────────────────────────
+
+  async listMenus(orgId: string) {
+    return this.prisma.menu.findMany({
+      where: { organizationId: orgId },
+      include: { _count: { select: { items: true } } },
+      orderBy: { createdAt: 'asc' },
+    });
+  }
+
+  async createMenu(orgId: string, dto: { name: string; slug: string; visibility: string[] }) {
+    return this.prisma.menu.create({
+      data: { ...dto, organizationId: orgId },
+      include: { items: { orderBy: { order: 'asc' } } },
+    });
+  }
+
+  async getMenu(orgId: string, id: string) {
+    const menu = await this.prisma.menu.findFirst({
+      where: { id, organizationId: orgId },
+      include: { items: { orderBy: { order: 'asc' } } },
+    });
+    if (!menu) throw new NotFoundException('Menu not found');
+    return menu;
+  }
+
+  async updateMenu(
+    orgId: string,
+    id: string,
+    dto: { name?: string; slug?: string; visibility?: string[] },
+  ) {
+    const menu = await this.prisma.menu.findFirst({ where: { id, organizationId: orgId } });
+    if (!menu) throw new NotFoundException('Menu not found');
+    return this.prisma.menu.update({
+      where: { id },
+      data: dto,
+      include: { items: { orderBy: { order: 'asc' } } },
+    });
+  }
+
+  async deleteMenu(orgId: string, id: string) {
+    const menu = await this.prisma.menu.findFirst({ where: { id, organizationId: orgId } });
+    if (!menu) throw new NotFoundException('Menu not found');
+    await this.prisma.menu.delete({ where: { id } });
+    return { ok: true };
+  }
+
+  async setMenuItems(orgId: string, menuId: string, items: MenuItemInput[]) {
+    const menu = await this.prisma.menu.findFirst({ where: { id: menuId, organizationId: orgId } });
+    if (!menu) throw new NotFoundException('Menu not found');
+    await this.prisma.menuItem.deleteMany({ where: { menuId } });
+    if (items.length > 0) {
+      await this.prisma.menuItem.createMany({
+        data: items.map((item, i) => ({
+          label: item.label,
+          url: item.url,
+          target: item.target ?? '_self',
+          order: i,
+          menuId,
+        })),
+      });
+    }
+    return this.getMenu(orgId, menuId);
   }
 }

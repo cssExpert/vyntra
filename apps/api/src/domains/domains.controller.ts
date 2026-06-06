@@ -148,4 +148,13 @@ export class DomainsController {
   getPage(@Param('orgId') orgId: string, @Param('slug') slug: string) {
     return this.domainsService.getPublishedPage(orgId, slug);
   }
+
+  @Public()
+  @Get('public/sites/:orgId/menus/:menuId')
+  getPublicMenu(
+    @Param('orgId') orgId: string,
+    @Param('menuId') menuId: string,
+  ) {
+    return this.domainsService.getPublicMenu(orgId, menuId);
+  }
 }

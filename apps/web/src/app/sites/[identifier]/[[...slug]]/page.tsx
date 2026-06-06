@@ -182,7 +182,7 @@ function PageView({
   if (nodes) {
     return (
       <div className="min-h-screen bg-white">
-        <NodeRenderer nodes={nodes} />
+        <NodeRenderer nodes={nodes} orgId={org.id} />
       </div>
     );
   }

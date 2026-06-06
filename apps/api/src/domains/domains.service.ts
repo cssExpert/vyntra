@@ -255,6 +255,15 @@ export class DomainsService {
     return page;
   }
 
+  async getPublicMenu(orgId: string, menuId: string) {
+    const menu = await this.prisma.menu.findFirst({
+      where: { id: menuId, organizationId: orgId },
+      include: { items: { orderBy: { order: 'asc' } } },
+    });
+    if (!menu) throw new NotFoundException('Menu not found');
+    return menu;
+  }
+
   // ─── helpers ──────────────────────────────────────────────────────────────
 
   private async requireOrg(id: string) {

@@ -442,3 +442,40 @@ export const cmsPages = {
       body: JSON.stringify({ content, publish }),
     }),
 };
+
+// ─── CMS menus ───────────────────────────────────────────
+export interface CmsMenuItem {
+  id: string;
+  label: string;
+  url: string;
+  target: string;
+  order: number;
+  menuId: string;
+}
+
+export interface CmsMenu {
+  id: string;
+  name: string;
+  slug: string;
+  visibility: string[];
+  organizationId: string;
+  createdAt: string;
+  updatedAt: string;
+  _count?: { items: number };
+  items?: CmsMenuItem[];
+}
+
+export const cmsMenus = {
+  list: () => apiFetch<CmsMenu[]>("/cms/menus"),
+  create: (data: { name: string; slug: string; visibility: string[] }) =>
+    apiFetch<CmsMenu>("/cms/menus", { method: "POST", body: JSON.stringify(data) }),
+  get: (id: string) => apiFetch<CmsMenu>(`/cms/menus/${id}`),
+  update: (id: string, data: Partial<Pick<CmsMenu, "name" | "slug" | "visibility">>) =>
+    apiFetch<CmsMenu>(`/cms/menus/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+  delete: (id: string) => apiFetch<{ ok: boolean }>(`/cms/menus/${id}`, { method: "DELETE" }),
+  setItems: (id: string, items: Pick<CmsMenuItem, "label" | "url" | "target">[]) =>
+    apiFetch<CmsMenu>(`/cms/menus/${id}/items`, {
+      method: "PUT",
+      body: JSON.stringify({ items }),
+    }),
+};

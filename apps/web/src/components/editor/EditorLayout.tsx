@@ -25,7 +25,7 @@ const BottomToolbar = dynamic(() => import("./BottomToolbar"), {
 });
 
 import Link from "next/link";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, ChevronLeft } from "lucide-react";
 import { useEditorStore } from "@/store/editorStore";
 import { useSitePreviewUrl } from "@/hooks/useSitePreviewUrl";
 import { cmsPages } from "@/lib/api";
@@ -95,6 +95,14 @@ function EditorHeader({
       bg-transparent"
     >
       <div className="flex items-center gap-3">
+        <Link
+          href="/cms/pages"
+          className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors group"
+        >
+          <ChevronLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
+          Pages
+        </Link>
+        <span className="text-muted-foreground/30 text-sm select-none">/</span>
         <ThemeToggle />
         <span className="text-sm font-semibold text-foreground">
           {pageTitle}
@@ -189,8 +197,8 @@ export default function EditorLayout() {
             // content is legacy HTML — leave canvas blank so user can rebuild
           }
         }
-        // No saved nodes — treat as a fresh page and show the template picker
-        setShowTemplatePicker(true);
+        // Page exists but has no editor nodes (legacy HTML or empty) — don't show picker
+        setShowTemplatePicker(false);
       }).catch(() => setShowTemplatePicker(true));
       return;
     }
