@@ -67,6 +67,8 @@ async function fetchPage(
   slug: string,
 ): Promise<CmsPage | null> {
   try {
+    console.log('orgId', orgId);
+    console.log('slug', slug);
     const res = await fetch(
       `${API}/public/sites/${orgId}/pages/${encodeURIComponent(slug)}`,
       { next: { revalidate: 60 } },
@@ -114,6 +116,7 @@ export default async function PublicSitePage({
   const { _chost } = await searchParams;
 
   const org = await resolveOrg(identifier, _chost);
+  console.log('org', org);
   if (!org) notFound();
 
   // Home: list all published pages
@@ -177,6 +180,8 @@ function SiteHome({ org, pages }: { org: OrgInfo; pages: PageListItem[] }) {
 }
 
 function PageView({ org, page }: { org: OrgInfo; page: CmsPage }) {
+  console.log('org', org);
+  console.log('page', page);
   return (
     <main className="min-h-screen bg-white text-gray-900">
       <div className="max-w-3xl mx-auto px-6 py-12">

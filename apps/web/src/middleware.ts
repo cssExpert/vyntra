@@ -42,19 +42,19 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Local subdomain: boom.localhost → rewrite to /_sites/boom/...
+  // Local subdomain: bloom.localhost → rewrite to /sites/bloom/...
   // Works in Chrome/Edge natively; other browsers may need lvh.me instead.
   if (hostname.endsWith(".localhost")) {
     const subdomain = hostname.slice(0, hostname.length - ".localhost".length);
     if (subdomain && subdomain !== "app" && subdomain !== "www") {
       const url = request.nextUrl.clone();
-      url.pathname = `/_sites/${subdomain}${pathname === "/" ? "" : pathname}`;
+      url.pathname = `/sites/${subdomain}${pathname === "/" ? "" : pathname}`;
       return NextResponse.rewrite(url);
     }
     return NextResponse.next();
   }
 
-  // Platform subdomain: acme.vyntra.com → rewrite to /_sites/acme/...
+  // Platform subdomain: acme.vyntra.com → rewrite to /sites/acme/...
   if (hostname.endsWith(`.${PLATFORM_DOMAIN}`)) {
     const subdomain = hostname.slice(
       0,
@@ -63,15 +63,15 @@ export function middleware(request: NextRequest) {
     // Skip reserved subdomains
     if (subdomain && subdomain !== "app" && subdomain !== "www") {
       const url = request.nextUrl.clone();
-      url.pathname = `/_sites/${subdomain}${pathname === "/" ? "" : pathname}`;
+      url.pathname = `/sites/${subdomain}${pathname === "/" ? "" : pathname}`;
       return NextResponse.rewrite(url);
     }
     return NextResponse.next();
   }
 
-  // Custom domain: acme.com → rewrite to /_sites/_host/...?_chost=acme.com
+  // Custom domain: acme.com → rewrite to /sites/_host/...?_chost=acme.com
   const url = request.nextUrl.clone();
-  url.pathname = `/_sites/_host${pathname === "/" ? "" : pathname}`;
+  url.pathname = `/sites/_host${pathname === "/" ? "" : pathname}`;
   url.searchParams.set("_chost", hostname);
   return NextResponse.rewrite(url);
 }
