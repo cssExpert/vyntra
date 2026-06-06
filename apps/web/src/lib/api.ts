@@ -504,6 +504,11 @@ export const cmsPages = {
       method: "PATCH",
       body: JSON.stringify(body),
     }),
+  bulkUpdateLayout: (pageIds: string[], layoutId: string | null) =>
+    apiFetch<{ ok: boolean; updated: number }>("/cms/pages/bulk-layout", {
+      method: "PUT",
+      body: JSON.stringify({ pageIds, layoutId }),
+    }),
 };
 
 export const cmsBlogs = {

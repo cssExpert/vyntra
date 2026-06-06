@@ -53,6 +53,15 @@ export class CmsController {
     return this.cmsService.savePage(requireOrg(orgId), slug, body);
   }
 
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Put('pages/bulk-layout')
+  bulkUpdateLayout(
+    @CurrentOrg() orgId: string | null,
+    @Body() body: { pageIds: string[]; layoutId: string | null },
+  ) {
+    return this.cmsService.bulkUpdatePageLayout(requireOrg(orgId), body.pageIds, body.layoutId ?? null);
+  }
+
   // ── Layouts ───────────────────────────────────────────────────────────────
 
   @Roles(Role.ORG_ADMIN, Role.EDITOR)

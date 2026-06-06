@@ -113,6 +113,14 @@ export class CmsService {
     });
   }
 
+  async bulkUpdatePageLayout(orgId: string, pageIds: string[], layoutId: string | null) {
+    await this.prisma.page.updateMany({
+      where: { id: { in: pageIds }, organizationId: orgId },
+      data: { layoutId },
+    });
+    return { ok: true, updated: pageIds.length };
+  }
+
   // ── Layouts ──────────────────────────────────────────────────────────────────
 
   async listLayouts(orgId: string) {

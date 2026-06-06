@@ -19,6 +19,8 @@ import {
   ListFilterPlus,
   Home,
   StarOff,
+  LayoutTemplate,
+  CheckCheck,
 } from "lucide-react";
 import {
   useReactTable,
@@ -219,6 +221,8 @@ export function PagesView() {
     useState<PageFilters>(DEFAULT_FILTERS);
   const [addFormData, setAddFormData] = useState({ title: "", slug: "", layoutId: "" });
   const [availableLayouts, setAvailableLayouts] = useState<CmsLayout[]>([]);
+  const [bulkLayoutId, setBulkLayoutId] = useState<string>("");
+  const [bulkApplying, setBulkApplying] = useState(false);
   const isLoaded = usePageLoad(700);
   const { previewUrl } = useSitePreviewUrl();
   // Ref so the memoized columns closure always reads the latest previewUrl
@@ -563,6 +567,20 @@ export function PagesView() {
     setIsModalOpen(false);
   };
 
+  const handleBulkApplyLayout = async () => {
+    const selectedRows = table.getSelectedRowModel().rows;
+    const pageIds = selectedRows.map((r) => r.original.id);
+    if (!pageIds.length) return;
+    setBulkApplying(true);
+    try {
+      await cmsPages.bulkUpdateLayout(pageIds, bulkLayoutId || null);
+      setRowSelection({});
+      setBulkLayoutId("");
+    } finally {
+      setBulkApplying(false);
+    }
+  };
+
   return (
     <AnimatePresence mode="wait" initial={false}>
       {!isLoaded || isFetching ? (
@@ -710,8 +728,58 @@ export function PagesView() {
             </div>
           </div>
 
+          {/* ── Bulk action bar ────────────────────────────────────────────── */}
+          <AnimatePresence>
+            {selectedCount > 0 && (
+              <motion.div
+                key="bulk-bar"
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.18 }}
+                className="mt-4 flex items-center gap-3 flex-wrap rounded-lg border border-primary/25 bg-primary/5 px-4 py-3"
+              >
+                <span className="text-sm font-semibold text-primary shrink-0">
+                  {selectedCount} page{selectedCount !== 1 ? "s" : ""} selected
+                </span>
+
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <LayoutTemplate size={14} className="text-muted-foreground shrink-0" />
+                  <select
+                    value={bulkLayoutId}
+                    onChange={(e) => setBulkLayoutId(e.target.value)}
+                    className="flex-1 min-w-0 max-w-xs rounded-md border border-border bg-background px-3 py-1.5 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
+                  >
+                    <option value="">Use default layout</option>
+                    {availableLayouts.map((l) => (
+                      <option key={l.id} value={l.id}>
+                        {l.name}{l.isDefault ? " (default)" : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <button
+                  onClick={handleBulkApplyLayout}
+                  disabled={bulkApplying}
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-md bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 transition-all active:scale-95 shrink-0"
+                >
+                  <CheckCheck size={14} />
+                  {bulkApplying ? "Applying…" : "Apply"}
+                </button>
+
+                <button
+                  onClick={() => { setRowSelection({}); setBulkLayoutId(""); }}
+                  className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                >
+                  <X size={13} /> Deselect
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* ── Table Card ─────────────────────────────────────────────────── */}
-          <div className="mt-6 bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden">
+          <div className="mt-4 bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden">
             <div
               className="overflow-x-auto overflow-y-auto"
               style={{ maxHeight: "calc(100vh - 270px)" }}
