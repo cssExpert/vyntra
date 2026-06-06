@@ -232,7 +232,7 @@ function CatNodeRenderer(props: Record<string, unknown>) {
       <div className="flex items-center px-2 shrink-0">
         <div
           className={cn(
-            "h-7 w-7 rounded-sm flex items-center justify-center",
+            "h-6 w-6 rounded-sm flex items-center justify-center",
             depth === 0 ? "bg-primary/15" : "bg-primary/8",
           )}
         >
