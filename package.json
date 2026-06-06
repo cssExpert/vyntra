@@ -26,7 +26,8 @@
     "db:studio": "pnpm --filter @vyntra/api exec prisma studio",
     "db:push": "pnpm --filter @vyntra/api exec prisma db push",
     "db:push:reset": "pnpm --filter @vyntra/api exec prisma db push --force-reset",
-    "db:generate": "pnpm --filter @vyntra/api exec prisma generate"
+    "db:generate": "pnpm --filter @vyntra/api exec prisma generate",
+    "prepare": "husky"
   },
   "engines": {
     "node": ">=20",
@@ -34,6 +35,8 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.7",
     "typescript": "^5.7.2"
   },
   "dependencies": {

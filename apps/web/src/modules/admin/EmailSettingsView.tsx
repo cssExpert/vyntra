@@ -462,7 +462,7 @@ function Inner() {
                     </li>
                     <li>
                       <strong>SendGrid SMTP:</strong> smtp.sendgrid.net, port
-                      587, username "apikey"
+                      587, username &quot;apikey&quot;
                     </li>
                     <li>
                       <strong>AWS SES:</strong>{" "}
@@ -577,9 +577,9 @@ function Inner() {
                         SendGrid API Keys
                       </a>
                     </li>
-                    <li>Click "Create API Key"</li>
+                    <li>Click &quot;Create API Key&quot;</li>
                     <li>
-                      Give it a name and select "Full Access" or restrict scopes
+                      Give it a name and select &quot;Full Access&quot; or restrict scopes
                     </li>
                     <li>Copy the key and paste it below</li>
                     <li>
@@ -714,7 +714,7 @@ function Inner() {
           ) : (
             <Save className="h-4 w-4" />
           )}
-          {busy ? "Saving…" : "Save Settings"}
+          {busy ? "Saving..." : "Save Settings"}
         </button>
       </div>
     </div>
