@@ -803,6 +803,13 @@ select {
    our full-width custom row renderer fills correctly */
 .rst__nodeContent {
   right: 0;
+  border: 1px solid hsl(var(--border));
+  border-bottom-width: 0;
+}
+
+/* Last row: remove border-bottom so it doesn't double with the card border */
+.rst__nodeContent:has(.cat-row-last) {
+  border-bottom: 1px solid hsl(var(--border));
 }
 
 /* Tone down the default black scaffold lines to match the design system */
@@ -810,9 +817,6 @@ select {
   --rst-line-color: hsl(var(--border)) !important;
   --rst-line-highlight: hsl(var(--primary) / 0.6);
   --rst-line-highlight-arrow: hsl(var(--primary-foreground));
-}
-.rst__nodeContent {
-  border: 1px solid hsl(var(--border) / 1) !important; /* for better drag handle dropzone visibility */
 }
 
 .drag-handle::after {

@@ -171,6 +171,7 @@ function CatNodeRenderer(props: Record<string, unknown>) {
     toggleChildrenVisibility,
     isDragging,
     onEdit,
+    totalVisible,
   } = props as {
     node: CatTreeItem;
     path: number[];
@@ -184,9 +185,11 @@ function CatNodeRenderer(props: Record<string, unknown>) {
     }) => void;
     isDragging: boolean;
     onEdit: (id: string) => void;
+    totalVisible: number;
   };
 
   const [isHovered, setIsHovered] = useState(false);
+  const isLast = treeIndex === totalVisible - 1;
   const hasChildren =
     Array.isArray(node.children) && (node.children as TreeItem[]).length > 0;
   const depth = path.length - 1;
@@ -198,6 +201,7 @@ function CatNodeRenderer(props: Record<string, unknown>) {
       onMouseLeave={() => setIsHovered(false)}
       className={cn(
         "flex items-stretch h-full bg-card transition-colors select-none",
+        isLast && "cat-row-last",
         isDragging && "opacity-30",
       )}
     >
@@ -315,15 +319,14 @@ export function CategoriesView() {
     [router],
   );
 
+  const totalVisible = getVisibleNodeCount({ treeData });
+
   const generateNodeProps = useCallback(
-    () => ({ onEdit: handleEdit }),
-    [handleEdit],
+    () => ({ onEdit: handleEdit, totalVisible }),
+    [handleEdit, totalVisible],
   );
 
-  // -1 lets overflow:hidden on the wrapper clip the last row's border-bottom,
-  // preventing it from doubling with the card container's own border.
-  const treeHeight =
-    Math.max(1, getVisibleNodeCount({ treeData })) * ROW_HEIGHT - 1;
+  const treeHeight = Math.max(1, totalVisible) * ROW_HEIGHT;
 
   return (
     <AnimatePresence mode="wait" initial={false}>
