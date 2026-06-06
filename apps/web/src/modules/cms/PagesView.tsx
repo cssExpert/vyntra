@@ -17,6 +17,8 @@ import {
   ChevronDown,
   ChevronsUpDown,
   ListFilterPlus,
+  Home,
+  StarOff,
 } from "lucide-react";
 import {
   useReactTable,
@@ -43,6 +45,7 @@ import {
   type TableSkeletonColumn,
 } from "@/components/common/TableSkeleton";
 import { usePageLoad } from "@/hooks/usePageLoad";
+import { useSitePreviewUrl } from "@/hooks/useSitePreviewUrl";
 
 // Skeleton column layout mirrors the real table columns below.
 const SKELETON_COLUMNS: TableSkeletonColumn[] = [
@@ -67,6 +70,7 @@ export interface CmsPage {
   status: PageStatus;
   createdAt: string;
   updatedAt: string;
+  isLandingPage?: boolean;
 }
 
 // ─── Seed data ───────────────────────────────────────────────────────────────
@@ -80,6 +84,7 @@ const INITIAL_PAGES: CmsPage[] = [
     status: "Public",
     createdAt: "05-26-2026",
     updatedAt: "06-01-2026",
+    isLandingPage: true,
   },
   {
     id: "2",
@@ -293,6 +298,7 @@ export function PagesView() {
   const [activeFilters, setActiveFilters] =
     useState<PageFilters>(DEFAULT_FILTERS);
   const isLoaded = usePageLoad(700);
+  const { previewUrl, hasDomain } = useSitePreviewUrl();
 
   const uniqueAuthors = useMemo(
     () => Array.from(new Set(pages.map((p) => p.author))).sort(),
@@ -345,6 +351,23 @@ export function PagesView() {
 
   const handleEditPageClick = (page: CmsPage) => {
     router.push(`/cms/editor?page=${encodeURIComponent(page.slug)}`);
+  };
+
+  const handleSetLandingPage = (page: CmsPage) => {
+    setPages((prev) =>
+      prev.map((p) => ({
+        ...p,
+        isLandingPage: p.id === page.id ? true : false,
+      })),
+    );
+  };
+
+  const handleUnsetLandingPage = (page: CmsPage) => {
+    setPages((prev) =>
+      prev.map((p) =>
+        p.id === page.id ? { ...p, isLandingPage: false } : p,
+      ),
+    );
   };
 
   const handleEditSubmit = (e: React.FormEvent) => {
@@ -412,13 +435,21 @@ export function PagesView() {
         cell: ({ row, getValue }) => {
           const page = row.original;
           return (
-            <button
-              type="button"
-              onClick={() => handleEditPageClick(page)}
-              className="text-primary font-semibold cursor-pointer hover:underline underline-offset-2"
-            >
-              {getValue()}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleEditPageClick(page)}
+                className="text-primary font-semibold cursor-pointer hover:underline underline-offset-2"
+              >
+                {getValue()}
+              </button>
+              {page.isLandingPage && (
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 shrink-0">
+                  <Home size={9} className="shrink-0" />
+                  Landing
+                </span>
+              )}
+            </div>
           );
         },
       }),
@@ -471,7 +502,16 @@ export function PagesView() {
                   {
                     label: "Preview",
                     icon: <Eye size={13} />,
-                    onClick: () => window.open(`/${page.slug}`, "_blank"),
+                    onClick: () => {
+                      const url = previewUrl(page.slug);
+                      if (url) {
+                        window.open(url, "_blank");
+                      } else if (!hasDomain) {
+                        alert(
+                          "No domain configured for this site yet.\nAsk your super admin to set a subdomain in Organization settings.",
+                        );
+                      }
+                    },
                   },
                   {
                     label: "Duplicate",
@@ -486,12 +526,26 @@ export function PagesView() {
                           title: `${page.title} (Copy)`,
                           slug: `${page.slug}-copy-${Date.now()}`,
                           status: "Draft",
+                          isLandingPage: false,
                           createdAt: today,
                           updatedAt: today,
                         },
                       ]);
                     },
                   },
+                  page.isLandingPage
+                    ? {
+                        label: "Remove Landing Page",
+                        icon: <StarOff size={13} />,
+                        onClick: () => handleUnsetLandingPage(page),
+                        separator: true,
+                      }
+                    : {
+                        label: "Set as Landing Page",
+                        icon: <Home size={13} />,
+                        onClick: () => handleSetLandingPage(page),
+                        separator: true,
+                      },
                   {
                     label: "Delete",
                     icon: <Trash2 size={13} />,

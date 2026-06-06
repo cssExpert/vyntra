@@ -27,6 +27,7 @@ const BottomToolbar = dynamic(() => import("./BottomToolbar"), {
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { useEditorStore } from "@/store/editorStore";
+import { useSitePreviewUrl } from "@/hooks/useSitePreviewUrl";
 import { COMPONENT_BLOCKS } from "@/lib/componentBlocks";
 import Icon from "@/components/common/Icon";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
@@ -50,6 +51,9 @@ function EditorHeader({ pageSlug }: { pageSlug: string | null }) {
     ? pageSlug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
     : "New Page";
 
+  const { previewUrl } = useSitePreviewUrl();
+  const href = previewUrl(pageSlug ?? undefined) ?? undefined;
+
   return (
     <header
       className="shrink-0 h-auto flex items-center justify-between px-5 pt-4 z-40
@@ -65,9 +69,13 @@ function EditorHeader({ pageSlug }: { pageSlug: string | null }) {
       <div className="flex items-center gap-3">
         <div className="inline-flex items-center gap-2">
           <a
-            href="#"
-            className="flex items-center gap-1.5 text-sm font-medium transition-colors
-            text-muted-foreground hover:text-foreground"
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-disabled={!href}
+            onClick={!href ? (e) => e.preventDefault() : undefined}
+            className={`flex items-center gap-1.5 text-sm font-medium transition-colors
+            ${href ? "text-muted-foreground hover:text-foreground" : "text-muted-foreground/40 cursor-not-allowed"}`}
           >
             Preview in new tab
             <ExternalLink className="w-3.5 h-3.5" />

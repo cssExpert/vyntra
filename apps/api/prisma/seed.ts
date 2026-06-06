@@ -158,11 +158,12 @@ async function main() {
   // ── Sample company on the Pro plan ──────────────────────
   const org = await prisma.organization.upsert({
     where: { slug: "acme-corp" },
-    update: {},
+    update: { subdomain: "acme" },
     create: {
       name: "Acme Corp",
       slug: "acme-corp",
       email: "admin@acme.com",
+      subdomain: "acme",
       maxUsers: 10,
       subscription: {
         create: { packageId: bySlug["pro"], billingEmail: "admin@acme.com" },
@@ -223,11 +224,12 @@ async function main() {
   // ── Second company on the Free plan (shows package-based nav gating) ──
   const bloom = await prisma.organization.upsert({
     where: { slug: "bloom-studio" },
-    update: {},
+    update: { subdomain: "bloom" },
     create: {
       name: "Bloom Studio",
       slug: "bloom-studio",
       email: "admin@bloom.com",
+      subdomain: "bloom",
       maxUsers: 3,
       subscription: {
         create: { packageId: bySlug["free"], billingEmail: "admin@bloom.com" },
@@ -241,6 +243,7 @@ async function main() {
     Role.ORG_ADMIN,
   );
 
+  const platformDomain = process.env.PLATFORM_DOMAIN ?? "lvh.me";
   console.log(`✅ Seed complete  (password for all accounts: ${PASSWORD})`);
   console.log("   SUPER_ADMIN : superadmin@vyntra.com");
   console.log("   ORG_ADMIN   : admin@acme.com    (Acme Corp · Pro)");
@@ -248,6 +251,10 @@ async function main() {
   console.log("   USER        : user@acme.com     (Acme Corp · Pro)");
   console.log("   VIEWER      : viewer@acme.com   (Acme Corp · Pro)");
   console.log("   ORG_ADMIN   : admin@bloom.com   (Bloom Studio · Free)");
+  console.log("");
+  console.log("   CMS preview URLs (port 3000):");
+  console.log(`   Acme  → http://acme.${platformDomain}:3000`);
+  console.log(`   Bloom → http://bloom.${platformDomain}:3000`);
 }
 
 main()
