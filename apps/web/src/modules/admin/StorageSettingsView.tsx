@@ -13,6 +13,7 @@ import {
 import { PageHeader } from "@/components/ui/PageHeader";
 import { AdminGuard, adminInput } from "./AdminGuard";
 import { cn } from "@/lib/utils";
+import { useStorageSettings } from "@/lib/hooks/useStorageSettings";
 import {
   apiGetAdminSettings,
   apiUpdateAdminSettings,
@@ -275,6 +276,7 @@ function Inner() {
   const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>(
     {}
   );
+  const { refreshSettings } = useStorageSettings();
 
   const [provider, setProvider] = useState<StorageProvider>("local");
   const [s3Config, setS3Config] = useState({
@@ -344,6 +346,7 @@ function Inner() {
       }
 
       await apiUpdateAdminSettings(updateData);
+      refreshSettings();
       setSuccess("Storage settings saved successfully!");
       setTimeout(() => setSuccess(""), 3000);
     } catch (e) {

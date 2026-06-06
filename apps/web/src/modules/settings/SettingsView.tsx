@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { Sketch } from "@uiw/react-color";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { ImageUploader } from "@/components/common/ImageUploader";
+import { ImageUploadWithStorage } from "@/components/common/ImageUploadWithStorage";
 import { cn } from "@/lib/utils";
 import { apiUpdateOrgSettings } from "@/lib/api";
 import { useSettings } from "@/providers/SettingsProvider";
@@ -463,7 +463,7 @@ export function SettingsView() {
                     best.
                   </p>
                 </div>
-                <ImageUploader
+                <ImageUploadWithStorage
                   value={settings.logoUrl}
                   onChange={(url) => handleChange("logoUrl", url)}
                   accept="image/png,image/jpeg,image/svg+xml,image/webp"
@@ -484,7 +484,7 @@ export function SettingsView() {
                     recommended.
                   </p>
                 </div>
-                <ImageUploader
+                <ImageUploadWithStorage
                   value={settings.faviconUrl}
                   onChange={(url) => handleChange("faviconUrl", url)}
                   accept="image/png,image/x-icon,image/svg+xml"

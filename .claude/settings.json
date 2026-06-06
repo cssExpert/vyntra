@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs cat)",
+      "Bash(open http://localhost:3003/dashboard)"
+    ]
+  }
+}

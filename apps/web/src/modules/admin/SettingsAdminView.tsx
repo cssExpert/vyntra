@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { Sketch } from "@uiw/react-color";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { ImageUploader } from "@/components/common/ImageUploader";
+import { ImageUploadWithStorage } from "@/components/common/ImageUploadWithStorage";
 import { AdminGuard, adminInput } from "./AdminGuard";
 import { cn } from "@/lib/utils";
 import {
@@ -311,13 +311,15 @@ function Inner() {
                   Shown in the sidebar and emails. Landscape format works best.
                 </p>
               </div>
-              <ImageUploader
+              <ImageUploadWithStorage
                 value={settings.logoUrl ?? null}
                 onChange={(url) => handleChange("logoUrl", url)}
                 accept="image/png,image/jpeg,image/svg+xml,image/webp"
                 maxSizeMB={5}
                 previewShape="wide"
                 label="Upload Logo"
+                companyId="admin"
+                module="settings"
               />
             </div>
 
@@ -328,13 +330,15 @@ function Inner() {
                   Shown in browser tabs and app launchers. Square 512×512 recommended.
                 </p>
               </div>
-              <ImageUploader
+              <ImageUploadWithStorage
                 value={settings.faviconUrl ?? null}
                 onChange={(url) => handleChange("faviconUrl", url)}
                 accept="image/png,image/x-icon,image/svg+xml"
                 maxSizeMB={2}
                 previewShape="circle"
                 label="Upload Icon"
+                companyId="admin"
+                module="settings"
               />
             </div>
           </div>
