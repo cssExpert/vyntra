@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   DndContext,
@@ -28,6 +28,7 @@ import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { useEditorStore } from "@/store/editorStore";
 import { useSitePreviewUrl } from "@/hooks/useSitePreviewUrl";
+import { cmsPages } from "@/lib/api";
 import { COMPONENT_BLOCKS } from "@/lib/componentBlocks";
 import Icon from "@/components/common/Icon";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
@@ -46,13 +47,32 @@ function deepCloneWithNewIds(node: EditorNode): EditorNode {
   };
 }
 
-function EditorHeader({ pageSlug }: { pageSlug: string | null }) {
+type PublishState = "idle" | "saving" | "saved" | "error";
+
+function EditorHeader({
+  pageSlug,
+  onPublish,
+  publishState,
+}: {
+  pageSlug: string | null;
+  onPublish: () => void;
+  publishState: PublishState;
+}) {
   const pageTitle = pageSlug
     ? pageSlug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
     : "New Page";
 
   const { previewUrl } = useSitePreviewUrl();
   const href = previewUrl(pageSlug ?? undefined) ?? undefined;
+
+  const btnLabel =
+    publishState === "saving"
+      ? "Publishing…"
+      : publishState === "saved"
+        ? "Published ✓"
+        : publishState === "error"
+          ? "Error — retry"
+          : "Publish";
 
   return (
     <header
@@ -65,7 +85,6 @@ function EditorHeader({ pageSlug }: { pageSlug: string | null }) {
           {pageTitle}
         </span>
       </div>
-      {/* Right actions */}
       <div className="flex items-center gap-3">
         <div className="inline-flex items-center gap-2">
           <a
@@ -81,10 +100,12 @@ function EditorHeader({ pageSlug }: { pageSlug: string | null }) {
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
           <button
-            className="text-xs font-semibold px-4 py-1.5 rounded-lg transition-colors
-          bg-primary hover:bg-primary/90 text-primary-foreground"
+            onClick={onPublish}
+            disabled={publishState === "saving"}
+            className={`text-xs font-semibold px-4 py-1.5 rounded-lg transition-colors disabled:opacity-60
+              ${publishState === "saved" ? "bg-emerald-600 text-white" : publishState === "error" ? "bg-rose-600 text-white" : "bg-primary hover:bg-primary/90 text-primary-foreground"}`}
           >
-            Publish
+            {btnLabel}
           </button>
         </div>
       </div>
@@ -101,6 +122,7 @@ export default function EditorLayout() {
   const searchParams = useSearchParams();
   const pageSlug = searchParams.get("page");
   const isEditingExisting = Boolean(pageSlug);
+  const [publishState, setPublishState] = useState<PublishState>("idle");
 
   const {
     addNode,
@@ -114,7 +136,7 @@ export default function EditorLayout() {
     clearCanvas,
   } = useEditorStore();
 
-  // On mount: load pending theme nodes if set, otherwise show/hide picker normally
+  // On mount: load pending theme nodes, OR load saved page content, OR show picker
   useEffect(() => {
     const { pendingNodes, setPendingNodes } = useEditorStore.getState();
     if (pendingNodes && pendingNodes.length > 0) {
@@ -124,9 +146,42 @@ export default function EditorLayout() {
       setShowTemplatePicker(false);
       return;
     }
+    if (isEditingExisting && pageSlug) {
+      cmsPages.load(pageSlug).then((page) => {
+        if (page.content) {
+          try {
+            const nodes = JSON.parse(page.content);
+            if (Array.isArray(nodes) && nodes.length > 0) {
+              clearCanvas();
+              nodes.forEach((node) => addNode(node));
+              setShowTemplatePicker(false);
+              return;
+            }
+          } catch {
+            // content is legacy HTML — leave canvas blank so user can rebuild
+          }
+        }
+        setShowTemplatePicker(false);
+      }).catch(() => setShowTemplatePicker(false));
+      return;
+    }
     setShowTemplatePicker(!isEditingExisting);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handlePublish = useCallback(async () => {
+    if (!pageSlug) return;
+    const { nodes } = useEditorStore.getState();
+    setPublishState("saving");
+    try {
+      await cmsPages.save(pageSlug, JSON.stringify(nodes), true);
+      setPublishState("saved");
+      setTimeout(() => setPublishState("idle"), 2500);
+    } catch {
+      setPublishState("error");
+      setTimeout(() => setPublishState("idle"), 3000);
+    }
+  }, [pageSlug]);
 
   function handleInsertBlock(block: ComponentBlock) {
     const { nodes, selectedId } = useEditorStore.getState();
@@ -245,7 +300,7 @@ export default function EditorLayout() {
         <div className="flex flex-1 min-h-0 overflow-hidden select-none">
           <LeftSidebar />
           <div className="flex-1 flex flex-col min-w-0 canvas-container overflow-hidden bg-muted dark:bg-background">
-            <EditorHeader pageSlug={pageSlug} />
+            <EditorHeader pageSlug={pageSlug} onPublish={handlePublish} publishState={publishState} />
             <Canvas />
             <BottomToolbar />
           </div>

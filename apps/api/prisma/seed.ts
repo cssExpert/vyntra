@@ -250,18 +250,20 @@ async function main() {
       title: "Home",
       content: "<h1>Welcome to Acme Corp</h1><p>We build world-class products.</p>",
       metaDesc: "Welcome to Acme Corp",
+      isLandingPage: true,
     },
     {
       slug: "about-us",
       title: "About Us",
       content: "<h1>About Acme Corp</h1><p>Founded in 2020, Acme Corp is on a mission to simplify business operations.</p>",
       metaDesc: "Learn about Acme Corp",
+      isLandingPage: false,
     },
   ];
   for (const p of acmePages) {
     await prisma.page.upsert({
       where: { organizationId_slug: { organizationId: org.id, slug: p.slug } },
-      update: { title: p.title, content: p.content, metaDesc: p.metaDesc, published: true, publishedAt: new Date("2026-01-01") },
+      update: { title: p.title, content: p.content, metaDesc: p.metaDesc, isLandingPage: p.isLandingPage, published: true, publishedAt: new Date("2026-01-01") },
       create: { ...p, organizationId: org.id, published: true, publishedAt: new Date("2026-01-01") },
     });
   }
@@ -273,18 +275,20 @@ async function main() {
       title: "Home",
       content: "<h1>Welcome to Bloom Studio</h1><p>We craft beautiful digital experiences.</p>",
       metaDesc: "Welcome to Bloom Studio",
+      isLandingPage: true,
     },
     {
       slug: "about-us",
       title: "About Us",
       content: "<h1>About Bloom Studio</h1><p>A creative studio focused on design and storytelling.</p>",
       metaDesc: "About Bloom Studio",
+      isLandingPage: false,
     },
   ];
   for (const p of bloomPages) {
     await prisma.page.upsert({
       where: { organizationId_slug: { organizationId: bloom.id, slug: p.slug } },
-      update: { title: p.title, content: p.content, metaDesc: p.metaDesc, published: true, publishedAt: new Date("2026-01-01") },
+      update: { title: p.title, content: p.content, metaDesc: p.metaDesc, isLandingPage: p.isLandingPage, published: true, publishedAt: new Date("2026-01-01") },
       create: { ...p, organizationId: bloom.id, published: true, publishedAt: new Date("2026-01-01") },
     });
   }

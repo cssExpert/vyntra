@@ -204,6 +204,24 @@ export class DomainsService {
     return this.assertCmsEnabled(org);
   }
 
+  async getLandingPage(orgId: string) {
+    const page = await this.prisma.page.findFirst({
+      where: { organizationId: orgId, isLandingPage: true, published: true },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        content: true,
+        metaDesc: true,
+        metaKeywords: true,
+        publishedAt: true,
+        updatedAt: true,
+      },
+    });
+    if (!page) throw new NotFoundException('No landing page configured');
+    return page;
+  }
+
   async getPublishedPages(orgId: string) {
     return this.prisma.page.findMany({
       where: { organizationId: orgId, published: true },

@@ -7,6 +7,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { ModuleAccessGuard } from './common/guards/module-access.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { AuditLogInterceptor } from './common/interceptors/audit-log.interceptor';
+import { CmsModule } from './cms/cms.module';
 import { DomainsModule } from './domains/domains.module';
 import { HealthModule } from './health/health.module';
 import { ModulesModule } from './modules/modules.module';
@@ -26,7 +27,8 @@ import { UsersModule } from './users/users.module';
     PackagesModule,
     ModulesModule,
     DomainsModule,
-    // CmsModule + CrmModule added in the next phase.
+    CmsModule,
+    // CrmModule added in the next phase.
   ],
   providers: [
     // Order matters: authenticate → authorize role → check module entitlement.

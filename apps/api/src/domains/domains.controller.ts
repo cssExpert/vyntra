@@ -132,6 +132,12 @@ export class DomainsController {
   }
 
   @Public()
+  @Get('public/sites/:orgId/landing-page')
+  getLandingPage(@Param('orgId') orgId: string) {
+    return this.domainsService.getLandingPage(orgId);
+  }
+
+  @Public()
   @Get('public/sites/:orgId/pages')
   getPages(@Param('orgId') orgId: string) {
     return this.domainsService.getPublishedPages(orgId);

@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import type { EditorNode } from "@/types/editor";
+import { NodeRenderer } from "./NodeRenderer";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
@@ -31,6 +33,19 @@ interface PageListItem {
   publishedAt: string | null;
 }
 
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function parseNodes(content: string | null): EditorNode[] | null {
+  if (!content) return null;
+  try {
+    const parsed = JSON.parse(content);
+    if (Array.isArray(parsed) && parsed.length > 0) return parsed as EditorNode[];
+  } catch {
+    // legacy HTML content — handled separately
+  }
+  return null;
+}
+
 // ─── Data fetchers (server-side, cached 60 s) ─────────────────────────────────
 
 async function resolveOrg(
@@ -50,6 +65,18 @@ async function resolveOrg(
   }
 }
 
+async function fetchLandingPage(orgId: string): Promise<CmsPage | null> {
+  try {
+    const res = await fetch(`${API}/public/sites/${orgId}/landing-page`, {
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
+
 async function listPages(orgId: string): Promise<PageListItem[]> {
   try {
     const res = await fetch(`${API}/public/sites/${orgId}/pages`, {
@@ -62,13 +89,8 @@ async function listPages(orgId: string): Promise<PageListItem[]> {
   }
 }
 
-async function fetchPage(
-  orgId: string,
-  slug: string,
-): Promise<CmsPage | null> {
+async function fetchPage(orgId: string, slug: string): Promise<CmsPage | null> {
   try {
-    console.log('orgId', orgId);
-    console.log('slug', slug);
     const res = await fetch(
       `${API}/public/sites/${orgId}/pages/${encodeURIComponent(slug)}`,
       { next: { revalidate: 60 } },
@@ -93,8 +115,16 @@ export async function generateMetadata({
   const { _chost } = await searchParams;
   const org = await resolveOrg(identifier, _chost);
   if (!org) return {};
+
   const pageSlug = slug?.join("/");
-  if (!pageSlug) return { title: org.name };
+  if (!pageSlug) {
+    const landing = await fetchLandingPage(org.id);
+    return {
+      title: landing ? `${landing.title} — ${org.name}` : org.name,
+      description: landing?.metaDesc ?? undefined,
+    };
+  }
+
   const page = await fetchPage(org.id, pageSlug);
   return {
     title: page ? `${page.title} — ${org.name}` : org.name,
@@ -116,52 +146,126 @@ export default async function PublicSitePage({
   const { _chost } = await searchParams;
 
   const org = await resolveOrg(identifier, _chost);
-  console.log('org', org);
   if (!org) notFound();
 
-  // Home: list all published pages
+  // Root URL → landing page, fallback to page list
   if (!slug || slug.length === 0) {
+    const landing = await fetchLandingPage(org.id);
+    if (landing) return <PageView org={org} page={landing} isLanding />;
     const pages = await listPages(org.id);
     return <SiteHome org={org} pages={pages} />;
   }
 
-  // Inner page
   const pageSlug = slug.join("/");
   const page = await fetchPage(org.id, pageSlug);
   if (!page) notFound();
   return <PageView org={org} page={page} />;
 }
 
-// ─── UI Components ────────────────────────────────────────────────────────────
+// ─── Page view (editor content) ───────────────────────────────────────────────
+
+function PageView({
+  org,
+  page,
+  isLanding = false,
+}: {
+  org: OrgInfo;
+  page: CmsPage;
+  isLanding?: boolean;
+}) {
+  const nodes = parseNodes(page.content);
+
+  // Editor-built content: render the node tree directly (it contains its own layout)
+  if (nodes) {
+    return (
+      <div className="min-h-screen bg-white">
+        <NodeRenderer nodes={nodes} />
+      </div>
+    );
+  }
+
+  // Legacy / seed HTML content: render with a professional article wrapper
+  return (
+    <div className="min-h-screen bg-white text-gray-900 font-sans">
+      {/* Minimal site nav */}
+      <nav className="border-b border-gray-100 bg-white/95 backdrop-blur-sm sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <a href="/" className="text-lg font-bold tracking-tight text-gray-900 hover:text-gray-600 transition-colors">
+            {org.name}
+          </a>
+          {!isLanding && (
+            <a href="/" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
+              ← Home
+            </a>
+          )}
+        </div>
+      </nav>
+
+      {/* Content */}
+      <main className="max-w-4xl mx-auto px-6 py-16">
+        <header className="mb-12">
+          <h1 className="text-4xl font-bold leading-tight tracking-tight text-gray-900">
+            {page.title}
+          </h1>
+          {page.metaDesc && (
+            <p className="mt-4 text-xl text-gray-500 leading-relaxed">{page.metaDesc}</p>
+          )}
+          {page.publishedAt && (
+            <p className="mt-4 text-sm text-gray-400">
+              {new Date(page.publishedAt).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </p>
+          )}
+        </header>
+
+        <article
+          className="prose prose-lg prose-gray max-w-none
+            prose-headings:font-bold prose-headings:tracking-tight
+            prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
+            prose-img:rounded-xl prose-img:shadow-md"
+          dangerouslySetInnerHTML={{ __html: page.content ?? "" }}
+        />
+      </main>
+
+      <footer className="border-t border-gray-100 mt-24 py-10 text-center text-sm text-gray-400">
+        © {new Date().getFullYear()} {org.name}
+      </footer>
+    </div>
+  );
+}
+
+// ─── Site home (page list) ────────────────────────────────────────────────────
 
 function SiteHome({ org, pages }: { org: OrgInfo; pages: PageListItem[] }) {
   return (
-    <main className="min-h-screen bg-white text-gray-900">
-      <header className="border-b border-gray-200 px-6 py-8 max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold">{org.name}</h1>
-      </header>
+    <div className="min-h-screen bg-white text-gray-900 font-sans">
+      <nav className="border-b border-gray-100 bg-white/95 backdrop-blur-sm sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center">
+          <span className="text-lg font-bold tracking-tight text-gray-900">{org.name}</span>
+        </div>
+      </nav>
 
-      <div className="max-w-4xl mx-auto px-6 py-10">
+      <main className="max-w-4xl mx-auto px-6 py-16">
+        <h1 className="text-4xl font-bold tracking-tight mb-12">{org.name}</h1>
+
         {pages.length === 0 ? (
-          <p className="text-gray-500">No published pages yet.</p>
+          <p className="text-gray-400">No published pages yet.</p>
         ) : (
-          <ul className="divide-y divide-gray-100 space-y-0">
+          <ul className="divide-y divide-gray-100">
             {pages.map((p) => (
-              <li key={p.id} className="py-5">
-                <a
-                  href={`/${p.slug}`}
-                  className="group block hover:opacity-80 transition-opacity"
-                >
-                  <h2 className="text-xl font-semibold text-gray-900 group-hover:underline">
+              <li key={p.id} className="py-8">
+                <a href={`/${p.slug}`} className="group block">
+                  <h2 className="text-2xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
                     {p.title}
                   </h2>
                   {p.metaDesc && (
-                    <p className="mt-1 text-gray-500 text-sm line-clamp-2">
-                      {p.metaDesc}
-                    </p>
+                    <p className="mt-2 text-gray-500 leading-relaxed line-clamp-2">{p.metaDesc}</p>
                   )}
                   {p.publishedAt && (
-                    <p className="mt-1 text-xs text-gray-400">
+                    <p className="mt-3 text-sm text-gray-400">
                       {new Date(p.publishedAt).toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
@@ -174,51 +278,11 @@ function SiteHome({ org, pages }: { org: OrgInfo; pages: PageListItem[] }) {
             ))}
           </ul>
         )}
-      </div>
-    </main>
-  );
-}
+      </main>
 
-function PageView({ org, page }: { org: OrgInfo; page: CmsPage }) {
-  console.log('org', org);
-  console.log('page', page);
-  return (
-    <main className="min-h-screen bg-white text-gray-900">
-      <div className="max-w-3xl mx-auto px-6 py-12">
-        <a
-          href="/"
-          className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-        >
-          ← {org.name}
-        </a>
-
-        <header className="mt-6 mb-8">
-          <h1 className="text-3xl font-bold leading-tight">{page.title}</h1>
-          {page.metaDesc && (
-            <p className="mt-2 text-gray-500">{page.metaDesc}</p>
-          )}
-          {page.publishedAt && (
-            <p className="mt-2 text-xs text-gray-400">
-              Published{" "}
-              {new Date(page.publishedAt).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </p>
-          )}
-        </header>
-
-        {page.content ? (
-          // Content is created by trusted org editors via TipTap — safe to render as HTML.
-          <article
-            className="prose prose-gray max-w-none"
-            dangerouslySetInnerHTML={{ __html: page.content }}
-          />
-        ) : (
-          <p className="text-gray-400">No content yet.</p>
-        )}
-      </div>
-    </main>
+      <footer className="border-t border-gray-100 mt-24 py-10 text-center text-sm text-gray-400">
+        © {new Date().getFullYear()} {org.name}
+      </footer>
+    </div>
   );
 }

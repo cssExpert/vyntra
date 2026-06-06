@@ -336,3 +336,25 @@ export const admin = {
   getDnsInfo: (id: string) =>
     apiFetch<DnsInfo>(`/admin/organizations/${id}/domain/dns-info`),
 };
+
+// ─── CMS pages ───────────────────────────────────────────
+export interface CmsPageData {
+  id: string;
+  slug: string;
+  title: string;
+  content: string | null;
+  metaDesc: string | null;
+  metaKeywords: string | null;
+  published: boolean;
+  publishedAt: string | null;
+  isLandingPage: boolean;
+}
+
+export const cmsPages = {
+  load: (slug: string) => apiFetch<CmsPageData>(`/cms/pages/${slug}`),
+  save: (slug: string, content: string, publish = false) =>
+    apiFetch<CmsPageData>(`/cms/pages/${slug}`, {
+      method: "PATCH",
+      body: JSON.stringify({ content, publish }),
+    }),
+};
