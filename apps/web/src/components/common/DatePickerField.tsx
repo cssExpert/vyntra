@@ -31,7 +31,7 @@ export function DatePickerField({
   placeholder = "MM / DD / YYYY",
 }: DatePickerFieldProps) {
   return (
-    <div className="relative vyntra-datepicker">
+    <div className="relative erv-datepicker">
       <DatePicker
         selected={toDate(value)}
         onChange={(d: Date | null) => onChange(toISO(d))}
@@ -39,7 +39,7 @@ export function DatePickerField({
         placeholderText={placeholder}
         wrapperClassName="w-full"
         className="w-full pl-3 pr-10 py-2.5 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all"
-        popperClassName="vyntra-datepicker-popper"
+        popperClassName="erv-datepicker-popper"
       />
       <Calendar
         size={16}

@@ -36,7 +36,7 @@ export function DateRangePicker({
   const end = toDate(endDate);
 
   return (
-    <div className="relative vyntra-datepicker">
+    <div className="relative erv-datepicker">
       <DatePicker
         selectsRange
         startDate={start}
@@ -50,7 +50,7 @@ export function DateRangePicker({
         isClearable
         wrapperClassName="w-full"
         className="w-full pl-3 pr-10 py-3 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all"
-        popperClassName="vyntra-datepicker-popper"
+        popperClassName="erv-datepicker-popper"
       />
       <Calendar
         size={16}

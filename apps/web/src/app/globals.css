@@ -422,10 +422,10 @@
 }
 
 /* ─── react-datepicker theming (design tokens) ───────────── */
-.vyntra-datepicker-popper {
+.erv-datepicker-popper {
   z-index: 10000 !important;
 }
-.vyntra-datepicker-popper .react-datepicker {
+.erv-datepicker-popper .react-datepicker {
   font-family: inherit;
   background-color: hsl(var(--card));
   border: 1px solid hsl(var(--border));
@@ -434,90 +434,89 @@
   overflow: hidden;
   color: hsl(var(--foreground));
 }
-.vyntra-datepicker-popper .react-datepicker__header {
+.erv-datepicker-popper .react-datepicker__header {
   background-color: hsl(var(--muted) / 0.4);
   border-bottom: 1px solid hsl(var(--border));
   padding-top: 10px;
 }
-.vyntra-datepicker-popper .react-datepicker__current-month,
-.vyntra-datepicker-popper .react-datepicker__day-name,
-.vyntra-datepicker-popper .react-datepicker__day {
+.erv-datepicker-popper .react-datepicker__current-month,
+.erv-datepicker-popper .react-datepicker__day-name,
+.erv-datepicker-popper .react-datepicker__day {
   color: hsl(var(--foreground));
 }
-.vyntra-datepicker-popper .react-datepicker__day-name {
+.erv-datepicker-popper .react-datepicker__day-name {
   color: hsl(var(--muted-foreground));
 }
-.vyntra-datepicker-popper .react-datepicker__day:hover {
+.erv-datepicker-popper .react-datepicker__day:hover {
   background-color: hsl(var(--muted));
   border-radius: 0.375rem;
 }
-.vyntra-datepicker-popper .react-datepicker__day--selected,
-.vyntra-datepicker-popper .react-datepicker__day--range-start,
-.vyntra-datepicker-popper .react-datepicker__day--range-end,
-.vyntra-datepicker-popper .react-datepicker__day--keyboard-selected {
+.erv-datepicker-popper .react-datepicker__day--selected,
+.erv-datepicker-popper .react-datepicker__day--range-start,
+.erv-datepicker-popper .react-datepicker__day--range-end,
+.erv-datepicker-popper .react-datepicker__day--keyboard-selected {
   background-color: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
   border-radius: 0.375rem;
 }
-.vyntra-datepicker-popper .react-datepicker__day--in-range,
-.vyntra-datepicker-popper .react-datepicker__day--in-selecting-range {
+.erv-datepicker-popper .react-datepicker__day--in-range,
+.erv-datepicker-popper .react-datepicker__day--in-selecting-range {
   background-color: hsl(var(--primary) / 0.15);
   color: hsl(var(--foreground));
   border-radius: 0;
 }
-.vyntra-datepicker-popper .react-datepicker__day--outside-month {
+.erv-datepicker-popper .react-datepicker__day--outside-month {
   color: hsl(var(--muted-foreground) / 0.5);
 }
-.vyntra-datepicker-popper .react-datepicker__navigation-icon::before {
+.erv-datepicker-popper .react-datepicker__navigation-icon::before {
   border-color: hsl(var(--muted-foreground));
 }
-.vyntra-datepicker-popper .react-datepicker__triangle {
+.erv-datepicker-popper .react-datepicker__triangle {
   display: none;
 }
-.vyntra-datepicker .react-datepicker__close-icon {
+.erv-datepicker .react-datepicker__close-icon {
   padding-right: 32px;
 }
-.vyntra-datepicker .react-datepicker__close-icon::after {
+.erv-datepicker .react-datepicker__close-icon::after {
   background-color: hsl(var(--muted-foreground));
   color: hsl(var(--background));
   font-size: 14px;
 }
 
 /* react-datepicker — time picker column */
-.vyntra-datepicker-popper .react-datepicker__time-container,
-.vyntra-datepicker-popper .react-datepicker--time-only {
+.erv-datepicker-popper .react-datepicker__time-container,
+.erv-datepicker-popper .react-datepicker--time-only {
   border-color: hsl(var(--border));
 }
-.vyntra-datepicker-popper .react-datepicker__time {
+.erv-datepicker-popper .react-datepicker__time {
   background-color: hsl(var(--card));
 }
-.vyntra-datepicker-popper .react-datepicker__header--time {
+.erv-datepicker-popper .react-datepicker__header--time {
   background-color: hsl(var(--muted) / 0.4);
   border-bottom: 1px solid hsl(var(--border));
 }
-.vyntra-datepicker-popper .react-datepicker-time__header {
+.erv-datepicker-popper .react-datepicker-time__header {
   color: hsl(var(--foreground));
 }
-.vyntra-datepicker-popper .react-datepicker__time-list-item {
+.erv-datepicker-popper .react-datepicker__time-list-item {
   color: hsl(var(--foreground));
   font-size: 0.8rem;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.vyntra-datepicker-popper .react-datepicker__time-list-item:hover {
+.erv-datepicker-popper .react-datepicker__time-list-item:hover {
   background-color: hsl(var(--muted)) !important;
 }
-.vyntra-datepicker-popper .react-datepicker__time-list-item--selected {
+.erv-datepicker-popper .react-datepicker__time-list-item--selected {
   background-color: hsl(var(--primary)) !important;
   color: hsl(var(--primary-foreground)) !important;
   font-weight: 600;
 }
-.vyntra-datepicker-popper .react-datepicker__time-list::-webkit-scrollbar {
+.erv-datepicker-popper .react-datepicker__time-list::-webkit-scrollbar {
   width: 6px;
 }
-.vyntra-datepicker-popper
-  .react-datepicker__time-list::-webkit-scrollbar-thumb {
+.erv-datepicker-popper .react-datepicker__time-list::-webkit-scrollbar-thumb {
   background-color: hsl(var(--border));
   border-radius: 9999px;
 }
