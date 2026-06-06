@@ -268,7 +268,11 @@ function Inner() {
         </SectionCard>
 
         {/* ── Webhook Configuration ────────────────────────────────────── */}
-        <SectionCard icon={Webhook} title="Webhook Configuration">
+        <SectionCard
+          icon={Webhook}
+          title="Webhook Configuration"
+          description="Reliable webhook configuration for real-time event tracking, automated workflows, and seamless third-party system integrations."
+        >
           <div className="space-y-3">
             <p className="text-sm text-foreground">
               After setting up your payment provider, you'll need to configure
