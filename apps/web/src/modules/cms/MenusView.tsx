@@ -9,8 +9,19 @@ import {
   ChevronUp,
   GripVertical,
   Menu,
+  Globe,
+  FileText,
+  BookOpen,
+  Search,
 } from "lucide-react";
-import { cmsMenus, type CmsMenu } from "@/lib/api";
+import {
+  cmsMenus,
+  cmsPages,
+  cmsBlogs,
+  type CmsMenu,
+  type CmsPageListItem,
+  type CmsBlogListItem,
+} from "@/lib/api";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Modal } from "@/components/common/Modal";
 
@@ -30,11 +41,7 @@ function VisibilityBadge({ vis }: { vis: string[] }) {
   return (
     <div className="flex flex-wrap gap-1">
       {labels.map((l) => (
-        <span
-          key={l}
-          className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium
-            bg-primary/10 text-primary"
-        >
+        <span key={l} className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-primary/10 text-primary">
           {l}
         </span>
       ))}
@@ -42,13 +49,7 @@ function VisibilityBadge({ vis }: { vis: string[] }) {
   );
 }
 
-function VisibilityMultiSelect({
-  value,
-  onChange,
-}: {
-  value: string[];
-  onChange: (v: string[]) => void;
-}) {
+function VisibilityMultiSelect({ value, onChange }: { value: string[]; onChange: (v: string[]) => void }) {
   const isAll = !value.length || value.includes("all");
 
   function toggleAll(checked: boolean) {
@@ -65,15 +66,9 @@ function VisibilityMultiSelect({
 
   return (
     <div className="space-y-3">
-      {/* All devices toggle */}
       <label className="flex items-center gap-3 cursor-pointer group">
         <div className="relative flex-shrink-0">
-          <input
-            type="checkbox"
-            className="sr-only"
-            checked={isAll}
-            onChange={(e) => toggleAll(e.target.checked)}
-          />
+          <input type="checkbox" className="sr-only" checked={isAll} onChange={(e) => toggleAll(e.target.checked)} />
           <div className={`w-9 h-5 rounded-full transition-colors ${isAll ? "bg-primary" : "bg-muted border border-border"}`}>
             <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${isAll ? "translate-x-4" : "translate-x-0"}`} />
           </div>
@@ -84,7 +79,6 @@ function VisibilityMultiSelect({
         </div>
       </label>
 
-      {/* Per-device checkboxes — only shown when not "all" */}
       {!isAll && (
         <div className="ml-1 pl-4 border-l-2 border-border space-y-2.5">
           <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Show on specific devices</p>
@@ -99,12 +93,7 @@ function VisibilityMultiSelect({
                       <path d="M1.5 5L3.5 7.5L8.5 2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   )}
-                  <input
-                    type="checkbox"
-                    className="sr-only"
-                    checked={checked}
-                    onChange={(e) => toggleDevice(opt.value, e.target.checked)}
-                  />
+                  <input type="checkbox" className="sr-only" checked={checked} onChange={(e) => toggleDevice(opt.value, e.target.checked)} />
                 </div>
                 <div>
                   <span className="text-sm font-medium text-foreground">{opt.label}</span>
@@ -122,51 +111,241 @@ function VisibilityMultiSelect({
   );
 }
 
+// ─── Link type helpers ─────────────────────────────────────────────────────────
+
+type LinkType = "url" | "page" | "blog";
+
+function detectLinkType(url: string): LinkType {
+  if (url.startsWith("page://")) return "page";
+  if (url.startsWith("blog://")) return "blog";
+  return "url";
+}
+
+function extractRef(url: string): string {
+  if (url.startsWith("page://")) return url.slice(7);
+  if (url.startsWith("blog://")) return url.slice(7);
+  return url;
+}
+
+// ─── Searchable picker list ────────────────────────────────────────────────────
+
+function PickerList<T extends { id: string; title: string; slug: string; published: boolean }>({
+  items,
+  selectedId,
+  onSelect,
+  placeholder,
+}: {
+  items: T[];
+  selectedId: string;
+  onSelect: (item: T) => void;
+  placeholder: string;
+}) {
+  const [query, setQuery] = useState("");
+  const filtered = items.filter((p) =>
+    p.title.toLowerCase().includes(query.toLowerCase()) ||
+    p.slug.toLowerCase().includes(query.toLowerCase()),
+  );
+
+  return (
+    <div className="rounded-lg border border-border overflow-hidden">
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-border bg-muted/30">
+        <Search className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+        <input
+          className="flex-1 text-xs bg-transparent outline-none text-foreground placeholder:text-muted-foreground"
+          placeholder={placeholder}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+      </div>
+      <div className="max-h-48 overflow-y-auto divide-y divide-border">
+        {filtered.length === 0 ? (
+          <p className="text-xs text-muted-foreground text-center py-6">No results</p>
+        ) : (
+          filtered.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => onSelect(item)}
+              className={`w-full text-left px-3 py-2.5 flex items-center gap-3 transition-colors hover:bg-muted/60
+                ${selectedId === item.id ? "bg-primary/8" : ""}`}
+            >
+              <div className="flex-1 min-w-0">
+                <p className={`text-xs font-medium truncate ${selectedId === item.id ? "text-primary" : "text-foreground"}`}>
+                  {item.title}
+                </p>
+                <p className="text-[10px] text-muted-foreground font-mono truncate">/{item.slug}</p>
+              </div>
+              {!item.published && (
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 flex-shrink-0">
+                  Draft
+                </span>
+              )}
+              {selectedId === item.id && (
+                <svg className="w-3.5 h-3.5 text-primary flex-shrink-0" viewBox="0 0 14 14" fill="none">
+                  <path d="M2 7L5.5 10.5L12 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </button>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Item row ─────────────────────────────────────────────────────────────────
 
 interface DraftItem { label: string; url: string; target: string }
 
+const LINK_TYPES: { value: LinkType; label: string; icon: React.ElementType }[] = [
+  { value: "url", label: "Custom URL", icon: Globe },
+  { value: "page", label: "Page", icon: FileText },
+  { value: "blog", label: "Blog", icon: BookOpen },
+];
+
 function ItemRow({
-  item, index, total, onChange, onDelete, onMoveUp, onMoveDown,
+  item, index, total, pages, blogs, onChange, onDelete, onMoveUp, onMoveDown,
 }: {
   item: DraftItem; index: number; total: number;
+  pages: CmsPageListItem[]; blogs: CmsBlogListItem[];
   onChange: (field: keyof DraftItem, value: string) => void;
   onDelete: () => void; onMoveUp: () => void; onMoveDown: () => void;
 }) {
   const iCls = "w-full rounded-md px-2.5 py-1.5 text-xs border border-border bg-background text-foreground focus:outline-none focus:border-primary transition-colors";
+  const linkType = detectLinkType(item.url);
+  const ref = extractRef(item.url);
+
+  function setLinkType(type: LinkType) {
+    if (type === "url") onChange("url", "");
+    else if (type === "page") onChange("url", pages[0] ? `page://${pages[0].id}` : "page://");
+    else onChange("url", blogs[0] ? `blog://${blogs[0].id}` : "blog://");
+  }
+
+  function selectPage(page: CmsPageListItem) {
+    onChange("url", `page://${page.id}`);
+    if (!item.label) onChange("label", page.title);
+  }
+
+  function selectBlog(blog: CmsBlogListItem) {
+    onChange("url", `blog://${blog.id}`);
+    if (!item.label) onChange("label", blog.title);
+  }
+
+  const selectedPage = linkType === "page" ? pages.find((p) => p.id === ref) : null;
+  const selectedBlog = linkType === "blog" ? blogs.find((b) => b.id === ref) : null;
+
   return (
-    <div className="flex items-start gap-2 p-3 rounded-lg border border-border bg-muted/30">
-      <GripVertical className="w-4 h-4 text-muted-foreground/40 mt-2 flex-shrink-0" />
-      <div className="flex-1 grid grid-cols-2 gap-2">
-        <div>
+    <div className="p-3 rounded-lg border border-border bg-muted/20 space-y-3">
+      {/* Top row: grip + label + move/delete */}
+      <div className="flex items-center gap-2">
+        <GripVertical className="w-4 h-4 text-muted-foreground/40 flex-shrink-0" />
+        <div className="flex-1">
           <p className="text-[10px] font-medium text-muted-foreground mb-1">Label</p>
           <input className={iCls} placeholder="e.g. Home" value={item.label} onChange={(e) => onChange("label", e.target.value)} />
         </div>
-        <div>
-          <p className="text-[10px] font-medium text-muted-foreground mb-1">URL</p>
-          <input className={iCls} placeholder="/home or https://..." value={item.url} onChange={(e) => onChange("url", e.target.value)} />
-        </div>
-        <div>
-          <p className="text-[10px] font-medium text-muted-foreground mb-1">Open in</p>
-          <select className={iCls} value={item.target} onChange={(e) => onChange("target", e.target.value)}>
-            <option value="_self">Same tab</option>
-            <option value="_blank">New tab</option>
-          </select>
+        <div className="flex flex-col gap-0.5 flex-shrink-0 mt-4">
+          <button type="button" onClick={onMoveUp} disabled={index === 0}
+            className="p-1 rounded text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors">
+            <ChevronUp className="w-3.5 h-3.5" />
+          </button>
+          <button type="button" onClick={onMoveDown} disabled={index === total - 1}
+            className="p-1 rounded text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors">
+            <ChevronDown className="w-3.5 h-3.5" />
+          </button>
+          <button type="button" onClick={onDelete}
+            className="p-1 rounded text-muted-foreground hover:text-rose-500 transition-colors">
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
-      <div className="flex flex-col gap-0.5 flex-shrink-0">
-        <button type="button" onClick={onMoveUp} disabled={index === 0}
-          className="p-1 rounded text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors">
-          <ChevronUp className="w-3.5 h-3.5" />
-        </button>
-        <button type="button" onClick={onMoveDown} disabled={index === total - 1}
-          className="p-1 rounded text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors">
-          <ChevronDown className="w-3.5 h-3.5" />
-        </button>
-        <button type="button" onClick={onDelete}
-          className="p-1 rounded text-muted-foreground hover:text-rose-500 transition-colors">
-          <Trash2 className="w-3.5 h-3.5" />
-        </button>
+
+      {/* Link type selector */}
+      <div>
+        <p className="text-[10px] font-medium text-muted-foreground mb-1.5">Link to</p>
+        <div className="flex gap-1">
+          {LINK_TYPES.map(({ value, label, icon: Icon }) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setLinkType(value)}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-medium border transition-colors flex-1 justify-center
+                ${linkType === value
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border text-muted-foreground hover:border-border hover:text-foreground hover:bg-muted/50"}`}
+            >
+              <Icon className="w-3 h-3" />
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Link content based on type */}
+      {linkType === "url" && (
+        <div>
+          <p className="text-[10px] font-medium text-muted-foreground mb-1">URL</p>
+          <input
+            className={iCls}
+            placeholder="e.g. /contact or https://example.com"
+            value={item.url}
+            onChange={(e) => onChange("url", e.target.value)}
+          />
+        </div>
+      )}
+
+      {linkType === "page" && (
+        <div>
+          <p className="text-[10px] font-medium text-muted-foreground mb-1.5">
+            Select page
+            {selectedPage && (
+              <span className="ml-2 font-normal text-muted-foreground">
+                → <span className="font-mono">/{selectedPage.slug}</span>
+              </span>
+            )}
+          </p>
+          {pages.length === 0 ? (
+            <p className="text-xs text-muted-foreground italic">No pages found.</p>
+          ) : (
+            <PickerList
+              items={pages}
+              selectedId={ref}
+              onSelect={selectPage}
+              placeholder="Search pages…"
+            />
+          )}
+        </div>
+      )}
+
+      {linkType === "blog" && (
+        <div>
+          <p className="text-[10px] font-medium text-muted-foreground mb-1.5">
+            Select blog post
+            {selectedBlog && (
+              <span className="ml-2 font-normal text-muted-foreground">
+                → <span className="font-mono">/blog/{selectedBlog.slug}</span>
+              </span>
+            )}
+          </p>
+          {blogs.length === 0 ? (
+            <p className="text-xs text-muted-foreground italic">No blog posts found.</p>
+          ) : (
+            <PickerList
+              items={blogs}
+              selectedId={ref}
+              onSelect={selectBlog}
+              placeholder="Search blog posts…"
+            />
+          )}
+        </div>
+      )}
+
+      {/* Open in */}
+      <div>
+        <p className="text-[10px] font-medium text-muted-foreground mb-1">Open in</p>
+        <select className={iCls} value={item.target} onChange={(e) => onChange("target", e.target.value)}>
+          <option value="_self">Same tab</option>
+          <option value="_blank">New tab</option>
+        </select>
       </div>
     </div>
   );
@@ -186,9 +365,16 @@ function MenuModal({
   const [form, setForm] = useState<EditState>(
     initial ?? { name: "", slug: "", visibility: ["all"], items: [] },
   );
+  const [pages, setPages] = useState<CmsPageListItem[]>([]);
+  const [blogs, setBlogs] = useState<CmsBlogListItem[]>([]);
 
   useEffect(() => {
-    if (open) setForm(initial ?? { name: "", slug: "", visibility: ["all"], items: [] });
+    if (!open) return;
+    setForm(initial ?? { name: "", slug: "", visibility: ["all"], items: [] });
+    // Fetch pages and blogs once when modal opens
+    Promise.all([cmsPages.list(), cmsBlogs.list()])
+      .then(([p, b]) => { setPages(p); setBlogs(b); })
+      .catch(() => {});
   }, [open, initial]);
 
   function handleName(name: string) {
@@ -215,6 +401,7 @@ function MenuModal({
   return (
     <Modal isOpen={open} onClose={onClose} title={isNew ? "Create Menu" : "Edit Menu"} maxWidth="lg">
       <div className="px-6 py-5 space-y-5">
+        {/* Name + Slug */}
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-medium text-foreground mb-1.5">
@@ -231,6 +418,7 @@ function MenuModal({
           </div>
         </div>
 
+        {/* Visibility */}
         <div>
           <label className="block text-xs font-medium text-foreground mb-2">Show on</label>
           <VisibilityMultiSelect value={form.visibility} onChange={(v) => setForm((f) => ({ ...f, visibility: v }))} />
@@ -239,6 +427,7 @@ function MenuModal({
           </p>
         </div>
 
+        {/* Items */}
         <div>
           <div className="flex items-center justify-between mb-2">
             <label className="text-xs font-medium text-foreground">Menu Items ({form.items.length})</label>
@@ -253,16 +442,22 @@ function MenuModal({
               <p className="text-xs text-muted-foreground">No items yet. Click "Add Item" to start.</p>
             </div>
           ) : (
-            <div className="space-y-2 max-h-60 overflow-y-auto pr-0.5">
+            <div className="space-y-2 max-h-[420px] overflow-y-auto pr-0.5">
               {form.items.map((item, i) => (
-                <ItemRow key={i} item={item} index={i} total={form.items.length}
-                  onChange={(f, v) => updateItem(i, f, v)} onDelete={() => deleteItem(i)}
-                  onMoveUp={() => moveItem(i, i - 1)} onMoveDown={() => moveItem(i, i + 1)} />
+                <ItemRow
+                  key={i} item={item} index={i} total={form.items.length}
+                  pages={pages} blogs={blogs}
+                  onChange={(f, v) => updateItem(i, f, v)}
+                  onDelete={() => deleteItem(i)}
+                  onMoveUp={() => moveItem(i, i - 1)}
+                  onMoveDown={() => moveItem(i, i + 1)}
+                />
               ))}
             </div>
           )}
         </div>
 
+        {/* Footer */}
         <div className="flex items-center justify-end gap-3 pt-2 border-t border-border">
           <button type="button" onClick={onClose}
             className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg transition-colors">
@@ -280,9 +475,7 @@ function MenuModal({
 
 // ─── Menu card ─────────────────────────────────────────────────────────────────
 
-function MenuCard({
-  menu, onEdit, onDelete,
-}: { menu: CmsMenu; onEdit: () => void; onDelete: () => void }) {
+function MenuCard({ menu, onEdit, onDelete }: { menu: CmsMenu; onEdit: () => void; onDelete: () => void }) {
   const itemCount = menu._count?.items ?? menu.items?.length ?? 0;
   return (
     <div className="flex items-start justify-between p-4 rounded-xl border border-border bg-card hover:border-primary/30 transition-colors">
@@ -298,12 +491,10 @@ function MenuCard({
         </p>
       </div>
       <div className="flex items-center gap-1 ml-3 flex-shrink-0">
-        <button onClick={onEdit}
-          className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+        <button onClick={onEdit} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
           <Pencil className="w-4 h-4" />
         </button>
-        <button onClick={onDelete}
-          className="p-2 rounded-lg text-muted-foreground hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors">
+        <button onClick={onDelete} className="p-2 rounded-lg text-muted-foreground hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors">
           <Trash2 className="w-4 h-4" />
         </button>
       </div>
@@ -331,7 +522,6 @@ export function MenusView() {
   useEffect(() => { loadMenus(); }, [loadMenus]);
 
   function openCreate() { setEditTarget(null); setModalOpen(true); }
-
   function openEdit(menu: CmsMenu) { setEditTarget(menu); setModalOpen(true); }
 
   async function handleSave(form: EditState) {
@@ -348,9 +538,7 @@ export function MenusView() {
         setMenus((prev) => [...prev, menu]);
       }
       setModalOpen(false);
-    } finally {
-      setSaving(false);
-    }
+    } finally { setSaving(false); }
   }
 
   async function handleDelete() {
@@ -364,19 +552,17 @@ export function MenusView() {
   }
 
   const editInitial: EditState | null = editTarget
-    ? { name: editTarget.name, slug: editTarget.slug, visibility: editTarget.visibility,
-        items: (editTarget.items ?? []).map((it) => ({ label: it.label, url: it.url, target: it.target })) }
+    ? {
+        name: editTarget.name, slug: editTarget.slug, visibility: editTarget.visibility,
+        items: (editTarget.items ?? []).map((it) => ({ label: it.label, url: it.url, target: it.target })),
+      }
     : null;
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        title="Menus"
-        description="Create navigation menus and attach them to blocks in the editor."
-      >
+      <PageHeader title="Menus" description="Create navigation menus and attach them to blocks in the editor.">
         <button onClick={openCreate}
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold
-            bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
+          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
           <Plus className="w-4 h-4" /> New Menu
         </button>
       </PageHeader>
@@ -396,8 +582,7 @@ export function MenusView() {
               <p className="text-xs text-muted-foreground mt-1">Create a menu and attach it to a nav block in the editor.</p>
             </div>
             <button onClick={openCreate}
-              className="mt-2 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold
-                bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
+              className="mt-2 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
               <Plus className="w-4 h-4" /> Create your first menu
             </button>
           </div>

@@ -434,13 +434,32 @@ export interface CmsPageData {
   isLandingPage: boolean;
 }
 
+export interface CmsPageListItem {
+  id: string;
+  title: string;
+  slug: string;
+  published: boolean;
+}
+
+export interface CmsBlogListItem {
+  id: string;
+  title: string;
+  slug: string;
+  published: boolean;
+}
+
 export const cmsPages = {
+  list: () => apiFetch<CmsPageListItem[]>("/cms/pages"),
   load: (slug: string) => apiFetch<CmsPageData>(`/cms/pages/${slug}`),
   save: (slug: string, content: string, publish = false) =>
     apiFetch<CmsPageData>(`/cms/pages/${slug}`, {
       method: "PATCH",
       body: JSON.stringify({ content, publish }),
     }),
+};
+
+export const cmsBlogs = {
+  list: () => apiFetch<CmsBlogListItem[]>("/cms/blogs"),
 };
 
 // ─── CMS menus ───────────────────────────────────────────

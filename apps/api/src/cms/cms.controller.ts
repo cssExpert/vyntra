@@ -21,6 +21,20 @@ export class CmsController {
   // ── Pages ─────────────────────────────────────────────────────────────────
 
   @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Get('pages')
+  listPages(@CurrentOrg() orgId: string | null) {
+    if (!orgId) throw new BadRequestException('No organization context');
+    return this.cmsService.listPages(orgId);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Get('blogs')
+  listBlogs(@CurrentOrg() orgId: string | null) {
+    if (!orgId) throw new BadRequestException('No organization context');
+    return this.cmsService.listBlogs(orgId);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
   @Get('pages/:slug')
   load(@CurrentOrg() orgId: string | null, @Param('slug') slug: string) {
     if (!orgId) throw new BadRequestException('No organization context');

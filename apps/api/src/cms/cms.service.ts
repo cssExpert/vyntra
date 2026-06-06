@@ -11,6 +11,22 @@ interface MenuItemInput {
 export class CmsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async listPages(orgId: string) {
+    return this.prisma.page.findMany({
+      where: { organizationId: orgId },
+      select: { id: true, title: true, slug: true, published: true },
+      orderBy: { title: 'asc' },
+    });
+  }
+
+  async listBlogs(orgId: string) {
+    return this.prisma.blog.findMany({
+      where: { organizationId: orgId },
+      select: { id: true, title: true, slug: true, published: true },
+      orderBy: { title: 'asc' },
+    });
+  }
+
   async loadPage(orgId: string, slug: string) {
     const page = await this.prisma.page.findFirst({
       where: { organizationId: orgId, slug },

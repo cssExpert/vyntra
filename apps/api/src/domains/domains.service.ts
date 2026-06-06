@@ -261,7 +261,31 @@ export class DomainsService {
       include: { items: { orderBy: { order: 'asc' } } },
     });
     if (!menu) throw new NotFoundException('Menu not found');
-    return menu;
+
+    // Resolve page:// and blog:// protocol references to live slugs
+    const resolvedItems = await Promise.all(
+      menu.items.map(async (item) => {
+        if (item.url.startsWith('page://')) {
+          const pageId = item.url.slice(7);
+          const page = await this.prisma.page.findFirst({
+            where: { id: pageId, organizationId: orgId, published: true },
+            select: { slug: true },
+          });
+          return { ...item, url: page ? `/${page.slug}` : '#' };
+        }
+        if (item.url.startsWith('blog://')) {
+          const blogId = item.url.slice(7);
+          const blog = await this.prisma.blog.findFirst({
+            where: { id: blogId, organizationId: orgId, published: true },
+            select: { slug: true },
+          });
+          return { ...item, url: blog ? `/blog/${blog.slug}` : '#' };
+        }
+        return item;
+      }),
+    );
+
+    return { ...menu, items: resolvedItems };
   }
 
   // ─── helpers ──────────────────────────────────────────────────────────────
