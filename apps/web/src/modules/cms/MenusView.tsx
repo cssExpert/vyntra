@@ -195,7 +195,7 @@ function PickerList<T extends { id: string; title: string; slug: string; publish
 
 // ─── Item row ─────────────────────────────────────────────────────────────────
 
-interface DraftItem { label: string; url: string; target: string }
+interface DraftItem { label: string; url: string; target: string; visibility: string[] }
 
 const LINK_TYPES: { value: LinkType; label: string; icon: React.ElementType }[] = [
   { value: "url", label: "Custom URL", icon: Globe },
@@ -208,7 +208,7 @@ function ItemRow({
 }: {
   item: DraftItem; index: number; total: number;
   pages: CmsPageListItem[]; blogs: CmsBlogListItem[];
-  onChange: (field: keyof DraftItem, value: string) => void;
+  onChange: (field: keyof DraftItem, value: string | string[]) => void;
   onDelete: () => void; onMoveUp: () => void; onMoveDown: () => void;
 }) {
   const iCls = "w-full rounded-md px-2.5 py-1.5 text-xs border border-border bg-background text-foreground focus:outline-none focus:border-primary transition-colors";
@@ -347,6 +347,15 @@ function ItemRow({
           <option value="_blank">New tab</option>
         </select>
       </div>
+
+      {/* Show on */}
+      <div>
+        <p className="text-[10px] font-medium text-muted-foreground mb-1.5">Show on</p>
+        <VisibilityMultiSelect
+          value={item.visibility}
+          onChange={(v) => onChange("visibility", v)}
+        />
+      </div>
     </div>
   );
 }
@@ -382,9 +391,9 @@ function MenuModal({
     setForm((f) => ({ ...f, name, ...(isNew ? { slug } : {}) }));
   }
   function addItem() {
-    setForm((f) => ({ ...f, items: [...f.items, { label: "", url: "", target: "_self" }] }));
+    setForm((f) => ({ ...f, items: [...f.items, { label: "", url: "", target: "_self", visibility: ["all"] }] }));
   }
-  function updateItem(i: number, field: keyof DraftItem, val: string) {
+  function updateItem(i: number, field: keyof DraftItem, val: string | string[]) {
     setForm((f) => { const items = [...f.items]; items[i] = { ...items[i], [field]: val }; return { ...f, items }; });
   }
   function deleteItem(i: number) {
@@ -554,7 +563,7 @@ export function MenusView() {
   const editInitial: EditState | null = editTarget
     ? {
         name: editTarget.name, slug: editTarget.slug, visibility: editTarget.visibility,
-        items: (editTarget.items ?? []).map((it) => ({ label: it.label, url: it.url, target: it.target })),
+        items: (editTarget.items ?? []).map((it) => ({ label: it.label, url: it.url, target: it.target, visibility: it.visibility ?? ["all"] })),
       }
     : null;
 

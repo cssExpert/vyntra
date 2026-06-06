@@ -101,7 +101,7 @@ export class CmsController {
   setItems(
     @CurrentOrg() orgId: string | null,
     @Param('id') id: string,
-    @Body() body: { items: { label: string; url: string; target?: string }[] },
+    @Body() body: { items: { label: string; url: string; target?: string; visibility?: string[] }[] },
   ) {
     if (!orgId) throw new BadRequestException('No organization context');
     return this.cmsService.setMenuItems(orgId, id, body.items);

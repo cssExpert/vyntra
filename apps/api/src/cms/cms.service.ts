@@ -5,6 +5,7 @@ interface MenuItemInput {
   label: string;
   url: string;
   target?: string;
+  visibility?: string[];
 }
 
 @Injectable()
@@ -14,7 +15,15 @@ export class CmsService {
   async listPages(orgId: string) {
     return this.prisma.page.findMany({
       where: { organizationId: orgId },
-      select: { id: true, title: true, slug: true, published: true },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        published: true,
+        isLandingPage: true,
+        createdAt: true,
+        updatedAt: true,
+      },
       orderBy: { title: 'asc' },
     });
   }
@@ -22,7 +31,15 @@ export class CmsService {
   async listBlogs(orgId: string) {
     return this.prisma.blog.findMany({
       where: { organizationId: orgId },
-      select: { id: true, title: true, slug: true, published: true },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        published: true,
+        author: true,
+        createdAt: true,
+        publishedAt: true,
+      },
       orderBy: { title: 'asc' },
     });
   }
@@ -136,6 +153,7 @@ export class CmsService {
           label: item.label,
           url: item.url,
           target: item.target ?? '_self',
+          visibility: item.visibility ?? ['all'],
           order: i,
           menuId,
         })),

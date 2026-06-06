@@ -439,6 +439,9 @@ export interface CmsPageListItem {
   title: string;
   slug: string;
   published: boolean;
+  isLandingPage: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CmsBlogListItem {
@@ -446,6 +449,9 @@ export interface CmsBlogListItem {
   title: string;
   slug: string;
   published: boolean;
+  author: string | null;
+  createdAt: string;
+  publishedAt: string | null;
 }
 
 export const cmsPages = {
@@ -468,6 +474,7 @@ export interface CmsMenuItem {
   label: string;
   url: string;
   target: string;
+  visibility: string[];
   order: number;
   menuId: string;
 }
@@ -492,7 +499,7 @@ export const cmsMenus = {
   update: (id: string, data: Partial<Pick<CmsMenu, "name" | "slug" | "visibility">>) =>
     apiFetch<CmsMenu>(`/cms/menus/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
   delete: (id: string) => apiFetch<{ ok: boolean }>(`/cms/menus/${id}`, { method: "DELETE" }),
-  setItems: (id: string, items: Pick<CmsMenuItem, "label" | "url" | "target">[]) =>
+  setItems: (id: string, items: Pick<CmsMenuItem, "label" | "url" | "target" | "visibility">[]) =>
     apiFetch<CmsMenu>(`/cms/menus/${id}/items`, {
       method: "PUT",
       body: JSON.stringify({ items }),

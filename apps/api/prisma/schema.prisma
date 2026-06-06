@@ -362,13 +362,14 @@ model Menu {
 }
 
 model MenuItem {
-  id      String @id @default(cuid())
-  label   String
-  url     String
-  target  String @default("_self")
-  order   Int    @default(0)
-  menuId  String
-  menu    Menu   @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  label      String
+  url        String
+  target     String   @default("_self")
+  visibility String[] @default(["all"])
+  order      Int      @default(0)
+  menuId     String
+  menu       Menu     @relation(fields: [menuId], references: [id], onDelete: Cascade)
 
   @@index([menuId])
   @@map("menu_items")

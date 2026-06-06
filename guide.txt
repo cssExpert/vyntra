@@ -1,0 +1,44 @@
+# Vyntra Services Guide
+
+## Database Management (pgAdmin)
+
+Because this project uses PostgreSQL, we use pgAdmin instead of phpMyAdmin to manage the database.
+
+### 1. How to start the service
+Open your terminal in the `infrastructure` folder and run:
+`docker-compose up -d`
+This will start the database and the pgAdmin interface in the background.
+
+### 2. How to access pgAdmin
+Open your web browser and go to:
+http://localhost:5050
+
+### 3. How to log in
+Use the following default credentials:
+- Email: admin@vyntra.com
+- Password: admin
+
+### 4. How to connect pgAdmin to your Database
+Once logged in, pgAdmin needs to be told how to connect to the database container.
+1. In the "Quick Links" section on the dashboard, click **Add New Server** (or right-click "Servers" in the left sidebar -> Register -> Server...).
+2. In the **General** tab:
+   - Name: Vyntra DB (or anything you prefer)
+3. In the **Connection** tab, enter exactly these details:
+   - Host name/address: `postgres` (This targets the docker container exactly by its service name)
+   - Port: `5432`
+   - Maintenance database: `vyntra_db`
+   - Username: `vyntra`
+   - Password: `vyntra_dev_password`
+   - Save password: Check the box
+4. Click **Save**.
+
+### 5. How to view your Data
+1. In the left sidebar, expand **Servers** -> **Vyntra DB**.
+2. Navigate to: **Databases -> vyntra_db -> Schemas -> public -> Tables**.
+3. You will see all your database tables here (e.g., pages, users).
+4. To view the data, right-click a table -> **View/Edit Data** -> **All Rows**. This opens a spreadsheet-like view on the right side.
+
+### 6. How to run Custom SQL Queries
+1. Right-click on your database (`vyntra_db`) in the left sidebar.
+2. Select **Query Tool**.
+3. Type your SQL query (e.g., `SELECT * FROM pages;`) and click the "Play/Run" (triangle) button in the top toolbar.
