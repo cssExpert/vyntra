@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
@@ -147,6 +148,15 @@ export class DomainsController {
   @Get('public/sites/:orgId/pages/:slug')
   getPage(@Param('orgId') orgId: string, @Param('slug') slug: string) {
     return this.domainsService.getPublishedPage(orgId, slug);
+  }
+
+  @Public()
+  @Get('public/sites/:orgId/layout')
+  getPublicLayout(
+    @Param('orgId') orgId: string,
+    @Query('layoutId') layoutId?: string,
+  ) {
+    return this.domainsService.getPublicLayout(orgId, layoutId || undefined);
   }
 
   @Public()

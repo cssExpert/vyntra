@@ -111,6 +111,7 @@ model Organization {
   media          Media[]
   websiteConfigs WebsiteConfig[]
   menus          Menu[]
+  layouts        Layout[]
 
   // CRM (org-scoped)
   leads      Lead[]
@@ -241,6 +242,23 @@ model AuditLog {
 //  CMS (org-scoped) — controllers implemented in a later phase
 // ════════════════════════════════════════════════════════════════════
 
+model Layout {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  isDefault      Boolean  @default(false)
+  navMenuId      String?
+  footerColumns  Json     @default("[]")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  pages        Page[]
+
+  @@index([organizationId])
+  @@map("layouts")
+}
+
 model Page {
   id             String    @id @default(cuid())
   title          String
@@ -252,10 +270,12 @@ model Page {
   publishedAt    DateTime?
   isLandingPage  Boolean   @default(false)
   organizationId String
+  layoutId       String?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  layout       Layout?      @relation(fields: [layoutId], references: [id], onDelete: SetNull)
   comments     Comment[]
 
   @@unique([organizationId, slug])

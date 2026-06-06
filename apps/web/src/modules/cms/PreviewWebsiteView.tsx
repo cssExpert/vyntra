@@ -23,7 +23,7 @@ const DEVICES: { id: Device; label: string; icon: LucideIcon; width: string }[] 
   ];
 
 export function PreviewWebsiteView() {
-  const { previewUrl, hasDomain } = useSitePreviewUrl();
+  const { previewUrl } = useSitePreviewUrl();
   const [device, setDevice] = useState<Device>("desktop");
   const [reloadKey, setReloadKey] = useState(0);
 
@@ -97,7 +97,7 @@ export function PreviewWebsiteView() {
 
       {/* Canvas */}
       <div className="flex-1 overflow-auto bg-muted/40 flex items-start justify-center p-6">
-        {!hasDomain ? (
+        {!siteUrl ? (
           <NoDomainState />
         ) : (
           <motion.div
