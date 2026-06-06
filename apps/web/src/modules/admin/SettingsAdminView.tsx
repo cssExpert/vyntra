@@ -525,10 +525,14 @@ function Inner() {
   );
 }
 
-export function SettingsAdminView() {
+export function AppSettingsView() {
   return (
     <AdminGuard>
       <Inner />
     </AdminGuard>
   );
+}
+
+export function SettingsAdminView() {
+  return <AppSettingsView />;
 }

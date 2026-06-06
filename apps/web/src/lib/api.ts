@@ -141,6 +141,37 @@ export interface AdminSettings {
   enableRegistration: boolean;
   enableSocialAuth: boolean;
   maintenanceMode: boolean;
+  storageProvider?: "local" | "s3" | "uploadthing" | "vercel-blob";
+  s3Config?: {
+    bucket: string;
+    region: string;
+    accessKeyId: string;
+    secretAccessKey: string;
+  } | null;
+  uploadthingConfig?: {
+    apiKey: string;
+  } | null;
+  vercelBlobConfig?: {
+    token: string;
+  } | null;
+  emailProvider?: "smtp" | "sendgrid" | "mailgun";
+  smtpConfig?: {
+    host: string;
+    port: number;
+    secure: boolean;
+    fromEmail: string;
+    username?: string;
+    password?: string;
+  } | null;
+  sendgridConfig?: {
+    apiKey: string;
+    fromEmail: string;
+  } | null;
+  mailgunConfig?: {
+    apiKey: string;
+    domain: string;
+    fromEmail: string;
+  } | null;
   createdAt: string;
   updatedAt: string;
 }

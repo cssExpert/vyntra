@@ -42,3 +42,4 @@
 - Ask for approval before inspecting additional files.
 - Follow same Table structure added on other pages [@tanstack/react-table].
 - Use reusable component as possible.
+what
