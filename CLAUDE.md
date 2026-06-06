@@ -1,272 +1,347 @@
-<<<<<<< Updated upstream
-# Project: [ERV]
+# Vyntra — Project Rules (CLAUDE.md)
 
-## Tech Stack
-- [Framework], [Language + version]
-- [Database], [Key libraries]
+> **This file is loaded into every Claude Code session automatically.**
+> Every team member and every AI assistant must follow these rules exactly.
+> **Apply them without asking for confirmation.**
 
-## Commands
-- Dev: [command]
-- Build: [command]
-- Test: [command]
-- Lint: [command]
+---
 
-## Architecture
-- [Where services live]
-- [Where routes/views live]
-- [Where models/types live]
-- [Where tests live]
+## 0. Working Principles (Read First)
 
-## Code Style
-- [Rule 1 — be specific]
-- [Rule 2]
-- [Rule 3]
+These govern how Claude behaves during every task in this repo:
 
-## Rules
-- ALWAYS run tests after changes
-- ALWAYS use TypeScript strict mode
-- NEVER commit directly to main
-- Keep files under 300 lines — split if larger
-
-## Read and follow
-- Do not expand scope beyond the files explicitly mentioned.
-- Ask for approval before inspecting additional files.
-- Follow same Table structure added before.
-- Use reusable component as possible.
-=======
-# Vyntra — CLAUDE.md
-
-> **This file is loaded into every Claude Code session automatically.**  
-> It defines the rules, conventions, and constraints that govern all work on this
-> codebase — for every team member and every AI assistant.  
-> **Always follow these rules. Do not ask for confirmation before applying them.**
+- **Do not expand scope** beyond the files explicitly mentioned in the task.
+- **Ask for approval** before reading or modifying additional files not directly related to the task.
+- **Follow the same table/component structure** already established in the file you are editing — do not invent new patterns.
+- **Use reusable components** wherever one already exists; build a new one only if nothing fits.
+- **Keep files under 300 lines** — split into smaller files if a file grows beyond this.
+- **No speculative code** — do not add features, abstractions, error handling, or fallbacks for scenarios not in the current task.
+- **No comments that describe WHAT** — only add a comment when the WHY is non-obvious (hidden constraint, tricky workaround). Never describe what the code does.
+- **Never commit directly to `main`** — all changes go through a branch + PR.
+- **Always run `tsc --noEmit`** on the affected workspace before reporting a task complete.
 
 ---
 
 ## 1. Project Overview
 
-Vyntra is a **multi-tenant SaaS platform** (CMS + CRM + more).
+**Vyntra** is a multi-tenant SaaS platform (CMS + CRM + more modules).
 
-| Layer | Technology | Location |
+| Layer | Tech | Location |
 |---|---|---|
-| Frontend | Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS 3 | `apps/web/src/` |
-| Backend | NestJS 10, Prisma ORM, PostgreSQL 16 | `apps/api/src/` |
-| Shared types | `@vyntra/types` (must be built before API) | `libs/types/` |
-| Package manager | **pnpm only** — never npm or yarn | root `pnpm-lock.yaml` |
+| Frontend | Next.js 15 (App Router), React 19, TypeScript 5, Tailwind CSS 3 | `apps/web/src/` |
+| Backend | NestJS 10, Prisma 5, PostgreSQL 16 | `apps/api/src/` |
+| Shared types | `@vyntra/types` — build before API | `libs/types/` |
+| Package manager | **pnpm only** — never npm/yarn | root `pnpm-lock.yaml` |
 
 ---
 
-## 2. How to Run
+## 2. Commands
 
 ```bash
-# Start everything
-pnpm dev           # runs all workspace packages in parallel
+# Dev
+pnpm dev           # all packages in parallel
+pnpm dev:web       # Next.js only → http://localhost:3000
+pnpm dev:api       # NestJS only  → http://localhost:3001/api
 
-# Individually
-pnpm dev:web       # Next.js frontend  → http://localhost:3000
-pnpm dev:api       # NestJS API        → http://localhost:3001/api
+# Build
+pnpm build         # build:types → build:web → build:api
+pnpm build:types   # MUST run before API builds/starts
 
-# Database (no Docker on this Mac — uses Homebrew Postgres 16)
-# role: vyntra / vyntra_dev_password  db: vyntra_db
-pnpm db:migrate    # run pending migrations
+# Database (Homebrew Postgres 16 — no Docker on this Mac)
+# role: vyntra / vyntra_dev_password   db: vyntra_db
+pnpm db:migrate    # apply pending migrations
 pnpm db:seed       # seed test data
 pnpm db:studio     # Prisma Studio UI
-pnpm build:types   # must run before building/starting API
+
+# Quality
+pnpm lint          # ESLint (web + api)
+pnpm type-check    # tsc --noEmit (web + api)
 ```
 
-**Seeded test accounts** (password `ChangeMe123!`):
+**Seeded accounts** (password `ChangeMe123!`):
 - `superadmin@vyntra.com` — platform super admin
 - `admin@acme.com` — Acme Corp ORG_ADMIN (Pro plan)
 - `editor@acme.com` — Acme Corp editor
 
 ---
 
-## 3. Architecture Rules
+## 3. TypeScript Rules
 
-### 3.1 Monorepo
-
-- **pnpm only** — never create `package-lock.json` or `yarn.lock`.
-- Shared code belongs in `libs/types`. Run `pnpm build:types` whenever types change.
-- The root `tsconfig.json` only checks the frontend (`apps/web`). The API has its own.
-
-### 3.2 Multi-tenancy
-
-- Every data model is org-scoped via `organizationId`. **Never** return data from a different org.
-- The Prisma model is `Organization` / table `organizations` — this is intentional and must not be renamed (the DB entity stays; only the super-admin UI surface says "Company").
-- Super-admin routes start with `/api/admin/`. They are guarded by `@SuperAdminOnly()` and the `User.superAdmin` flag.
-- Tenant-facing routes for the current org use `@CurrentOrg()` decorator; never accept an `orgId` from request body.
-
-### 3.3 Auth
-
-- JWT (access + refresh) stored in `localStorage` on the frontend.
-- Guard order (global): `JwtAuthGuard → RolesGuard → ModuleAccessGuard`
-- Opt out with `@Public()` on a route.
-- Roles: `SUPER_ADMIN | ORG_ADMIN | EDITOR | USER | VIEWER`
-- Module gating: `@RequireModule('CMS')` etc. Super admins bypass all module checks.
-
-### 3.4 Packages → Modules entitlement
-
-`Package` grants `Module`s via `PackageModule`. An org gets one package via `Subscription`.
-`ModuleAccessGuard` + `@RequireModule()` gate feature endpoints.  
-`GET /api/organizations/me` returns the resolved `modules: string[]` for the org.
+- **Strict mode always** — `"strict": true` is set in both `tsconfig.json` files. Never disable it.
+- No `any` without a justifying comment. Prefer `unknown` + type narrowing.
+- No `// @ts-ignore` or `// @ts-expect-error` without an explanation comment.
+- Explicit return types on exported functions and service methods.
+- Use `satisfies` operator for Prisma select objects (`satisfies Prisma.UserSelect`).
+- Prefer `type` over `interface` for plain data shapes; use `interface` only when extension is the intent.
 
 ---
 
-## 4. Frontend Rules
+## 4. Next.js 15 App Router Rules
 
-### 4.1 File & Folder Conventions
+### 4.1 Server vs Client Components
+
+- **Default to Server Components.** Only add `"use client"` when you need:
+  - `useState` / `useReducer` / `useEffect` / `useRef`
+  - Browser APIs (`window`, `localStorage`, `navigator`)
+  - Event handlers (`onClick`, `onChange`, etc.)
+  - Third-party client-only libraries
+- Never put `"use client"` on a page just because it fetches data — use Server Components for data fetching.
+- Keep the client boundary as **deep as possible** — push `"use client"` down to leaf components, not page wrappers.
+
+### 4.2 Data Fetching
+
+- Fetch data in **Server Components** using `async/await` directly — no `useEffect` for initial data.
+- For **client-side** fetching (interactive, user-triggered): use `apiFetch()` from `src/lib/api.ts` inside `useEffect` or event handlers.
+- Never use `getServerSideProps` or `getStaticProps` — those are Pages Router patterns.
+- Use `cache: 'no-store'` for dynamic data, `cache: 'force-cache'` for static.
+
+### 4.3 Routing & File Conventions
 
 ```
-apps/web/src/
-  app/(dashboard)/         Next.js App Router pages (route segments)
-  components/
-    common/                Shared presentational (Modal, Toaster, …)
-    ui/                    Design-system atoms (PageHeader, StatusBadge, …)
-    layout/                AppSidebar, TopBar, etc.
-  modules/                 Feature modules — one folder per domain
-    admin/                 Super-admin views (Companies, Packages, …)
-    cms/                   CMS feature views
-    crm/                   CRM feature views (mock data; not yet wired)
-  lib/
-    api.ts                 Thin HTTP client — all API calls go here
-    utils.ts               `cn()` and other pure utils
-  constants/
-    navigation.ts          NAV_SECTIONS + SUPER_ADMIN_NAV
-  providers/               React context providers (Auth, Settings, …)
-  hooks/                   Custom React hooks
+app/
+  (dashboard)/          Route group — shares the dashboard layout
+    admin/
+      companies/
+        page.tsx         → /admin/companies
+        [id]/
+          page.tsx       → /admin/companies/:id
+    layout.tsx           Dashboard shell (sidebar + topbar)
+  (auth)/
+    login/page.tsx       → /login
+  layout.tsx             Root layout (fonts, providers, theme)
+  not-found.tsx          Global 404
+  error.tsx              Global error boundary
 ```
 
-### 4.2 Styling
+- **`page.tsx`** — the route UI. Keep it thin (import + render a View component).
+- **`layout.tsx`** — persistent shell. Do not fetch per-request data here unless necessary.
+- **`loading.tsx`** — automatic Suspense boundary. Add for routes with async data.
+- **`error.tsx`** — must be `"use client"`. Catches render errors in a segment.
+- **`not-found.tsx`** — call `notFound()` from `next/navigation` to trigger it.
+- Dynamic segment params in Next 15 are `Promise<{ id: string }>` — always `await params`.
 
-- **Tailwind CSS only** — no inline `style={}` except for dynamic values (e.g. `style={{ backgroundColor: color }}`).
-- Use CSS custom property tokens: `bg-primary`, `text-muted-foreground`, `border-border`, `bg-card`, `text-error`, `bg-success`, etc. See `tailwind.config.ts` for the full token set.
-- Dark mode is via `next-themes`. Use semantic token classes (they flip automatically); never use raw `dark:` variants for semantic colors.
-- Consistent spacing: form inputs use `adminInput` from `AdminGuard.tsx`. Cards use `rounded-xl border border-border bg-card`. Table headers use `bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground`.
+### 4.4 Dynamic Routes — Correct Pattern
 
-### 4.3 Forms & Validation
+```tsx
+// ✅ Next.js 15 — params is a Promise
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  return <MyView itemId={id} />;
+}
+```
 
-- **Touch-based validation**: show errors per field on blur, not on every keystroke.
-- **Force-reveal on submit/continue**: if the user tries to advance with errors, reveal all blocking fields at once.
-- **Never disable Continue/Submit without explaining why** — allow the click, then show inline errors.
-- Required fields: always mark with `<span className="ml-0.5 text-error">*</span>`.
-- Error messages render below the field with `<AlertCircle>` icon and `text-xs text-error`.
-- Email: `/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())`
-- URL: `new URL(v)` guard — require `http:` or `https:` protocol.
-- Phone: mask input as user types (strip non-digits/+, format with spaces). Use `maskPhone()` from `AddCompanyModal.tsx` as the pattern.
-- Password: min 8 chars + show a 4-segment strength bar (Weak/Fair/Good/Strong).
+### 4.5 Metadata
 
-### 4.4 API Client (`src/lib/api.ts`)
+- Export `metadata` or `generateMetadata` from every `page.tsx`.
+- Minimum: `title` and `description`.
+- For dynamic pages use `generateMetadata`:
 
-- **All API calls go through `apiFetch()`** — never use raw `fetch()` in components.
-- Add new shapes and endpoint functions to `api.ts` before wiring them in views.
-- Types for super-admin entities: prefix with `Admin` (e.g. `AdminCompany`, `AdminPackage`).
-- Types for tenant-scoped entities: use domain prefix (e.g. `CmsPageData`).
+```tsx
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  return { title: `Company ${id}` };
+}
+```
 
-### 4.5 Toasts / Notifications
+### 4.6 Images
 
-- Use the project's `useToaster` + `<Toaster>` (from `src/components/common/Toaster.tsx`).
-- Always show a toast on success AND on error for user-initiated actions.
-- Types: `"success" | "error" | "info" | "warning"`.
-- Do **not** install `sonner`, `react-hot-toast`, or any other toast library.
+- Always use `next/image` (`<Image>`), never `<img>` — except inside client components where the image `src` is a base64 data URL (e.g. logo preview) where `<img>` is acceptable and intentional. Add `{/* eslint-disable-next-line @next/next/no-img-element */}` on the line before.
+- Always provide `width`, `height` or `fill` + `sizes`.
+- Remote images: add the domain to `next.config.ts` `images.remotePatterns`.
 
-### 4.6 Navigation
+### 4.7 Links & Navigation
 
-- Regular users: `NAV_SECTIONS` filtered by `hasModule()`.
-- Super admins: `SUPER_ADMIN_NAV` (no module gating).
-- Both are in `src/constants/navigation.ts`.
+- Use `<Link>` from `next/link` for internal navigation — never `<a href>`.
+- Use `useRouter()` from `next/navigation` for programmatic navigation in client components.
+- Prefetch is on by default — only disable with `prefetch={false}` if the destination is heavy or rarely visited.
 
-### 4.7 Component Patterns
+### 4.8 Fonts
 
-- Super-admin views: export a `XxxAdminView` component that wraps `<AdminGuard>` around `<Inner>`.
-- Detail pages: accept `xyzId: string` prop; fetch in an `Inner` component; guard with `<AdminGuard>`.
-- Modals: use the shared `<Modal>` component — never create raw `<dialog>` or custom overlay.
-- Tables: use `<table>` with the standard `rounded-xl border border-border bg-card` wrapper.
-- Empty states: centered icon + text inside the table `<td colSpan={n}>`.
+- Load fonts in the root `layout.tsx` using `next/font`.
+- Pass font class names via `className` to `<html>` — do not use CSS `@import`.
 
----
+### 4.9 Environment Variables
 
-## 5. Backend Rules (NestJS / Prisma)
+- `NEXT_PUBLIC_*` — exposed to the browser; keep to a minimum.
+- Server-only vars — never prefix with `NEXT_PUBLIC_`.
+- Access in Server Components directly via `process.env.VAR`.
+- Access in Client Components: only `NEXT_PUBLIC_*` vars.
+- Never hardcode secrets anywhere; use `.env.local` (gitignored).
 
-### 5.1 Controllers
+### 4.10 Performance Rules
 
-- Super-admin routes: use `@SuperAdminOnly()` decorator, prefix path with `admin/`.
-- Tenant routes: use `@CurrentOrg()` to get `organizationId` — **never** read it from `@Body()`.
-- One controller per domain module. Super-admin sub-routes can be in a separate `admin-*.controller.ts`.
-
-### 5.2 DTOs & Validation
-
-- Every request body must have a DTO with `class-validator` decorators.
-- `ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })` is global — all unknown fields are stripped.
-- Optional fields: always `@IsOptional()` + the type decorator.
-- Passwords: `@MinLength(8)` minimum. Never log or return raw passwords.
-
-### 5.3 Services & Transactions
-
-- Business logic lives in services, not controllers.
-- Any operation that writes to multiple tables **must** use `prisma.$transaction()`.
-- Example: `OrganizationsService.create` creates company + subscription + first admin user atomically.
-- `findOne` in admin services should throw `NotFoundException` when the record is missing.
-
-### 5.4 Prisma
-
-- Schema file: `apps/api/prisma/schema.prisma`.
-- **Never use `db push` in dev** — always use `prisma migrate dev` or create a manual migration SQL file. `db push` creates drift.
-- Migrations go in `apps/api/prisma/migrations/`. Name them descriptively (e.g. `add_company_profile_fields`).
-- If a migration records as started-but-unfinished due to past `db push`: `npx prisma migrate resolve --applied <migration_name>`.
-- Always run `npx prisma generate` after schema changes.
-- `SAFE_SELECT` pattern: never return password hashes. Define a `Prisma.UserSelect` constant and reuse it.
-
-### 5.5 Auth & Security
-
-- Passwords: bcrypt via `bcryptjs` (not native `bcrypt`) for Windows compatibility.
-- Salt rounds from env `BCRYPT_SALT_ROUNDS`, default 10.
-- Never expose `password` field in any API response.
-- CORS origins set via `CORS_ORIGINS` env var (comma-separated).
+- Use `React.Suspense` boundaries around slow client components.
+- Avoid large client bundles — check with `pnpm build` and inspect output sizes.
+- Do not import server-only libraries into client components.
+- Use `dynamic(() => import('...'), { ssr: false })` for client-only heavy components (e.g. rich-text editor).
 
 ---
 
-## 6. What We NEVER Do
+## 5. React Rules
+
+- **No class components** — function components only.
+- **No prop-drilling beyond 2 levels** — use Context or a dedicated state store (Zustand is available).
+- Memoisation: use `useMemo` / `useCallback` only when you can measure a performance problem. Do not add them speculatively.
+- Avoid `useEffect` for derived state — compute it inline or with `useMemo`.
+- Keys in lists: use stable IDs (e.g. `item.id`), never array index unless the list is static and never reorders.
+- Component naming: PascalCase. File names match the component name.
+- One component per file for anything non-trivial. Small helper components (< 30 lines) can live at the bottom of the file that uses them.
+
+---
+
+## 6. Styling Rules (Tailwind CSS)
+
+- **Tailwind classes only** — no CSS modules, no styled-components, no inline `style={}` except dynamic values that can't be expressed as utilities (e.g. `style={{ backgroundColor: form.primaryColor }}`).
+- Use semantic design-token classes: `bg-primary`, `text-muted-foreground`, `border-border`, `bg-card`, `text-foreground`, `text-error`, `bg-success`, etc. See `tailwind.config.ts` for the full list.
+- Dark mode via `next-themes` + semantic tokens — they flip automatically. Never write raw `dark:bg-gray-900` for semantic colours.
+- Use `cn()` from `src/lib/utils.ts` for conditional class merging — never string interpolation.
+- **Consistent UI patterns** (do not deviate without a design reason):
+  - Form inputs: `adminInput` class from `AdminGuard.tsx`
+  - Cards: `rounded-xl border border-border bg-card p-5`
+  - Table wrapper: `overflow-hidden rounded-xl border border-border bg-card`
+  - Table header: `bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground`
+  - Buttons (primary): `rounded-lg bg-foreground px-3 py-2 text-sm font-semibold text-background hover:opacity-90 transition cursor-pointer`
+  - Buttons (outline): `rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted transition cursor-pointer`
+
+---
+
+## 7. Forms & Validation Rules
+
+- **Touch-based errors**: show field errors on `blur`, not on every keystroke.
+- **Force-reveal on submit/continue**: if user tries to advance, expose all blocking-step errors at once.
+- **Never disable the submit/continue button silently** — allow the click and show inline errors.
+- Required fields: label includes `<span className="ml-0.5 text-error">*</span>`.
+- Error display: `<AlertCircle className="h-3 w-3" />` + message in `text-xs text-error` below the field.
+- Error border: add `border-error focus:border-error focus:ring-error/20` on the input.
+- Validation patterns:
+  - Email: `/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())`
+  - URL: `new URL(v)` — must have `http:` or `https:` protocol
+  - Phone: mask on input (`maskPhone()` pattern from `AddCompanyModal.tsx`)
+  - Password: min 8 chars + 4-segment strength bar (Weak / Fair / Good / Strong)
+
+---
+
+## 8. Component Architecture Rules
+
+- **Super-admin views**: `export function XxxAdminView() { return <AdminGuard><Inner /></AdminGuard>; }`
+- **Detail pages**: thin `page.tsx` → `XxxDetailView({ xyzId })` → `<AdminGuard><Inner /></AdminGuard>`
+- **Modals**: always use the shared `<Modal>` component — never `<dialog>` or custom overlay divs.
+- **Tables**: standard wrapper + `<table>`. Empty state in `<td colSpan={n}>` with centered icon + text.
+- **Toasts**: `useToaster` + `<Toaster>` from `src/components/common/Toaster.tsx`. Always toast on success AND error.
+- **File uploads**: convert to base64 data URL via `FileReader` (API accepts up to 50 MB). No S3/multer.
+- **Navigation**: `SUPER_ADMIN_NAV` for super-admins; `NAV_SECTIONS` filtered by `hasModule()` for org users. Both in `src/constants/navigation.ts`.
+
+---
+
+## 9. API Client Rules (`src/lib/api.ts`)
+
+- **All HTTP calls go through `apiFetch()`** — never raw `fetch()` in components.
+- Add types and endpoint functions to `api.ts` **before** wiring them in views.
+- Type naming:
+  - Super-admin shapes: `Admin` prefix (e.g. `AdminCompany`, `AdminPackage`)
+  - Tenant-scoped shapes: domain prefix (e.g. `CmsPageData`, `CrmContact`)
+- The `admin` object groups all super-admin endpoints. The `orgDomain` object groups domain endpoints.
+
+---
+
+## 10. Backend Rules (NestJS / Prisma)
+
+### Controllers
+- Super-admin routes: `@SuperAdminOnly()` + path prefix `admin/`.
+- Tenant routes: `@CurrentOrg()` decorator for `organizationId` — **never** read it from `@Body()`.
+- One controller per domain. Super-admin variants in `admin-*.controller.ts`.
+
+### DTOs & Validation
+- Every `@Body()` has a DTO with `class-validator` decorators.
+- Global `ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })` — unknown fields are stripped.
+- `@IsOptional()` before every optional field decorator.
+- Passwords: `@MinLength(8)`. Never log or return them.
+
+### Services & Transactions
+- All business logic in services, not controllers.
+- Multi-table writes **must** use `prisma.$transaction()`.
+- `findOne` throws `NotFoundException` when record is missing.
+
+### Prisma
+- **Never `prisma db push`** in dev — always `prisma migrate dev` or a manual migration SQL file. `db push` creates untracked drift.
+- After every schema change: `npx prisma generate`.
+- Migration naming: descriptive snake_case (e.g. `add_company_profile_fields`).
+- If a migration is recorded started-but-unfinished: `npx prisma migrate resolve --applied <name>`.
+- `SAFE_SELECT` pattern: define a `Prisma.UserSelect` constant, reuse it. Never return `password`.
+
+### Auth & Security
+- bcrypt via `bcryptjs` (not native `bcrypt`) — Windows team member compatibility.
+- Salt rounds from `BCRYPT_SALT_ROUNDS` env, default 10.
+- CORS origins from `CORS_ORIGINS` env (comma-separated).
+
+---
+
+## 11. Git Rules
+
+- **Never commit directly to `main`**.
+- Branch naming: `feat/<topic>`, `fix/<topic>`, `chore/<topic>`.
+- Never use `git add -A` or `git add .` — stage specific files to avoid accidentally committing `.env`.
+- Never skip hooks (`--no-verify`) without explicit user approval.
+- Commit messages: imperative mood, concise, describe the WHY not the WHAT.
+
+---
+
+## 12. What We NEVER Do
 
 | ❌ Never | ✅ Instead |
 |---|---|
-| `npm install` or `yarn add` | `pnpm add` |
+| `npm install` / `yarn add` | `pnpm add` |
 | Raw `fetch()` in a component | `apiFetch()` from `api.ts` |
-| `prisma db push` in development | `prisma migrate dev` or manual migration |
-| Disable the linter (`eslint-disable`) | Fix the actual issue |
-| Add `any` types without a comment | Narrow the type properly |
-| Commit `.env` files | Keep secrets in `.env.local` (gitignored) |
-| Create a new toast/modal library | Use existing `useToaster` / `<Modal>` |
-| Call `@CurrentOrg()` data from request body | Use the `@CurrentOrg()` decorator |
-| Rename the `organizations` Prisma model/table | Keep DB stable; rename only the UI layer |
-| Write multi-paragraph JSDoc / comment blocks | One short comment only when the WHY is non-obvious |
-| Add `console.log` to production code | Use NestJS `Logger` on the API side |
-| `git add -A` or `git add .` blindly | Stage specific files to avoid leaking secrets |
+| `prisma db push` in dev | `prisma migrate dev` or manual SQL migration |
+| `eslint-disable` without reason | Fix the actual issue |
+| `any` type without comment | Narrow properly or use `unknown` |
+| Commit `.env` files | `.env.local` (gitignored) |
+| New toast or modal library | Existing `useToaster` / `<Modal>` |
+| Read `orgId` from request body | `@CurrentOrg()` decorator |
+| Rename `Organization` Prisma model | Keep DB stable; rename UI layer only |
+| Multi-paragraph comment blocks | One line max, only when WHY is non-obvious |
+| `console.log` in production | `NestJS Logger` on API side |
+| `<img>` for internal images | `next/image` (`<Image>`) |
+| `<a href>` for internal links | `next/link` (`<Link>`) |
+| `getServerSideProps` / `getStaticProps` | App Router Server Components |
+| Array index as React key on dynamic lists | Stable `item.id` |
+| Commit directly to `main` | Branch + PR |
 
 ---
 
-## 7. Adding a New Feature — Checklist
+## 13. Adding a New Feature — Checklist
 
-- [ ] **Backend**: DTO with validators → Service (use transaction if multi-table) → Controller (correct guard) → add to `api.ts` types and endpoint functions
-- [ ] **Frontend**: update `api.ts` types first → build view in `src/modules/<domain>/` → add page in `src/app/(dashboard)/` → update navigation if needed
-- [ ] **DB change**: write migration SQL → `prisma migrate deploy` → `prisma generate`
-- [ ] Toasts on every user-initiated success and error
-- [ ] Touch-based form validation with inline error messages
-- [ ] `tsc --noEmit` passes on both API and web before committing
+- [ ] Read only the files directly relevant to the task; ask before expanding scope
+- [ ] **Backend**: DTO → Service (transaction if multi-table) → Controller (correct guard) → `api.ts` types + endpoint
+- [ ] **Frontend**: `api.ts` types first → view in `src/modules/<domain>/` → thin `page.tsx` → navigation update if needed
+- [ ] **DB change**: SQL migration file → `prisma migrate deploy` → `prisma generate`
+- [ ] Toast on every user-initiated success and error
+- [ ] Touch-based validation + inline error messages on all forms
+- [ ] `tsc --noEmit` exits 0 on both `apps/web` and `apps/api`
+- [ ] No new `any` types introduced
 
 ---
 
-## 8. Key File Locations (Quick Reference)
+## 14. Key File Locations
 
 | File | Purpose |
 |---|---|
-| `apps/web/src/lib/api.ts` | All frontend ↔ API communication |
+| `apps/web/src/lib/api.ts` | All frontend ↔ API calls |
 | `apps/web/src/constants/navigation.ts` | Sidebar nav (user + super-admin) |
 | `apps/web/src/modules/admin/AdminGuard.tsx` | Super-admin gate + `adminInput` CSS class |
-| `apps/web/src/components/common/Modal.tsx` | Shared modal component |
+| `apps/web/src/components/common/Modal.tsx` | Shared modal — use this, never `<dialog>` |
 | `apps/web/src/components/common/Toaster.tsx` | Toast system + `useToaster` hook |
 | `apps/web/src/components/ui/StatusBadge.tsx` | Status badges + variant helpers |
-| `apps/web/src/components/ui/PageHeader.tsx` | Page titles with breadcrumbs |
+| `apps/web/src/components/ui/PageHeader.tsx` | Page titles with optional breadcrumbs |
+| `apps/web/src/lib/utils.ts` | `cn()` class merger |
 | `apps/api/src/organizations/organizations.service.ts` | Core multi-tenant org service |
 | `apps/api/src/common/decorators/` | `@SuperAdminOnly()`, `@CurrentOrg()`, `@RequireModule()` |
 | `apps/api/prisma/schema.prisma` | Single source of truth for the data model |
->>>>>>> Stashed changes
