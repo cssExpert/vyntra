@@ -189,8 +189,9 @@ export default function EditorLayout() {
             // content is legacy HTML — leave canvas blank so user can rebuild
           }
         }
-        setShowTemplatePicker(false);
-      }).catch(() => setShowTemplatePicker(false));
+        // No saved nodes — treat as a fresh page and show the template picker
+        setShowTemplatePicker(true);
+      }).catch(() => setShowTemplatePicker(true));
       return;
     }
     setShowTemplatePicker(!isEditingExisting);
