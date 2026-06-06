@@ -1,8 +1,12 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Role } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   CreateOrganizationDto,
@@ -12,7 +16,10 @@ import {
 
 @Injectable()
 export class OrganizationsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private config: ConfigService,
+  ) {}
 
   findAll() {
     return this.prisma.organization.findMany({
@@ -24,40 +31,152 @@ export class OrganizationsService {
     });
   }
 
+  /**
+   * Full company detail for the super-admin "View Company" page:
+   * profile, members (with roles), subscription + package, and the package's
+   * granted modules (for the Modules & Permissions tab).
+   */
   async findOne(id: string) {
     const org = await this.prisma.organization.findUnique({
       where: { id },
       include: {
-        subscription: { include: { package: true } },
+        subscription: {
+          include: {
+            package: { include: { modules: { include: { module: true } } } },
+          },
+        },
+        users: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            isActive: true,
+            superAdmin: true,
+            lastLogin: true,
+            createdAt: true,
+            roles: { select: { role: true, organizationId: true } },
+          },
+          orderBy: { createdAt: 'asc' },
+        },
         _count: { select: { users: true } },
       },
     });
-    if (!org) throw new NotFoundException('Organization not found');
-    return org;
+    if (!org) throw new NotFoundException('Company not found');
+
+    // Flatten the package's granted modules into a simple, UI-friendly list.
+    const grantedModules =
+      org.subscription?.package.modules
+        .map((pm) => ({
+          key: pm.module.key,
+          name: pm.module.name,
+          description: pm.module.description,
+          isActive: pm.module.isActive,
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name)) ?? [];
+
+    // Surface all platform modules too, marking which are enabled for this company.
+    const allModules = await this.prisma.module.findMany({
+      orderBy: { name: 'asc' },
+    });
+    const grantedKeys = new Set(grantedModules.map((m) => m.key));
+    const modules = allModules.map((m) => ({
+      key: m.key,
+      name: m.name,
+      description: m.description,
+      enabled: grantedKeys.has(m.key) && m.isActive,
+    }));
+
+    return { ...org, grantedModules, modules };
   }
 
+  /**
+   * Provision a new company together with its first administrator, all in a
+   * single transaction — if the user creation fails (e.g. duplicate email) the
+   * company and subscription are rolled back too.
+   */
   async create(dto: CreateOrganizationDto) {
     const pkg = await this.requirePackage(dto.packageSlug);
+
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: dto.adminEmail },
+    });
+    if (existingUser) {
+      throw new ConflictException('Admin email is already registered');
+    }
+
     const slug = await this.uniqueSlug(dto.name);
-    return this.prisma.organization.create({
-      data: {
-        name: dto.name,
-        slug,
-        email: dto.email,
-        phone: dto.phone,
-        website: dto.website,
-        maxUsers: pkg.maxUsers,
-        subscription: {
-          create: { packageId: pkg.id, billingEmail: dto.email },
+    const passwordHash = await this.hash(dto.adminPassword);
+    const adminName = [dto.adminFirstName, dto.adminLastName]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+
+    return this.prisma.$transaction(async (tx) => {
+      const org = await tx.organization.create({
+        data: {
+          name: dto.name,
+          legalName: dto.legalName,
+          industry: dto.industry,
+          address: dto.address,
+          slug,
+          email: dto.email,
+          phone: dto.phone,
+          website: dto.website,
+          logoUrl: dto.logoUrl,
+          maxUsers: pkg.maxUsers,
+          subscription: {
+            create: { packageId: pkg.id, billingEmail: dto.email },
+          },
         },
-      },
-      include: { subscription: { include: { package: true } } },
+        include: {
+          subscription: { include: { package: true } },
+          _count: { select: { users: true } },
+        },
+      });
+
+      await tx.user.create({
+        data: {
+          email: dto.adminEmail,
+          name: adminName || null,
+          password: passwordHash,
+          organizationId: org.id,
+          roles: {
+            create: { role: Role.ORG_ADMIN, organizationId: org.id },
+          },
+        },
+      });
+
+      return org;
     });
   }
 
   async update(id: string, dto: UpdateOrganizationDto) {
     await this.findOne(id);
-    return this.prisma.organization.update({ where: { id }, data: dto });
+    const { packageSlug, ...profile } = dto;
+
+    // Resolve a package change up-front so a bad slug fails before any write.
+    const pkg = packageSlug ? await this.requirePackage(packageSlug) : null;
+
+    return this.prisma.$transaction(async (tx) => {
+      const org = await tx.organization.update({
+        where: { id },
+        data: profile,
+        include: {
+          subscription: { include: { package: true } },
+          _count: { select: { users: true } },
+        },
+      });
+
+      if (pkg) {
+        await tx.subscription.upsert({
+          where: { organizationId: id },
+          create: { organizationId: id, packageId: pkg.id },
+          update: { packageId: pkg.id, status: 'ACTIVE' },
+        });
+      }
+
+      return org;
+    });
   }
 
   async remove(id: string) {
@@ -209,5 +328,10 @@ export class OrganizationsService {
       slug = `${base}-${n++}`;
     }
     return slug;
+  }
+
+  private hash(password: string) {
+    const rounds = Number(this.config.get('BCRYPT_SALT_ROUNDS') ?? 10);
+    return bcrypt.hash(password, rounds);
   }
 }

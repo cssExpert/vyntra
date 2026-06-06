@@ -39,7 +39,7 @@ export function Modal({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -62,10 +62,10 @@ export function Modal({
               mass: 0.8,
               bounce: 0.15,
             }}
-            className={`bg-card rounded-2xl w-full ${maxWidthMap[maxWidth]} shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-border overflow-hidden relative z-10`}
+            className={`bg-card rounded-2xl w-full ${maxWidthMap[maxWidth]} max-h-[calc(100vh-2rem)] flex flex-col shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-border overflow-hidden relative z-10`}
           >
             {/* Header */}
-            <div className="px-6 py-5 border-b border-border flex items-center justify-between bg-muted/40">
+            <div className="px-6 py-5 border-b border-border flex items-center justify-between bg-muted/40 shrink-0">
               <div className="flex items-center gap-2.5 min-w-0">
                 {icon && (
                   <div
@@ -99,11 +99,11 @@ export function Modal({
             </div>
 
             {/* Body */}
-            {children}
+            <div className="flex-1 overflow-y-auto min-h-0">{children}</div>
 
             {/* Footer */}
             {footer && (
-              <div className="px-6 py-4 bg-muted/40 border-t border-border flex items-center justify-end gap-3">
+              <div className="px-6 py-4 bg-muted/40 border-t border-border flex items-center justify-end gap-3 shrink-0">
                 {footer}
               </div>
             )}

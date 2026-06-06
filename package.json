@@ -35,5 +35,12 @@
   "devDependencies": {
     "@types/node": "^22.10.1",
     "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "@nosferatu500/react-sortable-tree": "^5.0.0",
+    "@tiptap/extension-font-family": "^2.27.2",
+    "@tiptap/extension-text-align": "^2.27.2",
+    "@uiw/react-color": "^2.10.3",
+    "jszip": "^3.10.1"
   }
 }

@@ -24,27 +24,27 @@ export class DomainsController {
   // ── Super admin: full control over any org ────────────────────────────────
 
   @SuperAdminOnly()
-  @Get('admin/organizations/:id/domain')
+  @Get('admin/companies/:id/domain')
   adminGet(@Param('id') id: string) {
     return this.domainsService.getOrgDomain(id);
   }
 
   /** Set the platform subdomain for an org (e.g. "acme" → acme.vyntra.com). */
   @SuperAdminOnly()
-  @Patch('admin/organizations/:id/domain/subdomain')
+  @Patch('admin/companies/:id/domain/subdomain')
   adminSetSubdomain(@Param('id') id: string, @Body() dto: SetSubdomainDto) {
     return this.domainsService.setSubdomain(id, dto);
   }
 
   @SuperAdminOnly()
-  @Delete('admin/organizations/:id/domain/subdomain')
+  @Delete('admin/companies/:id/domain/subdomain')
   adminClearSubdomain(@Param('id') id: string) {
     return this.domainsService.clearSubdomain(id);
   }
 
   /** Set a custom domain for an org (triggers verification token generation). */
   @SuperAdminOnly()
-  @Patch('admin/organizations/:id/domain/custom')
+  @Patch('admin/companies/:id/domain/custom')
   adminSetCustomDomain(
     @Param('id') id: string,
     @Body() dto: SetCustomDomainDto,
@@ -53,14 +53,14 @@ export class DomainsController {
   }
 
   @SuperAdminOnly()
-  @Delete('admin/organizations/:id/domain/custom')
+  @Delete('admin/companies/:id/domain/custom')
   adminClearCustomDomain(@Param('id') id: string) {
     return this.domainsService.clearCustomDomain(id);
   }
 
   /** Perform a live DNS TXT lookup to verify the custom domain. */
   @SuperAdminOnly()
-  @Post('admin/organizations/:id/domain/verify')
+  @Post('admin/companies/:id/domain/verify')
   adminVerify(@Param('id') id: string) {
     return this.domainsService.verifyCustomDomain(id);
   }
@@ -70,7 +70,7 @@ export class DomainsController {
    * Includes A record (IP), CNAME (www), and TXT verification record.
    */
   @SuperAdminOnly()
-  @Get('admin/organizations/:id/domain/dns-info')
+  @Get('admin/companies/:id/domain/dns-info')
   adminDnsInfo(@Param('id') id: string) {
     return this.domainsService.getDnsInfo(id);
   }

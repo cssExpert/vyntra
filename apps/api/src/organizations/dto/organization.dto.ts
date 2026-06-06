@@ -8,10 +8,36 @@ import {
   MinLength,
 } from 'class-validator';
 
+/**
+ * Super-admin "Add Company" payload. Captures the company profile, its starting
+ * package, and the credentials for the company's first administrator — all
+ * created together in a single transaction (see OrganizationsService.create).
+ */
 export class CreateOrganizationDto {
+  // ── Company profile ──
   @IsString()
   @MinLength(2)
   name!: string;
+
+  @IsOptional()
+  @IsString()
+  legalName?: string;
+
+  @IsOptional()
+  @IsString()
+  industry?: string;
+
+  @IsOptional()
+  @IsString()
+  website?: string;
+
+  @IsOptional()
+  @IsString()
+  logoUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  address?: string;
 
   @IsOptional()
   @IsEmail()
@@ -21,19 +47,47 @@ export class CreateOrganizationDto {
   @IsString()
   phone?: string;
 
-  @IsOptional()
-  @IsString()
-  website?: string;
-
-  /** Package slug to subscribe the new org to. */
+  /** Package slug to subscribe the new company to. */
   @IsString()
   packageSlug!: string;
+
+  // ── First administrator (provisioned with the company) ──
+  @IsString()
+  @MinLength(1)
+  adminFirstName!: string;
+
+  @IsOptional()
+  @IsString()
+  adminLastName?: string;
+
+  @IsEmail()
+  adminEmail!: string;
+
+  @IsString()
+  @MinLength(8)
+  adminPassword!: string;
 }
 
 export class UpdateOrganizationDto {
   @IsOptional()
   @IsString()
   name?: string;
+
+  @IsOptional()
+  @IsString()
+  legalName?: string;
+
+  @IsOptional()
+  @IsString()
+  industry?: string;
+
+  @IsOptional()
+  @IsString()
+  address?: string;
+
+  @IsOptional()
+  @IsString()
+  logoUrl?: string;
 
   @IsOptional()
   @IsEmail()
@@ -55,6 +109,11 @@ export class UpdateOrganizationDto {
   @IsInt()
   @Min(1)
   maxUsers?: number;
+
+  /** Optionally switch the company's package in the same edit. */
+  @IsOptional()
+  @IsString()
+  packageSlug?: string;
 }
 
 export class AssignPackageDto {

@@ -232,7 +232,7 @@ function Inner() {
           </div>
         }
       >
-        <div className="space-y-4">
+        <div className="px-6 py-5 space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
               <label className="mb-1.5 block text-sm font-medium">Name</label>

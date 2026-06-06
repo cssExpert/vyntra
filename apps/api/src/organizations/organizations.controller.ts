@@ -42,39 +42,39 @@ export class OrganizationsController {
     return this.organizationsService.updateSettings(organizationId, dto);
   }
 
-  // ── Super admin management ──
+  // ── Super admin: company management ──
   @SuperAdminOnly()
-  @Get('admin/organizations')
+  @Get('admin/companies')
   findAll() {
     return this.organizationsService.findAll();
   }
 
   @SuperAdminOnly()
-  @Get('admin/organizations/:id')
+  @Get('admin/companies/:id')
   findOne(@Param('id') id: string) {
     return this.organizationsService.findOne(id);
   }
 
   @SuperAdminOnly()
-  @Post('admin/organizations')
+  @Post('admin/companies')
   create(@Body() dto: CreateOrganizationDto) {
     return this.organizationsService.create(dto);
   }
 
   @SuperAdminOnly()
-  @Patch('admin/organizations/:id')
+  @Patch('admin/companies/:id')
   update(@Param('id') id: string, @Body() dto: UpdateOrganizationDto) {
     return this.organizationsService.update(id, dto);
   }
 
   @SuperAdminOnly()
-  @Delete('admin/organizations/:id')
+  @Delete('admin/companies/:id')
   remove(@Param('id') id: string) {
     return this.organizationsService.remove(id);
   }
 
   @SuperAdminOnly()
-  @Put('admin/organizations/:id/package')
+  @Put('admin/companies/:id/package')
   assignPackage(@Param('id') id: string, @Body() dto: AssignPackageDto) {
     return this.organizationsService.assignPackage(id, dto.packageSlug);
   }

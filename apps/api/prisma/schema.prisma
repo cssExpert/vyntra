@@ -71,6 +71,9 @@ enum Role {
 model Organization {
   id        String   @id @default(cuid())
   name      String
+  legalName String? // registered legal / business name
+  industry  String? // industry or domain vertical
+  address   String? // business address (single-line / multi-line)
   slug      String   @unique
   email     String?
   phone     String?

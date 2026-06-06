@@ -157,16 +157,100 @@ export function apiUpdateAdminSettings(body: Partial<AdminSettings>) {
 }
 
 // ─── Super-admin shapes ──────────────────────────────────
-export interface AdminOrganization {
+export interface AdminCompany {
   id: string;
   name: string;
+  legalName: string | null;
+  industry: string | null;
+  address: string | null;
   slug: string;
   email: string | null;
+  phone: string | null;
+  website: string | null;
+  logoUrl: string | null;
   isActive: boolean;
   maxUsers: number;
   createdAt: string;
-  subscription: { status: string; package: { name: string; slug: string } } | null;
+  subscription: {
+    status: string;
+    package: { name: string; slug: string };
+  } | null;
   _count: { users: number };
+}
+
+/** Back-compat alias — the entity was renamed Organizations → Companies. */
+export type AdminOrganization = AdminCompany;
+
+export interface AdminCompanyUser {
+  id: string;
+  email: string;
+  name: string | null;
+  isActive: boolean;
+  superAdmin: boolean;
+  lastLogin: string | null;
+  createdAt: string;
+  roles: { role: string; organizationId: string | null }[];
+}
+
+export interface AdminCompanyModule {
+  key: string;
+  name: string;
+  description: string | null;
+  enabled: boolean;
+}
+
+/** Full detail returned by GET /admin/companies/:id (View Company page). */
+export interface AdminCompanyDetail extends AdminCompany {
+  subscription:
+    | {
+        id: string;
+        status: string;
+        billingEmail: string | null;
+        startDate: string;
+        endDate: string | null;
+        package: {
+          id: string;
+          name: string;
+          slug: string;
+          description: string | null;
+          priceCents: number;
+          billingCycle: string;
+          maxUsers: number;
+        };
+      }
+    | null;
+  users: AdminCompanyUser[];
+  modules: AdminCompanyModule[];
+}
+
+export interface CreateCompanyPayload {
+  name: string;
+  legalName?: string;
+  industry?: string;
+  website?: string;
+  logoUrl?: string;
+  address?: string;
+  email?: string;
+  phone?: string;
+  packageSlug: string;
+  adminFirstName: string;
+  adminLastName?: string;
+  adminEmail: string;
+  adminPassword: string;
+}
+
+export interface UpdateCompanyPayload {
+  name?: string;
+  legalName?: string;
+  industry?: string;
+  address?: string;
+  logoUrl?: string;
+  email?: string;
+  phone?: string;
+  website?: string;
+  isActive?: boolean;
+  maxUsers?: number;
+  packageSlug?: string;
 }
 
 export interface AdminPackage {
@@ -254,25 +338,27 @@ export const orgDomain = {
 
 // ─── Super-admin endpoints ───────────────────────────────
 export const admin = {
-  // Organizations
-  listOrganizations: () =>
-    apiFetch<AdminOrganization[]>("/admin/organizations"),
-  createOrganization: (body: {
-    name: string;
-    email?: string;
-    packageSlug: string;
-  }) =>
-    apiFetch<AdminOrganization>("/admin/organizations", {
+  // Companies (formerly "Organizations")
+  listCompanies: () => apiFetch<AdminCompany[]>("/admin/companies"),
+  getCompany: (id: string) =>
+    apiFetch<AdminCompanyDetail>(`/admin/companies/${id}`),
+  createCompany: (body: CreateCompanyPayload) =>
+    apiFetch<AdminCompany>("/admin/companies", {
       method: "POST",
       body: JSON.stringify(body),
     }),
+  updateCompany: (id: string, body: UpdateCompanyPayload) =>
+    apiFetch<AdminCompany>(`/admin/companies/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }),
   assignPackage: (id: string, packageSlug: string) =>
-    apiFetch(`/admin/organizations/${id}/package`, {
+    apiFetch(`/admin/companies/${id}/package`, {
       method: "PUT",
       body: JSON.stringify({ packageSlug }),
     }),
-  deleteOrganization: (id: string) =>
-    apiFetch(`/admin/organizations/${id}`, { method: "DELETE" }),
+  deleteCompany: (id: string) =>
+    apiFetch(`/admin/companies/${id}`, { method: "DELETE" }),
 
   // Packages
   listPackages: () => apiFetch<AdminPackage[]>("/admin/packages"),
@@ -291,11 +377,10 @@ export const admin = {
 
   // Modules
   listModules: () => apiFetch<AdminModule[]>("/admin/modules"),
-  createModule: (body: { key: string; name: string; description?: string }) =>
-    apiFetch<AdminModule>("/admin/modules", {
-      method: "POST",
-      body: JSON.stringify(body),
-    }),
+  getModule: (id: string) =>
+    apiFetch<AdminModule & { companies?: Array<{ id: string; name: string; slug: string }> }>(
+      `/admin/modules/${id}`,
+    ),
   updateModule: (id: string, body: Record<string, unknown>) =>
     apiFetch<AdminModule>(`/admin/modules/${id}`, {
       method: "PATCH",
@@ -309,32 +394,31 @@ export const admin = {
 
   // Domains
   getDomain: (id: string) =>
-    apiFetch<OrgDomain>(`/admin/organizations/${id}/domain`),
+    apiFetch<OrgDomain>(`/admin/companies/${id}/domain`),
   setSubdomain: (id: string, subdomain: string) =>
-    apiFetch<OrgDomain>(`/admin/organizations/${id}/domain/subdomain`, {
+    apiFetch<OrgDomain>(`/admin/companies/${id}/domain/subdomain`, {
       method: "PATCH",
       body: JSON.stringify({ subdomain }),
     }),
   clearSubdomain: (id: string) =>
-    apiFetch<OrgDomain>(`/admin/organizations/${id}/domain/subdomain`, {
+    apiFetch<OrgDomain>(`/admin/companies/${id}/domain/subdomain`, {
       method: "DELETE",
     }),
   setCustomDomain: (id: string, customDomain: string) =>
-    apiFetch<OrgDomain>(`/admin/organizations/${id}/domain/custom`, {
+    apiFetch<OrgDomain>(`/admin/companies/${id}/domain/custom`, {
       method: "PATCH",
       body: JSON.stringify({ customDomain }),
     }),
   clearCustomDomain: (id: string) =>
-    apiFetch<OrgDomain>(`/admin/organizations/${id}/domain/custom`, {
+    apiFetch<OrgDomain>(`/admin/companies/${id}/domain/custom`, {
       method: "DELETE",
     }),
   verifyDomain: (id: string) =>
-    apiFetch<VerifyDomainResult>(
-      `/admin/organizations/${id}/domain/verify`,
-      { method: "POST" },
-    ),
+    apiFetch<VerifyDomainResult>(`/admin/companies/${id}/domain/verify`, {
+      method: "POST",
+    }),
   getDnsInfo: (id: string) =>
-    apiFetch<DnsInfo>(`/admin/organizations/${id}/domain/dns-info`),
+    apiFetch<DnsInfo>(`/admin/companies/${id}/domain/dns-info`),
 };
 
 // ─── CMS pages ───────────────────────────────────────────

@@ -258,9 +258,9 @@ export const SUPER_ADMIN_NAV: NavSection[] = [
     label: "Platform",
     items: [
       {
-        id: "sa-orgs",
-        label: "Organizations",
-        href: "/admin/organizations",
+        id: "sa-companies",
+        label: "Companies",
+        href: "/admin/companies",
         icon: "Building2",
       },
       {

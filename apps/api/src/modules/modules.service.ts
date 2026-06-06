@@ -15,9 +15,42 @@ export class ModulesService {
   }
 
   async findOne(id: string) {
-    const mod = await this.prisma.module.findUnique({ where: { id } });
+    const mod = await this.prisma.module.findUnique({
+      where: { id },
+      include: {
+        packages: {
+          include: {
+            package: {
+              include: {
+                subscriptions: {
+                  include: { organization: { select: { id: true, name: true, slug: true } } },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
     if (!mod) throw new NotFoundException('Module not found');
-    return mod;
+
+    const companiesSet = new Set<string>();
+    mod.packages.forEach((pm) => {
+      pm.package.subscriptions.forEach((sub) => {
+        companiesSet.add(
+          JSON.stringify({
+            id: sub.organization.id,
+            name: sub.organization.name,
+            slug: sub.organization.slug,
+          }),
+        );
+      });
+    });
+
+    return {
+      ...mod,
+      companies: Array.from(companiesSet).map((s) => JSON.parse(s)),
+      packages: undefined,
+    };
   }
 
   async create(dto: CreateModuleDto) {

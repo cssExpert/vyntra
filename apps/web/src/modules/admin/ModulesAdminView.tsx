@@ -1,20 +1,26 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Boxes, Plus } from "lucide-react";
+import { Boxes, Pencil } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Modal } from "@/components/common/Modal";
 import { admin, type AdminModule } from "@/lib/api";
 import { AdminGuard, adminInput } from "./AdminGuard";
 
+interface ModuleDetail extends AdminModule {
+  companies?: Array<{ id: string; name: string; slug: string }>;
+}
+
 function Inner() {
   const [modules, setModules] = useState<AdminModule[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [modalOpen, setModalOpen] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [form, setForm] = useState({ key: "", name: "", description: "" });
+  const [selectedModule, setSelectedModule] = useState<ModuleDetail | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editBusy, setEditBusy] = useState(false);
+  const [editForm, setEditForm] = useState({ name: "", description: "" });
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -32,31 +38,38 @@ function Inner() {
     load();
   }, [load]);
 
-  const create = async () => {
-    setBusy(true);
-    setError("");
+  const openDetail = async (m: AdminModule) => {
     try {
-      await admin.createModule({
-        key: form.key,
-        name: form.name,
-        description: form.description || undefined,
-      });
-      setModalOpen(false);
-      setForm({ key: "", name: "", description: "" });
-      await load();
+      const detail = await admin.getModule(m.id);
+      setSelectedModule(detail as ModuleDetail);
+      setDetailOpen(true);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to create module");
-    } finally {
-      setBusy(false);
+      setError(e instanceof Error ? e.message : "Failed to load module details");
     }
   };
 
-  const toggleActive = async (m: AdminModule) => {
+  const openEdit = (m: ModuleDetail) => {
+    setEditForm({ name: m.name, description: m.description || "" });
+    setEditOpen(true);
+  };
+
+  const saveEdit = async () => {
+    if (!selectedModule) return;
+    setEditBusy(true);
+    setError("");
     try {
-      await admin.updateModule(m.id, { isActive: !m.isActive });
+      await admin.updateModule(selectedModule.id, {
+        name: editForm.name,
+        description: editForm.description || undefined,
+      });
+      setEditOpen(false);
       await load();
+      const updated = await admin.getModule(selectedModule.id);
+      setSelectedModule(updated as ModuleDetail);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to update");
+      setError(e instanceof Error ? e.message : "Failed to update module");
+    } finally {
+      setEditBusy(false);
     }
   };
 
@@ -65,14 +78,7 @@ function Inner() {
       <PageHeader
         title="Modules"
         description="The catalog of features packages can grant."
-      >
-        <button
-          onClick={() => setModalOpen(true)}
-          className="flex items-center gap-2 rounded-lg bg-foreground px-3 py-2 text-sm font-semibold text-background hover:opacity-90 transition cursor-pointer"
-        >
-          <Plus className="h-4 w-4" /> Add Module
-        </button>
-      </PageHeader>
+      />
 
       {error && (
         <p className="rounded-lg bg-error/10 border border-error/20 px-3 py-2 text-sm text-error">
@@ -99,7 +105,7 @@ function Inner() {
               </tr>
             ) : (
               modules.map((m) => (
-                <tr key={m.id} className="hover:bg-muted/20">
+                <tr key={m.id} className="hover:bg-muted/20 cursor-pointer transition" onClick={() => openDetail(m)}>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2.5">
                       <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -113,14 +119,12 @@ function Inner() {
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{m.description ?? "—"}</td>
                   <td className="px-4 py-3 text-right">
-                    <button onClick={() => toggleActive(m)} className="cursor-pointer">
-                      <StatusBadge
-                        variant={m.isActive ? "success" : "muted"}
-                        label={m.isActive ? "Active" : "Disabled"}
-                        dot
-                        size="sm"
-                      />
-                    </button>
+                    <StatusBadge
+                      variant={m.isActive ? "success" : "muted"}
+                      label={m.isActive ? "Active" : "Disabled"}
+                      dot
+                      size="sm"
+                    />
                   </td>
                 </tr>
               ))
@@ -129,57 +133,103 @@ function Inner() {
         </table>
       </div>
 
+      {/* Module Detail Modal */}
       <Modal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title="Add Module"
-        description="Define a new platform feature packages can include."
+        isOpen={detailOpen}
+        onClose={() => {
+          setDetailOpen(false);
+          setSelectedModule(null);
+        }}
+        title={selectedModule?.name}
+        description="View module details and usage."
+        maxWidth="lg"
+        footer={
+          <button
+            onClick={() => selectedModule && openEdit(selectedModule)}
+            className="flex items-center gap-2 rounded-lg bg-foreground px-3 py-2 text-sm font-semibold text-background hover:opacity-90 transition cursor-pointer"
+          >
+            <Pencil className="h-4 w-4" /> Edit
+          </button>
+        }
+      >
+        <div className="px-6 py-5 space-y-6">
+          {selectedModule && (
+            <>
+              <div className="grid gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Key</p>
+                  <p className="mt-1 font-mono text-sm">{selectedModule.key}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Description</p>
+                  <p className="mt-1 text-sm">{selectedModule.description || "No description"}</p>
+                </div>
+              </div>
+
+              <div className="border-t border-border pt-6">
+                <h4 className="text-sm font-semibold text-foreground mb-4">Using This Module</h4>
+                {selectedModule.companies && selectedModule.companies.length > 0 ? (
+                  <div className="space-y-2">
+                    {selectedModule.companies.map((c) => (
+                      <div
+                        key={c.id}
+                        className="flex items-center justify-between rounded-lg border border-border/50 p-3"
+                      >
+                        <span className="font-medium text-foreground">{c.name}</span>
+                        <span className="text-xs text-muted-foreground">{c.slug}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No companies are using this module yet.</p>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      </Modal>
+
+      {/* Edit Module Modal */}
+      <Modal
+        isOpen={editOpen}
+        onClose={() => setEditOpen(false)}
+        title="Edit Module"
+        description="Update module details."
         footer={
           <div className="flex justify-end gap-2">
             <button
-              onClick={() => setModalOpen(false)}
+              onClick={() => setEditOpen(false)}
               className="rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted transition cursor-pointer"
             >
               Cancel
             </button>
             <button
-              onClick={create}
-              disabled={busy || !form.key || !form.name}
+              onClick={saveEdit}
+              disabled={editBusy || !editForm.name}
               className="rounded-lg bg-foreground px-3 py-2 text-sm font-semibold text-background hover:opacity-90 transition cursor-pointer disabled:opacity-50"
             >
-              {busy ? "Creating…" : "Create"}
+              {editBusy ? "Saving…" : "Save"}
             </button>
           </div>
         }
       >
-        <div className="space-y-4">
-          <div>
-            <label className="mb-1.5 block text-sm font-medium">Key</label>
-            <input
-              className={adminInput}
-              value={form.key}
-              onChange={(e) => setForm({ ...form, key: e.target.value.toUpperCase() })}
-              placeholder="ANALYTICS"
-            />
-            <p className="mt-1 text-xs text-muted-foreground">
-              Uppercase identifier used in code & package gating.
-            </p>
-          </div>
+        <div className="px-6 py-5 space-y-4">
           <div>
             <label className="mb-1.5 block text-sm font-medium">Name</label>
             <input
               className={adminInput}
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              placeholder="Analytics"
+              value={editForm.name}
+              onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+              placeholder="Module name"
             />
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium">Description</label>
             <input
               className={adminInput}
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              value={editForm.description}
+              onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+              placeholder="Module description"
             />
           </div>
         </div>

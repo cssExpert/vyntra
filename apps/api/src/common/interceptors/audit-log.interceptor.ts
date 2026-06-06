@@ -31,7 +31,7 @@ export class AuditLogInterceptor implements NestInterceptor {
       tap(() => {
         if (!user || !MUTATING_METHODS.has(request.method)) return;
 
-        // path like /api/admin/organizations/:id -> resourceType "organizations"
+        // path like /api/admin/companies/:id -> resourceType "companies"
         const segments = request.path.split('/').filter(Boolean);
         const apiIdx = segments.indexOf('api');
         const resourceType =

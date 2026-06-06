@@ -192,7 +192,7 @@ export function DomainManagementModal({
       icon={<Globe className="h-5 w-5" />}
       maxWidth="xl"
     >
-      <div className="px-6 py-5 space-y-6 max-h-[70vh] overflow-y-auto">
+      <div className="px-6 py-5 space-y-6">
         {/* Alerts */}
         {error && (
           <p className="rounded-lg bg-error/10 border border-error/20 px-3 py-2 text-sm text-error">

@@ -62,7 +62,9 @@ export class PackagesService {
         maxUsers: dto.maxUsers ?? 5,
         isActive: dto.isActive ?? true,
         isPublic: dto.isPublic ?? true,
-        modules: { create: moduleIds.map((moduleId) => ({ moduleId })) },
+        ...(moduleIds.length > 0 && {
+          modules: { create: moduleIds.map((moduleId) => ({ moduleId })) },
+        }),
       },
       include: this.include,
     });
@@ -92,9 +94,10 @@ export class PackagesService {
           maxUsers: dto.maxUsers,
           isActive: dto.isActive,
           isPublic: dto.isPublic,
-          ...(moduleIds !== undefined && {
-            modules: { create: moduleIds.map((moduleId) => ({ moduleId })) },
-          }),
+          ...(moduleIds !== undefined &&
+            moduleIds.length > 0 && {
+              modules: { create: moduleIds.map((moduleId) => ({ moduleId })) },
+            }),
         },
         include: this.include,
       });
