@@ -10,24 +10,23 @@ import {
   GripVertical,
   Menu,
 } from "lucide-react";
-import { cmsMenus, type CmsMenu, type CmsMenuItem } from "@/lib/api";
+import { cmsMenus, type CmsMenu } from "@/lib/api";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Modal } from "@/components/common/Modal";
 
 // ─── Visibility ────────────────────────────────────────────────────────────────
 
-const VISIBILITY_OPTIONS = [
-  { value: "all", label: "All devices" },
-  { value: "desktop", label: "Desktop" },
-  { value: "tablet", label: "Tablet" },
-  { value: "mobile", label: "Mobile" },
+const DEVICE_OPTIONS = [
+  { value: "desktop", label: "Desktop", hint: "≥ 1024px" },
+  { value: "tablet", label: "Tablet", hint: "768 – 1023px" },
+  { value: "mobile", label: "Mobile", hint: "< 768px" },
 ];
 
 function VisibilityBadge({ vis }: { vis: string[] }) {
-  const labels =
-    !vis.length || vis.includes("all")
-      ? ["All devices"]
-      : vis.map((v) => VISIBILITY_OPTIONS.find((o) => o.value === v)?.label ?? v);
+  const isAll = !vis.length || vis.includes("all");
+  const labels = isAll
+    ? ["All devices"]
+    : vis.map((v) => DEVICE_OPTIONS.find((o) => o.value === v)?.label ?? v);
   return (
     <div className="flex flex-wrap gap-1">
       {labels.map((l) => (
@@ -50,37 +49,75 @@ function VisibilityMultiSelect({
   value: string[];
   onChange: (v: string[]) => void;
 }) {
-  function toggle(opt: string) {
-    if (opt === "all") { onChange(["all"]); return; }
-    const next = value.filter((v) => v !== "all");
-    if (next.includes(opt)) {
-      const removed = next.filter((v) => v !== opt);
-      onChange(removed.length ? removed : ["all"]);
-    } else {
-      onChange([...next, opt]);
-    }
+  const isAll = !value.length || value.includes("all");
+
+  function toggleAll(checked: boolean) {
+    onChange(checked ? ["all"] : ["desktop"]);
   }
+
+  function toggleDevice(device: string, checked: boolean) {
+    const current = isAll ? [] : value.filter((v) => v !== "all");
+    const next = checked
+      ? [...current.filter((v) => v !== device), device]
+      : current.filter((v) => v !== device);
+    onChange(next.length === 0 ? ["all"] : next);
+  }
+
   return (
-    <div className="flex flex-wrap gap-2">
-      {VISIBILITY_OPTIONS.map((opt) => {
-        const active =
-          opt.value === "all"
-            ? !value.length || value.includes("all")
-            : value.includes(opt.value);
-        return (
-          <button
-            key={opt.value}
-            type="button"
-            onClick={() => toggle(opt.value)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors
-              ${active
-                ? "border-primary bg-primary/10 text-primary"
-                : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"}`}
-          >
-            {opt.label}
-          </button>
-        );
-      })}
+    <div className="space-y-3">
+      {/* All devices toggle */}
+      <label className="flex items-center gap-3 cursor-pointer group">
+        <div className="relative flex-shrink-0">
+          <input
+            type="checkbox"
+            className="sr-only"
+            checked={isAll}
+            onChange={(e) => toggleAll(e.target.checked)}
+          />
+          <div className={`w-9 h-5 rounded-full transition-colors ${isAll ? "bg-primary" : "bg-muted border border-border"}`}>
+            <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${isAll ? "translate-x-4" : "translate-x-0"}`} />
+          </div>
+        </div>
+        <div>
+          <span className="text-sm font-medium text-foreground">Show on all devices</span>
+          <p className="text-[11px] text-muted-foreground">Visible on desktop, tablet, and mobile</p>
+        </div>
+      </label>
+
+      {/* Per-device checkboxes — only shown when not "all" */}
+      {!isAll && (
+        <div className="ml-1 pl-4 border-l-2 border-border space-y-2.5">
+          <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Show on specific devices</p>
+          {DEVICE_OPTIONS.map((opt) => {
+            const checked = value.includes(opt.value);
+            return (
+              <label key={opt.value} className="flex items-center gap-3 cursor-pointer group">
+                <div className={`w-4 h-4 rounded flex items-center justify-center border transition-colors flex-shrink-0
+                  ${checked ? "bg-primary border-primary" : "border-border bg-background group-hover:border-primary/50"}`}>
+                  {checked && (
+                    <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 10 10" fill="none">
+                      <path d="M1.5 5L3.5 7.5L8.5 2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                  <input
+                    type="checkbox"
+                    className="sr-only"
+                    checked={checked}
+                    onChange={(e) => toggleDevice(opt.value, e.target.checked)}
+                  />
+                </div>
+                <div>
+                  <span className="text-sm font-medium text-foreground">{opt.label}</span>
+                  <span className="ml-2 text-[11px] text-muted-foreground">{opt.hint}</span>
+                </div>
+              </label>
+            );
+          })}
+          {value.filter((v) => v !== "all").length === 0 && (
+            <p className="text-[11px] text-rose-500">Select at least one device.</p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
