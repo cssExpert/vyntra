@@ -255,43 +255,52 @@ export function PagesView() {
   );
 
   const panelFilteredPages = useMemo(() => {
-    return pages.filter((page) => {
-      if (
-        activeFilters.status !== "all" &&
-        page.status !== activeFilters.status
-      )
-        return false;
-      if (
-        activeFilters.author !== "all" &&
-        page.author !== activeFilters.author
-      )
-        return false;
-      if (activeFilters.dateFrom || activeFilters.dateTo) {
-        const from = activeFilters.dateFrom
-          ? new Date(activeFilters.dateFrom)
-          : null;
-        const to = activeFilters.dateTo ? new Date(activeFilters.dateTo) : null;
-        const inRange = (dateStr: string) => {
-          const d = parseMDY(dateStr);
-          if (!d) return true;
-          if (from && d < from) return false;
-          if (to && d > to) return false;
-          return true;
-        };
-        if (activeFilters.dateField === "createdAt" && !inRange(page.createdAt))
-          return false;
-        if (activeFilters.dateField === "updatedAt" && !inRange(page.updatedAt))
-          return false;
+    return pages
+      .filter((page) => {
         if (
-          activeFilters.dateField === "all" &&
-          !inRange(page.createdAt) &&
-          !inRange(page.updatedAt)
+          activeFilters.status !== "all" &&
+          page.status !== activeFilters.status
         )
           return false;
-      }
-      return true;
-    })
-    .sort((a, b) => (b.isLandingPage ? 1 : 0) - (a.isLandingPage ? 1 : 0));
+        if (
+          activeFilters.author !== "all" &&
+          page.author !== activeFilters.author
+        )
+          return false;
+        if (activeFilters.dateFrom || activeFilters.dateTo) {
+          const from = activeFilters.dateFrom
+            ? new Date(activeFilters.dateFrom)
+            : null;
+          const to = activeFilters.dateTo
+            ? new Date(activeFilters.dateTo)
+            : null;
+          const inRange = (dateStr: string) => {
+            const d = parseMDY(dateStr);
+            if (!d) return true;
+            if (from && d < from) return false;
+            if (to && d > to) return false;
+            return true;
+          };
+          if (
+            activeFilters.dateField === "createdAt" &&
+            !inRange(page.createdAt)
+          )
+            return false;
+          if (
+            activeFilters.dateField === "updatedAt" &&
+            !inRange(page.updatedAt)
+          )
+            return false;
+          if (
+            activeFilters.dateField === "all" &&
+            !inRange(page.createdAt) &&
+            !inRange(page.updatedAt)
+          )
+            return false;
+        }
+        return true;
+      })
+      .sort((a, b) => (b.isLandingPage ? 1 : 0) - (a.isLandingPage ? 1 : 0));
   }, [pages, activeFilters]);
 
   const handleEditPageClick = (page: CmsPage) => {
@@ -309,9 +318,7 @@ export function PagesView() {
 
   const handleUnsetLandingPage = (page: CmsPage) => {
     setPages((prev) =>
-      prev.map((p) =>
-        p.id === page.id ? { ...p, isLandingPage: false } : p,
-      ),
+      prev.map((p) => (p.id === page.id ? { ...p, isLandingPage: false } : p)),
     );
   };
 
@@ -580,7 +587,7 @@ export function PagesView() {
             <div className="flex items-center gap-2">
               <button
                 onClick={handleAddPageClick}
-                className="inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer group active:scale-[0.98]"
+                className="inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer group active:scale-[0.98]"
               >
                 <Plus
                   size={16}
@@ -947,20 +954,34 @@ export function PagesView() {
               <form id="page-form" onSubmit={handleEditSubmit}>
                 <div className="p-6 space-y-4">
                   <div className="space-y-1.5">
-                    <label className="block text-sm font-medium text-foreground">Title</label>
+                    <label className="block text-sm font-medium text-foreground">
+                      Title
+                    </label>
                     <input
                       required
                       value={editFormData.title}
-                      onChange={(e) => setEditFormData((f) => ({ ...f, title: e.target.value }))}
+                      onChange={(e) =>
+                        setEditFormData((f) => ({
+                          ...f,
+                          title: e.target.value,
+                        }))
+                      }
                       placeholder="Page title"
                       className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="block text-sm font-medium text-foreground">Status</label>
+                    <label className="block text-sm font-medium text-foreground">
+                      Status
+                    </label>
                     <select
                       value={editFormData.status}
-                      onChange={(e) => setEditFormData((f) => ({ ...f, status: e.target.value as PageStatus }))}
+                      onChange={(e) =>
+                        setEditFormData((f) => ({
+                          ...f,
+                          status: e.target.value as PageStatus,
+                        }))
+                      }
                       className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
                     >
                       <option value="Public">Public</option>
@@ -974,7 +995,9 @@ export function PagesView() {
               <form id="page-form" onSubmit={handleAddSubmit}>
                 <div className="p-6 space-y-4">
                   <div className="space-y-1.5">
-                    <label className="block text-sm font-medium text-foreground">Page Title</label>
+                    <label className="block text-sm font-medium text-foreground">
+                      Page Title
+                    </label>
                     <input
                       required
                       autoFocus
@@ -993,7 +1016,9 @@ export function PagesView() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="block text-sm font-medium text-foreground">URL Slug</label>
+                    <label className="block text-sm font-medium text-foreground">
+                      URL Slug
+                    </label>
                     <div className="flex items-center rounded-lg border border-border bg-background focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15 transition-all overflow-hidden">
                       <span className="px-3 py-2.5 text-sm text-muted-foreground border-r border-border bg-muted/50 shrink-0 select-none">
                         /
@@ -1004,7 +1029,9 @@ export function PagesView() {
                         onChange={(e) =>
                           setAddFormData((f) => ({
                             ...f,
-                            slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""),
+                            slug: e.target.value
+                              .toLowerCase()
+                              .replace(/[^a-z0-9-]/g, ""),
                           }))
                         }
                         placeholder="about-us"
@@ -1012,7 +1039,8 @@ export function PagesView() {
                       />
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      This will be the page URL — e.g. <span className="font-mono">yourdomain.com/about-us</span>
+                      This will be the page URL — e.g.{" "}
+                      <span className="font-mono">yourdomain.com/about-us</span>
                     </p>
                   </div>
                 </div>
