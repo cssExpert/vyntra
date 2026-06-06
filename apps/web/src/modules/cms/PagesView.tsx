@@ -548,8 +548,7 @@ export function PagesView() {
   const pageCount = table.getPageCount();
   const selectedCount = Object.keys(rowSelection).length;
   const handleAddPageClick = () => {
-    const defaultLayout = availableLayouts.find((l) => l.isDefault);
-    setAddFormData({ title: "", slug: "", layoutId: defaultLayout?.id ?? "" });
+    setAddFormData({ title: "", slug: "", layoutId: "" });
     setEditingPage(null);
     setIsModalOpen(true);
   };
@@ -1015,7 +1014,7 @@ export function PagesView() {
                           .replace(/[^a-z0-9\s-]/g, "")
                           .trim()
                           .replace(/\s+/g, "-");
-                        setAddFormData({ title, slug });
+                        setAddFormData((prev) => ({ ...prev, title, slug }));
                       }}
                       placeholder="e.g. About Us"
                       className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"

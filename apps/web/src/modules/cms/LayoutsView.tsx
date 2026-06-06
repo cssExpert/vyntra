@@ -1,10 +1,165 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { Plus, Pencil, Trash2, Star, Monitor, Rows, CheckCircle2 } from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+import { Plus, Pencil, Trash2, Star, Monitor, Rows, CheckCircle2, LayoutTemplate } from "lucide-react";
 import SectionTitle from "@/components/common/SectionTitle";
 import { Modal } from "@/components/common/Modal";
 import { cmsLayouts, cmsMenus, type CmsLayout, type CmsMenu } from "@/lib/api";
+
+const HEADER_VARIANTS = [
+  { value: "minimal",  label: "Minimal",  description: "Logo left · nav right" },
+  { value: "centered", label: "Centered", description: "Logo + nav stacked center" },
+  { value: "split",    label: "Split",    description: "Logo · nav center · CTA right" },
+  { value: "dark",     label: "Dark",     description: "Inverted dark background" },
+];
+
+const FOOTER_VARIANTS = [
+  { value: "columns",  label: "Columns",  description: "Multi-column with headings" },
+  { value: "simple",   label: "Simple",   description: "Copyright line only" },
+  { value: "centered", label: "Centered", description: "Centered logo + flat links" },
+  { value: "dark",     label: "Dark",     description: "Dark background columns" },
+];
+
+// ── Wireframe SVG previews ────────────────────────────────────────────────────
+
+function PreviewNavMinimal() {
+  return (
+    <svg viewBox="0 0 220 44" className="w-full" aria-hidden="true">
+      <rect width="220" height="44" fill="#f8fafc" />
+      <rect width="220" height="44" fill="white" stroke="#e2e8f0" strokeWidth="0.75" />
+      <rect x="14" y="16" width="38" height="8" rx="2" fill="#3b82f6" />
+      <rect x="130" y="18" width="18" height="5" rx="1.5" fill="#cbd5e1" />
+      <rect x="154" y="18" width="18" height="5" rx="1.5" fill="#cbd5e1" />
+      <rect x="178" y="18" width="18" height="5" rx="1.5" fill="#cbd5e1" />
+    </svg>
+  );
+}
+
+function PreviewNavCentered() {
+  return (
+    <svg viewBox="0 0 220 56" className="w-full" aria-hidden="true">
+      <rect width="220" height="56" fill="white" stroke="#e2e8f0" strokeWidth="0.75" />
+      <rect x="86" y="8" width="48" height="9" rx="2" fill="#3b82f6" />
+      <rect x="36"  y="30" width="20" height="5" rx="1.5" fill="#cbd5e1" />
+      <rect x="62"  y="30" width="20" height="5" rx="1.5" fill="#cbd5e1" />
+      <rect x="88"  y="30" width="20" height="5" rx="1.5" fill="#cbd5e1" />
+      <rect x="114" y="30" width="20" height="5" rx="1.5" fill="#cbd5e1" />
+      <rect x="140" y="30" width="20" height="5" rx="1.5" fill="#cbd5e1" />
+      <line x1="0" y1="55.5" x2="220" y2="55.5" stroke="#e2e8f0" strokeWidth="0.5" />
+    </svg>
+  );
+}
+
+function PreviewNavSplit() {
+  return (
+    <svg viewBox="0 0 220 44" className="w-full" aria-hidden="true">
+      <rect width="220" height="44" fill="white" stroke="#e2e8f0" strokeWidth="0.75" />
+      <rect x="14" y="16" width="32" height="8" rx="2" fill="#3b82f6" />
+      <rect x="72"  y="18" width="18" height="5" rx="1.5" fill="#cbd5e1" />
+      <rect x="96"  y="18" width="18" height="5" rx="1.5" fill="#cbd5e1" />
+      <rect x="120" y="18" width="18" height="5" rx="1.5" fill="#cbd5e1" />
+      <rect x="161" y="14" width="40" height="14" rx="3" fill="#3b82f6" />
+      <rect x="166" y="17" width="30" height="7" rx="1" fill="white" opacity="0.9" />
+    </svg>
+  );
+}
+
+function PreviewNavDark() {
+  return (
+    <svg viewBox="0 0 220 44" className="w-full" aria-hidden="true">
+      <rect width="220" height="44" fill="#1e293b" />
+      <rect x="14" y="16" width="38" height="8" rx="2" fill="#e2e8f0" opacity="0.8" />
+      <rect x="130" y="18" width="18" height="5" rx="1.5" fill="#475569" />
+      <rect x="154" y="18" width="18" height="5" rx="1.5" fill="#475569" />
+      <rect x="178" y="18" width="18" height="5" rx="1.5" fill="#475569" />
+    </svg>
+  );
+}
+
+function PreviewFootColumns() {
+  return (
+    <svg viewBox="0 0 220 88" className="w-full" aria-hidden="true">
+      <rect width="220" height="88" fill="#f8fafc" />
+      <line x1="0" y1="0.5" x2="220" y2="0.5" stroke="#e2e8f0" strokeWidth="0.75" />
+      <rect x="14" y="12" width="26" height="5" rx="1.5" fill="#94a3b8" />
+      <rect x="14" y="23" width="38" height="4" rx="1" fill="#e2e8f0" />
+      <rect x="14" y="31" width="32" height="4" rx="1" fill="#e2e8f0" />
+      <rect x="14" y="39" width="36" height="4" rx="1" fill="#e2e8f0" />
+      <rect x="84" y="12" width="26" height="5" rx="1.5" fill="#94a3b8" />
+      <rect x="84" y="23" width="38" height="4" rx="1" fill="#e2e8f0" />
+      <rect x="84" y="31" width="30" height="4" rx="1" fill="#e2e8f0" />
+      <rect x="84" y="39" width="34" height="4" rx="1" fill="#e2e8f0" />
+      <rect x="154" y="12" width="26" height="5" rx="1.5" fill="#94a3b8" />
+      <rect x="154" y="23" width="38" height="4" rx="1" fill="#e2e8f0" />
+      <rect x="154" y="31" width="28" height="4" rx="1" fill="#e2e8f0" />
+      <rect x="154" y="39" width="36" height="4" rx="1" fill="#e2e8f0" />
+      <line x1="14" y1="57" x2="206" y2="57" stroke="#e2e8f0" strokeWidth="0.75" />
+      <rect x="82" y="67" width="56" height="4" rx="1.5" fill="#cbd5e1" />
+    </svg>
+  );
+}
+
+function PreviewFootSimple() {
+  return (
+    <svg viewBox="0 0 220 44" className="w-full" aria-hidden="true">
+      <rect width="220" height="44" fill="white" />
+      <line x1="0" y1="0.5" x2="220" y2="0.5" stroke="#e2e8f0" strokeWidth="0.75" />
+      <rect x="80" y="18" width="60" height="5" rx="1.5" fill="#cbd5e1" />
+    </svg>
+  );
+}
+
+function PreviewFootCentered() {
+  return (
+    <svg viewBox="0 0 220 88" className="w-full" aria-hidden="true">
+      <rect width="220" height="88" fill="#f8fafc" />
+      <line x1="0" y1="0.5" x2="220" y2="0.5" stroke="#e2e8f0" strokeWidth="0.75" />
+      <rect x="83" y="12" width="54" height="9" rx="2" fill="#3b82f6" />
+      <rect x="34"  y="33" width="18" height="4" rx="1" fill="#94a3b8" />
+      <rect x="58"  y="33" width="18" height="4" rx="1" fill="#94a3b8" />
+      <rect x="82"  y="33" width="18" height="4" rx="1" fill="#94a3b8" />
+      <rect x="106" y="33" width="18" height="4" rx="1" fill="#94a3b8" />
+      <rect x="130" y="33" width="18" height="4" rx="1" fill="#94a3b8" />
+      <rect x="80" y="55" width="60" height="4" rx="1.5" fill="#cbd5e1" />
+    </svg>
+  );
+}
+
+function PreviewFootDark() {
+  return (
+    <svg viewBox="0 0 220 88" className="w-full" aria-hidden="true">
+      <rect width="220" height="88" fill="#1e293b" />
+      <rect x="14" y="12" width="26" height="5" rx="1.5" fill="#475569" />
+      <rect x="14" y="23" width="38" height="4" rx="1" fill="#334155" />
+      <rect x="14" y="31" width="32" height="4" rx="1" fill="#334155" />
+      <rect x="14" y="39" width="36" height="4" rx="1" fill="#334155" />
+      <rect x="84" y="12" width="26" height="5" rx="1.5" fill="#475569" />
+      <rect x="84" y="23" width="38" height="4" rx="1" fill="#334155" />
+      <rect x="84" y="31" width="30" height="4" rx="1" fill="#334155" />
+      <rect x="84" y="39" width="34" height="4" rx="1" fill="#334155" />
+      <rect x="154" y="12" width="26" height="5" rx="1.5" fill="#475569" />
+      <rect x="154" y="23" width="38" height="4" rx="1" fill="#334155" />
+      <rect x="154" y="31" width="28" height="4" rx="1" fill="#334155" />
+      <rect x="154" y="39" width="36" height="4" rx="1" fill="#334155" />
+      <line x1="14" y1="57" x2="206" y2="57" stroke="#334155" strokeWidth="0.75" />
+      <rect x="82" y="67" width="56" height="4" rx="1.5" fill="#334155" />
+    </svg>
+  );
+}
+
+const HEADER_PREVIEWS: Record<string, () => React.ReactElement> = {
+  minimal:  PreviewNavMinimal,
+  centered: PreviewNavCentered,
+  split:    PreviewNavSplit,
+  dark:     PreviewNavDark,
+};
+
+const FOOTER_PREVIEWS: Record<string, () => React.ReactElement> = {
+  columns:  PreviewFootColumns,
+  simple:   PreviewFootSimple,
+  centered: PreviewFootCentered,
+  dark:     PreviewFootDark,
+};
 
 // ── Layout editor form ────────────────────────────────────────────────────────
 
@@ -38,6 +193,8 @@ interface FormState {
   isDefault: boolean;
   navMenuId: string | null;
   footerColumns: { title: string; menuId: string }[];
+  headerVariant: string;
+  footerVariant: string;
 }
 
 function LayoutForm({
@@ -105,6 +262,39 @@ function LayoutForm({
       </div>
 
       <div className="space-y-2">
+        <label className="block text-sm font-medium text-foreground">
+          <LayoutTemplate size={13} className="inline mr-1.5 mb-0.5" />
+          Header design
+        </label>
+        <div className="grid grid-cols-2 gap-2">
+          {HEADER_VARIANTS.map((v) => {
+            const Preview = HEADER_PREVIEWS[v.value];
+            const active = form.headerVariant === v.value;
+            return (
+              <button
+                key={v.value}
+                type="button"
+                onClick={() => setForm((f) => ({ ...f, headerVariant: v.value }))}
+                className={`text-left rounded-lg border overflow-hidden transition-all ${
+                  active
+                    ? "border-primary ring-2 ring-primary/20"
+                    : "border-border hover:border-primary/40"
+                }`}
+              >
+                <div className={`border-b transition-colors ${active ? "border-primary/30 bg-primary/5" : "border-border bg-muted/30"}`}>
+                  <Preview />
+                </div>
+                <div className="px-2.5 py-2">
+                  <p className={`text-xs font-semibold ${active ? "text-primary" : "text-foreground"}`}>{v.label}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">{v.description}</p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="space-y-2">
         <div className="flex items-center justify-between">
           <label className="block text-sm font-medium text-foreground">
             <Rows size={13} className="inline mr-1.5 mb-0.5" />
@@ -144,6 +334,39 @@ function LayoutForm({
             </button>
           </div>
         ))}
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-foreground">
+          <Rows size={13} className="inline mr-1.5 mb-0.5" />
+          Footer design
+        </label>
+        <div className="grid grid-cols-2 gap-2">
+          {FOOTER_VARIANTS.map((v) => {
+            const Preview = FOOTER_PREVIEWS[v.value];
+            const active = form.footerVariant === v.value;
+            return (
+              <button
+                key={v.value}
+                type="button"
+                onClick={() => setForm((f) => ({ ...f, footerVariant: v.value }))}
+                className={`text-left rounded-lg border overflow-hidden transition-all ${
+                  active
+                    ? "border-primary ring-2 ring-primary/20"
+                    : "border-border hover:border-primary/40"
+                }`}
+              >
+                <div className={`border-b transition-colors ${active ? "border-primary/30 bg-primary/5" : "border-border bg-muted/30"}`}>
+                  <Preview />
+                </div>
+                <div className="px-2.5 py-2">
+                  <p className={`text-xs font-semibold ${active ? "text-primary" : "text-foreground"}`}>{v.label}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">{v.description}</p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="flex justify-end gap-2 pt-2 border-t border-border">
@@ -198,6 +421,14 @@ function LayoutCard({
               <span>Header: {navMenu ? navMenu.name : <em>none</em>}</span>
             </div>
             <div className="flex items-center gap-1.5">
+              <LayoutTemplate size={11} />
+              <span>
+                {HEADER_VARIANTS.find((v) => v.value === layout.headerVariant)?.label ?? "Minimal"} header
+                {" · "}
+                {FOOTER_VARIANTS.find((v) => v.value === layout.footerVariant)?.label ?? "Columns"} footer
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5">
               <Rows size={11} />
               <span>Footer: {layout.footerColumns.length > 0 ? `${layout.footerColumns.length} column(s)` : <em>none</em>}</span>
             </div>
@@ -223,7 +454,7 @@ function LayoutCard({
 
 // ── Main view ─────────────────────────────────────────────────────────────────
 
-const EMPTY_FORM: FormState = { name: "", isDefault: false, navMenuId: null, footerColumns: [] };
+const EMPTY_FORM: FormState = { name: "", isDefault: false, navMenuId: null, footerColumns: [], headerVariant: "minimal", footerVariant: "columns" };
 
 export function LayoutsView() {
   const [layouts, setLayouts] = useState<CmsLayout[]>([]);
@@ -295,7 +526,7 @@ export function LayoutsView() {
   }
 
   const editInitial: FormState = active
-    ? { name: active.name, isDefault: active.isDefault, navMenuId: active.navMenuId, footerColumns: active.footerColumns }
+    ? { name: active.name, isDefault: active.isDefault, navMenuId: active.navMenuId, footerColumns: active.footerColumns, headerVariant: active.headerVariant ?? "minimal", footerVariant: active.footerVariant ?? "columns" }
     : EMPTY_FORM;
 
   return (

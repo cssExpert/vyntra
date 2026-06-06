@@ -283,6 +283,12 @@ export const SUPER_ADMIN_NAV: NavSection[] = [
       },
       { id: "sa-users", label: "Users", href: "/admin/users", icon: "UserCog" },
       {
+        id: "sa-themes",
+        label: "Themes",
+        href: "/admin/themes",
+        icon: "Palette",
+      },
+      {
         id: "sa-settings",
         label: "Settings",
         href: "/admin/settings",

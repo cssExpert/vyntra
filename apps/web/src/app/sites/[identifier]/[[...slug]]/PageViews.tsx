@@ -1,3 +1,4 @@
+import type React from "react";
 import { NodeRenderer } from "./NodeRenderer";
 import { SiteNavbar, SiteFooter } from "./SiteLayout";
 
@@ -31,6 +32,8 @@ export interface PageListItem {
 export interface SiteLayoutData {
   navMenuId: string | null;
   footerColumns: { title: string; menuId: string }[];
+  headerVariant: string;
+  footerVariant: string;
 }
 
 function parseNodes(content: string | null) {
@@ -58,9 +61,14 @@ export async function PageView({
   const nodes = parseNodes(page.content);
   const hasLayout = !!layout.navMenuId || layout.footerColumns.length > 0;
 
+  const pageStyle = {
+    backgroundColor: "var(--background, #ffffff)",
+    color: "var(--foreground, #111827)",
+  };
+
   if (nodes) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen" style={pageStyle}>
         {hasLayout && <SiteNavbar org={org} layout={layout} />}
         <NodeRenderer nodes={nodes} orgId={org.id} />
         {hasLayout && <SiteFooter org={org} layout={layout} />}
@@ -69,17 +77,31 @@ export async function PageView({
   }
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 font-sans">
+    <div className="min-h-screen font-sans" style={pageStyle}>
       {hasLayout ? (
         <SiteNavbar org={org} layout={layout} />
       ) : (
-        <nav className="border-b border-gray-100 bg-white/95 backdrop-blur-sm sticky top-0 z-50">
+        <nav
+          className="backdrop-blur-sm sticky top-0 z-50"
+          style={{
+            backgroundColor: "color-mix(in srgb, var(--background, #ffffff) 95%, transparent)",
+            borderBottom: "1px solid var(--border, #e5e7eb)",
+          }}
+        >
           <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-            <a href="/" className="text-lg font-bold tracking-tight text-gray-900 hover:text-gray-600 transition-colors">
+            <a
+              href="/"
+              className="text-lg font-bold tracking-tight transition-opacity hover:opacity-70"
+              style={{ color: "var(--primary, #3b82f6)" }}
+            >
               {org.name}
             </a>
             {!isLanding && (
-              <a href="/" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
+              <a
+                href="/"
+                className="text-sm transition-opacity hover:opacity-70"
+                style={{ color: "var(--muted-foreground, #6b7280)" }}
+              >
                 ← Home
               </a>
             )}
@@ -89,14 +111,19 @@ export async function PageView({
 
       <main className="max-w-4xl mx-auto px-6 py-16">
         <header className="mb-12">
-          <h1 className="text-4xl font-bold leading-tight tracking-tight text-gray-900">
+          <h1
+            className="text-4xl font-bold leading-tight tracking-tight"
+            style={{ color: "var(--foreground, #111827)" }}
+          >
             {page.title}
           </h1>
           {page.metaDesc && (
-            <p className="mt-4 text-xl text-gray-500 leading-relaxed">{page.metaDesc}</p>
+            <p className="mt-4 text-xl leading-relaxed" style={{ color: "var(--muted-foreground, #6b7280)" }}>
+              {page.metaDesc}
+            </p>
           )}
           {page.publishedAt && (
-            <p className="mt-4 text-sm text-gray-400">
+            <p className="mt-4 text-sm" style={{ color: "var(--muted-foreground, #9ca3af)" }}>
               {new Date(page.publishedAt).toLocaleDateString("en-US", {
                 year: "numeric",
                 month: "long",
@@ -106,10 +133,11 @@ export async function PageView({
           )}
         </header>
         <article
-          className="prose prose-lg prose-gray max-w-none
+          className="prose prose-lg max-w-none
             prose-headings:font-bold prose-headings:tracking-tight
-            prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
+            prose-a:no-underline hover:prose-a:underline
             prose-img:rounded-xl prose-img:shadow-md"
+          style={{ "--tw-prose-body": "var(--foreground)", "--tw-prose-headings": "var(--foreground)", "--tw-prose-links": "var(--primary)" } as React.CSSProperties}
           dangerouslySetInnerHTML={{ __html: page.content ?? "" }}
         />
       </main>
@@ -117,7 +145,13 @@ export async function PageView({
       {hasLayout ? (
         <SiteFooter org={org} layout={layout} />
       ) : (
-        <footer className="border-t border-gray-100 mt-24 py-10 text-center text-sm text-gray-400">
+        <footer
+          className="mt-24 py-10 text-center text-sm"
+          style={{
+            borderTop: "1px solid var(--border, #e5e7eb)",
+            color: "var(--muted-foreground, #9ca3af)",
+          }}
+        >
           © {new Date().getFullYear()} {org.name}
         </footer>
       )}
@@ -135,36 +169,58 @@ export async function SiteHome({
   layout: SiteLayoutData;
 }) {
   const hasLayout = !!layout.navMenuId || layout.footerColumns.length > 0;
+  const pageStyle = {
+    backgroundColor: "var(--background, #ffffff)",
+    color: "var(--foreground, #111827)",
+  };
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 font-sans">
+    <div className="min-h-screen font-sans" style={pageStyle}>
       {hasLayout ? (
         <SiteNavbar org={org} layout={layout} />
       ) : (
-        <nav className="border-b border-gray-100 bg-white/95 backdrop-blur-sm sticky top-0 z-50">
+        <nav
+          className="backdrop-blur-sm sticky top-0 z-50"
+          style={{
+            backgroundColor: "color-mix(in srgb, var(--background, #ffffff) 95%, transparent)",
+            borderBottom: "1px solid var(--border, #e5e7eb)",
+          }}
+        >
           <div className="max-w-6xl mx-auto px-6 h-16 flex items-center">
-            <span className="text-lg font-bold tracking-tight text-gray-900">{org.name}</span>
+            <span
+              className="text-lg font-bold tracking-tight"
+              style={{ color: "var(--primary, #3b82f6)" }}
+            >
+              {org.name}
+            </span>
           </div>
         </nav>
       )}
 
       <main className="max-w-4xl mx-auto px-6 py-16">
-        <h1 className="text-4xl font-bold tracking-tight mb-12">{org.name}</h1>
+        <h1 className="text-4xl font-bold tracking-tight mb-12" style={{ color: "var(--foreground, #111827)" }}>
+          {org.name}
+        </h1>
         {pages.length === 0 ? (
-          <p className="text-gray-400">No published pages yet.</p>
+          <p style={{ color: "var(--muted-foreground, #9ca3af)" }}>No published pages yet.</p>
         ) : (
-          <ul className="divide-y divide-gray-100">
+          <ul style={{ borderColor: "var(--border, #f3f4f6)" }} className="divide-y">
             {pages.map((p) => (
               <li key={p.id} className="py-8">
                 <a href={`/${p.slug}`} className="group block">
-                  <h2 className="text-2xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                  <h2
+                    className="text-2xl font-semibold transition-opacity group-hover:opacity-70"
+                    style={{ color: "var(--foreground, #111827)" }}
+                  >
                     {p.title}
                   </h2>
                   {p.metaDesc && (
-                    <p className="mt-2 text-gray-500 leading-relaxed line-clamp-2">{p.metaDesc}</p>
+                    <p className="mt-2 leading-relaxed line-clamp-2" style={{ color: "var(--muted-foreground, #6b7280)" }}>
+                      {p.metaDesc}
+                    </p>
                   )}
                   {p.publishedAt && (
-                    <p className="mt-3 text-sm text-gray-400">
+                    <p className="mt-3 text-sm" style={{ color: "var(--muted-foreground, #9ca3af)" }}>
                       {new Date(p.publishedAt).toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
@@ -182,7 +238,13 @@ export async function SiteHome({
       {hasLayout ? (
         <SiteFooter org={org} layout={layout} />
       ) : (
-        <footer className="border-t border-gray-100 mt-24 py-10 text-center text-sm text-gray-400">
+        <footer
+          className="mt-24 py-10 text-center text-sm"
+          style={{
+            borderTop: "1px solid var(--border, #e5e7eb)",
+            color: "var(--muted-foreground, #9ca3af)",
+          }}
+        >
           © {new Date().getFullYear()} {org.name}
         </footer>
       )}

@@ -10,6 +10,7 @@ import { RolesGuard } from './common/guards/roles.guard';
 import { AuditLogInterceptor } from './common/interceptors/audit-log.interceptor';
 import { CmsModule } from './cms/cms.module';
 import { DomainsModule } from './domains/domains.module';
+import { ThemesModule } from './themes/themes.module';
 import { HealthModule } from './health/health.module';
 import { ModulesModule } from './modules/modules.module';
 import { OrganizationsModule } from './organizations/organizations.module';
@@ -31,6 +32,7 @@ import { UsersModule } from './users/users.module';
     ModulesModule,
     DomainsModule,
     CmsModule,
+    ThemesModule,
     UploadModule,
     // CrmModule added in the next phase.
   ],

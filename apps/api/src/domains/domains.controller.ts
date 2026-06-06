@@ -167,4 +167,13 @@ export class DomainsController {
   ) {
     return this.domainsService.getPublicMenu(orgId, menuId);
   }
+
+  @Public()
+  @Get('public/sites/:orgId/theme')
+  getPublicTheme(
+    @Param('orgId') orgId: string,
+    @Query('previewId') previewId?: string,
+  ) {
+    return this.domainsService.getPublicTheme(orgId, previewId || undefined);
+  }
 }

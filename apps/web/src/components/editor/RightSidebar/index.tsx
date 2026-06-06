@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, ChevronRight, X, Plus, Code2, Palette, Layout, AlignCenter, Box, PencilRuler, Type, Sliders, Navigation } from 'lucide-react'
+import { ChevronDown, ChevronRight, X, Plus, Code2, Palette, Layout, AlignCenter, Box, PencilRuler, Type, Sliders, Navigation, LayoutTemplate } from 'lucide-react'
 import { useEditorStore } from '@/store/editorStore'
 import { cn } from '@/lib/utils'
-import { cmsMenus, type CmsMenu } from '@/lib/api'
+import { cmsMenus, cmsLayouts, type CmsMenu, type CmsLayout } from '@/lib/api'
 
 const TYPOGRAPHY_SIZES = ['text-xs','text-sm','text-base','text-lg','text-xl','text-2xl','text-3xl','text-4xl','text-5xl','text-6xl','text-7xl','text-8xl','text-9xl']
 const FONT_WEIGHTS = ['font-thin','font-light','font-normal','font-medium','font-semibold','font-bold','font-extrabold','font-black']
@@ -195,7 +195,82 @@ function MenuSection({ node }: { node: { id: string; props: Record<string, strin
   )
 }
 
-export default function RightSidebar() {
+function PageSettingsPanel({
+  layoutId,
+  onLayoutChange,
+}: {
+  layoutId: string | null
+  onLayoutChange: (id: string | null) => void
+}) {
+  const [layouts, setLayouts] = useState<CmsLayout[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    cmsLayouts.list()
+      .then(setLayouts)
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
+  return (
+    <aside className="w-64 flex flex-col h-full border-l bg-card border-border dark:border-border">
+      <div className="flex-shrink-0 px-4 py-3 border-b border-border dark:border-border">
+        <div className="flex items-center gap-2">
+          <LayoutTemplate className="w-3.5 h-3.5 text-muted-foreground dark:text-muted-foreground" />
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
+            Page Settings
+          </span>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto custom-scrollbar">
+        <div className="px-4 py-4 space-y-4">
+          <div>
+            <label className="text-[10px] mb-1.5 block font-medium uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
+              Layout
+            </label>
+            {loading ? (
+              <div className="h-8 rounded-md bg-muted animate-pulse" />
+            ) : layouts.length === 0 ? (
+              <p className="text-[10px] text-muted-foreground italic">
+                No layouts yet. Create one in CMS → Layouts.
+              </p>
+            ) : (
+              <InspectorSelect
+                value={layoutId ?? ''}
+                onChange={(e) => onLayoutChange(e.target.value || null)}
+              >
+                <option value="">Use default layout</option>
+                {layouts.map((l) => (
+                  <option key={l.id} value={l.id}>
+                    {l.name}{l.isDefault ? ' (default)' : ''}
+                  </option>
+                ))}
+              </InspectorSelect>
+            )}
+            <p className="mt-1.5 text-[10px] text-muted-foreground dark:text-muted-foreground">
+              Controls the header & footer shown on this page.
+            </p>
+          </div>
+
+          <div className="pt-2 border-t border-border dark:border-border">
+            <p className="text-[10px] text-muted-foreground dark:text-muted-foreground italic">
+              Select an element on the canvas to inspect its styles.
+            </p>
+          </div>
+        </div>
+      </div>
+    </aside>
+  )
+}
+
+export default function RightSidebar({
+  layoutId = null,
+  onLayoutChange = () => {},
+}: {
+  layoutId?: string | null
+  onLayoutChange?: (id: string | null) => void
+}) {
   const { selectedId, findNode, updateNode, setClassName, addClassName, removeClassName } = useEditorStore()
   const [newClass, setNewClass] = useState('')
 
@@ -203,15 +278,7 @@ export default function RightSidebar() {
   const classes = node ? node.className.split(' ').filter(Boolean) : []
 
   if (!node) {
-    return (
-      <aside className="w-64 flex flex-col h-full border-l bg-card border-border dark:border-border">
-        <div className="flex items-center justify-center h-full flex-col text-center px-6">
-          <Sliders className="w-9 h-9 mb-3 text-muted-foreground dark:text-muted-foreground" />
-          <p className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">No element selected</p>
-          <p className="text-xs mt-1 text-muted-foreground dark:text-muted-foreground">Click an element to inspect it</p>
-        </div>
-      </aside>
-    )
+    return <PageSettingsPanel layoutId={layoutId} onLayoutChange={onLayoutChange} />
   }
 
   const getClass = (prefix: string) => classes.find((c) => c.startsWith(prefix + '-')) || ''

@@ -70,11 +70,35 @@ async function fetchSiteLayout(orgId: string, layoutId?: string | null): Promise
       ? `${API}/public/sites/${orgId}/layout?layoutId=${encodeURIComponent(layoutId)}`
       : `${API}/public/sites/${orgId}/layout`;
     const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) return { navMenuId: null, footerColumns: [] };
+    if (!res.ok) return { navMenuId: null, footerColumns: [], headerVariant: "minimal", footerVariant: "columns" };
     return res.json();
   } catch {
-    return { navMenuId: null, footerColumns: [] };
+    return { navMenuId: null, footerColumns: [], headerVariant: "minimal", footerVariant: "columns" };
   }
+}
+
+async function fetchActiveTheme(orgId: string, previewId?: string): Promise<Record<string, string>> {
+  try {
+    const url = previewId
+      ? `${API}/public/sites/${orgId}/theme?previewId=${encodeURIComponent(previewId)}`
+      : `${API}/public/sites/${orgId}/theme`;
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) return {};
+    const data = await res.json();
+    const vars = data?.variables ?? {};
+    // Only keep actual CSS custom properties (keys starting with --)
+    return Object.fromEntries(
+      Object.entries(vars).filter(([k]) => k.startsWith("--"))
+    ) as Record<string, string>;
+  } catch {
+    return {};
+  }
+}
+
+function buildThemeCss(vars: Record<string, string>): string {
+  const entries = Object.entries(vars).filter(([, v]) => typeof v === "string" && v.trim());
+  if (!entries.length) return "";
+  return `:root { ${entries.map(([k, v]) => `${k}: ${v};`).join(" ")} }`;
 }
 
 // ─── Metadata ────────────────────────────────────────────────────────────────
@@ -84,7 +108,7 @@ export async function generateMetadata({
   searchParams,
 }: {
   params: Promise<{ identifier: string; slug?: string[] }>;
-  searchParams: Promise<{ _chost?: string }>;
+  searchParams: Promise<{ _chost?: string; previewTheme?: string }>;
 }): Promise<Metadata> {
   const { identifier, slug } = await params;
   const { _chost } = await searchParams;
@@ -115,27 +139,36 @@ export default async function PublicSitePage({
   searchParams,
 }: {
   params: Promise<{ identifier: string; slug?: string[] }>;
-  searchParams: Promise<{ _chost?: string }>;
+  searchParams: Promise<{ _chost?: string; previewTheme?: string }>;
 }) {
   const { identifier, slug } = await params;
-  const { _chost } = await searchParams;
+  const { _chost, previewTheme } = await searchParams;
 
   const org = await resolveOrg(identifier, _chost);
   if (!org) notFound();
+
+  const [themeVars] = await Promise.all([
+    fetchActiveTheme(org.id, previewTheme),
+  ]);
+  const themeCss = buildThemeCss(themeVars);
+
+  const ThemeStyle = themeCss
+    ? () => <style dangerouslySetInnerHTML={{ __html: themeCss }} />
+    : null;
 
   if (!slug || slug.length === 0) {
     const landing = await fetchLandingPage(org.id);
     if (landing) {
       const layout = await fetchSiteLayout(org.id, landing.layoutId);
-      return <PageView org={org} page={landing} layout={layout} isLanding />;
+      return <>{ThemeStyle && <ThemeStyle />}<PageView org={org} page={landing} layout={layout} isLanding /></>;
     }
     const [pages, layout] = await Promise.all([listPages(org.id), fetchSiteLayout(org.id)]);
-    return <SiteHome org={org} pages={pages} layout={layout} />;
+    return <>{ThemeStyle && <ThemeStyle />}<SiteHome org={org} pages={pages} layout={layout} /></>;
   }
 
   const pageSlug = slug.join("/");
   const page = await fetchPage(org.id, pageSlug);
   if (!page) notFound();
   const layout = await fetchSiteLayout(org.id, page.layoutId);
-  return <PageView org={org} page={page} layout={layout} />;
+  return <>{ThemeStyle && <ThemeStyle />}<PageView org={org} page={page} layout={layout} /></>;
 }

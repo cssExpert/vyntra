@@ -450,6 +450,15 @@ export const admin = {
     }),
   getDnsInfo: (id: string) =>
     apiFetch<DnsInfo>(`/admin/companies/${id}/domain/dns-info`),
+
+  // Global Themes
+  listThemes: () => apiFetch<DbTheme[]>("/admin/themes"),
+  createTheme: (body: { name: string; description?: string; thumbnail?: string; variables?: Record<string, unknown> }) =>
+    apiFetch<DbTheme>("/admin/themes", { method: "POST", body: JSON.stringify(body) }),
+  updateTheme: (id: string, body: Partial<{ name: string; description: string; thumbnail: string; variables: Record<string, unknown> }>) =>
+    apiFetch<DbTheme>(`/admin/themes/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
+  deleteTheme: (id: string) =>
+    apiFetch<{ ok: boolean }>(`/admin/themes/${id}`, { method: "DELETE" }),
 };
 
 // ─── CMS pages ───────────────────────────────────────────
@@ -530,6 +539,8 @@ export interface CmsLayout {
   isDefault: boolean;
   navMenuId: string | null;
   footerColumns: { title: string; menuId: string }[];
+  headerVariant: string;
+  footerVariant: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -538,16 +549,47 @@ export interface PublicLayoutData {
   id: string | null;
   navMenuId: string | null;
   footerColumns: { title: string; menuId: string }[];
+  headerVariant: string;
+  footerVariant: string;
 }
 
 export const cmsLayouts = {
   list: () => apiFetch<CmsLayout[]>("/cms/layouts"),
-  create: (body: { name: string; isDefault?: boolean; navMenuId?: string | null; footerColumns?: { title: string; menuId: string }[] }) =>
+  create: (body: { name: string; isDefault?: boolean; navMenuId?: string | null; footerColumns?: { title: string; menuId: string }[]; headerVariant?: string; footerVariant?: string }) =>
     apiFetch<CmsLayout>("/cms/layouts", { method: "POST", body: JSON.stringify(body) }),
   get: (id: string) => apiFetch<CmsLayout>(`/cms/layouts/${id}`),
   update: (id: string, body: Partial<Omit<CmsLayout, "id" | "createdAt" | "updatedAt">>) =>
     apiFetch<CmsLayout>(`/cms/layouts/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
   delete: (id: string) => apiFetch<{ ok: boolean }>(`/cms/layouts/${id}`, { method: "DELETE" }),
+};
+
+export interface DbTheme {
+  id: string;
+  name: string;
+  description: string | null;
+  thumbnail: string | null;
+  variables: Record<string, unknown>;
+  isGlobal: boolean;
+  orgId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ThemeListResponse {
+  activeThemeId: string | null;
+  global: DbTheme[];
+  custom: DbTheme[];
+}
+
+export const cmsThemes = {
+  list: () => apiFetch<ThemeListResponse>("/cms/themes"),
+  activate: (id: string) => apiFetch<{ ok: boolean; activeThemeId: string }>(`/cms/themes/${id}/activate`, { method: "POST" }),
+  deactivate: () => apiFetch<{ ok: boolean; activeThemeId: null }>("/cms/themes/active/clear", { method: "DELETE" }),
+  createCustom: (body: { name: string; description?: string; thumbnail?: string; variables?: Record<string, string> }) =>
+    apiFetch<DbTheme>("/cms/themes", { method: "POST", body: JSON.stringify(body) }),
+  updateCustom: (id: string, body: Partial<{ name: string; description: string; thumbnail: string; variables: Record<string, unknown> }>) =>
+    apiFetch<DbTheme>(`/cms/themes/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
+  deleteCustom: (id: string) => apiFetch<{ ok: boolean }>(`/cms/themes/${id}`, { method: "DELETE" }),
 };
 
 export const cmsMenus = {

@@ -104,6 +104,11 @@ model Organization {
   subscription Subscription?
   auditLogs    AuditLog[]
 
+  // Theme
+  activeThemeId String?
+  activeTheme   Theme?  @relation("OrgActiveTheme", fields: [activeThemeId], references: [id], onDelete: SetNull)
+  themes        Theme[] @relation("OrgCustomThemes")
+
   // CMS (org-scoped)
   pages          Page[]
   blogs          Blog[]
@@ -242,6 +247,26 @@ model AuditLog {
 //  CMS (org-scoped) — controllers implemented in a later phase
 // ════════════════════════════════════════════════════════════════════
 
+model Theme {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  thumbnail   String?
+  variables   Json     @default("{}")
+  isGlobal    Boolean  @default(false)
+  orgId       String?
+
+  organization  Organization?  @relation("OrgCustomThemes", fields: [orgId], references: [id], onDelete: Cascade)
+  activeForOrgs Organization[] @relation("OrgActiveTheme")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orgId])
+  @@index([isGlobal])
+  @@map("themes")
+}
+
 model Layout {
   id             String   @id @default(cuid())
   organizationId String
@@ -249,6 +274,8 @@ model Layout {
   isDefault      Boolean  @default(false)
   navMenuId      String?
   footerColumns  Json     @default("[]")
+  headerVariant  String   @default("minimal")
+  footerVariant  String   @default("columns")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 

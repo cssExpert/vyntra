@@ -18,6 +18,8 @@ interface LayoutDto {
   isDefault?: boolean;
   navMenuId?: string | null;
   footerColumns?: FooterColumn[];
+  headerVariant?: string;
+  footerVariant?: string;
 }
 
 @Injectable()
@@ -133,6 +135,8 @@ export class CmsService {
         isDefault: dto.isDefault ?? false,
         navMenuId: dto.navMenuId ?? null,
         footerColumns: (dto.footerColumns ?? []) as object,
+        headerVariant: dto.headerVariant ?? 'minimal',
+        footerVariant: dto.footerVariant ?? 'columns',
         organizationId: orgId,
       },
     });
@@ -168,6 +172,8 @@ export class CmsService {
         ...(dto.footerColumns !== undefined && {
           footerColumns: dto.footerColumns as object,
         }),
+        ...(dto.headerVariant !== undefined && { headerVariant: dto.headerVariant }),
+        ...(dto.footerVariant !== undefined && { footerVariant: dto.footerVariant }),
       },
     });
   }

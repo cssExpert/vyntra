@@ -277,7 +277,42 @@ export class DomainsService {
       id: layout?.id ?? null,
       navMenuId: layout?.navMenuId ?? null,
       footerColumns: (layout?.footerColumns ?? []) as { title: string; menuId: string }[],
+      headerVariant: layout?.headerVariant ?? 'minimal',
+      footerVariant: layout?.footerVariant ?? 'columns',
     };
+  }
+
+  async getPublicTheme(orgId: string, previewId?: string) {
+    // Preview mode: return a specific theme regardless of active setting
+    if (previewId) {
+      const preview = await this.prisma.theme.findFirst({
+        where: { id: previewId, OR: [{ isGlobal: true }, { orgId }] },
+        select: { id: true, name: true, variables: true },
+      });
+      if (preview) return preview;
+    }
+
+    const org = await this.prisma.organization.findUnique({
+      where: { id: orgId },
+      select: {
+        activeTheme: {
+          select: { id: true, name: true, variables: true },
+        },
+      },
+    });
+
+    if (!org) throw new NotFoundException('Organization not found');
+
+    if (org.activeTheme) return org.activeTheme;
+
+    // Fall back to the first global theme if no active theme set
+    const fallback = await this.prisma.theme.findFirst({
+      where: { isGlobal: true },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true, name: true, variables: true },
+    });
+
+    return fallback ?? { id: null, name: 'Default', variables: {} };
   }
 
   async getPublicMenu(orgId: string, menuId: string) {

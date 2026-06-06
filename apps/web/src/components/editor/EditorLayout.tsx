@@ -158,6 +158,9 @@ export default function EditorLayout() {
   const [publishState, setPublishState] = useState<SaveState>("idle");
   const [draftState, setDraftState] = useState<SaveState>("idle");
   const [isLandingPage, setIsLandingPage] = useState(false);
+  const [layoutId, setLayoutId] = useState<string | null>(
+    searchParams.get("layoutId") || null,
+  );
 
   const {
     addNode,
@@ -184,6 +187,7 @@ export default function EditorLayout() {
     if (isEditingExisting && pageSlug) {
       cmsPages.load(pageSlug).then((page) => {
         if (page.isLandingPage) setIsLandingPage(true);
+        if (page.layoutId) setLayoutId(page.layoutId);
         if (page.content) {
           try {
             const nodes = JSON.parse(page.content);
@@ -211,28 +215,28 @@ export default function EditorLayout() {
     const { nodes } = useEditorStore.getState();
     setPublishState("saving");
     try {
-      await cmsPages.save(pageSlug, JSON.stringify(nodes), true);
+      await cmsPages.save(pageSlug, { content: JSON.stringify(nodes), publish: true, layoutId });
       setPublishState("saved");
       setTimeout(() => setPublishState("idle"), 2500);
     } catch {
       setPublishState("error");
       setTimeout(() => setPublishState("idle"), 3000);
     }
-  }, [pageSlug]);
+  }, [pageSlug, layoutId]);
 
   const handleSaveDraft = useCallback(async () => {
     if (!pageSlug) return;
     const { nodes } = useEditorStore.getState();
     setDraftState("saving");
     try {
-      await cmsPages.save(pageSlug, JSON.stringify(nodes), false);
+      await cmsPages.save(pageSlug, { content: JSON.stringify(nodes), publish: false, layoutId });
       setDraftState("saved");
       setTimeout(() => setDraftState("idle"), 2500);
     } catch {
       setDraftState("error");
       setTimeout(() => setDraftState("idle"), 3000);
     }
-  }, [pageSlug]);
+  }, [pageSlug, layoutId]);
 
   function handleInsertBlock(block: ComponentBlock) {
     const { nodes, selectedId } = useEditorStore.getState();
@@ -355,7 +359,7 @@ export default function EditorLayout() {
             <Canvas />
             <BottomToolbar />
           </div>
-          <RightSidebar />
+          <RightSidebar layoutId={layoutId} onLayoutChange={setLayoutId} />
         </div>
       </div>
 
