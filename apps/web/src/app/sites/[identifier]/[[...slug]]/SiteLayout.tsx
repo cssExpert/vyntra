@@ -446,6 +446,195 @@ async function FooterDark({
   );
 }
 
+/** Shopingo-style: dark utility top bar + white main nav + cart icon */
+async function NavbarShopingo({ org, items }: { org: OrgInfo; items: MenuItem[] }) {
+  return (
+    <header className="sticky top-0 z-50">
+      {/* Top utility bar */}
+      <div style={{ backgroundColor: "var(--foreground, #212529)" }}>
+        <div className="max-w-6xl mx-auto px-6 h-9 flex items-center justify-between">
+          <span className="text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>
+            Free shipping on orders over $99
+          </span>
+          <div className="flex items-center gap-5 text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>
+            <a href="/account" className="hover:text-white transition-colors" style={{ color: "inherit" }}>My Account</a>
+            <a href="/wishlist" className="hover:text-white transition-colors" style={{ color: "inherit" }}>Wishlist</a>
+          </div>
+        </div>
+      </div>
+
+      {/* Main nav */}
+      <nav
+        style={{
+          backgroundColor: "var(--background, #ffffff)",
+          borderBottom: "1px solid var(--border, #e1e1e1)",
+        }}
+      >
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between gap-8">
+          <a
+            href="/"
+            className="text-xl font-bold tracking-tight shrink-0 transition-opacity hover:opacity-70"
+            style={{ fontFamily: "var(--font-heading, 'Raleway', sans-serif)", color: "var(--foreground, #212529)" }}
+          >
+            {org.name}
+          </a>
+
+          {items.length > 0 && (
+            <div className="flex items-center gap-7 flex-wrap">
+              {items.map((item) => (
+                <a
+                  key={item.id}
+                  href={item.url}
+                  target={item.target}
+                  rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
+                  className={["text-sm font-medium transition-opacity hover:opacity-60", visClass(item.visibility)].filter(Boolean).join(" ")}
+                  style={{ color: "var(--foreground, #323232)" }}
+                >
+                  {item.label}
+                </a>
+              ))}
+            </div>
+          )}
+
+          {/* Cart icon */}
+          <div className="flex items-center gap-3 shrink-0">
+            <button
+              aria-label="Search"
+              className="p-1.5 transition-opacity hover:opacity-60"
+              style={{ color: "var(--foreground, #212529)" }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+            </button>
+            <button
+              aria-label="Cart"
+              className="relative p-1.5 transition-opacity hover:opacity-60"
+              style={{ color: "var(--foreground, #212529)" }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/>
+                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </nav>
+    </header>
+  );
+}
+
+/** Shopingo-style: newsletter strip (dark) + columns (light) + bottom bar (dark) */
+async function FooterShopingo({
+  org,
+  columns,
+  columnMenus,
+}: {
+  org: OrgInfo;
+  columns: { title: string; menuId: string }[];
+  columnMenus: MenuItem[][];
+}) {
+  const colCount = columns.length;
+
+  return (
+    <footer className="mt-24">
+      {/* Newsletter strip */}
+      <div style={{ backgroundColor: "var(--foreground, #212529)" }}>
+        <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div>
+            <p className="text-lg font-bold" style={{ fontFamily: "var(--font-heading, 'Raleway', sans-serif)", color: "var(--background, #ffffff)" }}>
+              Get Latest Updates
+            </p>
+            <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>
+              Subscribe to our newsletter for the latest offers
+            </p>
+          </div>
+          <div className="flex w-full sm:w-auto max-w-sm">
+            <input
+              type="email"
+              placeholder="Enter your email address"
+              className="flex-1 px-4 py-2.5 text-sm outline-none"
+              style={{
+                backgroundColor: "var(--background, #ffffff)",
+                color: "var(--foreground, #212529)",
+                border: "none",
+              }}
+            />
+            <button
+              className="px-5 py-2.5 text-sm font-semibold shrink-0 transition-opacity hover:opacity-85"
+              style={{
+                backgroundColor: "var(--accent, #ff2c2c)",
+                color: "#ffffff",
+              }}
+            >
+              Subscribe
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Columns section */}
+      <div
+        style={{
+          backgroundColor: "var(--muted, #f9f9f9)",
+          borderTop: "1px solid var(--border, #e1e1e1)",
+          borderBottom: "1px solid var(--border, #e1e1e1)",
+        }}
+      >
+        <div className="max-w-6xl mx-auto px-6 py-14">
+          {colCount > 0 && (
+            <div className={`grid gap-10 ${gridClass(colCount)}`}>
+              {columns.map((col, i) => {
+                const items = columnMenus[i] ?? [];
+                return (
+                  <div key={i}>
+                    {col.title && (
+                      <h4
+                        className="text-sm font-bold uppercase tracking-widest mb-4"
+                        style={{ fontFamily: "var(--font-heading, 'Raleway', sans-serif)", color: "var(--foreground, #212529)" }}
+                      >
+                        {col.title}
+                      </h4>
+                    )}
+                    <ul className="space-y-2.5">
+                      {items.map((item) => (
+                        <li key={item.id}>
+                          <a
+                            href={item.url}
+                            target={item.target}
+                            rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
+                            className={["text-sm transition-colors hover:text-foreground", visClass(item.visibility)].filter(Boolean).join(" ")}
+                            style={{ color: "var(--muted-foreground, #636363)" }}
+                          >
+                            {item.label}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {colCount === 0 && (
+            <p className="text-center text-sm" style={{ color: "var(--muted-foreground, #797979)" }}>
+              {org.name}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Bottom bar */}
+      <div style={{ backgroundColor: "var(--foreground, #212529)" }}>
+        <div className="max-w-6xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
+          <span>© {new Date().getFullYear()} {org.name}. All Rights Reserved.</span>
+          <span>Powered by Vyntra</span>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
 // ── Public entry points ───────────────────────────────────────────────────────
 
 export async function SiteNavbar({
@@ -455,9 +644,7 @@ export async function SiteNavbar({
   org: OrgInfo;
   layout: SiteLayoutData;
 }) {
-  const items = layout.navMenuId
-    ? await fetchMenu(org.id, layout.navMenuId)
-    : [];
+  const items = layout.navMenuId ? await fetchMenu(org.id, layout.navMenuId) : [];
 
   switch (layout.headerVariant) {
     case "centered":
@@ -466,6 +653,8 @@ export async function SiteNavbar({
       return <NavbarSplit org={org} items={items} />;
     case "dark":
       return <NavbarDark org={org} items={items} />;
+    case "shopingo":
+      return <NavbarShopingo org={org} items={items} />;
     default:
       return <NavbarMinimal org={org} items={items} />;
   }
@@ -490,6 +679,8 @@ export async function SiteFooter({
       return <FooterCentered org={org} columns={columns} columnMenus={columnMenus} />;
     case "dark":
       return <FooterDark org={org} columns={columns} columnMenus={columnMenus} />;
+    case "shopingo":
+      return <FooterShopingo org={org} columns={columns} columnMenus={columnMenus} />;
     default:
       return <FooterColumns org={org} columns={columns} columnMenus={columnMenus} />;
   }

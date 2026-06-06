@@ -5,12 +5,14 @@ import { Plus, Pencil, Trash2, Star, Monitor, Rows, CheckCircle2, LayoutTemplate
 import SectionTitle from "@/components/common/SectionTitle";
 import { Modal } from "@/components/common/Modal";
 import { cmsLayouts, cmsMenus, type CmsLayout, type CmsMenu } from "@/lib/api";
+import { MENU_TYPES } from "./MenusView";
 
 const HEADER_VARIANTS = [
   { value: "minimal",  label: "Minimal",  description: "Logo left · nav right" },
   { value: "centered", label: "Centered", description: "Logo + nav stacked center" },
   { value: "split",    label: "Split",    description: "Logo · nav center · CTA right" },
   { value: "dark",     label: "Dark",     description: "Inverted dark background" },
+  { value: "shopingo", label: "Shopingo", description: "Dark utility bar + white main nav" },
 ];
 
 const FOOTER_VARIANTS = [
@@ -18,6 +20,7 @@ const FOOTER_VARIANTS = [
   { value: "simple",   label: "Simple",   description: "Copyright line only" },
   { value: "centered", label: "Centered", description: "Centered logo + flat links" },
   { value: "dark",     label: "Dark",     description: "Dark background columns" },
+  { value: "shopingo", label: "Shopingo", description: "Newsletter strip + columns + dark bar" },
 ];
 
 // ── Wireframe SVG previews ────────────────────────────────────────────────────
@@ -147,11 +150,66 @@ function PreviewFootDark() {
   );
 }
 
+function PreviewNavShopingo() {
+  return (
+    <svg viewBox="0 0 220 56" className="w-full" aria-hidden="true">
+      {/* dark top utility bar */}
+      <rect width="220" height="14" fill="#1e293b" />
+      <rect x="14" y="5" width="60" height="4" rx="1" fill="#475569" />
+      <rect x="152" y="5" width="22" height="4" rx="1" fill="#475569" />
+      <rect x="180" y="5" width="22" height="4" rx="1" fill="#475569" />
+      {/* white main nav */}
+      <rect y="14" width="220" height="42" fill="white" stroke="#e2e8f0" strokeWidth="0.75" />
+      {/* logo */}
+      <rect x="14" y="24" width="36" height="9" rx="1" fill="#1e293b" />
+      {/* nav links */}
+      <rect x="80"  y="26" width="16" height="5" rx="1" fill="#cbd5e1" />
+      <rect x="102" y="26" width="16" height="5" rx="1" fill="#cbd5e1" />
+      <rect x="124" y="26" width="16" height="5" rx="1" fill="#cbd5e1" />
+      <rect x="146" y="26" width="16" height="5" rx="1" fill="#cbd5e1" />
+      {/* search + cart icons */}
+      <circle cx="192" cy="28.5" r="5" fill="none" stroke="#94a3b8" strokeWidth="1.5" />
+      <line x1="195.5" y1="32" x2="198" y2="34.5" stroke="#94a3b8" strokeWidth="1.5" />
+      <rect x="203" y="24" width="9" height="9" rx="1" fill="none" stroke="#94a3b8" strokeWidth="1.5" />
+    </svg>
+  );
+}
+
+function PreviewFootShopingo() {
+  return (
+    <svg viewBox="0 0 220 96" className="w-full" aria-hidden="true">
+      {/* newsletter strip - dark */}
+      <rect width="220" height="30" fill="#1e293b" />
+      <rect x="14" y="8" width="50" height="6" rx="1.5" fill="#e2e8f0" opacity="0.7" />
+      <rect x="96" y="8" width="72" height="14" fill="white" />
+      <rect x="168" y="8" width="28" height="14" fill="#ef4444" />
+      <rect x="171" y="11" width="22" height="7" rx="1" fill="white" opacity="0.85" />
+      {/* columns section - light */}
+      <rect y="30" width="220" height="52" fill="#f8fafc" />
+      <line x1="0" y1="30.5" x2="220" y2="30.5" stroke="#e2e8f0" strokeWidth="0.5" />
+      <rect x="14" y="38" width="26" height="5" rx="1" fill="#334155" />
+      <rect x="14" y="48" width="34" height="3.5" rx="1" fill="#e2e8f0" />
+      <rect x="14" y="55" width="28" height="3.5" rx="1" fill="#e2e8f0" />
+      <rect x="84" y="38" width="26" height="5" rx="1" fill="#334155" />
+      <rect x="84" y="48" width="34" height="3.5" rx="1" fill="#e2e8f0" />
+      <rect x="84" y="55" width="28" height="3.5" rx="1" fill="#e2e8f0" />
+      <rect x="154" y="38" width="26" height="5" rx="1" fill="#334155" />
+      <rect x="154" y="48" width="34" height="3.5" rx="1" fill="#e2e8f0" />
+      <rect x="154" y="55" width="28" height="3.5" rx="1" fill="#e2e8f0" />
+      {/* bottom bar - dark */}
+      <rect y="82" width="220" height="14" fill="#1e293b" />
+      <rect x="14" y="87" width="60" height="4" rx="1" fill="#475569" />
+      <rect x="170" y="87" width="36" height="4" rx="1" fill="#475569" />
+    </svg>
+  );
+}
+
 const HEADER_PREVIEWS: Record<string, () => React.ReactElement> = {
   minimal:  PreviewNavMinimal,
   centered: PreviewNavCentered,
   split:    PreviewNavSplit,
   dark:     PreviewNavDark,
+  shopingo: PreviewNavShopingo,
 };
 
 const FOOTER_PREVIEWS: Record<string, () => React.ReactElement> = {
@@ -159,6 +217,7 @@ const FOOTER_PREVIEWS: Record<string, () => React.ReactElement> = {
   simple:   PreviewFootSimple,
   centered: PreviewFootCentered,
   dark:     PreviewFootDark,
+  shopingo: PreviewFootShopingo,
 };
 
 // ── Layout editor form ────────────────────────────────────────────────────────
@@ -168,12 +227,23 @@ function MenuSelect({
   onChange,
   menus,
   placeholder = "None",
+  filterType,
 }: {
   value: string | null;
   onChange: (v: string | null) => void;
   menus: CmsMenu[];
   placeholder?: string;
+  filterType?: string;
 }) {
+  const grouped = filterType
+    ? { suggested: menus.filter((m) => m.menuType === filterType), other: menus.filter((m) => m.menuType !== filterType) }
+    : { suggested: [], other: menus };
+
+  const typeLabel = (m: CmsMenu) => {
+    const t = MENU_TYPES.find((t) => t.value === (m.menuType ?? "navigation"));
+    return t ? ` (${t.label})` : "";
+  };
+
   return (
     <select
       value={value ?? ""}
@@ -181,9 +251,20 @@ function MenuSelect({
       className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
     >
       <option value="">{placeholder}</option>
-      {menus.map((m) => (
-        <option key={m.id} value={m.id}>{m.name}</option>
-      ))}
+      {grouped.suggested.length > 0 && (
+        <optgroup label="Suggested">
+          {grouped.suggested.map((m) => (
+            <option key={m.id} value={m.id}>{m.name}{typeLabel(m)}</option>
+          ))}
+        </optgroup>
+      )}
+      {grouped.other.length > 0 && (
+        <optgroup label={grouped.suggested.length > 0 ? "Other menus" : "All menus"}>
+          {grouped.other.map((m) => (
+            <option key={m.id} value={m.id}>{m.name}{typeLabel(m)}</option>
+          ))}
+        </optgroup>
+      )}
     </select>
   );
 }
@@ -258,7 +339,7 @@ function LayoutForm({
           <Monitor size={13} className="inline mr-1.5 mb-0.5" />
           Header menu
         </label>
-        <MenuSelect value={form.navMenuId} onChange={(v) => setForm((f) => ({ ...f, navMenuId: v }))} menus={menus} placeholder="No header menu" />
+        <MenuSelect value={form.navMenuId} onChange={(v) => setForm((f) => ({ ...f, navMenuId: v }))} menus={menus} placeholder="No header menu" filterType="navigation" />
       </div>
 
       <div className="space-y-2">
@@ -327,7 +408,10 @@ function LayoutForm({
               className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary transition-all"
             >
               <option value="">Pick menu…</option>
-              {menus.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+              {menus.map((m) => {
+                const t = MENU_TYPES.find((t) => t.value === (m.menuType ?? "navigation"));
+                return <option key={m.id} value={m.id}>{m.name}{t ? ` (${t.label})` : ""}</option>;
+              })}
             </select>
             <button type="button" onClick={() => removeColumn(i)} className="text-muted-foreground hover:text-rose-500 transition-colors">
               <Trash2 size={14} />

@@ -395,6 +395,7 @@ model WebsiteConfig {
 model Menu {
   id             String     @id @default(cuid())
   name           String
+  menuType       String     @default("navigation")
   slug           String
   visibility     String[]   @default(["all"])
   organizationId String

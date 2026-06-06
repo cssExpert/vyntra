@@ -13,6 +13,13 @@ import {
   FileText,
   BookOpen,
   Search,
+  Hash,
+  Mail,
+  Navigation,
+  Rows,
+  Zap,
+  Share2,
+  PanelLeft,
 } from "lucide-react";
 import {
   cmsMenus,
@@ -111,19 +118,33 @@ function VisibilityMultiSelect({ value, onChange }: { value: string[]; onChange:
   );
 }
 
+// ─── Menu type config ──────────────────────────────────────────────────────────
+
+export const MENU_TYPES: { value: string; label: string; icon: React.ElementType; description: string }[] = [
+  { value: "navigation", label: "Navigation",  icon: Navigation, description: "Main header nav" },
+  { value: "footer",     label: "Footer",      icon: Rows,       description: "Footer link column" },
+  { value: "utility",    label: "Utility bar", icon: Zap,        description: "Top bar (account, etc.)" },
+  { value: "social",     label: "Social",      icon: Share2,     description: "Social media links" },
+  { value: "sidebar",    label: "Sidebar",     icon: PanelLeft,  description: "Sidebar navigation" },
+];
+
 // ─── Link type helpers ─────────────────────────────────────────────────────────
 
-type LinkType = "url" | "page" | "blog";
+type LinkType = "url" | "page" | "blog" | "anchor" | "email";
 
 function detectLinkType(url: string): LinkType {
-  if (url.startsWith("page://")) return "page";
-  if (url.startsWith("blog://")) return "blog";
+  if (url.startsWith("page://"))   return "page";
+  if (url.startsWith("blog://"))   return "blog";
+  if (url.startsWith("#"))         return "anchor";
+  if (url.startsWith("mailto:"))   return "email";
   return "url";
 }
 
 function extractRef(url: string): string {
-  if (url.startsWith("page://")) return url.slice(7);
-  if (url.startsWith("blog://")) return url.slice(7);
+  if (url.startsWith("page://"))  return url.slice(7);
+  if (url.startsWith("blog://"))  return url.slice(7);
+  if (url.startsWith("#"))        return url.slice(1);
+  if (url.startsWith("mailto:"))  return url.slice(7);
   return url;
 }
 
@@ -198,9 +219,11 @@ function PickerList<T extends { id: string; title: string; slug: string; publish
 interface DraftItem { label: string; url: string; target: string; visibility: string[] }
 
 const LINK_TYPES: { value: LinkType; label: string; icon: React.ElementType }[] = [
-  { value: "url", label: "Custom URL", icon: Globe },
-  { value: "page", label: "Page", icon: FileText },
-  { value: "blog", label: "Blog", icon: BookOpen },
+  { value: "url",    label: "URL",    icon: Globe },
+  { value: "page",   label: "Page",   icon: FileText },
+  { value: "blog",   label: "Blog",   icon: BookOpen },
+  { value: "anchor", label: "Anchor", icon: Hash },
+  { value: "email",  label: "Email",  icon: Mail },
 ];
 
 function ItemRow({
@@ -216,9 +239,11 @@ function ItemRow({
   const ref = extractRef(item.url);
 
   function setLinkType(type: LinkType) {
-    if (type === "url") onChange("url", "");
-    else if (type === "page") onChange("url", pages[0] ? `page://${pages[0].id}` : "page://");
-    else onChange("url", blogs[0] ? `blog://${blogs[0].id}` : "blog://");
+    if (type === "url")    onChange("url", "");
+    else if (type === "page")   onChange("url", pages[0] ? `page://${pages[0].id}` : "page://");
+    else if (type === "blog")   onChange("url", blogs[0] ? `blog://${blogs[0].id}` : "blog://");
+    else if (type === "anchor") onChange("url", "#");
+    else if (type === "email")  onChange("url", "mailto:");
   }
 
   function selectPage(page: CmsPageListItem) {
@@ -339,6 +364,38 @@ function ItemRow({
         </div>
       )}
 
+      {linkType === "anchor" && (
+        <div>
+          <p className="text-[10px] font-medium text-muted-foreground mb-1">Section ID</p>
+          <div className="flex items-center rounded-md border border-border bg-background overflow-hidden focus-within:border-primary transition-colors">
+            <span className="px-2.5 py-1.5 text-xs text-muted-foreground border-r border-border bg-muted/50 select-none">#</span>
+            <input
+              className="flex-1 px-2.5 py-1.5 text-xs text-foreground bg-transparent outline-none"
+              placeholder="section-id"
+              value={ref}
+              onChange={(e) => onChange("url", `#${e.target.value.replace(/\s+/g, "-").toLowerCase()}`)}
+            />
+          </div>
+          <p className="mt-1 text-[10px] text-muted-foreground">Scrolls to an element with this ID on the page.</p>
+        </div>
+      )}
+
+      {linkType === "email" && (
+        <div>
+          <p className="text-[10px] font-medium text-muted-foreground mb-1">Email address</p>
+          <div className="flex items-center rounded-md border border-border bg-background overflow-hidden focus-within:border-primary transition-colors">
+            <span className="px-2.5 py-1.5 text-xs text-muted-foreground border-r border-border bg-muted/50 select-none">mailto:</span>
+            <input
+              className="flex-1 px-2.5 py-1.5 text-xs text-foreground bg-transparent outline-none"
+              placeholder="hello@example.com"
+              type="email"
+              value={ref}
+              onChange={(e) => onChange("url", `mailto:${e.target.value}`)}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Open in */}
       <div>
         <p className="text-[10px] font-medium text-muted-foreground mb-1">Open in</p>
@@ -362,7 +419,7 @@ function ItemRow({
 
 // ─── Create / Edit modal ───────────────────────────────────────────────────────
 
-interface EditState { name: string; slug: string; visibility: string[]; items: DraftItem[] }
+interface EditState { name: string; slug: string; menuType: string; visibility: string[]; items: DraftItem[] }
 
 function MenuModal({
   open, initial, onClose, onSave, saving,
@@ -372,14 +429,14 @@ function MenuModal({
 }) {
   const isNew = !initial;
   const [form, setForm] = useState<EditState>(
-    initial ?? { name: "", slug: "", visibility: ["all"], items: [] },
+    initial ?? { name: "", slug: "", menuType: "navigation", visibility: ["all"], items: [] },
   );
   const [pages, setPages] = useState<CmsPageListItem[]>([]);
   const [blogs, setBlogs] = useState<CmsBlogListItem[]>([]);
 
   useEffect(() => {
     if (!open) return;
-    setForm(initial ?? { name: "", slug: "", visibility: ["all"], items: [] });
+    setForm(initial ?? { name: "", slug: "", menuType: "navigation", visibility: ["all"], items: [] });
     // Fetch pages and blogs once when modal opens
     Promise.all([cmsPages.list(), cmsBlogs.list()])
       .then(([p, b]) => { setPages(p); setBlogs(b); })
@@ -425,6 +482,33 @@ function MenuModal({
             <input className={inputCls} placeholder="e.g. main-nav" value={form.slug}
               onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "") }))} />
           </div>
+        </div>
+
+        {/* Menu type */}
+        <div>
+          <label className="block text-xs font-medium text-foreground mb-2">Menu type</label>
+          <div className="grid grid-cols-5 gap-1.5">
+            {MENU_TYPES.map(({ value, label, icon: Icon, description }) => {
+              const active = form.menuType === value;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setForm((f) => ({ ...f, menuType: value }))}
+                  title={description}
+                  className={`flex flex-col items-center gap-1 py-2.5 px-1 rounded-lg border text-center transition-all ${
+                    active ? "border-primary bg-primary/5 text-primary" : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span className="text-[10px] font-medium leading-tight">{label}</span>
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-1.5 text-[10px] text-muted-foreground">
+            {MENU_TYPES.find((t) => t.value === form.menuType)?.description}
+          </p>
         </div>
 
         {/* Visibility */}
@@ -486,12 +570,18 @@ function MenuModal({
 
 function MenuCard({ menu, onEdit, onDelete }: { menu: CmsMenu; onEdit: () => void; onDelete: () => void }) {
   const itemCount = menu._count?.items ?? menu.items?.length ?? 0;
+  const typeConfig = MENU_TYPES.find((t) => t.value === (menu.menuType ?? "navigation")) ?? MENU_TYPES[0];
+  const TypeIcon = typeConfig.icon;
   return (
     <div className="flex items-start justify-between p-4 rounded-xl border border-border bg-card hover:border-primary/30 transition-colors">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
           <Menu className="w-4 h-4 text-primary flex-shrink-0" />
           <h3 className="text-sm font-semibold text-foreground truncate">{menu.name}</h3>
+          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-muted text-muted-foreground shrink-0">
+            <TypeIcon className="w-2.5 h-2.5" />
+            {typeConfig.label}
+          </span>
         </div>
         <p className="text-[11px] text-muted-foreground font-mono mb-2">{menu.slug}</p>
         <VisibilityBadge vis={menu.visibility} />
@@ -538,11 +628,11 @@ export function MenusView() {
     try {
       let menu: CmsMenu;
       if (editTarget) {
-        menu = await cmsMenus.update(editTarget.id, { name: form.name, slug: form.slug, visibility: form.visibility });
+        menu = await cmsMenus.update(editTarget.id, { name: form.name, slug: form.slug, menuType: form.menuType, visibility: form.visibility });
         menu = await cmsMenus.setItems(menu.id, form.items);
         setMenus((prev) => prev.map((m) => (m.id === menu.id ? menu : m)));
       } else {
-        menu = await cmsMenus.create({ name: form.name, slug: form.slug, visibility: form.visibility });
+        menu = await cmsMenus.create({ name: form.name, slug: form.slug, menuType: form.menuType, visibility: form.visibility });
         if (form.items.length > 0) menu = await cmsMenus.setItems(menu.id, form.items);
         setMenus((prev) => [...prev, menu]);
       }
@@ -562,7 +652,9 @@ export function MenusView() {
 
   const editInitial: EditState | null = editTarget
     ? {
-        name: editTarget.name, slug: editTarget.slug, visibility: editTarget.visibility,
+        name: editTarget.name, slug: editTarget.slug,
+        menuType: editTarget.menuType ?? "navigation",
+        visibility: editTarget.visibility,
         items: (editTarget.items ?? []).map((it) => ({ label: it.label, url: it.url, target: it.target, visibility: it.visibility ?? ["all"] })),
       }
     : null;

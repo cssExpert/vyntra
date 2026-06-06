@@ -602,6 +602,29 @@ async function main() {
         "--font-body": "'Inter', system-ui, sans-serif",
       },
     },
+    {
+      id: "shopingo",
+      name: "Shopingo",
+      description: "Sharp-corner e-commerce design with charcoal primary, clean white background, and bold red accents. Raleway typography throughout.",
+      thumbnail: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=800&q=80",
+      category: "E-Commerce",
+      tags: ["Shop", "E-Commerce", "Charcoal", "Red"],
+      variables: {
+        "--primary": "#212529",
+        "--primary-foreground": "#ffffff",
+        "--secondary": "#f9f9f9",
+        "--accent": "#ff2c2c",
+        "--background": "#ffffff",
+        "--foreground": "#212529",
+        "--muted": "#f9f9f9",
+        "--muted-foreground": "#797979",
+        "--card": "#ffffff",
+        "--border": "#e1e1e1",
+        "--radius": "0rem",
+        "--font-heading": "'Raleway', system-ui, sans-serif",
+        "--font-body": "'Raleway', system-ui, sans-serif",
+      },
+    },
   ];
 
   for (const t of GLOBAL_THEMES) {

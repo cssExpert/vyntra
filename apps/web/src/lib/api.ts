@@ -525,6 +525,7 @@ export interface CmsMenu {
   id: string;
   name: string;
   slug: string;
+  menuType: string;
   visibility: string[];
   organizationId: string;
   createdAt: string;
@@ -594,10 +595,10 @@ export const cmsThemes = {
 
 export const cmsMenus = {
   list: () => apiFetch<CmsMenu[]>("/cms/menus"),
-  create: (data: { name: string; slug: string; visibility: string[] }) =>
+  create: (data: { name: string; slug: string; visibility: string[]; menuType?: string }) =>
     apiFetch<CmsMenu>("/cms/menus", { method: "POST", body: JSON.stringify(data) }),
   get: (id: string) => apiFetch<CmsMenu>(`/cms/menus/${id}`),
-  update: (id: string, data: Partial<Pick<CmsMenu, "name" | "slug" | "visibility">>) =>
+  update: (id: string, data: Partial<Pick<CmsMenu, "name" | "slug" | "visibility" | "menuType">>) =>
     apiFetch<CmsMenu>(`/cms/menus/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
   delete: (id: string) => apiFetch<{ ok: boolean }>(`/cms/menus/${id}`, { method: "DELETE" }),
   setItems: (id: string, items: Pick<CmsMenuItem, "label" | "url" | "target" | "visibility">[]) =>

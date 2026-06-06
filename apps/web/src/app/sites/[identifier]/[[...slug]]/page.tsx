@@ -101,6 +101,26 @@ function buildThemeCss(vars: Record<string, string>): string {
   return `:root { ${entries.map(([k, v]) => `${k}: ${v};`).join(" ")} }`;
 }
 
+const SYSTEM_FONTS = new Set([
+  "system-ui", "sans-serif", "serif", "monospace", "cursive", "fantasy",
+  "-apple-system", "BlinkMacSystemFont", "ui-sans-serif", "ui-serif",
+]);
+
+function buildGoogleFontsUrl(vars: Record<string, string>): string | null {
+  const vals = [vars["--font-heading"], vars["--font-body"]].filter(Boolean);
+  const names = new Set<string>();
+  for (const val of vals) {
+    for (const [, name] of val.matchAll(/['"]([^'"]+)['"]/g)) {
+      if (!SYSTEM_FONTS.has(name)) names.add(name);
+    }
+  }
+  if (!names.size) return null;
+  const families = [...names]
+    .map((n) => `family=${encodeURIComponent(n)}:wght@300;400;500;600;700`)
+    .join("&");
+  return `https://fonts.googleapis.com/css2?${families}&display=swap`;
+}
+
 // ─── Metadata ────────────────────────────────────────────────────────────────
 
 export async function generateMetadata({
@@ -151,24 +171,34 @@ export default async function PublicSitePage({
     fetchActiveTheme(org.id, previewTheme),
   ]);
   const themeCss = buildThemeCss(themeVars);
+  const fontUrl = buildGoogleFontsUrl(themeVars);
 
-  const ThemeStyle = themeCss
-    ? () => <style dangerouslySetInnerHTML={{ __html: themeCss }} />
-    : null;
+  const Head = () => (
+    <>
+      {fontUrl && (
+        <>
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+          <link rel="stylesheet" href={fontUrl} />
+        </>
+      )}
+      {themeCss && <style dangerouslySetInnerHTML={{ __html: themeCss }} />}
+    </>
+  );
 
   if (!slug || slug.length === 0) {
     const landing = await fetchLandingPage(org.id);
     if (landing) {
       const layout = await fetchSiteLayout(org.id, landing.layoutId);
-      return <>{ThemeStyle && <ThemeStyle />}<PageView org={org} page={landing} layout={layout} isLanding /></>;
+      return <><Head /><PageView org={org} page={landing} layout={layout} isLanding /></>;
     }
     const [pages, layout] = await Promise.all([listPages(org.id), fetchSiteLayout(org.id)]);
-    return <>{ThemeStyle && <ThemeStyle />}<SiteHome org={org} pages={pages} layout={layout} /></>;
+    return <><Head /><SiteHome org={org} pages={pages} layout={layout} /></>;
   }
 
   const pageSlug = slug.join("/");
   const page = await fetchPage(org.id, pageSlug);
   if (!page) notFound();
   const layout = await fetchSiteLayout(org.id, page.layoutId);
-  return <>{ThemeStyle && <ThemeStyle />}<PageView org={org} page={page} layout={layout} /></>;
+  return <><Head /><PageView org={org} page={page} layout={layout} /></>;
 }

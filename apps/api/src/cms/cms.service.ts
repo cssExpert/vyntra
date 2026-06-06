@@ -197,9 +197,9 @@ export class CmsService {
     });
   }
 
-  async createMenu(orgId: string, dto: { name: string; slug: string; visibility: string[] }) {
+  async createMenu(orgId: string, dto: { name: string; slug: string; visibility: string[]; menuType?: string }) {
     return this.prisma.menu.create({
-      data: { ...dto, organizationId: orgId },
+      data: { ...dto, menuType: dto.menuType ?? 'navigation', organizationId: orgId },
       include: { items: { orderBy: { order: 'asc' } } },
     });
   }
@@ -216,7 +216,7 @@ export class CmsService {
   async updateMenu(
     orgId: string,
     id: string,
-    dto: { name?: string; slug?: string; visibility?: string[] },
+    dto: { name?: string; slug?: string; visibility?: string[]; menuType?: string },
   ) {
     const menu = await this.prisma.menu.findFirst({ where: { id, organizationId: orgId } });
     if (!menu) throw new NotFoundException('Menu not found');
