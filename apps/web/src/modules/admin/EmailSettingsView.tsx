@@ -235,7 +235,7 @@ function Inner() {
     setTestingSmtp(true);
     setError("");
     try {
-      await apiFetch("/admin/email/test-smtp", {
+      await apiFetch("/admin/settings/email/test-smtp", {
         method: "POST",
         body: JSON.stringify(smtpConfig),
       });
@@ -405,18 +405,35 @@ function Inner() {
             title="Test Connection"
             description="Verify your SMTP configuration is working"
           >
-            <button
-              onClick={testSmtp}
-              disabled={testingSmtp || !smtpConfig.host || !smtpConfig.fromEmail}
-              className="flex items-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-muted text-white px-4 py-2.5 text-sm font-semibold transition disabled:opacity-50 cursor-pointer"
-            >
-              {testingSmtp ? (
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              ) : (
-                <Zap className="h-4 w-4" />
-              )}
-              {testingSmtp ? "Testing..." : "Test SMTP Connection"}
-            </button>
+            <div className="space-y-4">
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-3.5 flex gap-3">
+                <Info className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                <div className="text-sm text-amber-700">
+                  <p className="font-medium mb-2">Before Testing:</p>
+                  <ul className="space-y-1 text-xs list-disc list-inside">
+                    <li>Fill in all required fields (Host, Port, From Email)</li>
+                    <li>For Gmail: use an App Password, not your regular password</li>
+                    <li>For SendGrid: use SMTP, not the API key</li>
+                    <li>Ensure your credentials are correct</li>
+                  </ul>
+                  <p className="font-medium mt-3 mb-1">What This Does:</p>
+                  <p className="text-xs">Connects to your SMTP server to verify your configuration works. Does NOT send an email.</p>
+                </div>
+              </div>
+
+              <button
+                onClick={testSmtp}
+                disabled={testingSmtp || !smtpConfig.host || !smtpConfig.fromEmail}
+                className="flex items-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-muted text-white px-4 py-2.5 text-sm font-semibold transition disabled:opacity-50 cursor-pointer"
+              >
+                {testingSmtp ? (
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                ) : (
+                  <Zap className="h-4 w-4" />
+                )}
+                {testingSmtp ? "Testing..." : "Test SMTP Connection"}
+              </button>
+            </div>
           </SectionCard>
         )}
       </div>
