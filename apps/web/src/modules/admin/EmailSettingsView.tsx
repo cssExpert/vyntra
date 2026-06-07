@@ -338,12 +338,32 @@ function Inner() {
               <div className="rounded-lg border border-blue-200 bg-blue-50 p-3.5 flex gap-3">
                 <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
                 <div className="text-sm text-blue-700">
-                  <p className="font-medium mb-2">SMTP Provider Guides:</p>
-                  <ul className="space-y-1 text-xs">
-                    <li><strong>Gmail:</strong> smtp.gmail.com:587 + App Password</li>
-                    <li><strong>SendGrid:</strong> smtp.sendgrid.net:587 username=&quot;apikey&quot;</li>
-                    <li><strong>AWS SES:</strong> email-smtp.[region].amazonaws.com:587</li>
-                  </ul>
+                  <p className="font-medium mb-2">SMTP Provider Setup Guide:</p>
+
+                  <div className="mb-3 pb-3 border-b border-blue-200">
+                    <p className="font-medium text-xs mb-1">📧 Gmail (Most Common):</p>
+                    <p className="text-xs mb-2">1. Enable 2-Step Verification: <a href="https://myaccount.google.com/security" target="_blank" rel="noopener noreferrer" className="underline">myaccount.google.com/security</a></p>
+                    <p className="text-xs mb-2">2. Go to App Passwords: <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener noreferrer" className="underline">myaccount.google.com/apppasswords</a></p>
+                    <p className="text-xs mb-2">3. Select &quot;Mail&quot; and &quot;Windows/Mac/Linux&quot;</p>
+                    <p className="text-xs mb-2">4. Copy the 16-character password</p>
+                    <p className="text-xs font-medium text-blue-800 bg-white/50 px-2 py-1 rounded">
+                      • Host: smtp.gmail.com<br/>
+                      • Port: 587<br/>
+                      • Username: your-email@gmail.com<br/>
+                      • Password: (paste the 16-char App Password)<br/>
+                      • Use TLS/SSL: ON
+                    </p>
+                  </div>
+
+                  <div className="mb-2">
+                    <p className="font-medium text-xs mb-1">🪣 SendGrid:</p>
+                    <p className="text-xs">Host: smtp.sendgrid.net • Port: 587 • Username: &quot;apikey&quot; • Password: your-api-key</p>
+                  </div>
+
+                  <div>
+                    <p className="font-medium text-xs mb-1">☁️ AWS SES:</p>
+                    <p className="text-xs">Host: email-smtp.[region].amazonaws.com • Port: 587 • Use your SMTP credentials from AWS</p>
+                  </div>
                 </div>
               </div>
             )}
