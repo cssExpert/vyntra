@@ -2,15 +2,21 @@ import {
   Controller,
   Post,
   Delete,
+  Get,
   UseInterceptors,
   UploadedFile,
   Body,
   BadRequestException,
   InternalServerErrorException,
   Req,
+  Param,
+  Res,
+  NotFoundException,
 } from '@nestjs/common';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
+import * as fs from 'fs';
+import * as path from 'path';
 import { Public } from '../common/decorators/public.decorator';
 import { UploadService } from './upload.service';
 
@@ -162,4 +168,5 @@ export class UploadController {
       );
     }
   }
+
 }

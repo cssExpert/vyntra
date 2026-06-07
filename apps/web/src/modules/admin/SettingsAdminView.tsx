@@ -323,8 +323,8 @@ function Inner() {
                 maxSizeMB={5}
                 previewShape="wide"
                 label="Upload Logo"
-                companyId="admin"
-                module="settings"
+                companyId="superadmin"
+                module="branding"
               />
               <p className="text-xs text-muted-foreground mt-0.5">
                 Shown in the sidebar and emails. Landscape format works best.
@@ -344,8 +344,8 @@ function Inner() {
                 maxSizeMB={2}
                 previewShape="circle"
                 label="Upload Icon"
-                companyId="admin"
-                module="settings"
+                companyId="superadmin"
+                module="branding"
               />
               <p className="text-xs text-muted-foreground mt-0.5">
                 Shown in browser tabs and app launchers. Square 64x64

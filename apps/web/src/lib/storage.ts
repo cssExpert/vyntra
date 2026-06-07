@@ -168,8 +168,15 @@ class StorageService {
       const result = await response.json();
       onProgress?.(100);
 
+      // Convert relative URL to absolute URL pointing to API server
+      let url = result.url;
+      if (url && url.startsWith('/uploads/')) {
+        const apiBase = API_BASE.replace('/api', ''); // Get http://localhost:3001 from http://localhost:3001/api
+        url = `${apiBase}${url}`;
+      }
+
       return {
-        url: result.url,
+        url,
         filename: result.filename,
         size: file.size,
         mimeType: file.type,

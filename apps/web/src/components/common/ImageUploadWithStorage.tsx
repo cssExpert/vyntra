@@ -117,6 +117,7 @@ export function ImageUploadWithStorage({
             previewShape === "rounded" && "w-full rounded-xl max-h-28",
           )}
         >
+          {/* Show image with fallback to simple text if image fails to load */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={value}
@@ -126,6 +127,11 @@ export function ImageUploadWithStorage({
               previewShape === "circle" && "w-full h-full p-4",
               previewShape !== "circle" && "max-h-28 max-w-full p-4",
             )}
+            onError={(e) => {
+              // If image fails to load, show a placeholder
+              e.currentTarget.style.display = 'none';
+              e.currentTarget.parentElement!.innerHTML = '<div class="text-center text-muted-foreground text-sm">✓ File uploaded</div>';
+            }}
           />
           {/* Hover overlay */}
           <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 rounded-[inherit]">

@@ -1,18 +1,26 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import * as path from 'path';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const express = require('express');
 
   // Increase payload size limit for file uploads (images as data URLs)
-  app.use(require('express').json({ limit: '50mb' }));
-  app.use(require('express').urlencoded({ limit: '50mb', extended: true }));
+  app.use(express.json({ limit: '50mb' }));
+  app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
   app.enableCors({
     origin: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3000'],
     credentials: true,
   });
+
+  // Register static file serving for uploads directory AFTER cors but BEFORE global prefix
+  app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads'), {
+    etag: false,
+    maxAge: 0,
+  }));
 
   app.setGlobalPrefix('api');
 

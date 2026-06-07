@@ -30,8 +30,18 @@ export class UploadService {
 
   /**
    * Upload file to local filesystem with multi-tenant directory structure
-   * Directory format: public/uploads/{companyId}/{module}/{filename}
-   * This ensures data isolation and proper organization for multi-tenant SaaS
+   * Directory format: public/uploads/{companyId}/{module}/{purpose}-{timestamp}.{ext}
+   *
+   * Examples:
+   * - Super admin logo: /uploads/superadmin/branding/logo-1234567890.png
+   * - Company branding: /uploads/comp_abc123/branding/logo-1234567890.png
+   * - User profile: /uploads/comp_abc123/profiles/avatar-1234567890.png
+   *
+   * This ensures:
+   * - Data isolation by company
+   * - Semantic organization by module/purpose
+   * - Easy identification of file purpose
+   * - Support for multiple versions during reupload transition
    */
   async uploadLocal(
     file: MulterFile,
@@ -39,36 +49,48 @@ export class UploadService {
     companyId?: string,
     module?: string,
   ): Promise<UploadResult> {
-    // Build directory path with company and module
-    let uploadDir = path.join(process.cwd(), 'public', 'uploads');
-
-    if (companyId && module) {
-      // Multi-tenant path: public/uploads/{companyId}/{module}/
-      uploadDir = path.join(uploadDir, companyId, module);
-    } else if (companyId) {
-      // Fallback: public/uploads/{companyId}/
-      uploadDir = path.join(uploadDir, companyId);
+    if (!companyId || !module) {
+      throw new Error(
+        'companyId and module are required for multi-tenant file uploads',
+      );
     }
 
-    // Create upload directory structure if it doesn't exist
+    // Normalize super admin uploads to use superadmin folder
+    const normalizedCompanyId =
+      companyId === 'admin' ? 'superadmin' : companyId;
+
+    // Build directory path
+    const uploadDir = path.join(
+      process.cwd(),
+      'public',
+      'uploads',
+      normalizedCompanyId,
+      module,
+    );
+
+    // Create directory structure if it doesn't exist
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
 
-    // Generate filename
-    const filename = customFilename || `${Date.now()}-${file.originalname}`;
+    // Generate semantic filename with timestamp
+    const ext = path.extname(file.originalname);
+    const basename = customFilename || this.extractPurposeFromFilename(file.originalname);
+    const timestamp = Date.now();
+    const filename = `${basename}-${timestamp}${ext}`;
     const filepath = path.join(uploadDir, filename);
 
     // Write file to disk
     fs.writeFileSync(filepath, file.buffer);
 
-    // Return public URL matching directory structure
-    let url = `/uploads/${filename}`;
-    if (companyId && module) {
-      url = `/uploads/${companyId}/${module}/${filename}`;
-    } else if (companyId) {
-      url = `/uploads/${companyId}/${filename}`;
-    }
+    // Delete old versions of this file (same purpose, different timestamp)
+    // This cleanup happens in the background
+    this.deleteOldVersions(uploadDir, basename, ext, filename).catch((err) => {
+      console.warn('Failed to cleanup old versions:', err);
+    });
+
+    // Return URL path
+    const url = `/uploads/${normalizedCompanyId}/${module}/${filename}`;
 
     return {
       url,
@@ -76,6 +98,40 @@ export class UploadService {
       size: file.size,
       mimeType: file.mimetype,
     };
+  }
+
+  /**
+   * Extract purpose (semantic name) from filename
+   * Examples: "logo.png" -> "logo", "avatar-image.jpg" -> "avatar-image"
+   */
+  private extractPurposeFromFilename(originalname: string): string {
+    return path.parse(originalname).name.toLowerCase().replace(/\s+/g, '-');
+  }
+
+  /**
+   * Delete old versions of the same file
+   * Keeps the system clean and prevents disk space waste
+   */
+  private async deleteOldVersions(
+    uploadDir: string,
+    basename: string,
+    ext: string,
+    currentFilename: string,
+  ): Promise<void> {
+    try {
+      const files = fs.readdirSync(uploadDir);
+      const pattern = new RegExp(`^${basename}-.+${ext.replace('.', '\\.')}$`);
+
+      for (const file of files) {
+        if (pattern.test(file) && file !== currentFilename) {
+          const filepath = path.join(uploadDir, file);
+          fs.unlinkSync(filepath);
+          console.log(`Deleted old version: ${filepath}`);
+        }
+      }
+    } catch (error) {
+      console.warn('Error cleaning up old versions:', error);
+    }
   }
 
   /**
