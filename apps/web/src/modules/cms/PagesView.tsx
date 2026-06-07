@@ -219,7 +219,11 @@ export function PagesView() {
   const [filterDraft, setFilterDraft] = useState<PageFilters>(DEFAULT_FILTERS);
   const [activeFilters, setActiveFilters] =
     useState<PageFilters>(DEFAULT_FILTERS);
-  const [addFormData, setAddFormData] = useState({ title: "", slug: "", layoutId: "" });
+  const [addFormData, setAddFormData] = useState({
+    title: "",
+    slug: "",
+    layoutId: "",
+  });
   const [availableLayouts, setAvailableLayouts] = useState<CmsLayout[]>([]);
   const [bulkLayoutId, setBulkLayoutId] = useState<string>("");
   const [bulkApplying, setBulkApplying] = useState(false);
@@ -231,7 +235,10 @@ export function PagesView() {
   previewUrlRef.current = previewUrl;
 
   useEffect(() => {
-    cmsLayouts.list().then(setAvailableLayouts).catch(() => {});
+    cmsLayouts
+      .list()
+      .then(setAvailableLayouts)
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -458,6 +465,7 @@ export function PagesView() {
           return (
             <div className="flex justify-end">
               <TableActionMenu
+                dropdownWidth={220}
                 items={[
                   {
                     label: "Edit",
@@ -744,7 +752,10 @@ export function PagesView() {
                 </span>
 
                 <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <LayoutTemplate size={14} className="text-muted-foreground shrink-0" />
+                  <LayoutTemplate
+                    size={14}
+                    className="text-muted-foreground shrink-0"
+                  />
                   <select
                     value={bulkLayoutId}
                     onChange={(e) => setBulkLayoutId(e.target.value)}
@@ -753,7 +764,8 @@ export function PagesView() {
                     <option value="">Use default layout</option>
                     {availableLayouts.map((l) => (
                       <option key={l.id} value={l.id}>
-                        {l.name}{l.isDefault ? " (default)" : ""}
+                        {l.name}
+                        {l.isDefault ? " (default)" : ""}
                       </option>
                     ))}
                   </select>
@@ -769,7 +781,10 @@ export function PagesView() {
                 </button>
 
                 <button
-                  onClick={() => { setRowSelection({}); setBulkLayoutId(""); }}
+                  onClick={() => {
+                    setRowSelection({});
+                    setBulkLayoutId("");
+                  }}
                   className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0"
                 >
                   <X size={13} /> Deselect
@@ -1118,16 +1133,24 @@ export function PagesView() {
                   </div>
                   {availableLayouts.length > 0 && (
                     <div className="space-y-1.5">
-                      <label className="block text-sm font-medium text-foreground">Layout</label>
+                      <label className="block text-sm font-medium text-foreground">
+                        Layout
+                      </label>
                       <select
                         value={addFormData.layoutId}
-                        onChange={(e) => setAddFormData((f) => ({ ...f, layoutId: e.target.value }))}
+                        onChange={(e) =>
+                          setAddFormData((f) => ({
+                            ...f,
+                            layoutId: e.target.value,
+                          }))
+                        }
                         className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
                       >
                         <option value="">Use default layout</option>
                         {availableLayouts.map((l) => (
                           <option key={l.id} value={l.id}>
-                            {l.name}{l.isDefault ? " (default)" : ""}
+                            {l.name}
+                            {l.isDefault ? " (default)" : ""}
                           </option>
                         ))}
                       </select>
