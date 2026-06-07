@@ -12,6 +12,7 @@ import {
   Param,
   Res,
   NotFoundException,
+  Inject,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -35,6 +36,23 @@ interface MulterFile {
 @Controller('upload')
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
+
+  /**
+   * Get current storage configuration
+   * Used by frontend to determine which storage provider to use for uploads
+   */
+  @Public()
+  @Get('config')
+  async getConfig() {
+    return {
+      storageProvider: process.env.STORAGE_PROVIDER || 'local',
+      s3Config: process.env.STORAGE_PROVIDER === 's3' ? {
+        bucket: process.env.S3_BUCKET,
+        region: process.env.S3_REGION,
+      } : null,
+      message: 'Current storage configuration',
+    };
+  }
 
   /**
    * Upload file to local filesystem with multi-tenant directory structure

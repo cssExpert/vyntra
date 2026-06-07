@@ -37,31 +37,125 @@
 - NEVER commit directly to main
 - Keep files under 300 lines — split if larger
 
-## Rules - Multi-Tenant File Storage (CRITICAL)
-All file uploads MUST follow strict multi-tenant directory structure to ensure data isolation, security, and GDPR compliance. **See FILE_STORAGE_ARCHITECTURE.md for full spec.**
+## Rules - Multi-Tenant File Storage & Upload Integration (CRITICAL)
 
-**Required:**
-1. **Directory format:** `public/uploads/{companyId}/{module}/{filename}`
-2. **Public URL format:** `/uploads/{companyId}/{module}/{filename}`
-3. **API contract:** ALL upload endpoints MUST accept `companyId` and `module` parameters
-4. **Module names:** Use standardized list (cms, crm, store, email, reports, docs, profiles, settings)
-5. **Access control:** Verify user belongs to company before allowing upload
-6. **File data in DB:** Store complete URL paths, not just filenames
-7. **Cleanup:** Implement per-company file cleanup for GDPR compliance
+All file uploads MUST use the centralized storage system for data isolation, security, GDPR compliance, and multi-provider support. **See STORAGE_INTEGRATION.md for complete guide.**
 
-**Example implementation:**
-```typescript
-// Backend: NestJS upload service
-await uploadService.uploadLocal(file, customFilename, "comp_abc123", "cms");
-// Returns: { url: "/uploads/comp_abc123/cms/logo.png", ... }
+### File Structure & Storage
+1. **Directory format:** `/uploads/{companyId}/{module}/{purpose}-{timestamp}.{ext}`
+2. **Super admin files:** Use `companyId: "superadmin"` (e.g., `/uploads/superadmin/branding/logo-123456.png`)
+3. **Company files:** Use actual `companyId` (e.g., `/uploads/comp_abc123/cms/thumbnail-123456.png`)
+4. **Auto-cleanup:** Old versions automatically deleted on reupload (same purpose)
 
-// Frontend: React component with company context
-const { upload } = useUpload();
-const result = await upload(file, {
-  companyId: currentOrg.id,
-  module: "cms"
-});
+### Storage Providers (Configurable)
+- **Local Filesystem** (development): Files in `public/uploads/`
+- **AWS S3** (production): Files in S3 bucket with same structure
+- **Uploadthing** (managed): Automatic management
+- **Vercel Blob** (serverless): Edge storage
+
+**Configuration:** Admin Settings → Storage (applies to ALL uploads immediately)
+
+### Module Names (Standardized)
 ```
+"branding"   // logos, favicons, brand assets
+"profiles"   // user avatars, covers
+"cms"        // page content, thumbnails
+"crm"        // client images
+"email"      // email templates  
+"reports"    // report exports
+"docs"       // document uploads
+"settings"   // misc config
+```
+
+### Implementation Rules
+
+**REQUIRED for all file uploads:**
+
+```tsx
+// ALWAYS use this component
+import { ImageUploadWithStorage } from "@/components/common/ImageUploadWithStorage";
+
+// ALWAYS pass companyId and module
+<ImageUploadWithStorage
+  value={imageUrl}
+  onChange={(url) => setImageUrl(url)}
+  companyId={currentCompanyId}  // REQUIRED: "superadmin" or company ID
+  module="cms"                  // REQUIRED: from standardized list above
+  accept="image/png,image/jpeg"
+  maxSizeMB={5}
+/>
+
+// ALWAYS store full URL returned by API, never just filename
+setImageUrl(result.url);  // ✅ e.g., "http://localhost:3001/uploads/comp_abc123/cms/logo-123456.png"
+// NOT: setImageUrl(result.filename);  // ❌
+```
+
+**Backend (already integrated):**
+```typescript
+// Upload service automatically handles:
+// ✅ Multi-tenant folder creation
+// ✅ Semantic file naming with timestamp
+// ✅ Old version cleanup
+// ✅ Storage provider selection (from config)
+// ✅ URL generation
+```
+
+### URL Handling
+
+The API automatically returns the correct URL based on configured storage provider:
+
+```
+Local:         http://localhost:3001/uploads/superadmin/branding/logo-123.png
+S3:            https://my-bucket.s3.amazonaws.com/uploads/superadmin/branding/logo-123.png
+Uploadthing:   https://uploadthing-cdn.com/uploads/superadmin/branding/logo-123.png
+Vercel Blob:   https://blob-store.vercel-storage.com/uploads/superadmin/branding/logo-123.png
+```
+
+**Frontend just uses the URL as-is** - no provider detection needed.
+
+### Migration to Cloud Storage
+
+When moving from Local to S3:
+
+1. Change storage provider in Admin Settings → Storage
+2. Old local files remain accessible (URLs don't change)
+3. New uploads automatically go to S3
+4. Optional: Use migration tools to move existing files (planned feature)
+
+**No code changes needed** - storage provider is transparent to features.
+
+### Testing File Uploads
+
+```bash
+# Verify storage config
+curl http://localhost:3001/api/upload/config
+
+# Expected response:
+{
+  "storageProvider": "local",
+  "s3Config": null
+}
+```
+
+### Quick Reference
+
+| Feature | How | Where |
+|---------|-----|-------|
+| Configure storage | Admin → Settings → Storage | Database |
+| Upload files | ImageUploadWithStorage component | Any feature |
+| Check provider | /api/upload/config | API endpoint |
+| Store in DB | Save full URL from API | Database |
+| Auto-cleanup | Automatic on reupload | Upload service |
+| Change provider | Update admin settings | One place for all |
+
+### What NOT to Do
+
+❌ Create custom upload components
+❌ Hardcode file paths in code
+❌ Store only filenames (store full URL)
+❌ Assume provider will never change
+❌ Create custom modules without discussion
+❌ Skip `companyId` parameter
 
 ## Read and follow
 - Do not expand scope beyond the files explicitly mentioned.
