@@ -57,4 +57,32 @@ export class UpdateAdminSettingsDto {
   @IsOptional()
   @IsBoolean()
   maintenanceMode?: boolean;
+
+  // Email Configuration
+  @IsOptional()
+  @IsString()
+  emailProvider?: string;
+
+  @IsOptional()
+  smtpConfig?: any;
+
+  @IsOptional()
+  sendgridConfig?: any;
+
+  @IsOptional()
+  mailgunConfig?: any;
+
+  // Storage Configuration
+  @IsOptional()
+  @IsString()
+  storageProvider?: string;
+
+  @IsOptional()
+  s3Config?: any;
+
+  @IsOptional()
+  uploadthingConfig?: any;
+
+  @IsOptional()
+  vercelBlobConfig?: any;
 }

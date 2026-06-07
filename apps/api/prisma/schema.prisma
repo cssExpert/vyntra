@@ -594,6 +594,19 @@ model AdminSettings {
   enableRegistration         Boolean  @default(true)
   enableSocialAuth           Boolean  @default(false)
   maintenanceMode            Boolean  @default(false)
+
+  // Email Configuration
+  emailProvider              String?  @default("smtp") // smtp | sendgrid | mailgun
+  smtpConfig                 Json?    // { host, port, secure, username, password, fromEmail }
+  sendgridConfig             Json?    // { apiKey, fromEmail }
+  mailgunConfig              Json?    // { apiKey, domain, fromEmail }
+
+  // Storage Configuration
+  storageProvider            String?  @default("local") // local | s3 | uploadthing | vercel-blob
+  s3Config                   Json?
+  uploadthingConfig          Json?
+  vercelBlobConfig           Json?
+
   createdAt                  DateTime @default(now())
   updatedAt                  DateTime @updatedAt
 
