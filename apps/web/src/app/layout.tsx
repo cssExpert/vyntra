@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/providers/ThemeProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { SettingsProvider } from "@/providers/SettingsProvider";
 import { AdminSettingsProvider } from "@/providers/AdminSettingsProvider";
+import { NavigationProgress } from "@/components/layout/NavigationProgress";
 import "./globals.css";
 
 const inter = Inter({
@@ -87,7 +88,10 @@ export default function RootLayout({
         <ThemeProvider>
           <AdminSettingsProvider>
             <AuthProvider>
-              <SettingsProvider>{children}</SettingsProvider>
+              <SettingsProvider>
+                <NavigationProgress />
+                {children}
+              </SettingsProvider>
             </AuthProvider>
           </AdminSettingsProvider>
         </ThemeProvider>

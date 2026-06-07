@@ -1,15 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { PencilLine, Plus, Trash2 } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Modal } from "@/components/common/Modal";
-import {
-  admin,
-  type AdminModule,
-  type AdminPackage,
-} from "@/lib/api";
+import { admin, type AdminModule, type AdminPackage } from "@/lib/api";
 import { AdminGuard, adminInput } from "./AdminGuard";
 
 interface FormState {
@@ -151,48 +147,52 @@ function Inner() {
               key={p.id}
               className="flex flex-col rounded-xl border border-border bg-card p-5"
             >
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="font-display text-lg font-bold text-foreground">
-                    {p.name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {p.priceCents === 0
-                      ? "Free"
-                      : `$${(p.priceCents / 100).toFixed(0)} / ${p.billingCycle.toLowerCase()}`}
-                  </p>
-                </div>
-                <div className="flex gap-1">
-                  <button
-                    onClick={() => openEdit(p)}
-                    className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition cursor-pointer"
-                    aria-label="Edit"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => remove(p)}
-                    className="rounded-lg p-1.5 text-muted-foreground hover:bg-error/10 hover:text-error transition cursor-pointer"
-                    aria-label="Delete"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {p.modules.length === 0 ? (
-                  <span className="text-xs text-muted-foreground">No modules</span>
-                ) : (
-                  p.modules.map((m) => (
-                    <span
-                      key={m}
-                      className="rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary"
+              <div className="flex-1 flex flex-col">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="font-display text-lg font-bold text-foreground">
+                      {p.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {p.priceCents === 0
+                        ? "Free"
+                        : `$${(p.priceCents / 100).toFixed(0)} / ${p.billingCycle.toLowerCase()}`}
+                    </p>
+                  </div>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => openEdit(p)}
+                      className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition cursor-pointer"
+                      aria-label="Edit"
                     >
-                      {m}
+                      <PencilLine className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => remove(p)}
+                      className="rounded-lg p-1.5 text-muted-foreground hover:bg-error/10 hover:text-error transition cursor-pointer"
+                      aria-label="Delete"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {p.modules.length === 0 ? (
+                    <span className="text-xs text-muted-foreground">
+                      No modules
                     </span>
-                  ))
-                )}
+                  ) : (
+                    p.modules.map((m) => (
+                      <span
+                        key={m}
+                        className="rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary"
+                      >
+                        {m}
+                      </span>
+                    ))
+                  )}
+                </div>
               </div>
 
               <div className="mt-4 flex items-center gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
@@ -244,17 +244,23 @@ function Inner() {
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium">Price (USD)</label>
+              <label className="mb-1.5 block text-sm font-medium">
+                Price (USD)
+              </label>
               <input
                 type="number"
                 min="0"
                 className={adminInput}
                 value={form.priceDollars}
-                onChange={(e) => setForm({ ...form, priceDollars: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, priceDollars: e.target.value })
+                }
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium">Max users</label>
+              <label className="mb-1.5 block text-sm font-medium">
+                Max users
+              </label>
               <input
                 type="number"
                 min="1"
@@ -266,11 +272,15 @@ function Inner() {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium">Description</label>
+            <label className="mb-1.5 block text-sm font-medium">
+              Description
+            </label>
             <input
               className={adminInput}
               value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, description: e.target.value })
+              }
               placeholder="Short summary of the plan"
             />
           </div>
@@ -293,7 +303,9 @@ function Inner() {
                   >
                     <span
                       className={`flex h-4 w-4 items-center justify-center rounded border ${
-                        checked ? "border-primary bg-primary text-white" : "border-muted-foreground/40"
+                        checked
+                          ? "border-primary bg-primary text-white"
+                          : "border-muted-foreground/40"
                       }`}
                     >
                       {checked && "✓"}
