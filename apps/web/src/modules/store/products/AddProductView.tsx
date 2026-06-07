@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Switch } from "@/components/ui/switch";
-import { ImageUploader } from "@/components/common/ImageUploader";
+import { ImageUploadWithStorage } from "@/components/common/ImageUploadWithStorage";
+import { useAuth } from "@/providers/AuthProvider";
 import { Save, Send } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ProductType, ProductStatus, StockStatus } from "../store.types";
@@ -84,6 +85,8 @@ function F({
 
 export function AddProductView() {
   const isLoaded = usePageLoad(700);
+  const { user } = useAuth();
+  const uploadCompanyId = user?.organizationId || "superadmin";
   const router = useRouter();
 
   const [name, setName] = useState("");
@@ -269,9 +272,12 @@ export function AddProductView() {
 
             <Card title="Media">
               <label className={lbl}>Featured Image</label>
-              <ImageUploader
+              <ImageUploadWithStorage
                 value={featuredImage}
                 onChange={setFeaturedImage}
+                companyId={uploadCompanyId}
+                module="store"
+                accept="image/png,image/jpeg,image/webp"
                 maxSizeMB={5}
                 previewShape="wide"
                 hint="PNG, JPG, WebP up to 5 MB"

@@ -4,23 +4,34 @@ import { useRef, useState } from "react";
 import { ImagePlus, Link2, Trash2, UploadCloud } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { adminInput } from "./AdminGuard";
+import { storageService } from "@/lib/storage";
 
 interface LogoUploaderProps {
-  value: string;           // current value — either a data-url or a https:// url
+  value: string;           // current value — either a hosted url or a https:// url
   onChange: (v: string) => void;
   error?: string;
+  /** Multi-tenant upload scope. New company logos default to superadmin/branding. */
+  companyId?: string;
+  module?: string;
 }
 
 const ACCEPTED = ["image/png", "image/jpeg", "image/svg+xml", "image/webp", "image/gif"];
 const MAX_SIZE_MB = 2;
 
-export function LogoUploader({ value, onChange, error }: LogoUploaderProps) {
+export function LogoUploader({
+  value,
+  onChange,
+  error,
+  companyId = "superadmin",
+  module = "branding",
+}: LogoUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [mode, setMode] = useState<"upload" | "url">("upload");
   const [dragging, setDragging] = useState(false);
   const [fileError, setFileError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
-  const processFile = (file: File) => {
+  const processFile = async (file: File) => {
     setFileError(null);
     if (!ACCEPTED.includes(file.type)) {
       setFileError("Only PNG, JPG, SVG, WebP, or GIF files are accepted.");
@@ -30,9 +41,15 @@ export function LogoUploader({ value, onChange, error }: LogoUploaderProps) {
       setFileError(`File must be under ${MAX_SIZE_MB} MB.`);
       return;
     }
-    const reader = new FileReader();
-    reader.onload = (e) => onChange(e.target?.result as string);
-    reader.readAsDataURL(file);
+    setUploading(true);
+    try {
+      const result = await storageService.upload({ file, companyId, module });
+      onChange(result.url);
+    } catch (e) {
+      setFileError(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
   };
 
   const onDrop = (e: React.DragEvent) => {
@@ -112,7 +129,11 @@ export function LogoUploader({ value, onChange, error }: LogoUploaderProps) {
           </div>
           <div>
             <p className="text-sm font-medium text-foreground">
-              {dragging ? "Drop it here" : "Click or drag to upload"}
+              {uploading
+                ? "Uploading…"
+                : dragging
+                  ? "Drop it here"
+                  : "Click or drag to upload"}
             </p>
             <p className="mt-0.5 text-xs text-muted-foreground">
               PNG, JPG, SVG, WebP — max {MAX_SIZE_MB} MB

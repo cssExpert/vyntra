@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Switch } from "@/components/ui/switch";
-import { ImageUploader } from "@/components/common/ImageUploader";
+import { ImageUploadWithStorage } from "@/components/common/ImageUploadWithStorage";
+import { useAuth } from "@/providers/AuthProvider";
 import { Save, Send } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -82,6 +83,8 @@ export interface AddCategoryViewProps {
 
 export function AddCategoryView({ mode = "add" }: AddCategoryViewProps) {
   const isLoaded = usePageLoad(600);
+  const { user } = useAuth();
+  const uploadCompanyId = user?.organizationId || "superadmin";
   const router = useRouter();
 
   const [name, setName] = useState("");
@@ -214,9 +217,12 @@ export function AddCategoryView({ mode = "add" }: AddCategoryViewProps) {
             </Card>
 
             <Card title="Thumbnail Image">
-              <ImageUploader
+              <ImageUploadWithStorage
                 value={image}
                 onChange={setImage}
+                companyId={uploadCompanyId}
+                module="store"
+                accept="image/png,image/jpeg,image/webp"
                 maxSizeMB={3}
                 previewShape="wide"
                 hint="PNG, JPG, WebP up to 3 MB"

@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { Sparkles, RefreshCw, Trash2 } from "lucide-react";
 import { FieldLabel, inputClass, SegmentedControl } from "./fields";
 import { PRESET_COVERS } from "./types";
+import { storageService } from "@/lib/storage";
+import { useAuth } from "@/providers/AuthProvider";
 
 type CoverTab = "presets" | "ai" | "upload";
 
@@ -24,6 +26,9 @@ export function CoverImagePicker({
   const [tab, setTab] = useState<CoverTab>("presets");
   const [aiPrompt, setAiPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const { user } = useAuth();
+  const uploadCompanyId = user?.organizationId || "superadmin";
 
   const generateAI = () => {
     if (!aiPrompt.trim()) {
@@ -40,15 +45,28 @@ export function CoverImagePicker({
     }, 1600);
   };
 
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      onChange(reader.result as string);
+    setIsUploading(true);
+    onToast?.("Uploading cover image…", "info");
+    try {
+      const result = await storageService.upload({
+        file,
+        companyId: uploadCompanyId,
+        module: "cms",
+      });
+      onChange(result.url);
       onToast?.("Cover image updated!", "success");
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      onToast?.(
+        err instanceof Error ? err.message : "Upload failed",
+        "error",
+      );
+    } finally {
+      setIsUploading(false);
+      e.target.value = "";
+    }
   };
 
   return (
@@ -129,7 +147,9 @@ export function CoverImagePicker({
             htmlFor="cover-upload"
             className="cursor-pointer text-xs font-semibold text-primary hover:underline"
           >
-            Choose a PNG or JPG cover image
+            {isUploading
+              ? "Uploading…"
+              : "Choose a PNG or JPG cover image"}
           </label>
         </div>
       )}

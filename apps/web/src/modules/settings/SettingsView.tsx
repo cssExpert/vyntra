@@ -28,6 +28,7 @@ import { ImageUploadWithStorage } from "@/components/common/ImageUploadWithStora
 import { cn } from "@/lib/utils";
 import { apiUpdateOrgSettings } from "@/lib/api";
 import { useSettings } from "@/providers/SettingsProvider";
+import { useAuth } from "@/providers/AuthProvider";
 import { MotionTabs, type MotionTabItem } from "@/components/ui/MotionTabs";
 
 interface SettingsState {
@@ -207,6 +208,9 @@ export function SettingsView() {
     error: contextError,
     refreshSettings,
   } = useSettings();
+  const { user } = useAuth();
+  // Uploads are scoped to the current organization (falls back to superadmin).
+  const uploadCompanyId = user?.organizationId || "superadmin";
 
   const [activeTab, setActiveTab] = useState<
     "branding" | "notifications" | "security"
@@ -434,6 +438,8 @@ export function SettingsView() {
                 <ImageUploadWithStorage
                   value={settings.logoUrl}
                   onChange={(url) => handleChange("logoUrl", url)}
+                  companyId={uploadCompanyId}
+                  module="branding"
                   accept="image/png,image/jpeg,image/svg+xml,image/webp"
                   maxSizeMB={5}
                   previewShape="wide"
@@ -455,6 +461,8 @@ export function SettingsView() {
                 <ImageUploadWithStorage
                   value={settings.faviconUrl}
                   onChange={(url) => handleChange("faviconUrl", url)}
+                  companyId={uploadCompanyId}
+                  module="branding"
                   accept="image/png,image/x-icon,image/svg+xml"
                   maxSizeMB={2}
                   previewShape="circle"

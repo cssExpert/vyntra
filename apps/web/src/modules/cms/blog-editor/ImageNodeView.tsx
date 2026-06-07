@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Icon from "@/components/common/Icon";
+import { storageService } from "@/lib/storage";
+import { useAuth } from "@/providers/AuthProvider";
 
 type Align = "left" | "center" | "right" | "full";
 
@@ -40,6 +42,8 @@ export function ImageNodeView({
   selected,
   deleteNode,
 }: NodeViewProps) {
+  const { user } = useAuth();
+  const uploadCompanyId = user?.organizationId || "superadmin";
   const { src, alt, title, align, width, caption } = node.attrs as {
     src: string;
     alt?: string;
@@ -87,15 +91,22 @@ export function ImageNodeView({
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
-    input.onchange = () => {
+    input.onchange = async () => {
       const file = input.files?.[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => updateAttributes({ src: reader.result as string });
-      reader.readAsDataURL(file);
+      try {
+        const result = await storageService.upload({
+          file,
+          companyId: uploadCompanyId,
+          module: "cms",
+        });
+        updateAttributes({ src: result.url });
+      } catch {
+        // Upload failed — leave the existing image in place.
+      }
     };
     input.click();
-  }, [updateAttributes]);
+  }, [updateAttributes, uploadCompanyId]);
 
   /* ── Toggle caption ─────────────────────────────────────── */
   const toggleCaption = useCallback(() => {

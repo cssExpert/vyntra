@@ -61,6 +61,7 @@ All file uploads MUST use the centralized storage system for data isolation, sec
 "profiles"   // user avatars, covers
 "cms"        // page content, thumbnails
 "crm"        // client images
+"store"      // product & category images
 "email"      // email templates  
 "reports"    // report exports
 "docs"       // document uploads

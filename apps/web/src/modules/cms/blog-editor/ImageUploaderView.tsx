@@ -1,10 +1,12 @@
 "use client";
 
-import { useRef, useState, useCallback, useEffect } from "react";
+import { useRef, useState, useCallback } from "react";
 import { NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
 import { motion } from "framer-motion";
 import { FileImage, ArrowUpFromLine, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { storageService } from "@/lib/storage";
+import { useAuth } from "@/providers/AuthProvider";
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -22,60 +24,53 @@ export function ImageUploaderView({
   const [fileName, setFileName] = useState("");
   const [fileSize, setFileSize] = useState("");
   const [isDragOver, setIsDragOver] = useState(false);
+  const [error, setError] = useState("");
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const dataUrlRef = useRef("");
 
-  useEffect(
-    () => () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    },
-    [],
-  );
+  const { user } = useAuth();
+  const uploadCompanyId = user?.organizationId || "superadmin";
 
   const processFile = useCallback(
-    (file: File) => {
+    async (file: File) => {
       if (!file.type.startsWith("image/")) return;
       if (file.size > 5 * 1024 * 1024) return;
 
+      setError("");
       setFileName(file.name);
       setFileSize(formatBytes(file.size));
       setProgress(0);
       setStatus("uploading");
 
-      const reader = new FileReader();
-      reader.onload = () => {
-        dataUrlRef.current = reader.result as string;
-      };
-      reader.readAsDataURL(file);
+      try {
+        // Upload through the configured storage provider (local/S3/Uploadthing).
+        const result = await storageService.upload({
+          file,
+          companyId: uploadCompanyId,
+          module: "cms",
+          onProgress: (p) => setProgress(p),
+        });
 
-      let p = 0;
-      timerRef.current = setInterval(() => {
-        p += Math.random() * 15 + 8;
-        if (p >= 100) {
-          p = 100;
-          clearInterval(timerRef.current!);
-          setTimeout(() => {
-            const pos = typeof getPos === "function" ? getPos() : 0;
-            editor
-              .chain()
-              .deleteRange({ from: pos, to: pos + node.nodeSize })
-              .insertContentAt(pos, {
-                type: "image",
-                attrs: {
-                  src: dataUrlRef.current,
-                  align: "center",
-                  width: null,
-                },
-              })
-              .run();
-          }, 280);
-        }
-        setProgress(Math.min(100, Math.round(p)));
-      }, 110);
+        const pos = typeof getPos === "function" ? getPos() : 0;
+        editor
+          .chain()
+          .deleteRange({ from: pos, to: pos + node.nodeSize })
+          .insertContentAt(pos, {
+            type: "image",
+            attrs: {
+              src: result.url,
+              align: "center",
+              width: null,
+            },
+          })
+          .run();
+      } catch (e) {
+        // Keep the node in place so the user can retry; surface the error.
+        setStatus("idle");
+        setError(e instanceof Error ? e.message : "Upload failed");
+      }
     },
-    [editor, getPos, node.nodeSize],
+    [editor, getPos, node.nodeSize, uploadCompanyId],
   );
 
   const onDrop = useCallback(
@@ -136,6 +131,9 @@ export function ImageUploaderView({
               <p className="text-xs font-semibold text-muted-foreground">
                 Maximum 1 file, 5MB.
               </p>
+              {error && (
+                <p className="text-xs font-medium text-error">{error}</p>
+              )}
             </div>
 
             <input
