@@ -65,7 +65,7 @@ export function Modal({
             className={`bg-card rounded-2xl w-full ${maxWidthMap[maxWidth]} max-h-[calc(100vh-2rem)] flex flex-col shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-border overflow-hidden relative z-10`}
           >
             {/* Header */}
-            <div className="px-6 py-5 border-b border-border flex items-center justify-between bg-muted/40 shrink-0">
+            <div className="px-5 py-5 border-b border-border flex items-center justify-between bg-muted/40 shrink-0">
               <div className="flex items-center gap-2.5 min-w-0">
                 {icon && (
                   <div
@@ -79,7 +79,7 @@ export function Modal({
                   </div>
                 )}
                 <div className="min-w-0">
-                  <h3 className="text-base font-bold text-foreground">
+                  <h3 className="text-base md:text-lg font-bold text-foreground">
                     {title}
                   </h3>
                   {description && (
@@ -99,11 +99,13 @@ export function Modal({
             </div>
 
             {/* Body */}
-            <div className="flex-1 overflow-y-auto min-h-0">{children}</div>
+            <div className="flex-1 overflow-y-auto max-h-[calc(100vh-250px)] min-h-0">
+              {children}
+            </div>
 
             {/* Footer */}
             {footer && (
-              <div className="px-6 py-4 bg-muted/40 border-t border-border flex items-center justify-end gap-3 shrink-0">
+              <div className="px-5 py-4 bg-muted/40 backdrop-blur-md border-t border-border flex items-center justify-end gap-3 shrink-0">
                 {footer}
               </div>
             )}

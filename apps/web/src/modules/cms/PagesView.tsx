@@ -1081,7 +1081,7 @@ export function PagesView() {
               </form>
             ) : (
               <form id="page-form" onSubmit={handleAddSubmit}>
-                <div className="p-6 space-y-4">
+                <div className="p-5 space-y-4">
                   <div className="space-y-1.5">
                     <label className="block text-sm font-medium text-foreground">
                       Page Title

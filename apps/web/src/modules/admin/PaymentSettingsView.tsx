@@ -243,8 +243,8 @@ function Inner() {
         >
           <div className="space-y-3">
             <p className="text-sm text-foreground">
-              After setting up your payment provider, you'll need to configure
-              webhooks for real-time transaction updates.
+              After setting up your payment provider, you&rsquo;ll need to
+              configure webhooks for real-time transaction updates.
             </p>
             <div className="rounded-xl bg-muted/40 p-4 space-y-2">
               <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide">
@@ -255,8 +255,8 @@ function Inner() {
               </code>
             </div>
             <p className="text-xs text-muted-foreground">
-              Configure this URL in your payment provider's dashboard to receive
-              webhook events for payment status changes, refunds, and
+              Configure this URL in your payment provider&rsquo;s dashboard to
+              receive webhook events for payment status changes, refunds, and
               subscriptions.
             </p>
           </div>

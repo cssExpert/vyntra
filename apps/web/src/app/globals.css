@@ -796,7 +796,7 @@
 
 /* Select */
 select {
-  padding-inline-end: 1.5rem !important; /* 30px to accommodate dropdown arrow */
+  padding-inline-end: 1.875rem !important; /* 30px to accommodate dropdown arrow */
 }
 
 /* react-sortable-tree: stretch node content to the container's right edge so
