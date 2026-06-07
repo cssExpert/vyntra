@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useCallback, useEffect, useState, useMemo } from "react";
 import {
   Plus,
@@ -132,9 +133,11 @@ function PreviewModal({
       >
         {theme.thumbnail && (
           <div className="relative aspect-[16/7] overflow-hidden bg-muted">
-            <img
+            <Image
               src={theme.thumbnail}
               alt={theme.name}
+              priority
+              loading="lazy"
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
@@ -305,6 +308,7 @@ function ThemeFormModal({
       onClose={onClose}
       title={title}
       maxWidth="xl"
+      bodyMaxHeight="calc(100vh - 225px)"
       footer={
         <>
           <button
@@ -378,9 +382,11 @@ function ThemeFormModal({
             onChange={(e) => onChange({ thumbnail: e.target.value })}
           />
           {form.thumbnail && (
-            <img
+            <Image
               src={form.thumbnail}
               alt="preview"
+              priority
+              loading="lazy"
               className="h-24 w-full object-cover rounded-xl border border-border mt-1"
             />
           )}
@@ -746,9 +752,10 @@ function Inner() {
               {/* Thumbnail */}
               <div className="relative aspect-[16/10] overflow-hidden bg-muted">
                 {theme.thumbnail ? (
-                  <img
+                  <Image
                     src={theme.thumbnail}
                     alt={theme.name}
+                    priority
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
                   />

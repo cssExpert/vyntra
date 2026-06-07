@@ -23,6 +23,8 @@ export interface ModalProps {
   children?: React.ReactNode;
   footer?: React.ReactNode;
   maxWidth?: keyof typeof maxWidthMap;
+  /** Max height of the scrollable body. CSS value (e.g. "400px", "60vh") or Tailwind class (e.g. "max-h-96"). Defaults to "calc(100vh-250px)". */
+  bodyMaxHeight?: string;
 }
 
 export function Modal({
@@ -35,11 +37,12 @@ export function Modal({
   children,
   footer,
   maxWidth = "lg",
+  bodyMaxHeight,
 }: ModalProps) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div className="ervflow-modla !mt-0 fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -99,7 +102,10 @@ export function Modal({
             </div>
 
             {/* Body */}
-            <div className="flex-1 overflow-y-auto max-h-[calc(100vh-250px)] min-h-0">
+            <div
+              className="flex-1 overflow-y-auto min-h-0"
+              style={{ maxHeight: bodyMaxHeight ?? "calc(100vh - 200px)" }}
+            >
               {children}
             </div>
 
