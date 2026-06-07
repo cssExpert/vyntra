@@ -114,29 +114,9 @@ class StorageService {
 
   /**
    * Upload a file using the configured storage provider
+   * Uses unified endpoint that routes to the correct provider on the backend
    */
   async upload(options: UploadOptions): Promise<UploadResult> {
-    const settings = await this.loadSettings();
-    const provider = settings.storageProvider || "local";
-
-    switch (provider) {
-      case "s3":
-        return this.uploadToS3(options, settings);
-      case "uploadthing":
-        return this.uploadToUploadthing(options, settings);
-      case "vercel-blob":
-        return this.uploadToVercelBlob(options, settings);
-      case "local":
-      default:
-        return this.uploadToLocal(options);
-    }
-  }
-
-  /**
-   * Upload to local server
-   * Requires companyId and module for multi-tenant directory structure
-   */
-  private async uploadToLocal(options: UploadOptions): Promise<UploadResult> {
     const { file, filename, onProgress, companyId, module } = options;
 
     if (!companyId || !module) {
@@ -154,7 +134,7 @@ class StorageService {
     try {
       onProgress?.(30);
 
-      const response = await fetch(`${API_BASE}/upload/local`, {
+      const response = await fetch(`${API_BASE}/upload/file`, {
         method: "POST",
         body: formData,
       });
@@ -162,13 +142,14 @@ class StorageService {
       onProgress?.(70);
 
       if (!response.ok) {
-        throw new Error(await response.text());
+        const errorText = await response.text();
+        throw new Error(errorText || "Upload failed");
       }
 
       const result = await response.json();
       onProgress?.(100);
 
-      // Convert relative URL to absolute URL pointing to API server
+      // Convert relative URL to absolute URL if needed
       let url = result.url;
       if (url && url.startsWith('/uploads/')) {
         const apiBase = API_BASE.replace('/api', ''); // Get http://localhost:3001 from http://localhost:3001/api
@@ -183,202 +164,11 @@ class StorageService {
       };
     } catch (error) {
       throw new Error(
-        `Local upload failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+        `Upload failed: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
     }
   }
 
-  /**
-   * Upload to AWS S3 using presigned URL
-   * Requires companyId and module for multi-tenant directory structure
-   */
-  private async uploadToS3(
-    options: UploadOptions,
-    settings: AdminSettings,
-  ): Promise<UploadResult> {
-    if (!settings.s3Config) {
-      throw new Error("S3 configuration not found");
-    }
-
-    const { file, filename: customFilename, onProgress, companyId, module } = options;
-
-    if (!companyId || !module) {
-      throw new Error(
-        "companyId and module are required for uploads (multi-tenant data isolation)"
-      );
-    }
-
-    const filename = customFilename || `${Date.now()}-${file.name}`;
-
-    try {
-      // Request presigned URL from backend
-      onProgress?.(20);
-
-      const presignedResponse = await fetch(
-        `${API_BASE}/upload/s3/presigned-url`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            filename,
-            contentType: file.type,
-            contentLength: file.size,
-            companyId,
-            module,
-          }),
-        }
-      );
-
-      if (!presignedResponse.ok) {
-        throw new Error("Failed to get presigned URL");
-      }
-
-      const { url: presignedUrl, publicUrl } =
-        await presignedResponse.json();
-      onProgress?.(30);
-
-      // Upload to S3 using presigned URL
-      const uploadResponse = await fetch(presignedUrl, {
-        method: "PUT",
-        headers: {
-          "Content-Type": file.type,
-        },
-        body: file,
-      });
-
-      onProgress?.(90);
-
-      if (!uploadResponse.ok) {
-        throw new Error("S3 upload failed");
-      }
-
-      onProgress?.(100);
-
-      return {
-        url: publicUrl,
-        filename,
-        size: file.size,
-        mimeType: file.type,
-      };
-    } catch (error) {
-      throw new Error(
-        `S3 upload failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
-    }
-  }
-
-  /**
-   * Upload to Uploadthing
-   * Requires companyId and module for multi-tenant directory structure
-   */
-  private async uploadToUploadthing(
-    options: UploadOptions,
-    settings: AdminSettings,
-  ): Promise<UploadResult> {
-    if (!settings.uploadthingConfig?.apiKey) {
-      throw new Error("Uploadthing configuration not found");
-    }
-
-    const { file, onProgress, companyId, module } = options;
-
-    if (!companyId || !module) {
-      throw new Error(
-        "companyId and module are required for uploads (multi-tenant data isolation)"
-      );
-    }
-
-    try {
-      onProgress?.(20);
-
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("companyId", companyId);
-      formData.append("module", module);
-
-      const response = await fetch(`${API_BASE}/upload/uploadthing`, {
-        method: "POST",
-        body: formData,
-      });
-
-      onProgress?.(70);
-
-      if (!response.ok) {
-        throw new Error("Uploadthing upload failed");
-      }
-
-      const result = await response.json();
-      onProgress?.(100);
-
-      return {
-        url: result.url,
-        filename: result.filename || file.name,
-        size: file.size,
-        mimeType: file.type,
-      };
-    } catch (error) {
-      throw new Error(
-        `Uploadthing upload failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
-    }
-  }
-
-  /**
-   * Upload to Vercel Blob
-   * Requires companyId and module for multi-tenant directory structure
-   */
-  private async uploadToVercelBlob(
-    options: UploadOptions,
-    settings: AdminSettings,
-  ): Promise<UploadResult> {
-    if (!settings.vercelBlobConfig?.token) {
-      throw new Error("Vercel Blob configuration not found");
-    }
-
-    const { file, filename: customFilename, onProgress, companyId, module } = options;
-
-    if (!companyId || !module) {
-      throw new Error(
-        "companyId and module are required for uploads (multi-tenant data isolation)"
-      );
-    }
-
-    const filename = customFilename || `${Date.now()}-${file.name}`;
-
-    try {
-      onProgress?.(20);
-
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("filename", filename);
-      formData.append("companyId", companyId);
-      formData.append("module", module);
-
-      const response = await fetch(`${API_BASE}/upload/vercel-blob`, {
-        method: "POST",
-        body: formData,
-      });
-
-      onProgress?.(70);
-
-      if (!response.ok) {
-        throw new Error("Vercel Blob upload failed");
-      }
-
-      const result = await response.json();
-      onProgress?.(100);
-
-      return {
-        url: result.url,
-        filename: result.filename || filename,
-        size: file.size,
-        mimeType: file.type,
-      };
-    } catch (error) {
-      throw new Error(
-        `Vercel Blob upload failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
-    }
-  }
 
   /**
    * Get the current storage provider (without loading all settings)

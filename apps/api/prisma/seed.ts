@@ -650,6 +650,47 @@ async function main() {
   }
   console.log(`   Seeded ${GLOBAL_THEMES.length} global themes`);
 
+  // ── Platform admin settings (email + storage configuration) ──────────────
+  // Single global settings row read via findFirst by AdminSettingsService.
+  // Seeded so teammates get a working email/storage setup out of the box.
+  const ADMIN_SETTINGS = {
+    siteName: "ERVFlow",
+    supportEmail: "support@ervflow.com",
+    logoUrl:
+      "https://nag4pufb5s.ufs.sh/f/f56ClkdSwBjYaTmIN19ebHtVsi3B0zuyYpKFDvw46QGI15EO",
+    faviconUrl:
+      "http://localhost:3001/uploads/__superadmin__/branding/testlogo-1780808090328.png",
+    primaryColor: "#f97316",
+    secondaryColor: "#22c55e",
+    accentColor: "#ec4899",
+    // Email — Gmail SMTP
+    emailProvider: "smtp",
+    smtpConfig: {
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: true,
+      username: "ervflowapp@gmail.com",
+      password: "zpba lkwk mfiu rjow",
+      fromEmail: "ervflowapp@gmail.com",
+    } as object,
+    // Storage — Uploadthing
+    storageProvider: "uploadthing",
+    uploadthingConfig: {
+      apiKey:
+        "eyJhcGlLZXkiOiJza19saXZlX2MzMGIzMDQyNDViZDBiOTFmYzc3ZTBiYTYwMTIxZWY3YmEzYTMzZThmZGU3NzlhYWY2NTJmNjgzYTlhYTE4N2IiLCJhcHBJZCI6Im5hZzRwdWZiNXMiLCJyZWdpb25zIjpbInNlYTEiXX0=",
+    } as object,
+  };
+  const existingSettings = await prisma.adminSettings.findFirst();
+  if (existingSettings) {
+    await prisma.adminSettings.update({
+      where: { id: existingSettings.id },
+      data: ADMIN_SETTINGS,
+    });
+  } else {
+    await prisma.adminSettings.create({ data: ADMIN_SETTINGS });
+  }
+  console.log("   Seeded admin settings (SMTP + Uploadthing storage)");
+
   const platformDomain = process.env.PLATFORM_DOMAIN ?? "lvh.me";
   console.log(`✅ Seed complete  (password for all accounts: ${PASSWORD})`);
   console.log("   SUPER_ADMIN : superadmin@vyntra.com");

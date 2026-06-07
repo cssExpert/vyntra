@@ -19,6 +19,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Public } from '../common/decorators/public.decorator';
+import { SuperAdminOnly } from '../common/decorators/super-admin.decorator';
+import { PrismaService } from '../prisma/prisma.service';
 import { UploadService } from './upload.service';
 
 interface MulterFile {
@@ -35,23 +37,42 @@ interface MulterFile {
 
 @Controller('upload')
 export class UploadController {
-  constructor(private readonly uploadService: UploadService) {}
+  constructor(
+    private readonly uploadService: UploadService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   /**
-   * Get current storage configuration
+   * Get current storage configuration from database
    * Used by frontend to determine which storage provider to use for uploads
    */
   @Public()
   @Get('config')
   async getConfig() {
-    return {
-      storageProvider: process.env.STORAGE_PROVIDER || 'local',
-      s3Config: process.env.STORAGE_PROVIDER === 's3' ? {
-        bucket: process.env.S3_BUCKET,
-        region: process.env.S3_REGION,
-      } : null,
-      message: 'Current storage configuration',
-    };
+    try {
+      const settings = await this.prisma.adminSettings.findFirst();
+      const provider = settings?.storageProvider || 'local';
+
+      return {
+        storageProvider: provider,
+        s3Config: provider === 's3' && settings?.s3Config
+          ? settings.s3Config
+          : null,
+        uploadthingConfig: provider === 'uploadthing' && settings?.uploadthingConfig
+          ? { hasKey: !!settings.uploadthingConfig }
+          : null,
+        vercelBlobConfig: provider === 'vercel-blob' && settings?.vercelBlobConfig
+          ? { hasToken: !!settings.vercelBlobConfig }
+          : null,
+        message: `Using ${provider} storage provider`,
+      };
+    } catch (error) {
+      // Fallback to local if there's any error reading config
+      return {
+        storageProvider: 'local',
+        message: 'Using local storage (default)',
+      };
+    }
   }
 
   /**
@@ -165,6 +186,97 @@ export class UploadController {
     } catch (error) {
       throw new InternalServerErrorException(
         error instanceof Error ? error.message : 'Vercel Blob upload failed',
+      );
+    }
+  }
+
+  /**
+   * Unified upload endpoint that routes to the configured storage provider.
+   * If a cloud provider is configured and the upload fails, the error is
+   * surfaced to the caller (no silent local fallback) so misconfiguration
+   * is visible instead of files quietly landing on the local disk.
+   */
+  @Public()
+  @Post('file')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(
+    @UploadedFile() file: MulterFile,
+    @Body()
+    body: {
+      companyId: string;
+      module: string;
+      filename?: string;
+    },
+  ) {
+    if (!file) {
+      throw new BadRequestException('No file provided');
+    }
+
+    if (!body.companyId || !body.module) {
+      throw new BadRequestException(
+        'companyId and module are required in request body',
+      );
+    }
+
+    // Get the configured storage provider from the database
+    const settings = await this.prisma.adminSettings.findFirst();
+    const provider = settings?.storageProvider || 'local';
+
+    try {
+      switch (provider) {
+        case 's3':
+          return await this.uploadService.uploadToS3(
+            file,
+            body.companyId,
+            body.module,
+            body.filename,
+          );
+
+        case 'uploadthing':
+          return await this.uploadService.uploadToUploadthing(
+            file,
+            body.companyId,
+            body.module,
+            body.filename,
+          );
+
+        case 'vercel-blob':
+          return await this.uploadService.uploadToVercelBlob(
+            file,
+            body.companyId,
+            body.module,
+            body.filename,
+          );
+
+        case 'local':
+        default:
+          return await this.uploadService.uploadLocal(
+            file,
+            body.filename,
+            body.companyId,
+            body.module,
+          );
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Upload failed';
+      throw new InternalServerErrorException(
+        `Upload to ${provider} failed: ${message}`,
+      );
+    }
+  }
+
+  /**
+   * Migrate all locally-stored images to the active cloud provider.
+   * Super-admin only — it mutates DB references.
+   */
+  @SuperAdminOnly()
+  @Post('migrate')
+  async migrateToCloud() {
+    try {
+      return await this.uploadService.migrateLocalToCloud();
+    } catch (error) {
+      throw new InternalServerErrorException(
+        error instanceof Error ? error.message : 'Migration failed',
       );
     }
   }

@@ -187,6 +187,27 @@ export function apiUpdateAdminSettings(body: Partial<AdminSettings>) {
   });
 }
 
+export interface StorageMigrationReport {
+  provider: string;
+  total: number;
+  migrated: number;
+  failed: number;
+  details: Array<{
+    model: string;
+    id: string;
+    field: string;
+    from: string;
+    to?: string;
+    error?: string;
+  }>;
+}
+
+export function apiMigrateStorageToCloud() {
+  return apiFetch<StorageMigrationReport>("/upload/migrate", {
+    method: "POST",
+  });
+}
+
 // ─── Super-admin shapes ──────────────────────────────────
 export interface AdminCompany {
   id: string;

@@ -143,6 +143,7 @@ function Inner() {
   const [busy, setBusy] = useState(false);
   const [testingSmtp, setTestingSmtp] = useState(false);
   const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
+  const [testEmail, setTestEmail] = useState("");
 
   const [provider, setProvider] = useState<EmailProvider>("smtp");
   const [smtpConfig, setSmtpConfig] = useState({
@@ -231,16 +232,23 @@ function Inner() {
       setError("Please fill in SMTP Host and From Email before testing");
       return;
     }
+    if (!testEmail) {
+      setError("Please enter a recipient email to send the test email");
+      return;
+    }
 
     setTestingSmtp(true);
     setError("");
     try {
       await apiFetch("/admin/settings/email/test-smtp", {
         method: "POST",
-        body: JSON.stringify(smtpConfig),
+        body: JSON.stringify({
+          ...smtpConfig,
+          testEmail,
+        }),
       });
-      setSuccess("✓ SMTP connection test successful!");
-      setTimeout(() => setSuccess(""), 3000);
+      setSuccess(`✓ Test email sent to ${testEmail}! Check your inbox.`);
+      setTimeout(() => setSuccess(""), 5000);
     } catch (e) {
       setError(e instanceof Error ? e.message : "SMTP test failed. Check your configuration.");
     } finally {
@@ -422,8 +430,8 @@ function Inner() {
         {provider === "smtp" && (
           <SectionCard
             icon={Zap}
-            title="Test Connection"
-            description="Verify your SMTP configuration is working"
+            title="Send Test Email"
+            description="Send a test email to verify your SMTP configuration"
           >
             <div className="space-y-4">
               <div className="rounded-lg border border-amber-200 bg-amber-50 p-3.5 flex gap-3">
@@ -431,19 +439,31 @@ function Inner() {
                 <div className="text-sm text-amber-700">
                   <p className="font-medium mb-2">Before Testing:</p>
                   <ul className="space-y-1 text-xs list-disc list-inside">
-                    <li>Fill in all required fields (Host, Port, From Email)</li>
+                    <li>Fill in all SMTP fields (Host, Port, From Email, credentials)</li>
                     <li>For Gmail: use an App Password, not your regular password</li>
-                    <li>For SendGrid: use SMTP, not the API key</li>
                     <li>Ensure your credentials are correct</li>
                   </ul>
                   <p className="font-medium mt-3 mb-1">What This Does:</p>
-                  <p className="text-xs">Connects to your SMTP server to verify your configuration works. Does NOT send an email.</p>
+                  <p className="text-xs">Connects to your SMTP server and sends an actual test email to verify everything works end-to-end.</p>
                 </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium">
+                  Send Test Email To <span className="text-error">*</span>
+                </label>
+                <input
+                  type="email"
+                  className={adminInput}
+                  value={testEmail}
+                  onChange={(e) => setTestEmail(e.target.value)}
+                  placeholder="test@example.com"
+                />
               </div>
 
               <button
                 onClick={testSmtp}
-                disabled={testingSmtp || !smtpConfig.host || !smtpConfig.fromEmail}
+                disabled={testingSmtp}
                 className="flex items-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-muted text-white px-4 py-2.5 text-sm font-semibold transition disabled:opacity-50 cursor-pointer"
               >
                 {testingSmtp ? (
@@ -451,7 +471,7 @@ function Inner() {
                 ) : (
                   <Zap className="h-4 w-4" />
                 )}
-                {testingSmtp ? "Testing..." : "Test SMTP Connection"}
+                {testingSmtp ? "Sending..." : "Send Test Email"}
               </button>
             </div>
           </SectionCard>

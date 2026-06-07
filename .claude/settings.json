@@ -2,7 +2,13 @@
   "permissions": {
     "allow": [
       "Bash(xargs cat)",
-      "Bash(open http://localhost:3003/dashboard)"
+      "Bash(open http://localhost:3003/dashboard)",
+      "Bash(nc -zv localhost 5432)",
+      "Bash(/Volumes/Docker/Docker.app/Contents/Resources/bin/docker ps *)",
+      "Bash(/Applications/Docker.app/Contents/Resources/bin/docker ps *)",
+      "Bash(pnpm -r --parallel dev)",
+      "Bash(curl -s http://localhost:3001/api/auth/me)",
+      "Bash(curl -X POST http://localhost:3001/api/admin/settings/storage/test -H 'Content-Type: application/json' -d '{ *)"
     ]
   }
 }

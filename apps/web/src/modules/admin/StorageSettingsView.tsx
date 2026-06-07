@@ -9,6 +9,8 @@ import {
   Eye,
   EyeOff,
   Info,
+  Zap,
+  CloudUpload,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
@@ -18,7 +20,10 @@ import { useStorageSettings } from "@/lib/hooks/useStorageSettings";
 import {
   apiGetAdminSettings,
   apiUpdateAdminSettings,
+  apiMigrateStorageToCloud,
   type AdminSettings,
+  type StorageMigrationReport,
+  API_BASE,
 } from "@/lib/api";
 
 type StorageProvider = "local" | "s3" | "uploadthing" | "vercel-blob";
@@ -110,10 +115,11 @@ const STORAGE_OPTIONS: StorageOption[] = [
     fields: [
       {
         key: "apiKey",
-        label: "Uploadthing API Key",
+        label: "Uploadthing Token (UPLOADTHING_TOKEN)",
         type: "password",
         required: true,
-        description: "Get your API key from uploadthing.com dashboard",
+        description:
+          'Paste the UPLOADTHING_TOKEN from the "SDK v7+" Quick Copy box (starts with "eyJ"). Do NOT use the sk_live_ secret key.',
       },
     ],
   },
@@ -245,6 +251,13 @@ function Inner() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [busy, setBusy] = useState(false);
+  const [testingStorage, setTestingStorage] = useState(false);
+  const [testMessage, setTestMessage] = useState("");
+  const [testError, setTestError] = useState("");
+  const [migrating, setMigrating] = useState(false);
+  const [migrationReport, setMigrationReport] =
+    useState<StorageMigrationReport | null>(null);
+  const [migrationError, setMigrationError] = useState("");
   const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>(
     {},
   );
@@ -291,6 +304,61 @@ function Inner() {
     }
   };
 
+  const testStorage = async () => {
+    setTestingStorage(true);
+    setTestMessage("");
+    setTestError("");
+    try {
+      type StorageTestConfig = {
+        provider: StorageProvider;
+        s3Config?: typeof s3Config;
+        uploadthingConfig?: typeof uploadthingConfig;
+        vercelBlobConfig?: typeof vercelBlobConfig;
+      };
+      const testConfig: StorageTestConfig = { provider };
+
+      if (provider === "s3") {
+        if (!s3Config.bucket || !s3Config.region) {
+          throw new Error("Please fill in all required S3 fields");
+        }
+        testConfig.s3Config = s3Config;
+      } else if (provider === "uploadthing") {
+        if (!uploadthingConfig.apiKey) {
+          throw new Error("Please enter your Uploadthing API key");
+        }
+        testConfig.uploadthingConfig = uploadthingConfig;
+      } else if (provider === "vercel-blob") {
+        if (!vercelBlobConfig.token) {
+          throw new Error("Please enter your Vercel Blob token");
+        }
+        testConfig.vercelBlobConfig = vercelBlobConfig;
+      }
+
+      const response = await fetch(
+        `${API_BASE}/admin/settings/storage/test`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(testConfig),
+        },
+      );
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Connection test failed");
+      }
+
+      const data = await response.json();
+      setTestMessage(data.message);
+      setTimeout(() => setTestMessage(""), 5000);
+    } catch (e) {
+      setTestError(e instanceof Error ? e.message : "Connection test failed");
+      setTimeout(() => setTestError(""), 5000);
+    } finally {
+      setTestingStorage(false);
+    }
+  };
+
   const save = async () => {
     setBusy(true);
     setError("");
@@ -325,6 +393,22 @@ function Inner() {
       setError(e instanceof Error ? e.message : "Failed to save settings");
     } finally {
       setBusy(false);
+    }
+  };
+
+  const migrate = async () => {
+    setMigrating(true);
+    setMigrationError("");
+    setMigrationReport(null);
+    try {
+      const report = await apiMigrateStorageToCloud();
+      setMigrationReport(report);
+    } catch (e) {
+      setMigrationError(
+        e instanceof Error ? e.message : "Migration failed",
+      );
+    } finally {
+      setMigrating(false);
     }
   };
 
@@ -387,6 +471,18 @@ function Inner() {
             description="Scalable cloud storage configuration for AWS S3 or compatible services like DigitalOcean Spaces and MinIO. Set up your S3 bucket, region, and access keys for reliable file storage and management. Perfect for production deployments with high scalability needs."
           >
             <div className="space-y-4">
+              {testMessage && (
+                <div className="flex items-center gap-2.5 rounded-xl border border-success/20 bg-success/5 px-4 py-3 text-sm text-success">
+                  <CheckCircle2 className="h-4 w-4 shrink-0" />
+                  {testMessage}
+                </div>
+              )}
+              {testError && (
+                <div className="flex items-center gap-2.5 rounded-xl border border-error/20 bg-error/5 px-4 py-3 text-sm text-error">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  {testError}
+                </div>
+              )}
               <div className="rounded-lg border border-blue-200 bg-blue-50 p-3.5 flex gap-3">
                 <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
                 <div className="text-sm text-blue-700">
@@ -475,6 +571,18 @@ function Inner() {
                   }))
                 }
               />
+              <button
+                onClick={testStorage}
+                disabled={testingStorage}
+                className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 py-2.5 text-sm font-medium text-primary hover:bg-primary/10 transition disabled:opacity-50"
+              >
+                {testingStorage ? (
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                ) : (
+                  <Zap className="h-4 w-4" />
+                )}
+                {testingStorage ? "Testing…" : "Test Connection"}
+              </button>
             </div>
           </SectionCard>
         )}
@@ -486,10 +594,22 @@ function Inner() {
             description="Modern file upload service configuration for Uploadthing. Easily set up your Uploadthing API key to leverage their managed infrastructure, built-in image optimization, and seamless file handling. Ideal for developers seeking a hassle-free cloud storage solution with a user-friendly interface and robust performance."
           >
             <div className="space-y-4">
+              {testMessage && (
+                <div className="flex items-center gap-2.5 rounded-xl border border-success/20 bg-success/5 px-4 py-3 text-sm text-success">
+                  <CheckCircle2 className="h-4 w-4 shrink-0" />
+                  {testMessage}
+                </div>
+              )}
+              {testError && (
+                <div className="flex items-center gap-2.5 rounded-xl border border-error/20 bg-error/5 px-4 py-3 text-sm text-error">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  {testError}
+                </div>
+              )}
               <div className="rounded-lg border border-purple-200 bg-purple-50 p-3.5 flex gap-3">
                 <Info className="h-5 w-5 text-purple-600 shrink-0 mt-0.5" />
                 <div className="text-sm text-purple-700">
-                  <p className="font-medium mb-1">Getting Your API Key:</p>
+                  <p className="font-medium mb-1">Getting Your Token:</p>
                   <ol className="list-decimal list-inside space-y-1 text-xs">
                     <li>
                       Sign up or log in at{" "}
@@ -502,10 +622,24 @@ function Inner() {
                         uploadthing.com
                       </a>
                     </li>
-                    <li>Create a new app</li>
-                    <li>Go to Settings → API Keys</li>
-                    <li>Copy your secret API key</li>
-                    <li>Paste it below</li>
+                    <li>Open your app, then go to API Keys</li>
+                    <li>
+                      In the Quick Copy box, select the{" "}
+                      <span className="font-semibold">SDK v7+</span> tab
+                    </li>
+                    <li>
+                      Copy the{" "}
+                      <code className="bg-purple-100 px-1 rounded">
+                        UPLOADTHING_TOKEN
+                      </code>{" "}
+                      value (starts with{" "}
+                      <code className="bg-purple-100 px-1 rounded">eyJ</code>)
+                    </li>
+                    <li>
+                      Paste it below — do{" "}
+                      <span className="font-semibold">not</span> use the
+                      sk_live_ secret key
+                    </li>
                   </ol>
                 </div>
               </div>
@@ -526,6 +660,18 @@ function Inner() {
                   }))
                 }
               />
+              <button
+                onClick={testStorage}
+                disabled={testingStorage}
+                className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 py-2.5 text-sm font-medium text-primary hover:bg-primary/10 transition disabled:opacity-50"
+              >
+                {testingStorage ? (
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                ) : (
+                  <Zap className="h-4 w-4" />
+                )}
+                {testingStorage ? "Testing…" : "Test Connection"}
+              </button>
             </div>
           </SectionCard>
         )}
@@ -537,6 +683,18 @@ function Inner() {
             description="Simple blob storage configuration for Vercel Blob. Set up your Vercel Blob token to easily store files and media directly within your Vercel deployment. Perfect for developers hosting on Vercel who want a straightforward, integrated storage solution without the need for external cloud providers."
           >
             <div className="space-y-4">
+              {testMessage && (
+                <div className="flex items-center gap-2.5 rounded-xl border border-success/20 bg-success/5 px-4 py-3 text-sm text-success">
+                  <CheckCircle2 className="h-4 w-4 shrink-0" />
+                  {testMessage}
+                </div>
+              )}
+              {testError && (
+                <div className="flex items-center gap-2.5 rounded-xl border border-error/20 bg-error/5 px-4 py-3 text-sm text-error">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  {testError}
+                </div>
+              )}
               <div className="rounded-lg border border-cyan-200 bg-cyan-50 p-3.5 flex gap-3">
                 <Info className="h-5 w-5 text-cyan-600 shrink-0 mt-0.5" />
                 <div className="text-sm text-cyan-700">
@@ -555,7 +713,7 @@ function Inner() {
                     </li>
                     <li>Select your project</li>
                     <li>Go to Settings → Storage</li>
-                    <li>Create a Blob store if you haven't already</li>
+                    <li>Create a Blob store if you haven&apos;t already</li>
                     <li>Copy the token from the Token section</li>
                   </ol>
                 </div>
@@ -577,6 +735,18 @@ function Inner() {
                   }))
                 }
               />
+              <button
+                onClick={testStorage}
+                disabled={testingStorage}
+                className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 py-2.5 text-sm font-medium text-primary hover:bg-primary/10 transition disabled:opacity-50"
+              >
+                {testingStorage ? (
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                ) : (
+                  <Zap className="h-4 w-4" />
+                )}
+                {testingStorage ? "Testing…" : "Test Connection"}
+              </button>
             </div>
           </SectionCard>
         )}
@@ -588,12 +758,18 @@ function Inner() {
             description="Files will be stored on your server's filesystem. Make sure to set the upload directory path and ensure it has sufficient space. Remember to include it in your backups!"
           >
             <div className="space-y-4">
+              {testMessage && (
+                <div className="flex items-center gap-2.5 rounded-xl border border-success/20 bg-success/5 px-4 py-3 text-sm text-success">
+                  <CheckCircle2 className="h-4 w-4 shrink-0" />
+                  {testMessage}
+                </div>
+              )}
               <div className="rounded-lg border border-amber-200 bg-amber-50 p-3.5 flex gap-3">
                 <Info className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
                 <div className="text-sm text-amber-700">
                   <p className="font-medium mb-1">Local Storage Notes:</p>
                   <ul className="list-disc list-inside space-y-1 text-xs">
-                    <li>Files are stored on your server's filesystem</li>
+                    <li>Files are stored on your server&apos;s filesystem</li>
                     <li>Good for development and small deployments</li>
                     <li>
                       For production, ensure the upload directory has sufficient
@@ -610,6 +786,128 @@ function Inner() {
                   </ul>
                 </div>
               </div>
+              <button
+                onClick={testStorage}
+                disabled={testingStorage}
+                className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 py-2.5 text-sm font-medium text-primary hover:bg-primary/10 transition disabled:opacity-50"
+              >
+                {testingStorage ? (
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                ) : (
+                  <Zap className="h-4 w-4" />
+                )}
+                {testingStorage ? "Testing…" : "Test Connection"}
+              </button>
+            </div>
+          </SectionCard>
+        )}
+
+        {/* ── Migrate local files to cloud ──────────────────────────────── */}
+        {provider !== "local" && (
+          <SectionCard
+            icon={CloudUpload}
+            title="Migrate Local Files to Cloud"
+            description="Move images already stored on the local server to your selected cloud provider and update all references to use the new cloud URLs. Local files are kept as a backup — nothing is deleted."
+          >
+            <div className="space-y-4">
+              <div className="rounded-lg border border-blue-200 bg-blue-50 p-3.5 flex gap-3">
+                <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+                <div className="text-sm text-blue-700">
+                  <p className="font-medium mb-1">Before you migrate:</p>
+                  <ul className="list-disc list-inside space-y-1 text-xs">
+                    <li>
+                      Make sure you have <strong>saved</strong> and{" "}
+                      <strong>tested</strong> your cloud provider above.
+                    </li>
+                    <li>
+                      Every image currently served from{" "}
+                      <code className="bg-blue-100 px-1 rounded">/uploads/</code>{" "}
+                      will be re-uploaded to {provider}.
+                    </li>
+                    <li>
+                      Database references (logos, favicons, media, theme
+                      thumbnails) are updated to the new cloud URLs.
+                    </li>
+                    <li>Local copies remain on disk until you remove them.</li>
+                  </ul>
+                </div>
+              </div>
+
+              {migrationError && (
+                <div className="flex items-center gap-2.5 rounded-xl border border-error/20 bg-error/5 px-4 py-3 text-sm text-error">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  {migrationError}
+                </div>
+              )}
+
+              {migrationReport && (
+                <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
+                  <div className="flex flex-wrap items-center gap-4 text-sm">
+                    <span className="flex items-center gap-1.5 font-medium text-success">
+                      <CheckCircle2 className="h-4 w-4" />
+                      {migrationReport.migrated} migrated
+                    </span>
+                    {migrationReport.failed > 0 && (
+                      <span className="flex items-center gap-1.5 font-medium text-error">
+                        <AlertCircle className="h-4 w-4" />
+                        {migrationReport.failed} failed
+                      </span>
+                    )}
+                    <span className="text-muted-foreground">
+                      {migrationReport.total} total · provider:{" "}
+                      {migrationReport.provider}
+                    </span>
+                  </div>
+
+                  {migrationReport.total === 0 && (
+                    <p className="text-sm text-muted-foreground">
+                      No local files found to migrate — everything is already on
+                      the cloud.
+                    </p>
+                  )}
+
+                  {migrationReport.details.length > 0 && (
+                    <div className="max-h-60 overflow-y-auto rounded-lg border border-border divide-y divide-border">
+                      {migrationReport.details.map((d, i) => (
+                        <div key={i} className="px-3 py-2 text-xs">
+                          <div className="flex items-center gap-2">
+                            {d.error ? (
+                              <AlertCircle className="h-3.5 w-3.5 text-error shrink-0" />
+                            ) : (
+                              <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />
+                            )}
+                            <span className="font-medium text-foreground">
+                              {d.model}.{d.field}
+                            </span>
+                          </div>
+                          {d.error ? (
+                            <p className="text-error mt-0.5 break-all">
+                              {d.error}
+                            </p>
+                          ) : (
+                            <p className="text-muted-foreground mt-0.5 break-all">
+                              {d.to}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <button
+                onClick={migrate}
+                disabled={migrating}
+                className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition disabled:opacity-50"
+              >
+                {migrating ? (
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                ) : (
+                  <CloudUpload className="h-4 w-4" />
+                )}
+                {migrating ? "Migrating…" : `Migrate to ${provider}`}
+              </button>
             </div>
           </SectionCard>
         )}

@@ -31,8 +31,32 @@ export class AdminSettingsController {
       username?: string;
       password?: string;
       fromEmail: string;
+      testEmail?: string;
     },
   ) {
     return this.adminSettingsService.testSmtpConnection(config);
+  }
+
+  @Public()
+  @Post('storage/test')
+  async testStorageConnection(
+    @Body()
+    config: {
+      provider: string;
+      s3Config?: {
+        bucket: string;
+        region: string;
+        accessKeyId: string;
+        secretAccessKey: string;
+      };
+      uploadthingConfig?: {
+        apiKey: string;
+      };
+      vercelBlobConfig?: {
+        token: string;
+      };
+    },
+  ) {
+    return this.adminSettingsService.testStorageConnection(config);
   }
 }
