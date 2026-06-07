@@ -221,10 +221,14 @@ function CatNodeRenderer(props: Record<string, unknown>) {
             onClick={() => toggleChildrenVisibility({ node, path, treeIndex })}
             className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
           >
-            {node.expanded ? (
-              <ChevronDown size={13} />
+            {hasChildren ? (
+              node.expanded ? (
+                <ChevronDown size={13} />
+              ) : (
+                <ChevronRight size={13} />
+              )
             ) : (
-              <ChevronRight size={13} />
+              <span className="w-[13px]" /> // Keeps alignment for childless items
             )}
           </button>
         ) : (
@@ -240,10 +244,13 @@ function CatNodeRenderer(props: Record<string, unknown>) {
             depth === 0 ? "bg-primary/15" : "bg-primary/8",
           )}
         >
-          {hasChildren ? (
+          {hasChildren && node.expanded ? (
             <FolderOpen size={13} className="text-primary" />
           ) : (
-            <Folder size={13} className="text-primary/70" />
+            <Folder
+              size={13}
+              className={hasChildren ? "text-primary" : "text-primary/70"}
+            />
           )}
         </div>
       </div>
