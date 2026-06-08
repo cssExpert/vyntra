@@ -138,7 +138,7 @@ function PreviewModal({
             <Image
               src={theme.thumbnail}
               alt={theme.name}
-              priority
+              fill
               loading="lazy"
               className="w-full h-full object-cover"
             />
@@ -498,7 +498,7 @@ function ThemeFormModal({
             <Image
               src={form.thumbnail}
               alt="preview"
-              priority
+              fill
               loading="lazy"
               className="h-24 w-full object-cover rounded-xl border border-border mt-1"
             />
@@ -843,7 +843,7 @@ function Inner() {
                   <Image
                     src={theme.thumbnail}
                     alt={theme.name}
-                    priority
+                    fill
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
                   />
