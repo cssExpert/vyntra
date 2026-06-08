@@ -98,6 +98,14 @@ async function main() {
       maxUsers: 100,
       modules: MODULES.map((m) => m.key),
     },
+    {
+      name: "CMS Only",
+      slug: "cms-only",
+      description: "Just the CMS module",
+      priceCents: 1000,
+      maxUsers: 5,
+      modules: ["CMS"],
+    },
   ];
 
   const bySlug: Record<string, string> = {};
@@ -240,6 +248,54 @@ async function main() {
     "admin@bloom.com",
     "Bloom Admin",
     bloom.id,
+    Role.ORG_ADMIN,
+  );
+
+  // ── Third company on the Free plan ──────────────────────
+  const startup = await prisma.organization.upsert({
+    where: { slug: "startup-io" },
+    update: {},
+    create: {
+      name: "Startup IO",
+      slug: "startup-io",
+      email: "founder@startup.io",
+      maxUsers: 3,
+      subscription: {
+        create: {
+          packageId: bySlug["free"],
+          billingEmail: "founder@startup.io",
+        },
+      },
+    },
+  });
+  await ensureMember(
+    "founder@startup.io",
+    "Founder",
+    startup.id,
+    Role.ORG_ADMIN,
+  );
+
+  // ── Fourth company on the CMS Only plan ─────────────────
+  const ekam = await prisma.organization.upsert({
+    where: { slug: "ekam-infotech" },
+    update: {},
+    create: {
+      name: "Ekam Infotech",
+      slug: "ekam-infotech",
+      email: "ekam@company.com",
+      maxUsers: 5,
+      subscription: {
+        create: {
+          packageId: bySlug["cms-only"],
+          billingEmail: "ekam@company.com",
+        },
+      },
+    },
+  });
+  await ensureMember(
+    "simranjeet1012@gmail.com",
+    "Simranjeet Singh",
+    ekam.id,
     Role.ORG_ADMIN,
   );
 
@@ -699,6 +755,10 @@ async function main() {
   console.log("   USER        : user@acme.com     (Acme Corp · Pro)");
   console.log("   VIEWER      : viewer@acme.com   (Acme Corp · Pro)");
   console.log("   ORG_ADMIN   : admin@bloom.com   (Bloom Studio · Free)");
+  console.log("   ORG_ADMIN   : founder@startup.io (Startup IO · Free)");
+  console.log(
+    "   ORG_ADMIN   : simranjeet1012@gmail.com (Ekam Infotech · CMS Only)",
+  );
   console.log("");
   console.log("   CMS preview URLs (port 3000):");
   console.log(`   Acme  → http://acme.${platformDomain}:3000`);
