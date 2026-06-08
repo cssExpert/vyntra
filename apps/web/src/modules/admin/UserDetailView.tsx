@@ -12,9 +12,20 @@ import {
   Building,
   LogIn,
   Shield,
+  ShieldCheck,
+  Edit2,
+  KeyRound,
+  Lock,
+  Unlock,
+  Trash2,
+  Eye,
+  EyeOff,
+  X,
 } from "lucide-react";
 import { admin, type AdminUser } from "@/lib/api";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { Modal } from "@/components/common/Modal";
+import { TableActionMenu } from "@/components/common/TableActionMenu";
 
 interface UserWithActivity extends AdminUser {
   lastLoginAt?: string;
@@ -36,6 +47,23 @@ function UserDetailInner({ userId }: { userId: string }) {
   const [user, setUser] = useState<UserWithActivity | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>("overview");
+
+  // Action feedback + modals (mirrors the Users list quick actions).
+  const [feedback, setFeedback] = useState<{
+    type: "error" | "success";
+    message: string;
+  } | null>(null);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [passwordData, setPasswordData] = useState({ password: "", confirm: "" });
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+
+  const flash = (type: "error" | "success", message: string) => {
+    setFeedback({ type, message });
+    setTimeout(() => setFeedback(null), 3000);
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -83,6 +111,75 @@ function UserDetailInner({ userId }: { userId: string }) {
     return date.toLocaleDateString();
   };
 
+  const handleToggleLock = async () => {
+    if (!user) return;
+    try {
+      const updated = await admin.setUserActive(user.id, !user.isActive);
+      setUser({ ...user, ...updated });
+      flash("success", updated.isActive ? "Account unlocked" : "Account locked");
+    } catch (e) {
+      flash("error", e instanceof Error ? e.message : "Failed to toggle lock");
+    }
+  };
+
+  const handlePromote = async () => {
+    if (!user) return;
+    if (user.organizationId && user.roles.some((r) => r.organizationId)) {
+      flash("error", "Cannot promote company users to super admin");
+      return;
+    }
+    if (!confirm(`Promote ${user.email} to super admin?`)) return;
+    try {
+      const updated = await admin.promoteUser(user.id);
+      setUser({ ...user, ...updated });
+      flash("success", "User promoted to super admin");
+    } catch (e) {
+      flash("error", e instanceof Error ? e.message : "Failed to promote");
+    }
+  };
+
+  const openPasswordModal = () => {
+    setPasswordData({ password: "", confirm: "" });
+    setShowPassword(false);
+    setPasswordError("");
+    setIsPasswordModalOpen(true);
+  };
+
+  const handleChangePassword = async () => {
+    if (!user) return;
+    if (passwordData.password.length < 8) {
+      setPasswordError("Password must be at least 8 characters.");
+      return;
+    }
+    if (passwordData.password !== passwordData.confirm) {
+      setPasswordError("Passwords do not match.");
+      return;
+    }
+    setPasswordSaving(true);
+    setPasswordError("");
+    try {
+      await admin.setUserPassword(user.id, passwordData.password);
+      setIsPasswordModalOpen(false);
+      flash("success", "Password updated");
+    } catch (e) {
+      setPasswordError(
+        e instanceof Error ? e.message : "Failed to change password",
+      );
+    } finally {
+      setPasswordSaving(false);
+    }
+  };
+
+  const handleEdit = () => {
+    // No admin update endpoint yet — mirrors the Users list behavior.
+    flash("error", "Edit user API endpoint not yet available");
+  };
+
+  const handleDelete = () => {
+    // No admin delete endpoint yet — mirrors the Users list behavior.
+    setIsDeleteConfirmOpen(false);
+    flash("error", "Delete user API endpoint not yet available");
+  };
 
   if (loading) {
     return (
@@ -118,14 +215,68 @@ function UserDetailInner({ userId }: { userId: string }) {
           </div>
         </div>
 
-        <button
-          onClick={() => router.push("/admin/users")}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition"
-        >
-          <ArrowLeft size={16} />
-          Back to List
-        </button>
+        <div className="flex items-center gap-2">
+          <TableActionMenu
+            dropdownWidth="w-52"
+            items={[
+              {
+                label: "Edit",
+                icon: <Edit2 size={14} />,
+                onClick: handleEdit,
+              },
+              {
+                label: "Change Password",
+                icon: <KeyRound size={14} />,
+                onClick: openPasswordModal,
+              },
+              {
+                label: user.isActive ? "Lock Account" : "Unlock Account",
+                icon: user.isActive ? <Lock size={14} /> : <Unlock size={14} />,
+                onClick: handleToggleLock,
+              },
+              ...(user.isActive && !user.superAdmin && !user.organizationId
+                ? [
+                    {
+                      label: "Make Super Admin",
+                      icon: <ShieldCheck size={14} />,
+                      onClick: handlePromote,
+                    },
+                  ]
+                : []),
+              {
+                label: "Delete",
+                icon: <Trash2 size={14} />,
+                onClick: () => setIsDeleteConfirmOpen(true),
+                variant: "danger" as const,
+                separator: true,
+              },
+            ]}
+          />
+          <button
+            onClick={() => router.push("/admin/users")}
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition"
+          >
+            <ArrowLeft size={16} />
+            Back to List
+          </button>
+        </div>
       </div>
+
+      {/* Action feedback */}
+      {feedback && (
+        <div
+          className={`rounded-lg border px-4 py-3 text-sm flex items-center justify-between ${
+            feedback.type === "error"
+              ? "bg-error/10 border-error/20 text-error"
+              : "bg-success/10 border-success/20 text-success"
+          }`}
+        >
+          <span>{feedback.message}</span>
+          <button onClick={() => setFeedback(null)}>
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
 
       {/* Status Badges */}
       <div className="flex items-center gap-3">
@@ -339,6 +490,109 @@ function UserDetailInner({ userId }: { userId: string }) {
         )}
 
       </div>
+
+      {/* Change Password Modal */}
+      <Modal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
+        title="Change Password"
+        description={`Set a new password for ${user.email}`}
+        maxWidth="md"
+        footer={
+          <>
+            <button
+              onClick={() => setIsPasswordModalOpen(false)}
+              className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg text-sm font-medium transition"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleChangePassword}
+              disabled={passwordSaving}
+              className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-sm font-medium transition disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {passwordSaving ? "Saving…" : "Update Password"}
+            </button>
+          </>
+        }
+      >
+        <div className="p-6 space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+              New Password <span className="text-error">*</span>
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={passwordData.password}
+                onChange={(e) =>
+                  setPasswordData({ ...passwordData, password: e.target.value })
+                }
+                placeholder="At least 8 characters"
+                className="w-full px-3 py-2 pr-10 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((s) => !s)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+              Confirm Password <span className="text-error">*</span>
+            </label>
+            <input
+              type={showPassword ? "text" : "password"}
+              value={passwordData.confirm}
+              onChange={(e) =>
+                setPasswordData({ ...passwordData, confirm: e.target.value })
+              }
+              placeholder="Re-enter the new password"
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+
+          {passwordError && <p className="text-xs text-error">{passwordError}</p>}
+
+          <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+            <p className="text-xs text-amber-900 dark:text-amber-300">
+              🔒 The user will need to use this new password the next time they
+              log in.
+            </p>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={isDeleteConfirmOpen}
+        onClose={() => setIsDeleteConfirmOpen(false)}
+        title="Delete User?"
+        description={`Are you sure you want to permanently delete ${user.email}? This action cannot be undone.`}
+        iconVariant="danger"
+        maxWidth="md"
+        footer={
+          <>
+            <button
+              onClick={() => setIsDeleteConfirmOpen(false)}
+              className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg text-sm font-medium transition"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDelete}
+              className="px-4 py-2 bg-error hover:bg-error/90 text-white rounded-lg text-sm font-medium transition"
+            >
+              Delete User
+            </button>
+          </>
+        }
+      />
     </div>
   );
 }

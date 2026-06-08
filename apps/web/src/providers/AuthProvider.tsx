@@ -39,6 +39,10 @@ interface AuthContextValue {
   organizationName: string | null;
   /** True if the user may access a given module (super admins always can). */
   hasModule: (key: string) => boolean;
+  /** Display name for a module key, falling back to the provided label. */
+  moduleLabel: (key: string, fallback: string) => string;
+  /** Re-fetch the current user (e.g. after a profile update). */
+  refreshUser: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
@@ -79,6 +83,7 @@ function toAuthUser(u: ApiAuthUser): AuthUser {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [modules, setModules] = useState<string[]>([]);
+  const [moduleNames, setModuleNames] = useState<Record<string, string>>({});
   const [organizationName, setOrganizationName] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -86,15 +91,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loadOrgContext = useCallback(async (authUser: ApiAuthUser) => {
     if (authUser.superAdmin || !authUser.organizationId) {
       setModules([]);
+      setModuleNames({});
       setOrganizationName(null);
       return;
     }
     try {
       const org = await apiGetMyOrg();
       setModules(org.modules ?? []);
+      setModuleNames(org.moduleNames ?? {});
       setOrganizationName(org.name);
     } catch {
       setModules([]);
+      setModuleNames({});
       setOrganizationName(null);
     }
   }, []);
@@ -119,6 +127,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })();
   }, [loadOrgContext]);
 
+  const refreshUser = useCallback(async () => {
+    if (!getToken()) return;
+    try {
+      const me = await apiGetMe();
+      setUser(toAuthUser(me));
+      await loadOrgContext(me);
+    } catch {
+      // Keep the existing session on a transient failure.
+    }
+  }, [loadOrgContext]);
+
   const login = useCallback(
     async (email: string, password: string) => {
       const res = await apiLogin(email, password);
@@ -133,12 +152,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     clearTokens();
     setUser(null);
     setModules([]);
+    setModuleNames({});
     setOrganizationName(null);
   }, []);
 
   const hasModule = useCallback(
     (key: string) => !!user?.superAdmin || modules.includes(key),
     [user, modules],
+  );
+
+  const moduleLabel = useCallback(
+    (key: string, fallback: string) => moduleNames[key] ?? fallback,
+    [moduleNames],
   );
 
   return (
@@ -151,6 +176,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         modules,
         organizationName,
         hasModule,
+        moduleLabel,
+        refreshUser,
         login,
         logout,
       }}

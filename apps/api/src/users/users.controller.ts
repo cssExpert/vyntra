@@ -14,6 +14,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { AuthenticatedUser } from '../common/types/authenticated-user';
 import {
+  ChangePasswordDto,
   CreateUserDto,
   UpdateProfileDto,
   UpdateUserDto,
@@ -34,6 +35,18 @@ export class UsersController {
   @Put('me')
   updateMe(@CurrentUser('id') userId: string, @Body() dto: UpdateProfileDto) {
     return this.usersService.updateProfile(userId, dto);
+  }
+
+  @Put('me/password')
+  changePassword(
+    @CurrentUser('id') userId: string,
+    @Body() dto: ChangePasswordDto,
+  ) {
+    return this.usersService.changeOwnPassword(
+      userId,
+      dto.currentPassword,
+      dto.newPassword,
+    );
   }
 
   // ── Org-scoped management (ORG_ADMIN; super admin bypasses) ──

@@ -136,6 +136,26 @@ export class UsersService {
     });
   }
 
+  /** Change your own password after verifying the current one. */
+  async changeOwnPassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+    if (!user.password) {
+      throw new BadRequestException('No password is set for this account');
+    }
+    const ok = await bcrypt.compare(currentPassword, user.password);
+    if (!ok) throw new BadRequestException('Current password is incorrect');
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { password: await this.hash(newPassword) },
+    });
+    return { success: true };
+  }
+
   // ── Super admin ──────────────────────────────────────────
 
   listAll() {
@@ -151,6 +171,28 @@ export class UsersService {
     return this.prisma.user.update({
       where: { id },
       data: { superAdmin: true },
+      select: SAFE_SELECT,
+    });
+  }
+
+  /** Set a new password for any user (super admin only). */
+  async setPassword(id: string, password: string) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) throw new NotFoundException('User not found');
+    await this.prisma.user.update({
+      where: { id },
+      data: { password: await this.hash(password) },
+    });
+    return { success: true };
+  }
+
+  /** Lock or unlock any user account (super admin only). */
+  async setActive(id: string, isActive: boolean) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) throw new NotFoundException('User not found');
+    return this.prisma.user.update({
+      where: { id },
+      data: { isActive },
       select: SAFE_SELECT,
     });
   }
