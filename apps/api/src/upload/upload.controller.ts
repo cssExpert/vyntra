@@ -7,6 +7,7 @@ import {
   UploadedFile,
   Body,
   BadRequestException,
+  ForbiddenException,
   InternalServerErrorException,
   Req,
   Param,
@@ -20,6 +21,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Public } from '../common/decorators/public.decorator';
 import { SuperAdminOnly } from '../common/decorators/super-admin.decorator';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { AuthenticatedUser } from '../common/types/authenticated-user';
 import { PrismaService } from '../prisma/prisma.service';
 import { UploadService } from './upload.service';
 
@@ -79,46 +82,29 @@ export class UploadController {
    * Upload file to local filesystem with multi-tenant directory structure
    * Directory format: public/uploads/{companyId}/{module}/{filename}
    */
-  @Public()
   @Post('local')
   @UseInterceptors(FileInterceptor('file'))
   async uploadLocal(
     @UploadedFile() file: MulterFile,
-    @Body() body: {
-      filename?: string;
-      companyId: string;
-      module: string;
-    },
+    @Body() body: { filename?: string; companyId: string; module: string },
+    @CurrentUser() user: AuthenticatedUser,
   ) {
-    if (!file) {
-      throw new BadRequestException('No file provided');
-    }
+    if (!file) throw new BadRequestException('No file provided');
+    if (!body.companyId || !body.module)
+      throw new BadRequestException('companyId and module are required in request body');
 
-    if (!body.companyId || !body.module) {
-      throw new BadRequestException(
-        'companyId and module are required in request body',
-      );
-    }
+    this.assertCompanyAccess(user, body.companyId);
 
     try {
-      const result = await this.uploadService.uploadLocal(
-        file,
-        body.filename,
-        body.companyId,
-        body.module,
-      );
-      return result;
+      return await this.uploadService.uploadLocal(file, body.filename, body.companyId, body.module);
     } catch (error) {
-      throw new InternalServerErrorException(
-        error instanceof Error ? error.message : 'Upload failed',
-      );
+      throw new InternalServerErrorException(error instanceof Error ? error.message : 'Upload failed');
     }
   }
 
   /**
    * Get presigned URL for S3 upload
    */
-  @Public()
   @Post('s3/presigned-url')
   async getS3PresignedUrl(
     @Body()
@@ -145,48 +131,46 @@ export class UploadController {
   /**
    * Upload file to Uploadthing
    */
-  @Public()
   @Post('uploadthing')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadToUploadthing(@UploadedFile() file: MulterFile) {
-    if (!file) {
-      throw new BadRequestException('No file provided');
-    }
+  async uploadToUploadthing(
+    @UploadedFile() file: MulterFile,
+    @Body() body: { companyId: string; module: string; filename?: string },
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    if (!file) throw new BadRequestException('No file provided');
+    if (!body.companyId || !body.module)
+      throw new BadRequestException('companyId and module are required in request body');
+
+    this.assertCompanyAccess(user, body.companyId);
 
     try {
-      const result = await this.uploadService.uploadToUploadthing(file);
-      return result;
+      return await this.uploadService.uploadToUploadthing(file, body.companyId, body.module, body.filename);
     } catch (error) {
-      throw new InternalServerErrorException(
-        error instanceof Error ? error.message : 'Uploadthing upload failed',
-      );
+      throw new InternalServerErrorException(error instanceof Error ? error.message : 'Uploadthing upload failed');
     }
   }
 
   /**
    * Upload file to Vercel Blob
    */
-  @Public()
   @Post('vercel-blob')
   @UseInterceptors(FileInterceptor('file'))
   async uploadToVercelBlob(
     @UploadedFile() file: MulterFile,
-    @Body('filename') customFilename?: string,
+    @Body() body: { companyId: string; module: string; filename?: string },
+    @CurrentUser() user: AuthenticatedUser,
   ) {
-    if (!file) {
-      throw new BadRequestException('No file provided');
-    }
+    if (!file) throw new BadRequestException('No file provided');
+    if (!body.companyId || !body.module)
+      throw new BadRequestException('companyId and module are required in request body');
+
+    this.assertCompanyAccess(user, body.companyId);
 
     try {
-      const result = await this.uploadService.uploadToVercelBlob(
-        file,
-        customFilename,
-      );
-      return result;
+      return await this.uploadService.uploadToVercelBlob(file, body.companyId, body.module, body.filename);
     } catch (error) {
-      throw new InternalServerErrorException(
-        error instanceof Error ? error.message : 'Vercel Blob upload failed',
-      );
+      throw new InternalServerErrorException(error instanceof Error ? error.message : 'Vercel Blob upload failed');
     }
   }
 
@@ -196,27 +180,18 @@ export class UploadController {
    * surfaced to the caller (no silent local fallback) so misconfiguration
    * is visible instead of files quietly landing on the local disk.
    */
-  @Public()
   @Post('file')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
     @UploadedFile() file: MulterFile,
-    @Body()
-    body: {
-      companyId: string;
-      module: string;
-      filename?: string;
-    },
+    @Body() body: { companyId: string; module: string; filename?: string },
+    @CurrentUser() user: AuthenticatedUser,
   ) {
-    if (!file) {
-      throw new BadRequestException('No file provided');
-    }
+    if (!file) throw new BadRequestException('No file provided');
+    if (!body.companyId || !body.module)
+      throw new BadRequestException('companyId and module are required in request body');
 
-    if (!body.companyId || !body.module) {
-      throw new BadRequestException(
-        'companyId and module are required in request body',
-      );
-    }
+    this.assertCompanyAccess(user, body.companyId);
 
     // Get the configured storage provider from the database
     const settings = await this.prisma.adminSettings.findFirst();
@@ -284,18 +259,38 @@ export class UploadController {
   /**
    * Delete file from storage
    */
-  @Public()
   @Delete('delete')
   async deleteFile(
     @Body() body: { url: string; provider: string },
+    @CurrentUser() user: AuthenticatedUser,
   ) {
+    // Parse companyId from the URL path (/uploads/{companyId}/...) and enforce ownership.
+    const match = body.url.match(/\/uploads\/([^/]+)\//);
+    if (match) {
+      this.assertCompanyAccess(user, match[1]);
+    }
+
     try {
       await this.uploadService.deleteFile(body.url, body.provider);
       return { success: true };
     } catch (error) {
-      throw new InternalServerErrorException(
-        error instanceof Error ? error.message : 'Delete failed',
-      );
+      throw new InternalServerErrorException(error instanceof Error ? error.message : 'Delete failed');
+    }
+  }
+
+  /**
+   * Validate that the requesting user may access the given companyId folder.
+   * Super admins can access any folder. Regular users are restricted to their own org.
+   */
+  private assertCompanyAccess(user: AuthenticatedUser, companyId: string): void {
+    if (user.superAdmin) return;
+
+    const normalized = companyId === 'admin' ? 'superadmin' : companyId;
+    if (normalized === 'superadmin') {
+      throw new ForbiddenException('Only super admins can upload to the superadmin folder');
+    }
+    if (user.organizationId !== companyId) {
+      throw new ForbiddenException('You can only upload files for your own organization');
     }
   }
 
