@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { SeoView } from "@/modules/seo/SeoView";
+import dynamic from "next/dynamic";
+
+const SeoView = dynamic(() =>
+  import("@/modules/seo/SeoView").then((m) => ({ default: m.SeoView }))
+);
 
 export const metadata: Metadata = {
   title: "SEO Tool",

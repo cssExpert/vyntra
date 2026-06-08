@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { CompanyDetailView } from "@/modules/admin/CompanyDetailView";
+import dynamic from "next/dynamic";
+
+const CompanyDetailView = dynamic(() =>
+  import("@/modules/admin/CompanyDetailView").then((m) => ({ default: m.CompanyDetailView }))
+);
 
 export const metadata: Metadata = { title: "Company" };
 

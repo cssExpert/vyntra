@@ -34,8 +34,9 @@ import Icon from "@/components/common/Icon";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
 import Canvas from "./Canvas";
 import RightSidebar from "./RightSidebar";
-import TemplatePicker from "./TemplatePicker";
 import BlockPickerModal from "./BlockPickerModal";
+
+const TemplatePicker = dynamic(() => import("./TemplatePicker"), { ssr: false });
 import { nanoid } from "nanoid";
 import type { ComponentBlock, EditorNode } from "@/types/editor";
 

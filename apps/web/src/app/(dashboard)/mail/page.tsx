@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { MailView } from "@/modules/mail/MailView";
+import dynamic from "next/dynamic";
+
+const MailView = dynamic(() =>
+  import("@/modules/mail/MailView").then((m) => ({ default: m.MailView }))
+);
 
 export const metadata: Metadata = { title: "Mail" };
 

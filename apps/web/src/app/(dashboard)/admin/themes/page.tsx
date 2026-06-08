@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { AdminThemesView } from "@/modules/admin/AdminThemesView";
+import dynamic from "next/dynamic";
+
+const AdminThemesView = dynamic(() =>
+  import("@/modules/admin/AdminThemesView").then((m) => ({ default: m.AdminThemesView }))
+);
 
 export const metadata: Metadata = { title: "Global Themes — Admin" };
 

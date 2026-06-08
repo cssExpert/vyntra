@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { GalleryDetailView } from "@/modules/cms/gallery/GalleryDetailView";
+import dynamic from "next/dynamic";
+
+const GalleryDetailView = dynamic(() =>
+  import("@/modules/cms/gallery/GalleryDetailView").then((m) => ({ default: m.GalleryDetailView }))
+);
 
 export const metadata: Metadata = { title: "Gallery Items — CMS" };
 

@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
-import { SuperAdminDashboardView } from "@/modules/dashboard/SuperAdminDashboardView";
+import dynamic from "next/dynamic";
 import { AdminGuard } from "@/modules/admin/AdminGuard";
+
+const SuperAdminDashboardView = dynamic(() =>
+  import("@/modules/dashboard/SuperAdminDashboardView").then((m) => ({ default: m.SuperAdminDashboardView }))
+);
 
 export const metadata: Metadata = {
   title: "Admin Dashboard",

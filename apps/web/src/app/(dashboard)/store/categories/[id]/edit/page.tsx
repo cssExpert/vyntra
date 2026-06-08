@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { AddCategoryView } from "@/modules/store/categories/AddCategoryView";
+import dynamic from "next/dynamic";
+
+const AddCategoryView = dynamic(() =>
+  import("@/modules/store/categories/AddCategoryView").then((m) => ({ default: m.AddCategoryView }))
+);
 
 export const metadata: Metadata = { title: "Edit Category — Store" };
 

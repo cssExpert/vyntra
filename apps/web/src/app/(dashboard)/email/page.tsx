@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { EmailView } from "@/modules/email/EmailView";
+import dynamic from "next/dynamic";
+
+const EmailView = dynamic(() =>
+  import("@/modules/email/EmailView").then((m) => ({ default: m.EmailView }))
+);
 
 export const metadata: Metadata = {
   title: "Email Automation",

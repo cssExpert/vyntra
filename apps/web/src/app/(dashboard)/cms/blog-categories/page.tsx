@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { BlogCategoriesView } from "@/modules/cms/blog-categories/BlogCategoriesView";
+import dynamic from "next/dynamic";
+
+const BlogCategoriesView = dynamic(() =>
+  import("@/modules/cms/blog-categories/BlogCategoriesView").then((m) => ({ default: m.BlogCategoriesView }))
+);
 
 export const metadata: Metadata = { title: "Blog Categories — CMS" };
 

@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { AddProductView } from "@/modules/store/products/AddProductView";
+import dynamic from "next/dynamic";
+
+const AddProductView = dynamic(() =>
+  import("@/modules/store/products/AddProductView").then((m) => ({ default: m.AddProductView }))
+);
 
 export const metadata: Metadata = { title: "Add Product — Store" };
 

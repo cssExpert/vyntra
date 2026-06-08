@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { StorageSettingsView } from "@/modules/admin/StorageSettingsView";
+import dynamic from "next/dynamic";
+
+const StorageSettingsView = dynamic(() =>
+  import("@/modules/admin/StorageSettingsView").then((m) => ({ default: m.StorageSettingsView }))
+);
 
 export const metadata: Metadata = { title: "Admin Settings - Storage" };
 

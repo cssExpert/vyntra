@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
-import { UsersView } from "@/modules/users/UsersView";
+import dynamic from "next/dynamic";
 import { AdminGuard } from "@/modules/admin/AdminGuard";
+
+const UsersView = dynamic(() =>
+  import("@/modules/users/UsersView").then((m) => ({ default: m.UsersView }))
+);
 
 export const metadata: Metadata = {
   title: "Users",

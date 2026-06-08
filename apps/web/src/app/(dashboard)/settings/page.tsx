@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { SettingsView } from "@/modules/settings/SettingsView";
+import dynamic from "next/dynamic";
+
+const SettingsView = dynamic(() =>
+  import("@/modules/settings/SettingsView").then((m) => ({ default: m.SettingsView }))
+);
 
 export const metadata: Metadata = { title: "Settings" };
 
