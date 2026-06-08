@@ -55,6 +55,7 @@ export const NAV_SECTIONS: NavSection[] = [
         children: [
           { id: "cms-pages",    label: "Pages",            href: "/cms/pages",            icon: "" },
           { id: "cms-blogs",    label: "Blogs",            href: "/cms/blogs",            icon: "" },
+          { id: "cms-blog-categories", label: "Blog Categories", href: "/cms/blog-categories", icon: "" },
           { id: "cms-gallery",  label: "Gallery",          href: "/cms/gallery",          icon: "" },
           { id: "cms-teams",    label: "Teams",            href: "/cms/teams",            icon: "" },
           { id: "cms-forms",    label: "Forms",            href: "/cms/forms",            icon: "" },

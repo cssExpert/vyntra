@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { UsersAdminView } from "@/modules/admin/UsersAdminView";
+import dynamic from "next/dynamic";
+
+const UsersAdminView = dynamic(() =>
+  import("@/modules/admin/UsersAdminView").then((m) => ({ default: m.UsersAdminView }))
+);
 
 export const metadata: Metadata = { title: "Users" };
 

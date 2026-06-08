@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { ModulesAdminView } from "@/modules/admin/ModulesAdminView";
+import dynamic from "next/dynamic";
+
+const ModulesAdminView = dynamic(() =>
+  import("@/modules/admin/ModulesAdminView").then((m) => ({ default: m.ModulesAdminView }))
+);
 
 export const metadata: Metadata = { title: "Modules" };
 

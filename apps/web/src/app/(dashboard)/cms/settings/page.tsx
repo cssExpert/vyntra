@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { CmsSettingsView } from "@/modules/cms/CmsSettingsView";
+import dynamic from "next/dynamic";
+
+const CmsSettingsView = dynamic(() =>
+  import("@/modules/cms/CmsSettingsView").then((m) => ({ default: m.CmsSettingsView }))
+);
 
 export const metadata: Metadata = { title: "Settings — CMS" };
 

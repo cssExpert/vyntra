@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 interface MenuItemInput {
@@ -6,6 +6,27 @@ interface MenuItemInput {
   url: string;
   target?: string;
   visibility?: string[];
+}
+
+interface BlogDto {
+  title: string;
+  subtitle?: string;
+  slug: string;
+  body?: string;
+  excerpt?: string;
+  coverImage?: string;
+  tags?: string[];
+  author?: string;
+  category?: string;
+  seoTitle?: string;
+  metaDesc?: string;
+  keywords?: string;
+  published?: boolean;
+  publishedAt?: string | null;
+  visibility?: string;
+  allowComments?: boolean;
+  isFeatured?: boolean;
+  pinToTop?: boolean;
 }
 
 interface FooterColumn {
@@ -57,8 +78,135 @@ export class CmsService {
         createdAt: true,
         publishedAt: true,
       },
-      orderBy: { title: 'asc' },
+      orderBy: { createdAt: 'desc' },
     });
+  }
+
+  async getBlog(orgId: string, id: string) {
+    const blog = await this.prisma.blog.findFirst({
+      where: { id, organizationId: orgId },
+    });
+    if (!blog) throw new NotFoundException('Blog not found');
+    return blog;
+  }
+
+  async createBlog(orgId: string, dto: BlogDto) {
+    const existing = await this.prisma.blog.findFirst({
+      where: { organizationId: orgId, slug: dto.slug },
+      select: { id: true },
+    });
+    if (existing) throw new BadRequestException('A blog with this slug already exists');
+
+    return this.prisma.blog.create({
+      data: {
+        title: dto.title,
+        subtitle: dto.subtitle,
+        slug: dto.slug,
+        body: dto.body,
+        excerpt: dto.excerpt,
+        coverImage: dto.coverImage,
+        tags: dto.tags ?? [],
+        author: dto.author,
+        category: dto.category,
+        seoTitle: dto.seoTitle,
+        metaDesc: dto.metaDesc,
+        keywords: dto.keywords,
+        published: dto.published ?? false,
+        publishedAt: dto.published ? (dto.publishedAt ? new Date(dto.publishedAt) : new Date()) : null,
+        visibility: dto.visibility ?? 'public',
+        allowComments: dto.allowComments ?? true,
+        isFeatured: dto.isFeatured ?? false,
+        pinToTop: dto.pinToTop ?? false,
+        organizationId: orgId,
+      },
+    });
+  }
+
+  async updateBlog(orgId: string, id: string, dto: Partial<BlogDto>) {
+    const blog = await this.prisma.blog.findFirst({ where: { id, organizationId: orgId } });
+    if (!blog) throw new NotFoundException('Blog not found');
+
+    if (dto.slug && dto.slug !== blog.slug) {
+      const conflict = await this.prisma.blog.findFirst({
+        where: { organizationId: orgId, slug: dto.slug, id: { not: id } },
+        select: { id: true },
+      });
+      if (conflict) throw new BadRequestException('A blog with this slug already exists');
+    }
+
+    return this.prisma.blog.update({
+      where: { id },
+      data: {
+        ...(dto.title !== undefined && { title: dto.title }),
+        ...(dto.subtitle !== undefined && { subtitle: dto.subtitle }),
+        ...(dto.slug !== undefined && { slug: dto.slug }),
+        ...(dto.body !== undefined && { body: dto.body }),
+        ...(dto.excerpt !== undefined && { excerpt: dto.excerpt }),
+        ...(dto.coverImage !== undefined && { coverImage: dto.coverImage }),
+        ...(dto.tags !== undefined && { tags: dto.tags }),
+        ...(dto.author !== undefined && { author: dto.author }),
+        ...(dto.category !== undefined && { category: dto.category }),
+        ...(dto.seoTitle !== undefined && { seoTitle: dto.seoTitle }),
+        ...(dto.metaDesc !== undefined && { metaDesc: dto.metaDesc }),
+        ...(dto.keywords !== undefined && { keywords: dto.keywords }),
+        ...(dto.published !== undefined && { published: dto.published }),
+        ...(dto.published === true
+          ? { publishedAt: dto.publishedAt ? new Date(dto.publishedAt) : (blog.publishedAt ?? new Date()) }
+          : {}),
+        ...(dto.published === false ? { publishedAt: null } : {}),
+        ...(dto.visibility !== undefined && { visibility: dto.visibility }),
+        ...(dto.allowComments !== undefined && { allowComments: dto.allowComments }),
+        ...(dto.isFeatured !== undefined && { isFeatured: dto.isFeatured }),
+        ...(dto.pinToTop !== undefined && { pinToTop: dto.pinToTop }),
+      },
+    });
+  }
+
+  async deleteBlog(orgId: string, id: string) {
+    const blog = await this.prisma.blog.findFirst({ where: { id, organizationId: orgId } });
+    if (!blog) throw new NotFoundException('Blog not found');
+    await this.prisma.blog.delete({ where: { id } });
+    return { ok: true };
+  }
+
+  // ── Blog Categories ──────────────────────────────────────────────────────────
+
+  async listBlogCategories(orgId: string) {
+    return this.prisma.blogCategory.findMany({
+      where: { organizationId: orgId },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  async createBlogCategory(orgId: string, dto: { name: string; slug: string; description?: string }) {
+    const existing = await this.prisma.blogCategory.findFirst({
+      where: { organizationId: orgId, slug: dto.slug },
+      select: { id: true },
+    });
+    if (existing) throw new BadRequestException('A category with this slug already exists');
+    return this.prisma.blogCategory.create({
+      data: { name: dto.name, slug: dto.slug, description: dto.description, organizationId: orgId },
+    });
+  }
+
+  async updateBlogCategory(orgId: string, id: string, dto: { name?: string; slug?: string; description?: string }) {
+    const cat = await this.prisma.blogCategory.findFirst({ where: { id, organizationId: orgId } });
+    if (!cat) throw new NotFoundException('Category not found');
+    if (dto.slug && dto.slug !== cat.slug) {
+      const conflict = await this.prisma.blogCategory.findFirst({
+        where: { organizationId: orgId, slug: dto.slug, id: { not: id } },
+        select: { id: true },
+      });
+      if (conflict) throw new BadRequestException('A category with this slug already exists');
+    }
+    return this.prisma.blogCategory.update({ where: { id }, data: dto });
+  }
+
+  async deleteBlogCategory(orgId: string, id: string) {
+    const cat = await this.prisma.blogCategory.findFirst({ where: { id, organizationId: orgId } });
+    if (!cat) throw new NotFoundException('Category not found');
+    await this.prisma.blogCategory.delete({ where: { id } });
+    return { ok: true };
   }
 
   async loadPage(orgId: string, slug: string) {

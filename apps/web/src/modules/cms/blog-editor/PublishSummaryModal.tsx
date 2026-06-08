@@ -55,7 +55,7 @@ export function PublishSummaryModal({
 
             <div className="p-4 bg-muted/50 rounded-xl text-left space-y-2 text-[10px] font-mono border border-border">
               <Row label="SLUG" value={`/blog/${form.slug}`} />
-              <Row label="CATEGORY" value={form.category} />
+              <Row label="CATEGORIES" value={form.category.join(", ") || "—"} />
               <Row
                 label="SEO GRADE"
                 value={`${seoScore}/100`}

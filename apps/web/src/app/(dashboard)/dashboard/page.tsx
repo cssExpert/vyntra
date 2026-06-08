@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { DashboardView } from "@/modules/dashboard/DashboardView";
+import dynamic from "next/dynamic";
+
+const DashboardView = dynamic(() =>
+  import("@/modules/dashboard/DashboardView").then((m) => ({ default: m.DashboardView }))
+);
 
 export const metadata: Metadata = {
   title: "Dashboard",

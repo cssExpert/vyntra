@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { PaymentSettingsView } from "@/modules/admin/PaymentSettingsView";
+import dynamic from "next/dynamic";
+
+const PaymentSettingsView = dynamic(() =>
+  import("@/modules/admin/PaymentSettingsView").then((m) => ({ default: m.PaymentSettingsView }))
+);
 
 export const metadata: Metadata = { title: "Admin Settings - Payment Methods" };
 

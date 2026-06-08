@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { CRMView } from "@/modules/crm/CRMView";
+import dynamic from "next/dynamic";
+
+const CRMView = dynamic(() =>
+  import("@/modules/crm/CRMView").then((m) => ({ default: m.CRMView }))
+);
 
 export const metadata: Metadata = {
   title: "CRM",

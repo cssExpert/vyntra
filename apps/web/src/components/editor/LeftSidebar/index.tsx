@@ -25,6 +25,9 @@ function DraggableBlock({ block }: { block: ComponentBlock }) {
     data: { type: "BLOCK", blockId: block.id, template: block.template },
   });
 
+  const isThemed = block.category in THEME_CATEGORIES;
+  const theme = THEME_CATEGORIES[block.category];
+
   return (
     <div
       ref={setNodeRef}
@@ -33,11 +36,18 @@ function DraggableBlock({ block }: { block: ComponentBlock }) {
       className={cn(
         "group relative flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-grab active:cursor-grabbing select-none",
         "border border-transparent transition-all duration-150",
-        "hover:bg-primary/10 hover:border-primary dark:hover:bg-primary/10 dark:hover:border-primary/25",
+        isThemed
+          ? "hover:bg-[#ff2c2c]/10 hover:border-[#ff2c2c]/30"
+          : "hover:bg-primary/10 hover:border-primary dark:hover:bg-primary/10 dark:hover:border-primary/25",
         isDragging && "opacity-30 scale-95",
       )}
     >
-      <div className="w-7 h-7 rounded-md flex items-center justify-center shrink-0 transition-colors bg-muted dark:bg-muted text-muted-foreground dark:text-muted-foreground">
+      <div className={cn(
+        "w-7 h-7 rounded-md flex items-center justify-center shrink-0 transition-colors",
+        isThemed
+          ? `${theme.bg} ${theme.text}`
+          : "bg-muted dark:bg-muted text-muted-foreground dark:text-muted-foreground",
+      )}>
         <Grid3x3 className="w-3.5 h-3.5" />
       </div>
       <span className="text-sm font-medium truncate text-muted-foreground dark:text-muted-foreground">
@@ -47,6 +57,11 @@ function DraggableBlock({ block }: { block: ComponentBlock }) {
   );
 }
 
+// Categories that get a coloured accent pill instead of plain text
+const THEME_CATEGORIES: Record<string, { bg: string; text: string; dot: string }> = {
+  Shopingo: { bg: "bg-[#ff2c2c]/10", text: "text-[#ff2c2c]", dot: "bg-[#ff2c2c]" },
+};
+
 function CategorySection({
   category,
   blocks,
@@ -55,26 +70,35 @@ function CategorySection({
   blocks: ComponentBlock[];
 }) {
   const [open, setOpen] = useState(true);
+  const theme = THEME_CATEGORIES[category];
 
   return (
-    <div className="mb-0.5">
+    <div className={cn("mb-0.5", theme && "mt-1")}>
+      {/* Divider above themed categories */}
+      {theme && <div className="border-t border-border mb-1.5 mx-2" />}
+
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-md transition-colors
-          text-muted-foreground dark:text-muted-foreground hover:text-muted-foreground dark:hover:text-foreground"
+        className={cn(
+          "w-full flex items-center justify-between px-2.5 py-1.5 rounded-md transition-colors",
+          theme
+            ? `${theme.bg} hover:opacity-90`
+            : "text-muted-foreground hover:text-foreground",
+        )}
       >
-        <span className="text-[10px] font-semibold uppercase tracking-widest">
+        <span className={cn(
+          "flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest",
+          theme ? theme.text : "text-muted-foreground",
+        )}>
+          {theme && <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", theme.dot)} />}
           {category}
         </span>
-        <span className="flex items-center gap-1.5">
-          <span className="text-[10px] opacity-50">{blocks.length}</span>
-          {open ? (
-            <ChevronDown className="w-3 h-3" />
-          ) : (
-            <ChevronRight className="w-3 h-3" />
-          )}
+        <span className={cn("flex items-center gap-1.5", theme ? theme.text : "text-muted-foreground")}>
+          <span className="text-[10px] opacity-60">{blocks.length}</span>
+          {open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
         </span>
       </button>
+
       <AnimatePresence>
         {open && (
           <motion.div
@@ -84,7 +108,7 @@ function CategorySection({
             transition={{ duration: 0.14 }}
             className="overflow-hidden"
           >
-            <div className="pb-1">
+            <div className={cn("pb-1", theme && "border-l-2 ml-2.5 pl-1 border-[#ff2c2c]/25")}>
               {blocks.map((b) => (
                 <DraggableBlock key={b.id} block={b} />
               ))}

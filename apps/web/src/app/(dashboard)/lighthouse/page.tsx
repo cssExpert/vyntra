@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { LighthouseView } from "@/modules/lighthouse/LighthouseView";
+import dynamic from "next/dynamic";
+
+const LighthouseView = dynamic(() =>
+  import("@/modules/lighthouse/LighthouseView").then((m) => ({ default: m.LighthouseView }))
+);
 
 export const metadata: Metadata = {
   title: "Lighthouse",
