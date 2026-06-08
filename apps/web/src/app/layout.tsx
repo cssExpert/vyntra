@@ -79,7 +79,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${plusJakarta.variable} ${jetbrainsMono.variable}`}
+      className={`${inter.variable} ${plusJakarta.variable} ${jetbrainsMono.variable} ${merienda.variable}`}
     >
       <body
         suppressHydrationWarning

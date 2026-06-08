@@ -337,7 +337,7 @@ export function AppSidebar({
           href="/dashboard"
           className="flex items-center gap-2.5 cursor-pointer"
         >
-          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-sm bg-primary shadow-glow-brand">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-primary shadow-glow-brand">
             <Icon name="Logo" size="20" className="h-5 w-5 text-white" />
           </div>
           <FadeLabel
@@ -414,10 +414,13 @@ export function AppSidebar({
                         >
                           <div className="py-1">
                             {item.children!.map((child) => {
-                              const childHasSubPath = child.href.split("/").filter(Boolean).length > 1;
+                              const childHasSubPath =
+                                child.href.split("/").filter(Boolean).length >
+                                1;
                               const childActive =
                                 pathname === child.href ||
-                                (childHasSubPath && pathname.startsWith(child.href));
+                                (childHasSubPath &&
+                                  pathname.startsWith(child.href));
                               return (
                                 <SubNavItem
                                   key={child.id}
