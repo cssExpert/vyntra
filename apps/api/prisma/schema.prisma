@@ -313,14 +313,23 @@ model Page {
 model Blog {
   id             String    @id @default(cuid())
   title          String
+  subtitle       String?
   slug           String
   body           String?
   excerpt        String?
+  coverImage     String?
+  tags           String[]  @default([])
   author         String?
   category       String?
+  seoTitle       String?
   metaDesc       String?
+  keywords       String?
   published      Boolean   @default(false)
   publishedAt    DateTime?
+  visibility     String    @default("public")
+  allowComments  Boolean   @default(true)
+  isFeatured     Boolean   @default(false)
+  pinToTop       Boolean   @default(false)
   organizationId String
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt

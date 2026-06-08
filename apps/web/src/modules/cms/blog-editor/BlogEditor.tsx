@@ -4,7 +4,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Eye, Check } from "lucide-react";
-import type { CmsBlog } from "../blog-data";
+import type { CmsBlogDetail, CmsBlogSaveDto } from "@/lib/api";
+import { cmsBlogs } from "@/lib/api";
 import { EditorStepTabs, type EditorTab } from "./EditorStepTabs";
 import { WritingTab } from "./WritingTab";
 import { MetadataTab } from "./MetadataTab";
@@ -15,6 +16,7 @@ import { DevicePreviewModal } from "./DevicePreviewModal";
 import { PublishSummaryModal } from "./PublishSummaryModal";
 import { ToastStack, useToasts } from "./Toasts";
 import {
+  AUTHOR_PROFILES,
   calculateSeoScore,
   emptyBlogForm,
   slugify,
@@ -23,70 +25,92 @@ import {
   type BlogFormState,
 } from "./types";
 
-// Map the list-row status to the editor's richer status enum.
-function mapStatus(status?: CmsBlog["status"]): BlogEditorStatus {
-  if (status === "Public") return "published";
-  if (status === "Private") return "draft";
-  return "draft";
+function mapStatus(published: boolean): BlogEditorStatus {
+  return published ? "published" : "draft";
+}
+
+function authorNameToId(name: string | null): string {
+  if (!name) return AUTHOR_PROFILES[0].id;
+  const match = AUTHOR_PROFILES.find((p) => p.name === name);
+  return match ? match.id : AUTHOR_PROFILES[0].id;
+}
+
+function authorIdToName(id: string): string {
+  const match = AUTHOR_PROFILES.find((p) => p.id === id);
+  return match ? match.name : id;
+}
+
+function detailToForm(blog: CmsBlogDetail): BlogFormState {
+  const base = emptyBlogForm();
+  return {
+    ...base,
+    title: blog.title,
+    subtitle: blog.subtitle ?? "",
+    slug: blog.slug,
+    content: blog.body ?? "",
+    excerpt: blog.excerpt ?? "",
+    coverImage: blog.coverImage ?? base.coverImage,
+    tags: blog.tags ?? [],
+    category: blog.category ?? base.category,
+    seoTitle: blog.seoTitle ?? blog.title.substring(0, 60),
+    seoDesc: blog.metaDesc ?? "",
+    keywords: blog.keywords ?? "",
+    author: authorNameToId(blog.author),
+    status: mapStatus(blog.published),
+    visibility: (blog.visibility as BlogFormState["visibility"]) ?? "public",
+    allowComments: blog.allowComments,
+    isFeatured: blog.isFeatured,
+    pinToTop: blog.pinToTop,
+    publishDate: blog.publishedAt
+      ? new Date(blog.publishedAt).toISOString().split("T")[0]
+      : base.publishDate,
+  };
 }
 
 export interface BlogEditorProps {
   /** When provided, the editor is in "edit" mode and prefills from this record. */
-  blog?: CmsBlog;
+  blog?: CmsBlogDetail;
 }
 
 export function BlogEditor({ blog }: BlogEditorProps) {
   const router = useRouter();
   const { toasts, addToast, dismiss } = useToasts();
+  const [saving, setSaving] = useState(false);
+  const [savedBlog, setSavedBlog] = useState<CmsBlogDetail | null>(null);
 
-  const [form, setForm] = useState<BlogFormState>(() => {
-    const base = emptyBlogForm();
-    if (!blog) return base;
-    return {
-      ...base,
-      title: blog.title,
-      slug: blog.slug,
-      author: base.author,
-      status: mapStatus(blog.status),
-      seoTitle: blog.title.substring(0, 60),
-    };
-  });
+  const [form, setForm] = useState<BlogFormState>(() =>
+    blog ? detailToForm(blog) : emptyBlogForm(),
+  );
 
   const [activeTab, setActiveTab] = useState<EditorTab>("editor");
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
 
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(Boolean(blog));
-  const [seoTitleManuallyEdited, setSeoTitleManuallyEdited] = useState(
-    Boolean(blog),
-  );
-  const [seoDescManuallyEdited, setSeoDescManuallyEdited] = useState(false);
+  const [seoTitleManuallyEdited, setSeoTitleManuallyEdited] = useState(Boolean(blog));
+  const [seoDescManuallyEdited, setSeoDescManuallyEdited] = useState(Boolean(blog?.metaDesc));
 
   const patch = (partial: Partial<BlogFormState>) =>
     setForm((prev) => ({ ...prev, ...partial }));
 
-  // Auto-sync slug from the title (unless the user edited it).
   useEffect(() => {
     if (!slugManuallyEdited && form.title) {
       setForm((prev) => ({ ...prev, slug: slugify(prev.title) }));
     }
   }, [form.title, slugManuallyEdited]);
 
-  // Auto-sync SEO title from the title.
   useEffect(() => {
     if (!seoTitleManuallyEdited) {
       setForm((prev) => ({ ...prev, seoTitle: prev.title.substring(0, 60) }));
     }
   }, [form.title, seoTitleManuallyEdited]);
 
-  // Auto-sync SEO description from the excerpt.
   useEffect(() => {
     if (!seoDescManuallyEdited) {
       setForm((prev) => ({ ...prev, seoDesc: prev.excerpt.substring(0, 160) }));
     }
   }, [form.excerpt, seoDescManuallyEdited]);
 
-  // Recompute read time from content length (strip HTML tags first).
   useEffect(() => {
     const text = stripHtml(form.content);
     const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
@@ -98,13 +122,57 @@ export function BlogEditor({ blog }: BlogEditorProps) {
 
   const seoScore = useMemo(() => calculateSeoScore(form), [form]);
 
-  const handlePublish = () => {
+  const buildDto = (): CmsBlogSaveDto => ({
+    title: form.title,
+    subtitle: form.subtitle || undefined,
+    slug: form.slug,
+    body: form.content || undefined,
+    excerpt: form.excerpt || undefined,
+    coverImage: form.coverImage || undefined,
+    tags: form.tags,
+    author: authorIdToName(form.author),
+    category: form.category,
+    seoTitle: form.seoTitle || undefined,
+    metaDesc: form.seoDesc || undefined,
+    keywords: form.keywords || undefined,
+    published: form.status === "published",
+    publishedAt:
+      form.status === "published"
+        ? `${form.publishDate}T${form.publishTime}:00`
+        : null,
+    visibility: form.visibility,
+    allowComments: form.allowComments,
+    isFeatured: form.isFeatured,
+    pinToTop: form.pinToTop,
+  });
+
+  const handlePublish = async () => {
     if (!form.title.trim()) {
       addToast("Title is required to save the post", "error");
       setActiveTab("editor");
       return;
     }
-    setShowSummary(true);
+    if (!form.slug.trim()) {
+      addToast("Slug is required", "error");
+      setActiveTab("editor");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const dto = buildDto();
+      const result = blog
+        ? await cmsBlogs.update(blog.id, dto)
+        : await cmsBlogs.create(dto);
+      setSavedBlog(result);
+      setShowSummary(true);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Failed to save blog post";
+      addToast(message, "error");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const goBack = () => router.push("/cms/blogs");
@@ -148,10 +216,11 @@ export function BlogEditor({ blog }: BlogEditorProps) {
 
           <button
             onClick={handlePublish}
-            className="px-4 py-2 bg-primary hover:bg-primary/90 active:scale-[0.98] text-primary-foreground font-bold text-xs rounded-lg flex items-center gap-1.5 transition-all"
+            disabled={saving}
+            className="px-4 py-2 bg-primary hover:bg-primary/90 active:scale-[0.98] text-primary-foreground font-bold text-xs rounded-lg flex items-center gap-1.5 transition-all disabled:opacity-60"
           >
             <Check className="w-4 h-4" />
-            <span>Save &amp; Publish</span>
+            <span>{saving ? "Saving…" : "Save & Publish"}</span>
           </button>
         </div>
       </div>
@@ -163,7 +232,6 @@ export function BlogEditor({ blog }: BlogEditorProps) {
         transition={{ duration: 0.28, ease: "easeOut" }}
         className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start"
       >
-        {/* Left column */}
         <div className="lg:col-span-8 space-y-6">
           <EditorStepTabs active={activeTab} onChange={setActiveTab} />
 
@@ -216,7 +284,6 @@ export function BlogEditor({ blog }: BlogEditorProps) {
           </AnimatePresence>
         </div>
 
-        {/* Right column — sticky on scroll */}
         <div className="lg:col-span-4 lg:sticky lg:top-24 self-start">
           <EditorSidebar
             form={form}
@@ -238,7 +305,7 @@ export function BlogEditor({ blog }: BlogEditorProps) {
           setShowSummary(false);
           goBack();
         }}
-        form={form}
+        form={savedBlog ? detailToForm(savedBlog) : form}
         seoScore={seoScore}
         onCopyLink={() => addToast("Copied feed slug URL", "info")}
       />

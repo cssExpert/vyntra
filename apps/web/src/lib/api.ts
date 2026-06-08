@@ -517,6 +517,51 @@ export interface CmsBlogListItem {
   publishedAt: string | null;
 }
 
+export interface CmsBlogDetail {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  slug: string;
+  body: string | null;
+  excerpt: string | null;
+  coverImage: string | null;
+  tags: string[];
+  author: string | null;
+  category: string | null;
+  seoTitle: string | null;
+  metaDesc: string | null;
+  keywords: string | null;
+  published: boolean;
+  publishedAt: string | null;
+  visibility: string;
+  allowComments: boolean;
+  isFeatured: boolean;
+  pinToTop: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CmsBlogSaveDto {
+  title: string;
+  subtitle?: string;
+  slug: string;
+  body?: string;
+  excerpt?: string;
+  coverImage?: string;
+  tags?: string[];
+  author?: string;
+  category?: string;
+  seoTitle?: string;
+  metaDesc?: string;
+  keywords?: string;
+  published?: boolean;
+  publishedAt?: string | null;
+  visibility?: string;
+  allowComments?: boolean;
+  isFeatured?: boolean;
+  pinToTop?: boolean;
+}
+
 export const cmsPages = {
   list: () => apiFetch<CmsPageListItem[]>("/cms/pages"),
   load: (slug: string) => apiFetch<CmsPageData>(`/cms/pages/${slug}`),
@@ -534,6 +579,19 @@ export const cmsPages = {
 
 export const cmsBlogs = {
   list: () => apiFetch<CmsBlogListItem[]>("/cms/blogs"),
+  get: (id: string) => apiFetch<CmsBlogDetail>(`/cms/blogs/${id}`),
+  create: (dto: CmsBlogSaveDto) =>
+    apiFetch<CmsBlogDetail>("/cms/blogs", {
+      method: "POST",
+      body: JSON.stringify(dto),
+    }),
+  update: (id: string, dto: Partial<CmsBlogSaveDto>) =>
+    apiFetch<CmsBlogDetail>(`/cms/blogs/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(dto),
+    }),
+  delete: (id: string) =>
+    apiFetch<{ ok: boolean }>(`/cms/blogs/${id}`, { method: "DELETE" }),
 };
 
 // ─── CMS menus ───────────────────────────────────────────

@@ -38,6 +38,49 @@ export class CmsController {
   }
 
   @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Post('blogs')
+  createBlog(
+    @CurrentOrg() orgId: string | null,
+    @Body() body: {
+      title: string; subtitle?: string; slug: string; body?: string;
+      excerpt?: string; coverImage?: string; tags?: string[]; author?: string;
+      category?: string; seoTitle?: string; metaDesc?: string; keywords?: string;
+      published?: boolean; publishedAt?: string | null; visibility?: string;
+      allowComments?: boolean; isFeatured?: boolean; pinToTop?: boolean;
+    },
+  ) {
+    return this.cmsService.createBlog(requireOrg(orgId), body);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Get('blogs/:id')
+  getBlog(@CurrentOrg() orgId: string | null, @Param('id') id: string) {
+    return this.cmsService.getBlog(requireOrg(orgId), id);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Patch('blogs/:id')
+  updateBlog(
+    @CurrentOrg() orgId: string | null,
+    @Param('id') id: string,
+    @Body() body: {
+      title?: string; subtitle?: string; slug?: string; body?: string;
+      excerpt?: string; coverImage?: string; tags?: string[]; author?: string;
+      category?: string; seoTitle?: string; metaDesc?: string; keywords?: string;
+      published?: boolean; publishedAt?: string | null; visibility?: string;
+      allowComments?: boolean; isFeatured?: boolean; pinToTop?: boolean;
+    },
+  ) {
+    return this.cmsService.updateBlog(requireOrg(orgId), id, body);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Delete('blogs/:id')
+  deleteBlog(@CurrentOrg() orgId: string | null, @Param('id') id: string) {
+    return this.cmsService.deleteBlog(requireOrg(orgId), id);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
   @Get('pages/:slug')
   load(@CurrentOrg() orgId: string | null, @Param('slug') slug: string) {
     return this.cmsService.loadPage(requireOrg(orgId), slug);

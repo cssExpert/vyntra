@@ -385,19 +385,43 @@ export function BlogView() {
                     label: "Duplicate",
                     icon: <Copy size={13} />,
                     onClick: () => {
-                      const today = todayFormatted();
-                      setBlogs((prev) => [
-                        ...prev,
-                        {
-                          ...blog,
-                          id: Date.now().toString(),
-                          title: `${blog.title} (Copy)`,
-                          slug: `${blog.slug}-copy-${Date.now()}`,
-                          status: "Draft",
-                          createdAt: today,
-                          publishedAt: today,
-                        },
-                      ]);
+                      cmsBlogs
+                        .get(blog.id)
+                        .then((detail) =>
+                          cmsBlogs.create({
+                            title: `${detail.title} (Copy)`,
+                            slug: `${detail.slug}-copy-${Date.now()}`,
+                            body: detail.body ?? undefined,
+                            excerpt: detail.excerpt ?? undefined,
+                            coverImage: detail.coverImage ?? undefined,
+                            tags: detail.tags,
+                            author: detail.author ?? undefined,
+                            category: detail.category ?? undefined,
+                            seoTitle: detail.seoTitle ?? undefined,
+                            metaDesc: detail.metaDesc ?? undefined,
+                            keywords: detail.keywords ?? undefined,
+                            published: false,
+                            visibility: detail.visibility,
+                            allowComments: detail.allowComments,
+                            isFeatured: detail.isFeatured,
+                            pinToTop: detail.pinToTop,
+                          }),
+                        )
+                        .then((created) => {
+                          setBlogs((prev) => [
+                            {
+                              id: created.id,
+                              title: created.title,
+                              slug: created.slug,
+                              author: created.author ?? "-",
+                              status: "Draft",
+                              createdAt: formatApiDate(created.createdAt),
+                              publishedAt: formatApiDate(created.publishedAt),
+                            },
+                            ...prev,
+                          ]);
+                        })
+                        .catch(() => {});
                     },
                   },
                   {
@@ -436,8 +460,25 @@ export function BlogView() {
 
   const handleConfirmDelete = () => {
     if (!deletingBlog) return;
-    setBlogs((prev) => prev.filter((b) => b.id !== deletingBlog.id));
+    const id = deletingBlog.id;
+    setBlogs((prev) => prev.filter((b) => b.id !== id));
     setDeletingBlog(null);
+    cmsBlogs.delete(id).catch(() => {
+      // Re-fetch on failure to restore state
+      cmsBlogs.list().then((data) =>
+        setBlogs(
+          data.map((b) => ({
+            id: b.id,
+            title: b.title,
+            slug: b.slug,
+            author: b.author ?? "-",
+            status: b.published ? "Public" : ("Draft" as const),
+            createdAt: formatApiDate(b.createdAt),
+            publishedAt: formatApiDate(b.publishedAt),
+          })),
+        ),
+      );
+    });
   };
 
   const { pageIndex, pageSize } = table.getState().pagination;

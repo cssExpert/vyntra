@@ -1299,6 +1299,268 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
       ],
     ),
   },
+
+  // ─── SHOPINGO ──────────────────────────────────────────────────────────────
+
+  // 1 · Hero Banner
+  {
+    id: "shopingo-hero",
+    label: "Hero Banner",
+    category: "Shopingo",
+    icon: "layout",
+    template: makeNode("section", "section", "relative min-h-[520px] flex items-center bg-[#212529] overflow-hidden", undefined, [
+      makeNode("img", "img", "absolute inset-0 w-full h-full object-cover opacity-35 pointer-events-none select-none", undefined, undefined, {
+        src: "https://codervent.com/shopingo/demo/shopingo_V1/assets/images/sliders/s_1.webp",
+        alt: "",
+      }),
+      makeNode("div", "div", "relative z-10 max-w-6xl mx-auto px-8 py-24 w-full", undefined, [
+        makeNode("span", "span", "inline-block text-xs font-semibold uppercase tracking-[0.2em] text-[#ff2c2c] mb-4", "New Collection 2024"),
+        makeNode("h1", "h1", "text-5xl font-extrabold text-white mb-4 leading-tight", "Women Fashion"),
+        makeNode("p", "p", "text-2xl font-light text-white/75 mb-10", "Sale up to 25% off"),
+        makeNode("a", "a", "inline-block bg-[#ff2c2c] hover:opacity-90 text-white font-bold px-10 py-3.5 text-sm uppercase tracking-widest transition-opacity", "Shop Now", undefined, { href: "/shop" }),
+      ]),
+    ]),
+  },
+
+  // 2 · Featured Products Grid
+  {
+    id: "shopingo-featured-products",
+    label: "Featured Products",
+    category: "Shopingo",
+    icon: "grid",
+    template: makeNode("section", "section", "bg-white py-16 px-4", undefined, [
+      makeNode("div", "div", "max-w-6xl mx-auto", undefined, [
+        makeNode("div", "div", "text-center mb-10", undefined, [
+          makeNode("h2", "h2", "text-3xl font-extrabold text-[#212529] mb-2", "Featured Products"),
+          makeNode("p", "p", "text-[#797979] text-sm", "Handpicked favourites for you"),
+        ]),
+        makeNode("div", "div", "grid grid-cols-2 md:grid-cols-4 gap-5", undefined, [
+          ...[
+            ["01", "Kurta Set"],
+            ["02", "Heels"],
+            ["03", "Lehenga"],
+            ["04", "Plazzos"],
+            ["05", "Makeup Kit"],
+            ["06", "Shoes"],
+            ["07", "Bag"],
+            ["08", "Watch"],
+          ].map(([n, name]) =>
+            makeNode("div", "div", "border border-[#e1e1e1] group cursor-pointer hover:shadow-md transition-shadow", undefined, [
+              makeNode("div", "div", "overflow-hidden relative", undefined, [
+                makeNode("img", "img", "w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-300", undefined, undefined, {
+                  src: `https://codervent.com/shopingo/demo/shopingo_V1/assets/images/featured-products/${n}.webp`,
+                  alt: name,
+                }),
+              ]),
+              makeNode("div", "div", "p-3", undefined, [
+                makeNode("p", "p", "text-xs text-[#797979] mb-0.5", "Shopingo"),
+                makeNode("h4", "h4", "text-sm font-semibold text-[#212529] mb-1", name),
+                makeNode("div", "div", "flex items-center justify-between", undefined, [
+                  makeNode("span", "span", "text-[#ff2c2c] font-bold text-sm", "$49.00"),
+                  makeNode("button", "button", "bg-[#212529] hover:bg-[#ff2c2c] text-white text-[10px] font-bold px-3 py-1.5 uppercase tracking-wider transition-colors cursor-pointer", "Add to Cart"),
+                ]),
+              ]),
+            ])
+          ),
+        ]),
+      ]),
+    ]),
+  },
+
+  // 3 · Features / What We Offer
+  {
+    id: "shopingo-features",
+    label: "Features Strip",
+    category: "Shopingo",
+    icon: "star",
+    template: makeNode("section", "section", "bg-[#f9f9f9] border-y border-[#e1e1e1] py-14 px-4", undefined, [
+      makeNode("div", "div", "max-w-6xl mx-auto", undefined, [
+        makeNode("div", "div", "text-center mb-10", undefined, [
+          makeNode("h2", "h2", "text-3xl font-extrabold text-[#212529] mb-2", "What We Offer!"),
+          makeNode("p", "p", "text-[#797979] text-sm", "We provide the best shopping experience"),
+        ]),
+        makeNode("div", "div", "grid grid-cols-2 md:grid-cols-4 gap-6", undefined, [
+          ...[
+            ["🚚", "Free Delivery", "Orders over $99 get free standard shipping to your doorstep."],
+            ["🔒", "Secure Payment", "100% secure payment processing with industry-grade encryption."],
+            ["↩️", "Free Returns", "Not happy? Return within 30 days — no questions asked."],
+            ["💬", "24/7 Support", "Our team is always ready to assist you any time of the day."],
+          ].map(([icon, title, desc]) =>
+            makeNode("div", "div", "flex flex-col items-center text-center p-6 bg-white border border-[#e1e1e1]", undefined, [
+              makeNode("span", "span", "text-4xl mb-4", icon),
+              makeNode("h4", "h4", "text-base font-bold text-[#212529] mb-2", title),
+              makeNode("p", "p", "text-sm text-[#797979] leading-relaxed", desc),
+            ])
+          ),
+        ]),
+      ]),
+    ]),
+  },
+
+  // 4 · Promo Banner (image + bullets)
+  {
+    id: "shopingo-promo-banner",
+    label: "Promo Banner",
+    category: "Shopingo",
+    icon: "image",
+    template: makeNode("section", "section", "bg-white py-16 px-4", undefined, [
+      makeNode("div", "div", "max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center", undefined, [
+        makeNode("div", "div", "", undefined, [
+          makeNode("span", "span", "inline-block text-xs font-bold uppercase tracking-[0.18em] text-[#ff2c2c] mb-3", "Exclusive Deal"),
+          makeNode("h2", "h2", "text-4xl font-extrabold text-[#212529] mb-5 leading-tight", "New Features of Trending Products"),
+          makeNode("ul", "ul", "space-y-3 mb-8", undefined, [
+            ...["Premium quality material sourced from top manufacturers", "Latest trends with exclusive seasonal designs", "Comfortable fit for every body type and lifestyle", "Eco-friendly packaging and sustainable production"].map((txt) =>
+              makeNode("li", "li", "flex items-start gap-2.5 text-sm text-[#555]", undefined, [
+                makeNode("span", "span", "text-[#ff2c2c] font-bold mt-0.5 shrink-0", "✓"),
+                makeNode("span", "span", "", txt),
+              ])
+            ),
+          ]),
+          makeNode("div", "div", "flex gap-4 flex-wrap", undefined, [
+            makeNode("a", "a", "inline-block bg-[#ff2c2c] hover:opacity-90 text-white font-bold px-8 py-3 text-sm uppercase tracking-wider transition-opacity", "Buy Now", undefined, { href: "/shop" }),
+            makeNode("a", "a", "inline-block border-2 border-[#212529] text-[#212529] hover:bg-[#212529] hover:text-white font-bold px-8 py-3 text-sm uppercase tracking-wider transition-colors", "View Details", undefined, { href: "/shop" }),
+          ]),
+        ]),
+        makeNode("div", "div", "overflow-hidden", undefined, [
+          makeNode("img", "img", "w-full h-full object-cover", undefined, undefined, {
+            src: "https://codervent.com/shopingo/demo/shopingo_V1/assets/images/extra-images/promo-large.webp",
+            alt: "Trending Products",
+          }),
+        ]),
+      ]),
+    ]),
+  },
+
+  // 5 · Shop by Brands
+  {
+    id: "shopingo-brands",
+    label: "Shop by Brands",
+    category: "Shopingo",
+    icon: "grid",
+    template: makeNode("section", "section", "bg-[#f9f9f9] border-y border-[#e1e1e1] py-14 px-4", undefined, [
+      makeNode("div", "div", "max-w-6xl mx-auto", undefined, [
+        makeNode("div", "div", "text-center mb-10", undefined, [
+          makeNode("h2", "h2", "text-3xl font-extrabold text-[#212529] mb-2", "Shop By Brands"),
+          makeNode("p", "p", "text-[#797979] text-sm", "Select your favourite brands and purchase"),
+        ]),
+        makeNode("div", "div", "grid grid-cols-3 md:grid-cols-5 gap-4", undefined, [
+          ...["01","02","03","04","05","06","07","08","09","10"].map((n) =>
+            makeNode("div", "div", "bg-white border border-[#e1e1e1] flex items-center justify-center p-5 hover:border-[#ff2c2c] transition-colors cursor-pointer", undefined, [
+              makeNode("img", "img", "h-10 object-contain grayscale hover:grayscale-0 transition-all", undefined, undefined, {
+                src: `https://codervent.com/shopingo/demo/shopingo_V1/assets/images/brands/${n}.webp`,
+                alt: `Brand ${n}`,
+              }),
+            ])
+          ),
+        ]),
+      ]),
+    ]),
+  },
+
+  // 6 · Top Categories
+  {
+    id: "shopingo-categories",
+    label: "Top Categories",
+    category: "Shopingo",
+    icon: "grid",
+    template: makeNode("section", "section", "bg-white py-16 px-4", undefined, [
+      makeNode("div", "div", "max-w-6xl mx-auto", undefined, [
+        makeNode("div", "div", "text-center mb-10", undefined, [
+          makeNode("h2", "h2", "text-3xl font-extrabold text-[#212529] mb-2", "Top Categories"),
+          makeNode("p", "p", "text-[#797979] text-sm", "Select your favourite categories and purchase"),
+        ]),
+        makeNode("div", "div", "grid grid-cols-2 md:grid-cols-3 gap-5", undefined, [
+          ...[
+            ["01", "Kurtas",   "856 Products"],
+            ["02", "Heels",    "169 Products"],
+            ["03", "Lehenga",  "589 Products"],
+            ["04", "Plazzos",  "278 Products"],
+            ["05", "Makeup",   "985 Products"],
+            ["06", "Shoes",    "489 Products"],
+          ].map(([n, cat, count]) =>
+            makeNode("a", "a", "relative group overflow-hidden block", undefined, [
+              makeNode("img", "img", "w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-300", undefined, undefined, {
+                src: `https://codervent.com/shopingo/demo/shopingo_V1/assets/images/categories/${n}.webp`,
+                alt: cat,
+              }),
+              makeNode("div", "div", "absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-5", undefined, [
+                makeNode("h4", "h4", "text-white font-bold text-lg", cat),
+                makeNode("span", "span", "text-white/70 text-xs", count),
+              ]),
+            ], { href: "/shop" })
+          ),
+        ]),
+      ]),
+    ]),
+  },
+
+  // 7 · Newsletter Strip
+  {
+    id: "shopingo-newsletter",
+    label: "Newsletter",
+    category: "Shopingo",
+    icon: "mail",
+    template: makeNode("section", "section", "bg-[#212529] py-14 px-4", undefined, [
+      makeNode("div", "div", "max-w-3xl mx-auto text-center", undefined, [
+        makeNode("h2", "h2", "text-3xl font-extrabold text-white mb-2", "Get Latest Update by Subscribing Our Newsletter"),
+        makeNode("p", "p", "text-white/55 text-sm mb-8", "Get the latest news, promotions and offers sent directly to your inbox."),
+        makeNode("div", "div", "flex max-w-lg mx-auto", undefined, [
+          makeNode("input", "input", "flex-1 px-4 py-3 text-sm text-[#212529] outline-none border-0", undefined, undefined, {
+            type: "email",
+            placeholder: "Enter your email address",
+          }),
+          makeNode("button", "button", "bg-[#ff2c2c] hover:opacity-90 text-white font-bold px-6 py-3 text-sm uppercase tracking-wider whitespace-nowrap transition-opacity cursor-pointer", "Subscribe"),
+        ]),
+      ]),
+    ]),
+  },
+
+  // 8 · Blog Cards
+  {
+    id: "shopingo-blog",
+    label: "Latest Blog",
+    category: "Shopingo",
+    icon: "file-text",
+    template: makeNode("section", "section", "bg-[#f9f9f9] border-t border-[#e1e1e1] py-16 px-4", undefined, [
+      makeNode("div", "div", "max-w-6xl mx-auto", undefined, [
+        makeNode("div", "div", "text-center mb-10", undefined, [
+          makeNode("h2", "h2", "text-3xl font-extrabold text-[#212529] mb-2", "Latest Blog"),
+          makeNode("p", "p", "text-[#797979] text-sm", "Check our latest news"),
+        ]),
+        makeNode("div", "div", "grid grid-cols-1 md:grid-cols-3 gap-6", undefined, [
+          ...[
+            ["01", "Fashion Tips for 2024", "Discover the latest fashion trends and style tips for the upcoming season.", "15 Aug, 2024"],
+            ["02", "Top 10 Shoes This Year",  "Find the best footwear picks that combine style and comfort perfectly.", "20 Sep, 2024"],
+            ["03", "Makeup Must-Haves",       "Essential makeup products every woman should have in her beauty kit.", "05 Oct, 2024"],
+          ].map(([n, title, excerpt, date]) =>
+            makeNode("article", "article", "bg-white border border-[#e1e1e1] group", undefined, [
+              makeNode("div", "div", "overflow-hidden", undefined, [
+                makeNode("img", "img", "w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-300", undefined, undefined, {
+                  src: `https://codervent.com/shopingo/demo/shopingo_V1/assets/images/blog/${n}.webp`,
+                  alt: title,
+                }),
+              ]),
+              makeNode("div", "div", "p-5", undefined, [
+                makeNode("div", "div", "flex items-center gap-3 text-xs text-[#797979] mb-3", undefined, [
+                  makeNode("span", "span", "", "By Virendra"),
+                  makeNode("span", "span", "text-[#e1e1e1]", "·"),
+                  makeNode("span", "span", "", date),
+                ]),
+                makeNode("h4", "h4", "text-base font-bold text-[#212529] mb-2 leading-snug", title),
+                makeNode("p", "p", "text-sm text-[#797979] leading-relaxed mb-4", excerpt),
+                makeNode("a", "a", "text-xs font-bold uppercase tracking-wider text-[#ff2c2c] hover:underline", "Read More →", undefined, { href: "/blog" }),
+              ]),
+            ])
+          ),
+        ]),
+      ]),
+    ]),
+  },
 ];
 
-export const CATEGORIES = [...new Set(COMPONENT_BLOCKS.map((b) => b.category))];
+const _raw = [...new Set(COMPONENT_BLOCKS.map((b) => b.category))];
+// Pin theme-specific categories to the top
+export const CATEGORIES = [
+  ..._raw.filter((c) => c === "Shopingo"),
+  ..._raw.filter((c) => c !== "Shopingo"),
+];
