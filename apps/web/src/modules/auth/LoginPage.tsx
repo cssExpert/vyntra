@@ -28,7 +28,7 @@ function Toggle({
         "relative inline-flex h-[26px] w-[48px] flex-shrink-0 items-center rounded-full",
         "transition-colors duration-200 cursor-pointer",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2",
-        checked ? "bg-[#F76235]" : "bg-gray-200",
+        checked ? "bg-primary" : "bg-gray-200",
       )}
     >
       <span
@@ -77,6 +77,15 @@ export function LoginPage() {
     }
   };
 
+  const inputClass = (focused: boolean, extraClasses?: string) =>
+    cn(
+      "w-full rounded-xl border px-3 py-3 text-sm text-gray-900 outline-none placeholder:text-gray-300 transition-all duration-150",
+      focused
+        ? "outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15"
+        : "border-gray-200 hover:border-gray-300",
+      extraClasses,
+    );
+
   return (
     <div className="flex h-screen bg-white overflow-hidden p-0 gap-3">
       {/* ── Left: narrow photo panel ── */}
@@ -124,12 +133,7 @@ export function LoginPage() {
                 onFocus={() => setEmailFocused(true)}
                 onBlur={() => setEmailFocused(false)}
                 placeholder="info.companyname@gmail.com"
-                className={cn(
-                  "w-full rounded-xl border px-3 py-3 text-sm text-gray-900 outline-none placeholder:text-gray-300 transition-all duration-150",
-                  emailFocused
-                    ? "outline-none transition-[border-color,box-shadow] focus:border-[#F76235] focus:ring-2 focus:ring-[#F76235]/15"
-                    : "border-gray-200 hover:border-gray-300",
-                )}
+                className={inputClass(emailFocused)}
               />
             </div>
 
@@ -152,17 +156,12 @@ export function LoginPage() {
                   onFocus={() => setPasswordFocused(true)}
                   onBlur={() => setPasswordFocused(false)}
                   placeholder="••••••••••"
-                  className={cn(
-                    "w-full rounded-xl border px-3 py-3 pr40 text-sm text-gray-900 outline-none placeholder:text-gray-300 transition-all duration-150",
-                    passwordFocused
-                      ? "outline-none transition-[border-color,box-shadow] focus:border-[#F76235] focus:ring-2 focus:ring-[#F76235]/15"
-                      : "border-gray-200 hover:border-gray-300",
-                  )}
+                  className={inputClass(passwordFocused, "pr40")}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 flex-shrink-0 text-gray-400 hover:text-[#F76235] transition-colors cursor-pointer"
+                  className="absolute right-4 flex-shrink-0 text-gray-400 hover:text-primary transition-colors cursor-pointer"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
@@ -178,7 +177,7 @@ export function LoginPage() {
             <div className="pt-0.5">
               <Link
                 href="/forgot-password"
-                className="text-[13px] font-semibold text-[#F76235]/75 hover:text-[#F76235] transition-colors"
+                className="text-[13px] font-semibold text-primary/75 hover:text-primary transition-colors"
               >
                 Forgot password?
               </Link>
@@ -213,12 +212,12 @@ export function LoginPage() {
               className={cn(
                 "w-full flex items-center justify-center",
                 "rounded-full text-white",
-                "py-3.5 text-[14px] font-bold",
+                "py-3.5 text-[14px] font-bold h-[50px]",
                 "transition-all duration-200 mt-1",
-                "focus-visible:ring-2 focus-visible:ring-[#F76235] focus-visible:ring-offset-2",
+                "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                 email.trim()
-                  ? "bg-[#F76235] hover:bg-[#F76235]/90 active:scale-[0.99] cursor-pointer"
-                  : "bg-[#F76235]/40 cursor-not-allowed",
+                  ? "bg-primary hover:bg-primary/90 active:scale-[0.99] cursor-pointer"
+                  : "bg-primary/40 cursor-not-allowed",
               )}
             >
               {isLoading ? (
@@ -268,7 +267,7 @@ export function LoginPage() {
               "focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2",
             )}
           >
-            <Icon name="Google" size="24" className="w-6 h-6" />
+            <Icon name="Google" size="20" className="w-5 h-5" />
             Continue with Google
           </button>
 
@@ -277,7 +276,7 @@ export function LoginPage() {
             Don&apos;t have an account?{" "}
             <Link
               href="/signup"
-              className="font-semibold text-[#F76235]/75 hover:text-[#F76235] transition-colors"
+              className="font-semibold text-primary/75 hover:text-primary transition-colors"
             >
               Sign up
             </Link>

@@ -29,6 +29,15 @@ export function ForgotPasswordPage() {
     }
   };
 
+  const inputClass = (focused: boolean, extraClasses?: string) =>
+    cn(
+      "w-full rounded-xl border px-3 py-3 text-sm text-gray-900 outline-none placeholder:text-gray-300 transition-all duration-150",
+      focused
+        ? "outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15"
+        : "border-gray-200 hover:border-gray-300",
+      extraClasses,
+    );
+
   return (
     <div className="flex h-screen bg-white overflow-hidden p-0 gap-3">
       {/* Left: hero panel */}
@@ -83,12 +92,7 @@ export function ForgotPasswordPage() {
                       onFocus={() => setEmailFocused(true)}
                       onBlur={() => setEmailFocused(false)}
                       placeholder="info.companyname@gmail.com"
-                      className={cn(
-                        "w-full rounded-xl border px-3 py-3 text-sm text-gray-900 outline-none placeholder:text-gray-300 transition-all duration-150",
-                        emailFocused
-                          ? "border-[#F76235] ring-2 ring-[#F76235]/15"
-                          : "border-gray-200 hover:border-gray-300",
-                      )}
+                      className={inputClass(emailFocused)}
                     />
                   </div>
 
@@ -108,12 +112,12 @@ export function ForgotPasswordPage() {
                     className={cn(
                       "w-full flex items-center justify-center gap-2",
                       "rounded-full text-white",
-                      "py-3.5 text-[14px] font-bold",
+                      "py-3.5 text-[14px] font-bold h-[50px]",
                       "transition-all duration-200",
-                      "focus-visible:ring-2 focus-visible:ring-[#F76235] focus-visible:ring-offset-2",
+                      "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                       email.trim() && !isLoading
-                        ? "bg-[#F76235] hover:bg-[#F76235]/90 active:scale-[0.99] cursor-pointer"
-                        : "bg-[#F76235]/40 cursor-not-allowed",
+                        ? "bg-primary hover:bg-primary/90 active:scale-[0.99] cursor-pointer"
+                        : "bg-primary/40 cursor-not-allowed",
                     )}
                   >
                     {isLoading ? (
@@ -146,7 +150,7 @@ export function ForgotPasswordPage() {
                 <p className="mt-6 text-center">
                   <Link
                     href="/login"
-                    className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-gray-500 hover:text-[#F76235] transition-colors"
+                    className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-gray-500 hover:text-primary transition-colors"
                   >
                     <MoveLeft className="h-3.5 w-3.5" />
                     Back to login
@@ -161,8 +165,8 @@ export function ForgotPasswordPage() {
                 transition={{ duration: 0.35 }}
                 className="text-center"
               >
-                <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#F76235]/10">
-                  <Mail className="h-7 w-7 text-[#F76235]" />
+                <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                  <Mail className="h-7 w-7 text-primary" />
                 </div>
                 <h2 className="text-xl md:text-2xl font-extrabold text-gray-900 font-merienda">
                   Check your inbox
@@ -179,7 +183,7 @@ export function ForgotPasswordPage() {
                       setSubmitted(false);
                       setEmail("");
                     }}
-                    className="font-semibold text-[#F76235] hover:text-[#F76235]/80 transition-colors cursor-pointer"
+                    className="font-semibold text-primary hover:text-primary/80 transition-colors cursor-pointer"
                   >
                     Try again
                   </button>
@@ -187,7 +191,7 @@ export function ForgotPasswordPage() {
                 <p className="mt-4">
                   <Link
                     href="/login"
-                    className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-gray-500 hover:text-[#F76235] transition-colors"
+                    className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-gray-500 hover:text-primary transition-colors"
                   >
                     <MoveLeft className="h-3.5 w-3.5" />
                     Back to login
