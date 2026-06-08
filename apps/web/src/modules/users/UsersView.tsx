@@ -692,7 +692,7 @@ export function UsersView() {
                                             : id === "joined"
                                               ? "py-4 px-4 text-muted-foreground font-medium"
                                               : id === "actions"
-                                                ? "py-4 px-6 text-right"
+                                                ? "py-4 px-6 text-right w-full"
                                                 : "py-4 px-4";
                                     const isPinned = cell.column.getIsPinned();
                                     const pinnedCls = isPinned
