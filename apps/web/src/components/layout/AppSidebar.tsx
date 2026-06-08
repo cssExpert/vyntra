@@ -271,17 +271,22 @@ export function AppSidebar({
   onClose,
 }: AppSidebarProps) {
   const pathname = usePathname();
-  const { hasModule, user, isSuperAdmin } = useAuth();
+  const { hasModule, moduleLabel, user, isSuperAdmin } = useAuth();
 
   const sections = useMemo(() => {
     if (isSuperAdmin) return SUPER_ADMIN_NAV;
     return NAV_SECTIONS.map((section) => ({
       ...section,
-      items: section.items.filter(
-        (item) => !item.module || hasModule(item.module),
-      ),
+      items: section.items
+        .filter((item) => !item.module || hasModule(item.module))
+        // Use the module's DB display name so admin renames flow through.
+        .map((item) =>
+          item.module
+            ? { ...item, label: moduleLabel(item.module, item.label) }
+            : item,
+        ),
     })).filter((section) => section.items.length > 0);
-  }, [hasModule, isSuperAdmin]);
+  }, [hasModule, moduleLabel, isSuperAdmin]);
 
   const [expandedItems, setExpandedItems] = useState<Set<string>>(() => {
     const initial = new Set<string>();

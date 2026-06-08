@@ -276,12 +276,17 @@ export class OrganizationsService {
     if (!org) throw new NotFoundException('Organization not found');
 
     const sub = org.subscription;
-    const modules =
+    const entitledModules =
       sub && ['ACTIVE', 'TRIALING'].includes(sub.status) && sub.package.isActive
         ? sub.package.modules
             .filter((pm) => pm.module.isActive)
-            .map((pm) => pm.module.key)
+            .map((pm) => pm.module)
         : [];
+    const modules = entitledModules.map((m) => m.key);
+    // Key → display name, so the UI can label nav items dynamically.
+    const moduleNames = Object.fromEntries(
+      entitledModules.map((m) => [m.key, m.name]),
+    );
 
     return {
       id: org.id,
@@ -301,6 +306,7 @@ export class OrganizationsService {
           }
         : null,
       modules,
+      moduleNames,
     };
   }
 

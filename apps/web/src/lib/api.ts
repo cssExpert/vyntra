@@ -80,6 +80,8 @@ export interface ApiCurrentOrg {
   name: string;
   slug: string;
   modules: string[];
+  /** Module key → display name, for dynamic nav labels. */
+  moduleNames: Record<string, string>;
   subscription: {
     status: string;
     packageName: string;

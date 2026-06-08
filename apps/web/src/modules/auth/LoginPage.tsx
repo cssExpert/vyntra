@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -45,7 +45,12 @@ function Toggle({
 // ─── Main page ────────────────────────────────────────────
 export function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const {
+    login,
+    isAuthenticated,
+    isSuperAdmin,
+    isLoading: authLoading,
+  } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -54,6 +59,17 @@ export function LoginPage() {
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Super admins land on the platform admin dashboard; everyone else on the
+  // org dashboard.
+  const landingPath = isSuperAdmin ? "/admin/dashboard" : "/dashboard";
+
+  // Signed in (fresh login or revisiting "/") → go straight to the dashboard.
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      router.replace(landingPath);
+    }
+  }, [authLoading, isAuthenticated, landingPath, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,8 +80,9 @@ export function LoginPage() {
     }
     setIsLoading(true);
     try {
+      // On success, auth state updates and the effect above redirects to the
+      // role-appropriate dashboard.
       await login(email, password);
-      router.push("/dashboard");
     } catch (err) {
       setError(
         err instanceof Error
@@ -76,6 +93,10 @@ export function LoginPage() {
       setIsLoading(false);
     }
   };
+
+  // Avoid flashing the login form while rehydrating or redirecting an
+  // already-authenticated user.
+  if (authLoading || isAuthenticated) return null;
 
   return (
     <div className="flex h-screen bg-white overflow-hidden p-0 gap-3">
