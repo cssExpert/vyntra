@@ -41,6 +41,17 @@ const itemVariants = {
   },
 };
 
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+/** Converts a Tailwind `w-{n}` class or a CSS string/number to a CSS width value. */
+function resolveWidth(value?: string | number): string | number {
+  if (value === undefined) return 176; // default w-44
+  if (typeof value === "number") return value;
+  const tw = value.match(/^w-(\d+(?:\.\d+)?)$/);
+  if (tw) return parseFloat(tw[1]) * 4; // Tailwind: 1 unit = 4px
+  return value; // plain CSS value e.g. "300px", "14rem"
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface TableActionItem {
@@ -59,6 +70,8 @@ export interface TableActionMenuProps {
   /** Portal target; defaults to `boundaryElement` when set. */
   parentElement?: HTMLElement | null;
   boundaryInset?: number;
+  /** Dropdown width — Tailwind shorthand (e.g. "w-80"), CSS string (e.g. "300px", "14rem"), or pixel number (e.g. 220). Defaults to 176 (w-44). */
+  dropdownWidth?: string | number;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -69,6 +82,7 @@ export function TableActionMenu({
   boundaryElement,
   parentElement,
   boundaryInset = 8,
+  dropdownWidth,
 }: TableActionMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -102,8 +116,9 @@ export function TableActionMenu({
               style={{
                 backdropFilter: "blur(16px)",
                 WebkitBackdropFilter: "blur(16px)",
+                width: resolveWidth(dropdownWidth),
               }}
-              className="w-44 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.14)]"
+              className="rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.14)]"
             >
               <motion.div
                 variants={panelVariants}
@@ -122,7 +137,7 @@ export function TableActionMenu({
                           item.onClick();
                           close();
                         }}
-                        className={`group flex items-center gap-1 px-3 py-2 mx-1 rounded-sm text-sm font-medium transition-all duration-150 cursor-pointer w-[calc(100%-8px)] ${
+                        className={`group flex items-center text-start gap-1 px-3 py-2 mx-1 rounded-sm text-sm font-medium transition-all duration-150 cursor-pointer w-[calc(100%-8px)] ${
                           item.variant === "danger"
                             ? "text-rose-600 hover:bg-rose-500/10"
                             : "text-foreground hover:bg-muted/80"
@@ -153,7 +168,7 @@ export function TableActionMenu({
         onClick={() => setIsOpen((prev) => !prev)}
         aria-haspopup="true"
         aria-expanded={isOpen}
-        className={`p-1.5 rounded-md transition-all ${
+        className={`p-1.5 rounded-md transition-all text-start ${
           isOpen
             ? "bg-muted text-foreground"
             : "text-muted-foreground hover:text-foreground hover:bg-muted"

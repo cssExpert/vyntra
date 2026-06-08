@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   ShieldCheck,
@@ -27,6 +27,7 @@ import {
   createColumnHelper,
   type SortingState,
   type ColumnPinningState,
+  type Column,
 } from "@tanstack/react-table";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -51,6 +52,35 @@ interface UserWithActivity extends AdminUser {
 
 const columnHelper = createColumnHelper<UserWithActivity>();
 
+interface ScrollState { left: boolean; right: boolean }
+
+function getPinStyles(
+  column: Column<UserWithActivity>,
+  isHeader = false,
+  scroll: ScrollState = { left: false, right: false },
+): React.CSSProperties {
+  const isPinned = column.getIsPinned();
+  if (!isPinned) return {};
+
+  const isLastLeft   = isPinned === "left"  && column.getIsLastColumn("left");
+  const isFirstRight = isPinned === "right" && column.getIsFirstColumn("right");
+
+  const showShadow = (isLastLeft && scroll.left) || (isFirstRight && scroll.right);
+
+  return {
+    position: "sticky",
+    left:  isPinned === "left"  ? column.getStart("left")  : undefined,
+    right: isPinned === "right" ? column.getAfter("right") : undefined,
+    zIndex: 2,
+    backgroundColor: isHeader ? "hsl(var(--muted))" : "hsl(var(--card))",
+    boxShadow: showShadow
+      ? isLastLeft
+        ? "inset -1px 0 0 hsl(var(--border)), 6px 0 10px rgba(0,0,0,0.18)"
+        : "inset 1px 0 0 hsl(var(--border)), -6px 0 10px rgba(0,0,0,0.18)"
+      : undefined,
+  };
+}
+
 function Inner() {
   const router = useRouter();
   const [users, setUsers] = useState<UserWithActivity[]>([]);
@@ -66,6 +96,26 @@ function Inner() {
     left: ["email"],
     right: ["actions"],
   });
+
+  // Scroll-aware pin shadows
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [scroll, setScroll] = useState<ScrollState>({ left: false, right: false });
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const check = () => setScroll({
+      left:  el.scrollLeft > 0,
+      right: el.scrollLeft < el.scrollWidth - el.clientWidth - 1,
+    });
+    check();
+    el.addEventListener("scroll", check, { passive: true });
+    window.addEventListener("resize", check);
+    return () => {
+      el.removeEventListener("scroll", check);
+      window.removeEventListener("resize", check);
+    };
+  }, []);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -169,7 +219,7 @@ function Inner() {
       }),
       columnHelper.display({
         id: "actions",
-        header: "Actions",
+        header: () => <div className="text-right">Actions</div>,
         size: 100,
         cell: ({ row }) => {
           const user = row.original;
@@ -435,7 +485,7 @@ function Inner() {
 
       {/* Users Table */}
       <div className="overflow-hidden rounded-xl border border-border bg-card">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto" ref={scrollRef}>
           {loading ? (
             <div className="px-4 py-8 text-center text-muted-foreground">Loading…</div>
           ) : table.getRowModel().rows.length === 0 ? (
@@ -458,7 +508,7 @@ function Inner() {
                           className={`px-4 py-3 font-medium text-left ${
                             canSort ? "cursor-pointer hover:text-foreground" : ""
                           }`}
-                          style={{ width: header.getSize() }}
+                          style={{ width: header.getSize(), ...getPinStyles(header.column, true, scroll) }}
                         >
                           <div className="flex items-center gap-1">
                             {header.isPlaceholder
@@ -491,7 +541,7 @@ function Inner() {
                       <td
                         key={cell.id}
                         className="px-4 py-3"
-                        style={{ width: cell.column.getSize() }}
+                        style={{ width: cell.column.getSize(), ...getPinStyles(cell.column, false, scroll) }}
                       >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>

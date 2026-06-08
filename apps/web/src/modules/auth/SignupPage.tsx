@@ -1,77 +1,39 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
-import { useAuth } from "@/providers/AuthProvider";
 import { cn } from "@/lib/utils";
 import { HeroPanel } from "./HeroPanel";
 import Icon from "@/components/common/Icon";
 
-// ─── Toggle ───────────────────────────────────────────────
-function Toggle({
-  checked,
-  onChange,
-}: {
-  checked: boolean;
-  onChange: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onChange}
-      role="switch"
-      aria-checked={checked}
-      className={cn(
-        "relative inline-flex h-[26px] w-[48px] flex-shrink-0 items-center rounded-full",
-        "transition-colors duration-200 cursor-pointer",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2",
-        checked ? "bg-primary" : "bg-gray-200",
-      )}
-    >
-      <span
-        className={cn(
-          "inline-block h-[22px] w-[22px] transform rounded-full bg-white shadow",
-          "transition-transform duration-200",
-          checked ? "translate-x-[23px]" : "translate-x-[2px]",
-        )}
-      />
-    </button>
-  );
-}
-
-// ─── Main page ────────────────────────────────────────────
-export function LoginPage() {
-  const router = useRouter();
-  const { login } = useAuth();
+export function SignupPage() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
+  const [nameFocused, setNameFocused] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const isFormReady = name.trim() && email.trim() && password.length >= 6;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!email || !password) {
-      setError("Please enter your email and password.");
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
       return;
     }
     setIsLoading(true);
     try {
-      await login(email, password);
-      router.push("/dashboard");
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Invalid email or password. Please try again.",
-      );
+      // TODO: wire up to API when endpoint is available
+      await new Promise((r) => setTimeout(r, 1000));
+    } catch {
+      setError("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -88,34 +50,53 @@ export function LoginPage() {
 
   return (
     <div className="flex h-screen bg-white overflow-hidden p-0 gap-3">
-      {/* ── Left: narrow photo panel ── */}
+      {/* Left: hero panel */}
       <div className="hidden lg:block lg:w-[40%] xl:w-[40%] flex-shrink-0 h-full">
         <HeroPanel />
       </div>
 
-      {/* ── Right: wide form panel ── */}
+      {/* Right: form panel */}
       <motion.div
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        className="flex flex-1 flex-col items-center justify-center bg-white"
+        className="flex flex-1 flex-col items-center justify-center bg-white overflow-y-auto py-8"
       >
-        {/* Form card — constrained width, centered */}
         <div className="w-full max-w-md px-4">
           {/* Heading */}
           <div className="mb-7 text-center">
             <h1 className="text-xl md:text-2xl lg:text-3xl font-extrabold text-gray-900 font-merienda leading-tight">
-              Login to ERVFlow
+              Create your account
             </h1>
             <p className="mt-2 text-sm md:text-base text-gray-500 leading-relaxed">
-              Manage your business operations effortlessly with our powerful
-              all-in-one platform.
+              Get started with ERVFlow — free to try, no card required.
             </p>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-3">
-            {/* Email input */}
+            {/* Full name */}
+            <div className="w-full space-y-1">
+              <label
+                htmlFor="name"
+                className="block text-sm text-gray-400 mb-0.5"
+              >
+                Full name
+              </label>
+              <input
+                id="name"
+                type="text"
+                autoComplete="name"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onFocus={() => setNameFocused(true)}
+                onBlur={() => setNameFocused(false)}
+                placeholder="John Smith"
+                className={inputClass(nameFocused)}
+              />
+            </div>
+
+            {/* Email */}
             <div className="w-full space-y-1">
               <label
                 htmlFor="email"
@@ -137,7 +118,7 @@ export function LoginPage() {
               />
             </div>
 
-            {/* Password input */}
+            {/* Password */}
             <div className="w-full space-y-1">
               <label
                 htmlFor="password"
@@ -145,23 +126,23 @@ export function LoginPage() {
               >
                 Password
               </label>
-              <div className="flex items-center relative">
+              <div className="relative flex items-center">
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   onFocus={() => setPasswordFocused(true)}
                   onBlur={() => setPasswordFocused(false)}
-                  placeholder="••••••••••"
+                  placeholder="Min. 6 characters"
                   className={inputClass(passwordFocused, "pr40")}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 flex-shrink-0 text-gray-400 hover:text-primary transition-colors cursor-pointer"
+                  className="absolute right-4 text-gray-400 hover:text-primary transition-colors cursor-pointer"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
@@ -171,30 +152,13 @@ export function LoginPage() {
                   )}
                 </button>
               </div>
+              {password && password.length < 6 && (
+                <p className="text-[11px] text-red-400 mt-1">
+                  At least 6 characters required
+                </p>
+              )}
             </div>
 
-            {/* Forgot password */}
-            <div className="pt-0.5">
-              <Link
-                href="/forgot-password"
-                className="text-[13px] font-semibold text-primary/75 hover:text-primary transition-colors"
-              >
-                Forgot password?
-              </Link>
-            </div>
-
-            {/* Remember me toggle */}
-            <div className="flex items-center justify-between py-1">
-              <span className="text-[13px] text-gray-500">
-                Remember sign in details
-              </span>
-              <Toggle
-                checked={rememberMe}
-                onChange={() => setRememberMe(!rememberMe)}
-              />
-            </div>
-
-            {/* Error */}
             {error && (
               <motion.p
                 initial={{ opacity: 0, y: -4 }}
@@ -205,17 +169,16 @@ export function LoginPage() {
               </motion.p>
             )}
 
-            {/* Submit */}
             <button
               type="submit"
-              disabled={!email.trim() || isLoading}
+              disabled={!isFormReady || isLoading}
               className={cn(
                 "w-full flex items-center justify-center",
                 "rounded-full text-white",
-                "py-3.5 text-[14px] font-bold h-[50px]",
-                "transition-all duration-200 mt-1",
+                "py-3.5 text-[14px] font-bold h-[50px] mt-1",
+                "transition-all duration-200",
                 "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                email.trim()
+                isFormReady && !isLoading
                   ? "bg-primary hover:bg-primary/90 active:scale-[0.99] cursor-pointer"
                   : "bg-primary/40 cursor-not-allowed",
               )}
@@ -242,7 +205,7 @@ export function LoginPage() {
                   />
                 </svg>
               ) : (
-                "Log in"
+                "Create account"
               )}
             </button>
           </form>
@@ -259,26 +222,19 @@ export function LoginPage() {
           {/* Google */}
           <button
             type="button"
-            className={cn(
-              "w-full flex items-center justify-center gap-3",
-              "rounded-xl border border-gray-200 bg-gray-50",
-              "py-3 text-[13.5px] font-semibold text-gray-800",
-              "hover:bg-gray-100 transition-colors cursor-pointer",
-              "focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2",
-            )}
+            className="w-full flex items-center justify-center gap-3 rounded-xl border border-gray-200 bg-gray-50 py-3 text-[13.5px] font-semibold text-gray-800 hover:bg-gray-100 transition-colors cursor-pointer"
           >
             <Icon name="Google" size="20" className="w-5 h-5" />
             Continue with Google
           </button>
 
-          {/* Sign up */}
-          <p className="mt-7 text-[13px] text-gray-500 text-center">
-            Don&apos;t have an account?{" "}
+          <p className="mt-6 text-[13px] text-gray-500 text-center">
+            Already have an account?{" "}
             <Link
-              href="/signup"
-              className="font-semibold text-primary/75 hover:text-primary transition-colors"
+              href="/login"
+              className="font-semibold text-primary hover:text-primary/80 transition-colors"
             >
-              Sign up
+              Log in
             </Link>
           </p>
         </div>

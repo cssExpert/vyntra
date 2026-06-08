@@ -1,10 +1,38 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { Boxes, Pencil } from "lucide-react";
+import { useCallback, useEffect, useState, useMemo } from "react";
+import {
+  Boxes,
+  Pencil,
+  Eye,
+  Search,
+  X,
+  ChevronUp,
+  ChevronDown,
+  ChevronsUpDown,
+  Users2,
+  Mail,
+  Phone,
+  FileText,
+  TrendingUp,
+  TowerControl,
+  Store,
+  CreditCard,
+  BarChart3,
+  type LucideIcon,
+} from "lucide-react";
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  flexRender,
+  createColumnHelper,
+  type SortingState,
+} from "@tanstack/react-table";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Modal } from "@/components/common/Modal";
+import { TableActionMenu } from "@/components/common/TableActionMenu";
 import { admin, type AdminModule } from "@/lib/api";
 import { AdminGuard, adminInput } from "./AdminGuard";
 
@@ -12,10 +40,27 @@ interface ModuleDetail extends AdminModule {
   companies?: Array<{ id: string; name: string; slug: string }>;
 }
 
+const MODULE_ICON_MAP: Record<string, LucideIcon> = {
+  CRM:        Users2,
+  EMAIL:      Mail,
+  CALLING:    Phone,
+  CMS:        FileText,
+  SEO:        TrendingUp,
+  LIGHTHOUSE: TowerControl,
+  MAIL:       Mail,
+  STORE:      Store,
+  PAYMENTS:   CreditCard,
+  REPORTS:    BarChart3,
+};
+
+const columnHelper = createColumnHelper<AdminModule>();
+
 function Inner() {
   const [modules, setModules] = useState<AdminModule[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sorting, setSorting] = useState<SortingState>([]);
   const [selectedModule, setSelectedModule] = useState<ModuleDetail | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -48,7 +93,8 @@ function Inner() {
     }
   };
 
-  const openEdit = (m: ModuleDetail) => {
+  const openEdit = (m: AdminModule | ModuleDetail) => {
+    setSelectedModule(m as ModuleDetail);
     setEditForm({ name: m.name, description: m.description || "" });
     setEditOpen(true);
   };
@@ -73,6 +119,100 @@ function Inner() {
     }
   };
 
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor("name", {
+        header: "Module",
+        size: 220,
+        cell: ({ row, getValue }) => {
+          const ModuleIcon = MODULE_ICON_MAP[row.original.key] ?? Boxes;
+          return (
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <ModuleIcon className="h-4 w-4" />
+              </div>
+              <span className="font-medium text-foreground">{getValue()}</span>
+            </div>
+          );
+        },
+      }),
+      columnHelper.accessor("key", {
+        header: "Key",
+        size: 180,
+        cell: ({ getValue }) => (
+          <code className="rounded bg-muted px-1.5 py-0.5 text-xs">{getValue()}</code>
+        ),
+      }),
+      columnHelper.accessor("description", {
+        header: "Description",
+        enableSorting: false,
+        cell: ({ getValue }) => (
+          <span className="text-sm text-muted-foreground">{getValue() ?? "—"}</span>
+        ),
+      }),
+      columnHelper.accessor("isActive", {
+        header: "Status",
+        size: 130,
+        cell: ({ getValue }) => (
+          <StatusBadge
+            variant={getValue() ? "success" : "muted"}
+            label={getValue() ? "Active" : "Disabled"}
+            dot
+            size="sm"
+          />
+        ),
+      }),
+      columnHelper.display({
+        id: "actions",
+        header: "Actions",
+        size: 90,
+        cell: ({ row }) => {
+          const m = row.original;
+          return (
+            <div className="flex justify-end">
+              <TableActionMenu
+                items={[
+                  {
+                    label: "View Details",
+                    icon: <Eye size={14} />,
+                    onClick: () => openDetail(m),
+                  },
+                  {
+                    label: "Edit",
+                    icon: <Pencil size={14} />,
+                    onClick: () => openEdit(m),
+                  },
+                ]}
+              />
+            </div>
+          );
+        },
+      }),
+    ],
+     
+    []
+  );
+
+  const filteredModules = useMemo(
+    () =>
+      modules.filter(
+        (m) =>
+          m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          m.key.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (m.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
+      ),
+    [modules, searchTerm]
+  );
+
+  const table = useReactTable({
+    data: filteredModules,
+    columns,
+    state: { sorting },
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  });
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -81,56 +221,100 @@ function Inner() {
       />
 
       {error && (
-        <p className="rounded-lg bg-error/10 border border-error/20 px-3 py-2 text-sm text-error">
-          {error}
-        </p>
+        <div className="rounded-lg bg-error/10 border border-error/20 px-4 py-3 text-sm text-error flex items-center justify-between">
+          <span>{error}</span>
+          <button onClick={() => setError("")}>
+            <X className="h-4 w-4" />
+          </button>
+        </div>
       )}
 
+      {/* Search */}
+      <div className="relative max-w-sm">
+        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground pointer-events-none">
+          <Search size={16} />
+        </span>
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search modules..."
+          className="w-full pl-10 pr-10 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+        />
+        {searchTerm && (
+          <button
+            onClick={() => setSearchTerm("")}
+            className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
+          >
+            <X size={16} />
+          </button>
+        )}
+      </div>
+
+      {/* Table */}
       <div className="overflow-hidden rounded-xl border border-border bg-card">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
-            <tr>
-              <th className="px-4 py-3 font-medium">Module</th>
-              <th className="px-4 py-3 font-medium">Key</th>
-              <th className="px-4 py-3 font-medium">Description</th>
-              <th className="px-4 py-3 font-medium text-right">Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {loading ? (
-              <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">
-                  Loading…
-                </td>
-              </tr>
-            ) : (
-              modules.map((m) => (
-                <tr key={m.id} className="hover:bg-muted/20 cursor-pointer transition" onClick={() => openDetail(m)}>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                        <Boxes className="h-4 w-4" />
-                      </div>
-                      <span className="font-medium text-foreground">{m.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <code className="rounded bg-muted px-1.5 py-0.5 text-xs">{m.key}</code>
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">{m.description ?? "—"}</td>
-                  <td className="px-4 py-3 text-right">
-                    <StatusBadge
-                      variant={m.isActive ? "success" : "muted"}
-                      label={m.isActive ? "Active" : "Disabled"}
-                      dot
-                      size="sm"
-                    />
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+        <div className="overflow-x-auto">
+          {loading ? (
+            <div className="px-4 py-8 text-center text-muted-foreground">Loading…</div>
+          ) : table.getRowModel().rows.length === 0 ? (
+            <div className="px-4 py-8 text-center text-muted-foreground">No modules found</div>
+          ) : (
+            <table className="w-full text-sm" style={{ tableLayout: "fixed" }}>
+              <thead>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <tr
+                    key={headerGroup.id}
+                    className="text-xs font-semibold uppercase tracking-wide text-muted-foreground border-b border-border bg-muted/40"
+                  >
+                    {headerGroup.headers.map((header) => {
+                      const canSort = header.column.getCanSort();
+                      const sorted = header.column.getIsSorted();
+                      return (
+                        <th
+                          key={header.id}
+                          onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
+                          className={`px-4 py-3 font-medium text-left ${
+                            canSort ? "cursor-pointer hover:text-foreground" : ""
+                          }`}
+                          style={{ width: header.getSize() }}
+                        >
+                          <div className="flex items-center gap-1">
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(header.column.columnDef.header, header.getContext())}
+                            {canSort &&
+                              (sorted === "asc" ? (
+                                <ChevronUp size={14} className="text-primary shrink-0" />
+                              ) : sorted === "desc" ? (
+                                <ChevronDown size={14} className="text-primary shrink-0" />
+                              ) : (
+                                <ChevronsUpDown size={14} className="text-muted-foreground/40 shrink-0" />
+                              ))}
+                          </div>
+                        </th>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </thead>
+              <tbody className="divide-y divide-border">
+                {table.getRowModel().rows.map((row) => (
+                  <tr key={row.id} className="hover:bg-muted/20 transition-colors">
+                    {row.getVisibleCells().map((cell) => (
+                      <td
+                        key={cell.id}
+                        className="px-4 py-3"
+                        style={{ width: cell.column.getSize() }}
+                      >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
 
       {/* Module Detail Modal */}

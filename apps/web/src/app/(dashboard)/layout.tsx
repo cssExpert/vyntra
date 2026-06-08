@@ -52,7 +52,7 @@ export default function DashboardLayout({
 
           <main className="flex-1 overflow-x-hidden overflow-y-auto">
             <PageTransition>
-              <div className="mx-auto max-w-[1600px] p-4 pb-0 sm:p-6 sm:pb-0">
+              <div className="mx-auto max-w-[1600px] p-4 sm:p-6">
                 {children}
               </div>
             </PageTransition>
