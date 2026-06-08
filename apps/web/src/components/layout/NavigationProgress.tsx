@@ -4,12 +4,35 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Icon from "@/components/common/Icon";
+import { useAuth } from "@/providers/AuthProvider";
+import { useSidebar } from "@/hooks/useSidebar";
+import { SIDEBAR_WIDTH, SIDEBAR_COLLAPSED_WIDTH } from "@/constants/navigation";
+
+const AUTH_PATHS = ["/login", "/signup", "/forgot-password"];
+const TOPBAR_HEIGHT = 64; // Topbar is h-16
 
 export function NavigationProgress() {
   const pathname = usePathname();
+  const { isAuthenticated } = useAuth();
+  const { isCollapsed, isMobile } = useSidebar();
   const [loading, setLoading] = useState(false);
   const prevPathname = useRef(pathname);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Full-screen on auth pages or when not authenticated
+  const isAuthPage = AUTH_PATHS.some((p) => pathname?.startsWith(p));
+  const isFullScreen = isAuthPage || !isAuthenticated;
+
+  // Mobile sidebar is an overlay — doesn't push content
+  const sidebarOffset = isMobile
+    ? 0
+    : isCollapsed
+      ? SIDEBAR_COLLAPSED_WIDTH
+      : SIDEBAR_WIDTH;
+
+  const overlayStyle = isFullScreen
+    ? { inset: 0 }
+    : { left: sidebarOffset, top: TOPBAR_HEIGHT, right: 0, bottom: 0 };
 
   // Start loader on any internal link click
   useEffect(() => {
@@ -57,7 +80,8 @@ export function NavigationProgress() {
       {loading && (
         <motion.div
           key="page-loader"
-          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background"
+          className="fixed z-[9999] flex flex-col items-center justify-center bg-background"
+          style={overlayStyle}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
