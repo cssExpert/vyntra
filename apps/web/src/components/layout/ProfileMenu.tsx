@@ -10,7 +10,6 @@ import {
   Star,
   CreditCard,
   Lock,
-  Cpu,
   ScrollText,
   LogOut,
   ChevronDown,
@@ -21,56 +20,67 @@ import { useAuth } from "@/providers/AuthProvider";
 import { cn } from "@/lib/utils";
 
 // ─── Menu item definitions ───────────────────────────────
+// `scope` controls visibility: "all" applies to every account, "org" is
+// tenant-only (billing, plans, etc.) and hidden from platform super admins.
+type MenuScope = "all" | "org";
+
 interface MenuItem {
   id: string;
   label: string;
   href: string;
   icon: LucideIcon;
+  scope: MenuScope;
 }
 
 const MENU_ITEMS: MenuItem[] = [
-  { id: "profile", label: "Profile", href: "/settings/profile", icon: User },
+  {
+    id: "profile",
+    label: "Profile",
+    href: "/settings/profile",
+    icon: User,
+    scope: "all",
+  },
   {
     id: "billing",
     label: "Billing Info",
     href: "/settings/billing",
     icon: FileText,
+    scope: "org",
   },
   {
     id: "notifications",
     label: "Manage Notifications",
     href: "/settings/notifications",
     icon: Bell,
+    scope: "org",
   },
   {
     id: "subscription",
     label: "Subscription",
     href: "/settings/subscription",
     icon: Star,
+    scope: "org",
   },
   {
     id: "payment-creds",
     label: "Payment Credentials",
     href: "/payments",
     icon: CreditCard,
+    scope: "org",
   },
   {
     id: "password",
     label: "Manage Password",
     href: "/settings/password",
     icon: Lock,
-  },
-  {
-    id: "configuration",
-    label: "Configuration",
-    href: "/settings/configuration",
-    icon: Cpu,
+    scope: "all",
   },
   {
     id: "system-logs",
     label: "System Logs",
     href: "/settings/logs",
     icon: ScrollText,
+    scope: "org",
   },
 ];
 
@@ -110,8 +120,14 @@ const itemVariants = {
 
 // ─── Component ───────────────────────────────────────────
 export function ProfileMenu() {
-  const { user, logout } = useAuth();
+  const { user, isSuperAdmin, logout } = useAuth();
   const router = useRouter();
+
+  // Super admins are platform operators with no tenant billing/plans — show
+  // only account-level items.
+  const menuItems = MENU_ITEMS.filter(
+    (item) => !isSuperAdmin || item.scope === "all",
+  );
   const [isOpen, setIsOpen] = useState(false);
   const [activeItem, setActiveItem] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -233,7 +249,7 @@ export function ProfileMenu() {
 
               {/* ── Menu items ── */}
               <div className="py-1.5">
-                {MENU_ITEMS.map((item) => {
+                {menuItems.map((item) => {
                   const Icon = item.icon;
                   const isActive = activeItem === item.id;
                   return (

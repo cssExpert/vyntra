@@ -41,6 +41,8 @@ interface AuthContextValue {
   hasModule: (key: string) => boolean;
   /** Display name for a module key, falling back to the provided label. */
   moduleLabel: (key: string, fallback: string) => string;
+  /** Re-fetch the current user (e.g. after a profile update). */
+  refreshUser: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
@@ -125,6 +127,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })();
   }, [loadOrgContext]);
 
+  const refreshUser = useCallback(async () => {
+    if (!getToken()) return;
+    try {
+      const me = await apiGetMe();
+      setUser(toAuthUser(me));
+      await loadOrgContext(me);
+    } catch {
+      // Keep the existing session on a transient failure.
+    }
+  }, [loadOrgContext]);
+
   const login = useCallback(
     async (email: string, password: string) => {
       const res = await apiLogin(email, password);
@@ -164,6 +177,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         organizationName,
         hasModule,
         moduleLabel,
+        refreshUser,
         login,
         logout,
       }}

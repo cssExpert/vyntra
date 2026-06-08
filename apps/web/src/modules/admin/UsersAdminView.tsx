@@ -11,6 +11,8 @@ import {
   Unlock,
   Trash2,
   Eye,
+  EyeOff,
+  KeyRound,
   Edit2,
   LogIn,
   Clock,
@@ -91,6 +93,11 @@ function Inner() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [passwordData, setPasswordData] = useState({ password: "", confirm: "" });
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordSaving, setPasswordSaving] = useState(false);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnPinning, setColumnPinning] = useState<ColumnPinningState>({
     left: ["email"],
@@ -238,6 +245,11 @@ function Inner() {
                     onClick: () => openEditModal(user),
                   },
                   {
+                    label: "Change Password",
+                    icon: <KeyRound size={14} />,
+                    onClick: () => openPasswordModal(user),
+                  },
+                  {
                     label: user.isActive ? "Lock Account" : "Unlock Account",
                     icon: user.isActive ? <Lock size={14} /> : <Unlock size={14} />,
                     onClick: () => handleToggleLock(user),
@@ -359,6 +371,38 @@ function Inner() {
     setIsEditModalOpen(true);
   };
 
+  const openPasswordModal = (user: UserWithActivity) => {
+    setSelectedUser(user);
+    setPasswordData({ password: "", confirm: "" });
+    setShowPassword(false);
+    setPasswordError("");
+    setIsPasswordModalOpen(true);
+  };
+
+  const handleChangePassword = async () => {
+    if (!selectedUser) return;
+    if (passwordData.password.length < 8) {
+      setPasswordError("Password must be at least 8 characters.");
+      return;
+    }
+    if (passwordData.password !== passwordData.confirm) {
+      setPasswordError("Passwords do not match.");
+      return;
+    }
+    setPasswordSaving(true);
+    setPasswordError("");
+    try {
+      await admin.setUserPassword(selectedUser.id, passwordData.password);
+      setIsPasswordModalOpen(false);
+    } catch (e) {
+      setPasswordError(
+        e instanceof Error ? e.message : "Failed to change password",
+      );
+    } finally {
+      setPasswordSaving(false);
+    }
+  };
+
   const validateForm = () => {
     const errors: Record<string, string> = {};
     if (!formData.email.trim()) errors.email = "Email is required";
@@ -409,13 +453,11 @@ function Inner() {
 
   const handleToggleLock = async (user: UserWithActivity) => {
     try {
-      // TODO: Call API endpoint when available
-      // const updated = await admin.toggleUserLock(user.id, !user.isActive);
-      // setUsers(users.map(u => u.id === user.id ? updated : u));
-      setError("Toggle lock API endpoint not yet available");
-      setTimeout(() => setError(""), 3000);
+      const updated = await admin.setUserActive(user.id, !user.isActive);
+      setUsers(users.map((u) => (u.id === user.id ? { ...u, ...updated } : u)));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to toggle lock");
+      setTimeout(() => setError(""), 3000);
     }
   };
 
@@ -742,11 +784,7 @@ function Inner() {
             </div>
           </div>
 
-          <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
-            <p className="text-xs text-amber-900 dark:text-amber-300">
-              📋 <strong>Note:</strong> New users will be created as regular members. Promote them to super admin after creation if needed.
-            </p>
-          </div>
+          
         </div>
       </Modal>
 
@@ -943,6 +981,85 @@ function Inner() {
                 Locked
               </button>
             </div>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Change Password Modal */}
+      <Modal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
+        title="Change Password"
+        description={`Set a new password for ${selectedUser?.email}`}
+        maxWidth="md"
+        footer={
+          <>
+            <button
+              onClick={() => setIsPasswordModalOpen(false)}
+              className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg text-sm font-medium transition"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleChangePassword}
+              disabled={passwordSaving}
+              className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-sm font-medium transition disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {passwordSaving ? "Saving…" : "Update Password"}
+            </button>
+          </>
+        }
+      >
+        <div className="p-6 space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+              New Password <span className="text-error">*</span>
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={passwordData.password}
+                onChange={(e) =>
+                  setPasswordData({ ...passwordData, password: e.target.value })
+                }
+                placeholder="At least 8 characters"
+                className="w-full px-3 py-2 pr-10 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((s) => !s)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+              Confirm Password <span className="text-error">*</span>
+            </label>
+            <input
+              type={showPassword ? "text" : "password"}
+              value={passwordData.confirm}
+              onChange={(e) =>
+                setPasswordData({ ...passwordData, confirm: e.target.value })
+              }
+              placeholder="Re-enter the new password"
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+
+          {passwordError && (
+            <p className="text-xs text-error">{passwordError}</p>
+          )}
+
+          <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+            <p className="text-xs text-amber-900 dark:text-amber-300">
+              🔒 The user will need to use this new password the next time they
+              log in.
+            </p>
           </div>
         </div>
       </Modal>

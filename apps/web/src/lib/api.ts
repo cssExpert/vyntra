@@ -79,6 +79,7 @@ export interface ApiCurrentOrg {
   id: string;
   name: string;
   slug: string;
+  maxUsers: number;
   modules: string[];
   /** Module key → display name, for dynamic nav labels. */
   moduleNames: Record<string, string>;
@@ -87,6 +88,17 @@ export interface ApiCurrentOrg {
     packageName: string;
     billingCycle: string;
   } | null;
+}
+
+export interface ApiPackage {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  priceCents: number;
+  billingCycle: string;
+  maxUsers: number;
+  modules: string[];
 }
 
 // ─── Endpoints ───────────────────────────────────────────
@@ -101,8 +113,47 @@ export function apiGetMe() {
   return apiFetch<ApiAuthUser>("/auth/me");
 }
 
+/** Update the current user's own profile (name only for now). */
+export function apiUpdateProfile(body: { name: string }) {
+  return apiFetch<{ id: string; email: string; name: string | null }>(
+    "/users/me",
+    { method: "PUT", body: JSON.stringify(body) },
+  );
+}
+
+/** Change your own password (verifies the current one server-side). */
+export function apiChangePassword(body: {
+  currentPassword: string;
+  newPassword: string;
+}) {
+  return apiFetch<{ success: boolean }>("/users/me/password", {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+}
+
+export interface ApiActivityLog {
+  id: string;
+  action: string;
+  resourceType: string | null;
+  statusCode: number | null;
+  ipAddress: string | null;
+  createdAt: string;
+  user: { name: string | null; email: string } | null;
+}
+
+/** Recent audit-log activity for the current organization. */
+export function apiGetActivity() {
+  return apiFetch<ApiActivityLog[]>("/organizations/activity");
+}
+
 export function apiGetMyOrg() {
   return apiFetch<ApiCurrentOrg>("/organizations/me");
+}
+
+/** Public plan catalog (active, public packages). */
+export function apiGetPackages() {
+  return apiFetch<ApiPackage[]>("/packages");
 }
 
 export interface OrganizationSettings {
@@ -445,6 +496,16 @@ export const admin = {
   listUsers: () => apiFetch<AdminUser[]>("/admin/users"),
   promoteUser: (id: string) =>
     apiFetch<AdminUser>(`/admin/users/${id}/promote`, { method: "PUT" }),
+  setUserPassword: (id: string, password: string) =>
+    apiFetch<{ success: boolean }>(`/admin/users/${id}/password`, {
+      method: "PUT",
+      body: JSON.stringify({ password }),
+    }),
+  setUserActive: (id: string, isActive: boolean) =>
+    apiFetch<AdminUser>(`/admin/users/${id}/lock`, {
+      method: "PUT",
+      body: JSON.stringify({ isActive }),
+    }),
 
   // Domains
   getDomain: (id: string) =>

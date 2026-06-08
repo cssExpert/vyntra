@@ -310,6 +310,30 @@ export class OrganizationsService {
     };
   }
 
+  /** Recent audit-log activity for the current organization. */
+  async getActivity(organizationId: string | null, limit = 50) {
+    if (!organizationId) {
+      throw new BadRequestException('No organization context');
+    }
+    const logs = await this.prisma.auditLog.findMany({
+      where: { organizationId },
+      orderBy: { createdAt: 'desc' },
+      take: Math.min(limit, 200),
+      include: { user: { select: { name: true, email: true } } },
+    });
+    return logs.map((log) => ({
+      id: log.id,
+      action: log.action,
+      resourceType: log.resourceType,
+      statusCode: log.statusCode,
+      ipAddress: log.ipAddress,
+      createdAt: log.createdAt,
+      user: log.user
+        ? { name: log.user.name, email: log.user.email }
+        : null,
+    }));
+  }
+
   // ── helpers ──────────────────────────────────────────────
 
   private async requirePackage(slug: string) {
