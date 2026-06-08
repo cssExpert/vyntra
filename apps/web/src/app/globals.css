@@ -239,6 +239,10 @@
     /* max-height: 31.25rem; */
     max-height: calc(100dvh - 270px);
   }
+
+  .pr40 {
+    padding-inline-end: 2.5rem !important;
+  }
 }
 
 /* ─── Component Layer ───────────────────────────────────── */

@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { createPortal } from "react-dom";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import {
   Plus,
   Pencil,
@@ -15,6 +16,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
+import { Sketch } from "@uiw/react-color";
 import { AnimatePresence, motion } from "framer-motion";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Modal } from "@/components/common/Modal";
@@ -278,6 +280,117 @@ function formToPayload(f: ThemeForm) {
   };
 }
 
+// ── Compact color picker for theme CSS variable keys ──────────────────────────
+
+function ThemeColorField({
+  varKey,
+  value,
+  onChange,
+}: {
+  varKey: string;
+  value: string;
+  onChange: (hex: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [coords, setCoords] = useState<{
+    top?: number;
+    bottom?: number;
+    right: number;
+  }>({ right: 0 });
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
+
+  const handleToggle = () => {
+    if (!open && triggerRef.current) {
+      const r = triggerRef.current.getBoundingClientRect();
+      const right = window.innerWidth - r.right;
+      if (window.innerHeight - r.bottom >= 290) {
+        setCoords({ top: r.bottom + 4, bottom: undefined, right });
+      } else {
+        setCoords({
+          top: undefined,
+          bottom: window.innerHeight - r.top + 4,
+          right,
+        });
+      }
+    }
+    setOpen((p) => !p);
+  };
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      const t = e.target as Node;
+      if (
+        triggerRef.current &&
+        !triggerRef.current.contains(t) &&
+        popoverRef.current &&
+        !popoverRef.current.contains(t)
+      )
+        setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  const display = value || "#000000";
+
+  return (
+    <div className="space-y-1">
+      <label className="text-[10px] font-mono text-muted-foreground">
+        {varKey}
+      </label>
+      <button
+        ref={triggerRef}
+        type="button"
+        onClick={handleToggle}
+        className="flex w-full items-center gap-2 rounded-xl border border-border bg-background px-2.5 py-1.5 hover:bg-muted/60 transition-colors cursor-pointer"
+      >
+        <span
+          className="h-7 w-7 rounded-lg border border-black/10 shadow-sm shrink-0"
+          style={{ backgroundColor: display }}
+        />
+        <span className="flex-1 text-left font-mono text-xs text-foreground">
+          {display.toUpperCase()}
+        </span>
+        <ChevronDown
+          className={cn(
+            "h-3.5 w-3.5 text-muted-foreground transition-transform duration-150 shrink-0",
+            open && "rotate-180",
+          )}
+        />
+      </button>
+
+      {open &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            ref={popoverRef}
+            style={{
+              position: "fixed",
+              ...(coords.top !== undefined ? { top: coords.top } : {}),
+              ...(coords.bottom !== undefined ? { bottom: coords.bottom } : {}),
+              right: coords.right,
+              zIndex: 9999,
+            }}
+            className="drop-shadow-xl rounded-md overflow-hidden border border-border"
+          >
+            <Sketch
+              color={display}
+              onChange={(c) => onChange(c.hex)}
+              style={
+                {
+                  "--sketch-background": "hsl(var(--card))",
+                } as React.CSSProperties
+              }
+            />
+          </div>,
+          document.body,
+        )}
+    </div>
+  );
+}
+
 function ThemeFormModal({
   open,
   title,
@@ -430,39 +543,16 @@ function ThemeFormModal({
                 </p>
                 <div className="grid grid-cols-2 gap-3">
                   {colorKeys.map((key) => (
-                    <div key={key} className="space-y-1">
-                      <label className="text-[10px] font-mono text-muted-foreground">
-                        {key}
-                      </label>
-                      <div className="flex gap-2 items-center">
-                        <input
-                          type="color"
-                          value={form.variables[key] || "#000000"}
-                          onChange={(e) =>
-                            onChange({
-                              variables: {
-                                ...form.variables,
-                                [key]: e.target.value,
-                              },
-                            })
-                          }
-                          className="h-8 w-8 rounded cursor-pointer border border-border"
-                        />
-                        <input
-                          className={cn(adminInput, "flex-1 font-mono text-xs")}
-                          placeholder="#3b82f6"
-                          value={form.variables[key] || ""}
-                          onChange={(e) =>
-                            onChange({
-                              variables: {
-                                ...form.variables,
-                                [key]: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                    </div>
+                    <ThemeColorField
+                      key={key}
+                      varKey={key}
+                      value={form.variables[key] || ""}
+                      onChange={(hex) =>
+                        onChange({
+                          variables: { ...form.variables, [key]: hex },
+                        })
+                      }
+                    />
                   ))}
                 </div>
               </div>
@@ -633,8 +723,6 @@ function Inner() {
 
   return (
     <div className="space-y-6 pb-20">
-      <Toaster toasts={toasts} onDismiss={dismiss} />
-
       <div className="flex items-center justify-between gap-4">
         <PageHeader
           title="Global Themes"
@@ -889,6 +977,7 @@ function Inner() {
         onConfirm={handleDelete}
         onCancel={() => setPendingDelete(null)}
       />
+      <Toaster toasts={toasts} onDismiss={dismiss} />
     </div>
   );
 }

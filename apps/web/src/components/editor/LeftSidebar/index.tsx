@@ -8,7 +8,6 @@ import {
   ChevronDown,
   ChevronRight,
   Layers,
-  Feather,
   Grid3x3,
   Loader2,
   X,
