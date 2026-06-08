@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import Icon from "@/components/common/Icon";
+import Lottie from "react-lottie";
+import LoaderAnimation from "@/assets/ERVFlowLoader.json";
 import { useAuth } from "@/providers/AuthProvider";
 import { useSidebar } from "@/hooks/useSidebar";
 import { SIDEBAR_WIDTH, SIDEBAR_COLLAPSED_WIDTH } from "@/constants/navigation";
@@ -97,56 +98,20 @@ export function NavigationProgress() {
           </div>
 
           {/* Loader card */}
-          <div className="relative flex flex-col items-center gap-6">
-            {/* Spinning outer ring */}
+          <div className="relative flex flex-col items-center gap-1">
+            {/* Lottie spinner + logo */}
             <div className="relative flex items-center justify-center">
-              {/* Outermost faint ring */}
-              <motion.span
-                className="absolute h-24 w-24 rounded-2xl border border-primary/15"
-                animate={{ rotate: -360, scale: [1, 1.04, 1] }}
-                transition={{
-                  rotate: { duration: 6, repeat: Infinity, ease: "linear" },
-                  scale: { duration: 2, repeat: Infinity, ease: "easeInOut" },
+              <Lottie
+                options={{
+                  loop: true,
+                  autoplay: true,
+                  animationData: LoaderAnimation,
+                  rendererSettings: { preserveAspectRatio: "xMidYMid slice" },
                 }}
+                height={250}
+                width={250}
+                isClickToPauseDisabled
               />
-
-              {/* Inner counter-spinning ring */}
-              <motion.span
-                className="absolute h-14 w-14 rounded-xl"
-                style={{
-                  borderWidth: "1.5px",
-                  borderStyle: "solid",
-                  borderTopColor: "transparent",
-                  borderRightColor: "hsl(var(--primary) / 0.5)",
-                  borderBottomColor: "hsl(var(--primary) / 0.25)",
-                  borderLeftColor: "transparent",
-                  borderRadius: "14px",
-                }}
-                animate={{ rotate: -360 }}
-                transition={{ duration: 1.4, repeat: Infinity, ease: "linear" }}
-              />
-
-              {/* Logo box */}
-              <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-brand shadow-glow-brand">
-                <Icon name="Logo" size="24" className="h-6 w-6 text-white" />
-              </div>
-            </div>
-
-            {/* Pulsing dots */}
-            <div className="flex items-center gap-1.5">
-              {[0, 1, 2].map((i) => (
-                <motion.span
-                  key={i}
-                  className="h-1.5 w-1.5 rounded-full bg-primary"
-                  animate={{ opacity: [0.25, 1, 0.25], scale: [0.8, 1, 0.8] }}
-                  transition={{
-                    duration: 1.1,
-                    repeat: Infinity,
-                    delay: i * 0.18,
-                    ease: "easeInOut",
-                  }}
-                />
-              ))}
             </div>
           </div>
         </motion.div>

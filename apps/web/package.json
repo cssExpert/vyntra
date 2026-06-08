@@ -64,6 +64,7 @@
     "react": "^19.0.0",
     "react-datepicker": "^9.1.0",
     "react-dom": "^19.0.0",
+    "react-lottie": "^1.2.10",
     "react-select": "^5.10.2",
     "react-tiny-popover": "^8.1.6",
     "recharts": "^2.15.3",
