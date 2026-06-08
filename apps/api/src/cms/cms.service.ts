@@ -169,6 +169,46 @@ export class CmsService {
     return { ok: true };
   }
 
+  // ── Blog Categories ──────────────────────────────────────────────────────────
+
+  async listBlogCategories(orgId: string) {
+    return this.prisma.blogCategory.findMany({
+      where: { organizationId: orgId },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  async createBlogCategory(orgId: string, dto: { name: string; slug: string; description?: string }) {
+    const existing = await this.prisma.blogCategory.findFirst({
+      where: { organizationId: orgId, slug: dto.slug },
+      select: { id: true },
+    });
+    if (existing) throw new BadRequestException('A category with this slug already exists');
+    return this.prisma.blogCategory.create({
+      data: { name: dto.name, slug: dto.slug, description: dto.description, organizationId: orgId },
+    });
+  }
+
+  async updateBlogCategory(orgId: string, id: string, dto: { name?: string; slug?: string; description?: string }) {
+    const cat = await this.prisma.blogCategory.findFirst({ where: { id, organizationId: orgId } });
+    if (!cat) throw new NotFoundException('Category not found');
+    if (dto.slug && dto.slug !== cat.slug) {
+      const conflict = await this.prisma.blogCategory.findFirst({
+        where: { organizationId: orgId, slug: dto.slug, id: { not: id } },
+        select: { id: true },
+      });
+      if (conflict) throw new BadRequestException('A category with this slug already exists');
+    }
+    return this.prisma.blogCategory.update({ where: { id }, data: dto });
+  }
+
+  async deleteBlogCategory(orgId: string, id: string) {
+    const cat = await this.prisma.blogCategory.findFirst({ where: { id, organizationId: orgId } });
+    if (!cat) throw new NotFoundException('Category not found');
+    await this.prisma.blogCategory.delete({ where: { id } });
+    return { ok: true };
+  }
+
   async loadPage(orgId: string, slug: string) {
     const page = await this.prisma.page.findFirst({
       where: { organizationId: orgId, slug },

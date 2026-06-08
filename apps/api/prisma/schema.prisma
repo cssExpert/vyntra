@@ -112,6 +112,7 @@ model Organization {
   // CMS (org-scoped)
   pages          Page[]
   blogs          Blog[]
+  blogCategories BlogCategory[]
   comments       Comment[]
   media          Media[]
   websiteConfigs WebsiteConfig[]
@@ -340,6 +341,22 @@ model Blog {
   @@unique([organizationId, slug])
   @@index([organizationId])
   @@map("blogs")
+}
+
+model BlogCategory {
+  id             String   @id @default(cuid())
+  name           String
+  slug           String
+  description    String?
+  organizationId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+  @@map("blog_categories")
 }
 
 model Comment {

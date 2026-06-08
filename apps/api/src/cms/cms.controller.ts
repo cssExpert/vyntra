@@ -80,6 +80,39 @@ export class CmsController {
     return this.cmsService.deleteBlog(requireOrg(orgId), id);
   }
 
+  // ── Blog Categories ───────────────────────────────────────────────────────
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Get('blog-categories')
+  listBlogCategories(@CurrentOrg() orgId: string | null) {
+    return this.cmsService.listBlogCategories(requireOrg(orgId));
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Post('blog-categories')
+  createBlogCategory(
+    @CurrentOrg() orgId: string | null,
+    @Body() body: { name: string; slug: string; description?: string },
+  ) {
+    return this.cmsService.createBlogCategory(requireOrg(orgId), body);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Patch('blog-categories/:id')
+  updateBlogCategory(
+    @CurrentOrg() orgId: string | null,
+    @Param('id') id: string,
+    @Body() body: { name?: string; slug?: string; description?: string },
+  ) {
+    return this.cmsService.updateBlogCategory(requireOrg(orgId), id, body);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Delete('blog-categories/:id')
+  deleteBlogCategory(@CurrentOrg() orgId: string | null, @Param('id') id: string) {
+    return this.cmsService.deleteBlogCategory(requireOrg(orgId), id);
+  }
+
   @Roles(Role.ORG_ADMIN, Role.EDITOR)
   @Get('pages/:slug')
   load(@CurrentOrg() orgId: string | null, @Param('slug') slug: string) {

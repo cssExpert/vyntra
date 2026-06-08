@@ -594,6 +594,32 @@ export const cmsBlogs = {
     apiFetch<{ ok: boolean }>(`/cms/blogs/${id}`, { method: "DELETE" }),
 };
 
+// ─── CMS blog categories ─────────────────────────────────
+export interface CmsBlogCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const cmsBlogCategories = {
+  list: () => apiFetch<CmsBlogCategory[]>("/cms/blog-categories"),
+  create: (dto: { name: string; slug: string; description?: string }) =>
+    apiFetch<CmsBlogCategory>("/cms/blog-categories", {
+      method: "POST",
+      body: JSON.stringify(dto),
+    }),
+  update: (id: string, dto: { name?: string; slug?: string; description?: string }) =>
+    apiFetch<CmsBlogCategory>(`/cms/blog-categories/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(dto),
+    }),
+  delete: (id: string) =>
+    apiFetch<{ ok: boolean }>(`/cms/blog-categories/${id}`, { method: "DELETE" }),
+};
+
 // ─── CMS menus ───────────────────────────────────────────
 export interface CmsMenuItem {
   id: string;

@@ -9,7 +9,7 @@ export interface BlogFormState {
   excerpt: string;
   coverImage: string;
   tags: string[];
-  category: string;
+  category: string[];
   readTime: number;
   seoTitle: string;
   seoDesc: string;
@@ -82,7 +82,7 @@ export function emptyBlogForm(): BlogFormState {
     excerpt: "",
     coverImage: PRESET_COVERS[0],
     tags: [],
-    category: "Technology",
+    category: [],
     readTime: 1,
     seoTitle: "",
     seoDesc: "",

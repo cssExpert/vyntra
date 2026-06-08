@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Eye, Check } from "lucide-react";
 import type { CmsBlogDetail, CmsBlogSaveDto } from "@/lib/api";
-import { cmsBlogs } from "@/lib/api";
+import { cmsBlogs, cmsBlogCategories } from "@/lib/api";
 import { EditorStepTabs, type EditorTab } from "./EditorStepTabs";
 import { WritingTab } from "./WritingTab";
 import { MetadataTab } from "./MetadataTab";
@@ -51,7 +51,9 @@ function detailToForm(blog: CmsBlogDetail): BlogFormState {
     excerpt: blog.excerpt ?? "",
     coverImage: blog.coverImage ?? base.coverImage,
     tags: blog.tags ?? [],
-    category: blog.category ?? base.category,
+    category: blog.category
+      ? blog.category.split(",").map((c) => c.trim()).filter(Boolean)
+      : [],
     seoTitle: blog.seoTitle ?? blog.title.substring(0, 60),
     seoDesc: blog.metaDesc ?? "",
     keywords: blog.keywords ?? "",
@@ -77,6 +79,7 @@ export function BlogEditor({ blog }: BlogEditorProps) {
   const { toasts, addToast, dismiss } = useToasts();
   const [saving, setSaving] = useState(false);
   const [savedBlog, setSavedBlog] = useState<CmsBlogDetail | null>(null);
+  const [availableCategories, setAvailableCategories] = useState<string[]>([]);
 
   const [form, setForm] = useState<BlogFormState>(() =>
     blog ? detailToForm(blog) : emptyBlogForm(),
@@ -85,6 +88,10 @@ export function BlogEditor({ blog }: BlogEditorProps) {
   const [activeTab, setActiveTab] = useState<EditorTab>("editor");
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
+
+  useEffect(() => {
+    cmsBlogCategories.list().then((cats) => setAvailableCategories(cats.map((c) => c.name))).catch(() => {});
+  }, []);
 
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(Boolean(blog));
   const [seoTitleManuallyEdited, setSeoTitleManuallyEdited] = useState(Boolean(blog));
@@ -131,7 +138,7 @@ export function BlogEditor({ blog }: BlogEditorProps) {
     coverImage: form.coverImage || undefined,
     tags: form.tags,
     author: authorIdToName(form.author),
-    category: form.category,
+    category: form.category.length > 0 ? form.category.join(",") : undefined,
     seoTitle: form.seoTitle || undefined,
     metaDesc: form.seoDesc || undefined,
     keywords: form.keywords || undefined,
@@ -257,6 +264,7 @@ export function BlogEditor({ blog }: BlogEditorProps) {
                 <MetadataTab
                   form={form}
                   patch={patch}
+                  availableCategories={availableCategories}
                   onBack={() => setActiveTab("editor")}
                   onNext={() => setActiveTab("seo")}
                   onToast={addToast}
