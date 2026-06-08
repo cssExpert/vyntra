@@ -46,3 +46,23 @@ export class UpdateUserRoleDto {
   @IsEnum(Role)
   role!: Role;
 }
+
+export class SetUserPasswordDto {
+  @IsString()
+  @MinLength(8)
+  password!: string;
+}
+
+export class SetUserActiveDto {
+  @IsBoolean()
+  isActive!: boolean;
+}
+
+export class ChangePasswordDto {
+  @IsString()
+  currentPassword!: string;
+
+  @IsString()
+  @MinLength(8)
+  newPassword!: string;
+}
