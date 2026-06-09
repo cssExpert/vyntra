@@ -48,7 +48,8 @@
       "liveMode": "Live Mode",
       "save": "Save",
       "saved": "Payment settings saved",
-      "error": "Failed to save payment settings"
+      "error": "Failed to save payment settings",
+      "testEmail": "Test Email"
     },
     "storage": {
       "title": "Storage Settings",
@@ -118,7 +119,13 @@
       "noResults": "No companies found",
       "confirmDelete": "Are you sure?",
       "deleteSuccess": "Company deleted",
-      "error": "An error occurred"
+      "error": "An error occurred",
+      "industry": "Industry",
+      "website": "Website",
+      "address": "Address",
+      "maxUsers": "Max Users",
+      "isActive": "Is Active",
+      "createdAt": "Created At"
     },
     "dashboard": {
       "title": "Admin Dashboard",
@@ -130,11 +137,13 @@
       "revenueChart": "Revenue Chart",
       "userGrowth": "User Growth",
       "topCompanies": "Top Companies",
-      "recentActivities": "Recent Activities"
+      "recentActivities": "Recent Activities",
+      "viewAll": "View All",
+      "noData": "No data available"
     },
     "packages": {
       "title": "Packages",
-      "description": "Manage subscription plans",
+      "description": "Description",
       "add": "Add Package",
       "edit": "Edit",
       "delete": "Delete",
@@ -151,17 +160,17 @@
       "deleted": "Package deleted",
       "error": "Failed to save package",
       "search": "Search packages",
-      "noResults": "No packages found"
+      "noResults": "No packages found",
+      "isActive": "Is Active"
     },
     "modules": {
       "title": "Modules",
-      "description": "Manage feature modules",
+      "description": "Description",
       "add": "Add Module",
       "edit": "Edit",
       "delete": "Delete",
       "name": "Name",
       "key": "Key",
-      "description": "Description",
       "active": "Active",
       "packages": "Packages",
       "save": "Save",
@@ -169,7 +178,8 @@
       "deleted": "Module deleted",
       "error": "Failed to save module",
       "search": "Search modules",
-      "noResults": "No modules found"
+      "noResults": "No modules found",
+      "isActive": "Is Active"
     },
     "users": {
       "title": "Users",
@@ -190,11 +200,14 @@
       "deleted": "User deleted",
       "error": "Failed to save user",
       "search": "Search users",
-      "noResults": "No users found"
+      "noResults": "No users found",
+      "createdAt": "Created At",
+      "lastLogin": "Last Login",
+      "isActive": "Is Active"
     },
     "themes": {
       "title": "Themes",
-      "description": "Manage website themes",
+      "description": "Description",
       "add": "Add Theme",
       "edit": "Edit",
       "delete": "Delete",
@@ -206,7 +219,8 @@
       "deleted": "Theme deleted",
       "error": "Failed to save theme",
       "search": "Search themes",
-      "noResults": "No themes found"
+      "noResults": "No themes found",
+      "isActive": "Is Active"
     },
     "crm": {
       "title": "CRM",
@@ -229,11 +243,13 @@
       "save": "Save",
       "saved": "Contact saved",
       "deleted": "Contact deleted",
-      "error": "An error occurred"
+      "error": "An error occurred",
+      "name": "Name",
+      "createdAt": "Created At"
     },
     "store": {
       "title": "Store",
-      "description": "E-commerce management",
+      "description": "Description",
       "products": "Products",
       "productsDescription": "Manage your entire product catalog",
       "orders": "Orders",
@@ -279,11 +295,31 @@
       "dragReorder": "Drag to reorder",
       "addCategory": "Add Category",
       "totalUses": "Total Uses",
-      "addCoupon": "Add Coupon"
+      "addCoupon": "Add Coupon",
+      "outOfStock": "Out of Stock",
+      "inStock": "In Stock",
+      "lowStock": "Low Stock",
+      "backorder": "Backorder",
+      "quantity": "Quantity",
+      "price": "Price",
+      "sku": "SKU",
+      "type": "Type",
+      "status": "Status",
+      "lastUpdated": "Last Updated",
+      "name": "Name",
+      "image": "Image",
+      "category": "Category",
+      "cost": "Cost",
+      "markup": "Markup",
+      "discount": "Discount",
+      "tax": "Tax",
+      "shipping": "Shipping",
+      "weight": "Weight",
+      "dimensions": "Dimensions"
     },
     "cms": {
-      "title": "CMS",
-      "description": "Content Management System",
+      "title": "Title",
+      "description": "Description",
       "pages": "Pages",
       "pagesDescription": "Create and manage website pages",
       "blog": "Blog",
@@ -311,7 +347,19 @@
       "delete": "Delete",
       "save": "Save",
       "saved": "Changes saved",
-      "error": "An error occurred"
+      "error": "An error occurred",
+      "slug": "Slug",
+      "content": "Content",
+      "published": "Published",
+      "draft": "Draft",
+      "status": "Status",
+      "author": "Author",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "category": "Category",
+      "tags": "Tags",
+      "featured": "Featured",
+      "image": "Image"
     }
   },
   "navigation": {
@@ -324,7 +372,8 @@
     "admin": "Admin",
     "logout": "Logout",
     "profile": "Profile",
-    "help": "Help"
+    "help": "Help",
+    "home": "Home"
   },
   "common": {
     "loading": "Loading...",
@@ -348,7 +397,23 @@
     "error": "Error",
     "success": "Success",
     "warning": "Warning",
-    "info": "Info"
+    "info": "Info",
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address",
+    "city": "City",
+    "state": "State",
+    "country": "Country",
+    "zip": "Zip Code",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive"
   },
   "auth": {
     "login": "Login",
@@ -383,6 +448,16 @@
     "serverError": "Server error",
     "networkError": "Network error",
     "tryAgain": "Try again",
-    "contactSupport": "Contact support"
+    "contactSupport": "Contact support",
+    "somethingWentWrong": "Something went wrong",
+    "pleaseRetry": "Please retry",
+    "validationError": "Validation error"
+  },
+  "validation": {
+    "required": "This field is required",
+    "email": "Please enter a valid email address",
+    "minLength": "Must be at least {min} characters",
+    "maxLength": "Must be at most {max} characters",
+    "pattern": "Please match the required format"
   }
 }
