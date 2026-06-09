@@ -9,6 +9,55 @@ const PASSWORD = process.env.SEED_PASSWORD ?? "ChangeMe123!";
 async function main() {
   const passwordHash = await bcrypt.hash(PASSWORD, 10);
 
+  // ── I18N (Internationalization) & LOCALE/TIMEZONE SUPPORT ──
+  // DATABASE SCHEMA CHANGES (migrations applied):
+  // 1. Added User.locale (nullable) - per-user UI language preference
+  // 2. Added Organization.defaultLocale - company-wide default (default: "en")
+  // 3. Added AdminSettings.timezone - global timezone (default: "UTC")
+  // 4. Added Organization.timezone - org-specific timezone (nullable)
+  //
+  // FRONTEND MESSAGE FILES (apps/web/src/i18n/messages/):
+  // - en.json: 400+ English message keys (master catalog)
+  // - hi.json: 400+ Hindi translations (machine-translated)
+  // - fr.json: 400+ French translations (machine-translated)
+  //
+  // MESSAGE NAMESPACES (organized by feature):
+  // admin.settingsNav, admin.appSettings, admin.payment, admin.storage,
+  // admin.email, admin.companies, admin.dashboard, admin.packages,
+  // admin.modules, admin.users, admin.themes, admin.crm, admin.store, admin.cms
+  //
+  // LOCALE RESOLUTION (frontend):
+  // Priority: NEXT_LOCALE cookie → Accept-Language header → "en" default
+  // Per-user locale (User.locale) overrides organization defaultLocale
+  //
+  // TO CONTINUE I18N IMPLEMENTATION:
+  // 1. Wire remaining view files following the 5-minute pattern:
+  //    - Import: import { useTranslations } from "next-intl"
+  //    - Hook: const t = useTranslations("admin.namespace")
+  //    - Replace: hardcoded strings → t("key")
+  //    - Translate: Add keys to en.json, hi.json, fr.json
+  // 2. Validate: npx tsc --noEmit && JSON.parse all message files
+  // 3. Test: Open app with ?locale=hi or ?locale=fr to verify
+  //
+  // OPTIONAL: DATABASE-BACKED I18N (future):
+  // If moving beyond static JSON files, create Prisma model:
+  //   model Message {
+  //     id        String @id @default(cuid())
+  //     namespace String
+  //     key       String
+  //     en        String
+  //     hi        String?
+  //     fr        String?
+  //     @@unique([namespace, key])
+  //   }
+  // Then seed: await prisma.message.createMany({ data: allMessages })
+  //
+  // REFERENCE FILES:
+  // - apps/web/src/i18n/request.ts - server-side locale resolution
+  // - apps/web/src/i18n/routing.ts - next-intl routing config
+  // - apps/web/src/i18n/config.ts - locale & translation configuration
+  // - I18N_STATUS.md - complete team guide (28 wired files, 400+ keys, wiring pattern)
+
   // ── Module catalog (every product feature is a module) ──
   const MODULES: Array<{ key: string; name: string; description: string }> = [
     {

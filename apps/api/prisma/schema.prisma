@@ -25,6 +25,7 @@ model User {
   isActive       Boolean   @default(true)
   lastLogin      DateTime?
   organizationId String? // null for super admins
+  locale         String? // preferred UI language (e.g. "en", "hi", "fr"); null = inherit org default
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
@@ -91,6 +92,10 @@ model Organization {
   accentColor     String   @default("#ec4899")
   emailNotifications Boolean @default(true)
   slackNotifications Boolean @default(false)
+
+  // Internationalization & Localization
+  defaultLocale String @default("en") // company-wide default UI language
+  timezone      String? // org-specific timezone (nullable)
 
   // Domain / hosting
   subdomain               String?  @unique // e.g. "acme" → acme.vyntra.com; set by super admin
@@ -632,6 +637,9 @@ model AdminSettings {
   s3Config                   Json?
   uploadthingConfig          Json?
   vercelBlobConfig           Json?
+
+  // Internationalization & Localization
+  timezone                   String   @default("UTC") // global timezone setting
 
   createdAt                  DateTime @default(now())
   updatedAt                  DateTime @updatedAt
