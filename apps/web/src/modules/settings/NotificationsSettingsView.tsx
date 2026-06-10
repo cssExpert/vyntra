@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import {
   Bell,
@@ -46,6 +47,7 @@ function ToggleRow({
 }
 
 export function NotificationsSettingsView() {
+  const t = useTranslations("settings.notifications");
   const [emailNotifications, setEmailNotifications] = useState(false);
   const [slackNotifications, setSlackNotifications] = useState(false);
   const [loading, setLoading] = useState(true);

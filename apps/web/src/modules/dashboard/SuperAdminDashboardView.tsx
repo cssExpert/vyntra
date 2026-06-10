@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
@@ -128,6 +129,7 @@ function ConfigStatus({
 }
 
 export function SuperAdminDashboardView() {
+  const t = useTranslations("admin.dashboard");
   const { user } = useAuth();
   const [data, setData] = useState<DashboardData>({
     companies: [],

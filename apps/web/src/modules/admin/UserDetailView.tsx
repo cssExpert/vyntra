@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -598,6 +599,7 @@ function UserDetailInner({ userId }: { userId: string }) {
 }
 
 export function UserDetailView({ params }: { params: Promise<{ id: string }> }) {
+  const t = useTranslations("admin.users");
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {

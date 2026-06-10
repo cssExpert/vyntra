@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import {
   CreditCard,
@@ -36,6 +37,7 @@ function statusVariant(status: string): "success" | "warning" | "muted" {
 }
 
 export function SubscriptionSettingsView() {
+  const t = useTranslations("settings.subscription");
   const [org, setOrg] = useState<ApiCurrentOrg | null>(null);
   const [packages, setPackages] = useState<ApiPackage[]>([]);
   const [loading, setLoading] = useState(true);

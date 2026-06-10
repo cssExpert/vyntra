@@ -50,7 +50,7 @@ function Inner() {
       setPackages(p);
       setModules(m);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load");
+      setError(e instanceof Error ? e.message : t("failedLoad", { defaultValue: "Failed to load" }));
     } finally {
       setLoading(false);
     }
@@ -104,19 +104,19 @@ function Inner() {
       setModalOpen(false);
       await load();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to save package");
+      setError(e instanceof Error ? e.message : t("failedSave", { defaultValue: "Failed to save package" }));
     } finally {
       setBusy(false);
     }
   };
 
   const remove = async (p: AdminPackage) => {
-    if (!confirm(`Delete the "${p.name}" package?`)) return;
+    if (!confirm(t("deleteConfirm", { defaultValue: `Delete the "${p.name}" package?`, name: p.name }))) return;
     try {
       await admin.deletePackage(p.id);
       await load();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to delete");
+      setError(e instanceof Error ? e.message : t("failedDelete", { defaultValue: "Failed to delete" }));
     }
   };
 
@@ -157,7 +157,7 @@ function Inner() {
                     </h3>
                     <p className="text-sm text-muted-foreground">
                       {p.priceCents === 0
-                        ? "Free"
+                        ? t("free", { defaultValue: "Free" })
                         : `$${(p.priceCents / 100).toFixed(0)} / ${p.billingCycle.toLowerCase()}`}
                     </p>
                   </div>
@@ -165,14 +165,14 @@ function Inner() {
                     <button
                       onClick={() => openEdit(p)}
                       className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition cursor-pointer"
-                      aria-label="Edit"
+                      aria-label={t("edit", { defaultValue: "Edit" })}
                     >
                       <PencilLine className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => remove(p)}
                       className="rounded-lg p-1.5 text-muted-foreground hover:bg-error/10 hover:text-error transition cursor-pointer"
-                      aria-label="Delete"
+                      aria-label={t("delete", { defaultValue: "Delete" })}
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -182,7 +182,7 @@ function Inner() {
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {p.modules.length === 0 ? (
                     <span className="text-xs text-muted-foreground">
-                      No modules
+                      {t("noModules", { defaultValue: "No modules" })}
                     </span>
                   ) : (
                     p.modules.map((m) => (
@@ -198,11 +198,11 @@ function Inner() {
               </div>
 
               <div className="mt-4 flex items-center gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
-                <span>Up to {p.maxUsers} users</span>
+                <span>{t("upToUsers", { defaultValue: `Up to ${p.maxUsers} users`, count: p.maxUsers })}</span>
                 <span>·</span>
                 <StatusBadge
                   variant={p.isPublic ? "info" : "muted"}
-                  label={p.isPublic ? "Public" : "Private"}
+                  label={p.isPublic ? t("public", { defaultValue: "Public" }) : t("private", { defaultValue: "Private" })}
                   size="sm"
                 />
               </div>
@@ -214,22 +214,22 @@ function Inner() {
       <Modal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={form.id ? "Edit Package" : "Add Package"}
-        description="Choose the modules this plan grants access to."
+        title={form.id ? t("editPackage", { defaultValue: "Edit Package" }) : t("addPackage", { defaultValue: "Add Package" })}
+        description={t("chooseModules", { defaultValue: "Choose the modules this plan grants access to." })}
         footer={
           <div className="flex justify-end gap-2">
             <button
               onClick={() => setModalOpen(false)}
               className="rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted transition cursor-pointer"
             >
-              Cancel
+              {t("cancel", { defaultValue: "Cancel" })}
             </button>
             <button
               onClick={save}
               disabled={busy || !form.name}
               className="rounded-lg bg-foreground px-3 py-2 text-sm font-semibold text-background hover:opacity-90 transition cursor-pointer disabled:opacity-50"
             >
-              {busy ? "Saving…" : "Save"}
+              {busy ? t("saving", { defaultValue: "Saving…" }) : t("save", { defaultValue: "Save" })}
             </button>
           </div>
         }
@@ -237,17 +237,17 @@ function Inner() {
         <div className="px-6 py-5 space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
-              <label className="mb-1.5 block text-sm font-medium">Name</label>
+              <label className="mb-1.5 block text-sm font-medium">{t("name", { defaultValue: "Name" })}</label>
               <input
                 className={adminInput}
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="Pro"
+                placeholder={t("namePlaceholder", { defaultValue: "Pro" })}
               />
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-medium">
-                Price (USD)
+                {t("price", { defaultValue: "Price (USD)" })}
               </label>
               <input
                 type="number"
@@ -261,7 +261,7 @@ function Inner() {
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-medium">
-                Max users
+                {t("maxUsers", { defaultValue: "Max users" })}
               </label>
               <input
                 type="number"
@@ -275,7 +275,7 @@ function Inner() {
 
           <div>
             <label className="mb-1.5 block text-sm font-medium">
-              Description
+              {t("descriptionField", { defaultValue: "Description" })}
             </label>
             <input
               className={adminInput}
@@ -283,12 +283,12 @@ function Inner() {
               onChange={(e) =>
                 setForm({ ...form, description: e.target.value })
               }
-              placeholder="Short summary of the plan"
+              placeholder={t("descriptionPlaceholder", { defaultValue: "Short summary of the plan" })}
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium">Modules</label>
+            <label className="mb-2 block text-sm font-medium">{t("modules", { defaultValue: "Modules" })}</label>
             <div className="grid grid-cols-2 gap-2">
               {modules.map((m) => {
                 const checked = form.moduleKeys.has(m.key);
@@ -325,7 +325,7 @@ function Inner() {
               checked={form.isPublic}
               onChange={(e) => setForm({ ...form, isPublic: e.target.checked })}
             />
-            Public (available for self-signup)
+            {t("publicSelfSignup", { defaultValue: "Public (available for self-signup)" })}
           </label>
         </div>
       </Modal>

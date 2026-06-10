@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
@@ -317,6 +318,7 @@ function CatNodeRenderer(props: Record<string, unknown>) {
 }
 
 export function CategoriesView() {
+  const t = useTranslations("admin.store.categories");
   const isLoaded = usePageLoad(600);
   const router = useRouter();
   const [treeData, setTreeData] = useState<TreeItem[]>(() => toTree(INIT));
@@ -351,11 +353,11 @@ export function CategoriesView() {
           className="flex flex-col gap-4"
         >
           <PageHeader
-            title="Categories"
-            description={`${INIT.length} categories · drag to reorder or change level`}
+            title={t("title", { defaultValue: "Categories" })}
+            description={`${INIT.length} ${t("title", { defaultValue: "categories" }).toLowerCase()} · ${t("dragToReorder", { defaultValue: "drag to reorder or change level" })}`}
             breadcrumbs={[
-              { label: "Store", href: "/store" },
-              { label: "Categories" },
+              { label: t("store", { defaultValue: "Store" }), href: "/store" },
+              { label: t("title", { defaultValue: "Categories" }) },
             ]}
           >
             <button
@@ -363,7 +365,7 @@ export function CategoriesView() {
               className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer"
             >
               <Plus size={18} className="stroke-[3]" />
-              Add Category
+              {t("addCategory", { defaultValue: "Add Category" })}
             </button>
           </PageHeader>
 

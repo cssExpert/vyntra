@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { DashboardPageSkeleton } from "@/components/common/DashboardSkeleton";
@@ -179,6 +180,7 @@ const ACTIVITY_ICONS: Record<string, React.ReactNode> = {
 };
 
 export function DashboardView() {
+  const t = useTranslations("admin.dashboard");
   const desktopReport = LIGHTHOUSE_REPORTS.find((r) => r.device === "desktop");
   const mobileReport = LIGHTHOUSE_REPORTS.find((r) => r.device === "mobile");
   const isLoaded = usePageLoad(700);

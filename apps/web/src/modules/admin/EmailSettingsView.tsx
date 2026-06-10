@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState, useCallback } from "react";
 import {
   Mail,
@@ -507,6 +508,7 @@ function Inner() {
 }
 
 export function EmailSettingsView() {
+  const t = useTranslations("admin.email");
   return (
     <AdminGuard>
       <Inner />

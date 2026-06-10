@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -683,6 +684,7 @@ function EmptyCard({
 }
 
 export function CompanyDetailView({ companyId }: { companyId: string }) {
+  const t = useTranslations("admin.companies");
   return (
     <AdminGuard>
       <Inner companyId={companyId} />

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import {
   Lock,
@@ -56,6 +57,7 @@ function PasswordField({
 }
 
 export function PasswordSettingsView() {
+  const t = useTranslations("settings.password");
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
   const [confirm, setConfirm] = useState("");

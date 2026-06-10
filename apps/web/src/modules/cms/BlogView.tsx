@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -175,6 +176,7 @@ function parseMDY(s: string): Date | null {
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export function BlogView() {
+  const t = useTranslations("cms.blog");
   const router = useRouter();
   const [blogs, setBlogs] = useState<CmsBlog[]>([]);
   const [isFetching, setIsFetching] = useState(true);

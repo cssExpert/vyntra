@@ -13,20 +13,20 @@ import { cn } from "@/lib/utils";
 import { MotionTabs, type MotionTabItem } from "@/components/ui/MotionTabs";
 
 const ORDER_TABS: MotionTabItem<"all" | OrderStatus>[] = [
-  { id: "all", label: "All Orders" },
-  { id: "pending", label: "Pending" },
-  { id: "processing", label: "Processing" },
-  { id: "shipped", label: "Shipped" },
-  { id: "delivered", label: "Delivered" },
-  { id: "cancelled", label: "Cancelled" },
-  { id: "refunded", label: "Refunded" },
+  { id: "all", label: "all" },
+  { id: "pending", label: "pending" },
+  { id: "processing", label: "processing" },
+  { id: "shipped", label: "shipped" },
+  { id: "delivered", label: "delivered" },
+  { id: "cancelled", label: "cancelled" },
+  { id: "refunded", label: "refunded" },
 ];
 
 const selectCls =
   "rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all cursor-pointer";
 
 export function OrdersView() {
-  const t = useTranslations("admin.store");
+  const t = useTranslations("store.orders");
   const isLoaded = usePageLoad(700);
 
   useEffect(() => {
@@ -79,16 +79,16 @@ export function OrdersView() {
           className="flex flex-col gap-4"
         >
           <PageHeader
-            title={t("orders")}
+            title={t("title")}
             description={`${SAMPLE_ORDERS.length} orders · $${total.toFixed(2)} total revenue`}
             breadcrumbs={[
               { label: "Store", href: "/store" },
-              { label: t("orders") },
+              { label: t("title") },
             ]}
           >
             <button className="flex items-center gap-2 rounded-sm border border-border bg-transparent px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer">
               <Download className="h-3.5 w-3.5" />
-              Export CSV
+              {t("exportCSV", { defaultValue: "Export CSV" })}
             </button>
           </PageHeader>
 

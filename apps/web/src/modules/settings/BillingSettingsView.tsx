@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { FileText, Receipt, CreditCard } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -21,6 +22,7 @@ function formatPrice(cents: number, cycle: string) {
 }
 
 export function BillingSettingsView() {
+  const t = useTranslations("settings.billing");
   const [org, setOrg] = useState<ApiCurrentOrg | null>(null);
   const [currentPkg, setCurrentPkg] = useState<ApiPackage | null>(null);
   const [loading, setLoading] = useState(true);

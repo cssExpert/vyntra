@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -197,6 +198,7 @@ function parseMDY(s: string): Date | null {
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export function PagesView() {
+  const t = useTranslations("cms.pages");
   const router = useRouter();
   const [pages, setPages] = useState<CmsPage[]>([]);
   const [isFetching, setIsFetching] = useState(true);

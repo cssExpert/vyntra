@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   Building2,
   Eye,
@@ -21,6 +22,7 @@ import { EditCompanyModal } from "./EditCompanyModal";
 import { DomainManagementModal } from "./DomainManagementModal";
 
 function Inner() {
+  const t = useTranslations("admin.companies");
   const router = useRouter();
   const { toasts, addToast, dismiss } = useToaster();
 
@@ -45,11 +47,11 @@ function Inner() {
       setCompanies(c);
       setPackages(p);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load companies");
+      setError(e instanceof Error ? e.message : t("failedToLoad", { defaultValue: "Failed to load companies" }));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     load();
@@ -58,11 +60,11 @@ function Inner() {
   const changePlan = async (id: string, slug: string) => {
     try {
       await admin.assignPackage(id, slug);
-      addToast("Plan updated", "success");
+      addToast(t("planUpdated", { defaultValue: "Plan updated" }), "success");
       await load();
     } catch (e) {
       addToast(
-        e instanceof Error ? e.message : "Failed to change plan",
+        e instanceof Error ? e.message : t("failedChangePlan", { defaultValue: "Failed to change plan" }),
         "error",
       );
     }
@@ -71,16 +73,16 @@ function Inner() {
   const remove = async (company: AdminCompany) => {
     if (
       !confirm(
-        `Delete "${company.name}"? This permanently removes the company and all of its data.`,
+        t("deleteConfirm", { defaultValue: `Delete "${company.name}"? This permanently removes the company and all of its data.` })
       )
     )
       return;
     try {
       await admin.deleteCompany(company.id);
-      addToast(`${company.name} deleted`, "success");
+      addToast(`${company.name} ${t("deleted", { defaultValue: "deleted" })}`, "success");
       await load();
     } catch (e) {
-      addToast(e instanceof Error ? e.message : "Failed to delete", "error");
+      addToast(e instanceof Error ? e.message : t("failedDelete", { defaultValue: "Failed to delete" }), "error");
     }
   };
 
@@ -98,14 +100,14 @@ function Inner() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Companies"
-        description="Every company on the platform — their plans, usage, and administrators."
+        title={t("title")}
+        description={t("description")}
       >
         <button
           onClick={() => setAddOpen(true)}
           className="flex items-center gap-2 rounded-lg bg-foreground px-3 py-2 text-sm font-semibold text-background hover:opacity-90 transition cursor-pointer"
         >
-          <Plus className="h-4 w-4" /> Add Company
+          <Plus className="h-4 w-4" /> {t("add")}
         </button>
       </PageHeader>
 
@@ -121,7 +123,7 @@ function Inner() {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search companies…"
+          placeholder={t("search")}
           className="w-full rounded-lg border border-border bg-background py-2 pl-9 pr-3 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
         />
       </div>
@@ -130,12 +132,12 @@ function Inner() {
         <table className="w-full text-sm">
           <thead className="bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
-              <th className="px-4 py-3 font-medium">Company</th>
-              <th className="px-4 py-3 font-medium">Plan</th>
-              <th className="px-4 py-3 font-medium">Users</th>
-              <th className="px-4 py-3 font-medium">Status</th>
-              <th className="px-4 py-3 font-medium">Domains</th>
-              <th className="px-4 py-3 font-medium text-right">Actions</th>
+              <th className="px-4 py-3 font-medium">{t("company")}</th>
+              <th className="px-4 py-3 font-medium">{t("plan")}</th>
+              <th className="px-4 py-3 font-medium">{t("users")}</th>
+              <th className="px-4 py-3 font-medium">{t("status")}</th>
+              <th className="px-4 py-3 font-medium">{t("domains")}</th>
+              <th className="px-4 py-3 font-medium text-right">{t("actions")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -145,7 +147,7 @@ function Inner() {
                   colSpan={6}
                   className="px-4 py-8 text-center text-muted-foreground"
                 >
-                  Loading…
+                  {t("loading")}
                 </td>
               </tr>
             ) : filtered.length === 0 ? (
@@ -156,8 +158,8 @@ function Inner() {
                 >
                   <Building2 className="mx-auto mb-3 h-8 w-8 opacity-40" />
                   {companies.length === 0
-                    ? "No companies yet. Click “Add Company” to onboard your first one."
-                    : "No companies match your search."}
+                    ? t("noCompanies")
+                    : t("searchNoMatch")}
                 </td>
               </tr>
             ) : (
@@ -171,7 +173,6 @@ function Inner() {
                     <div className="flex items-center gap-2.5">
                       <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-primary/10 text-primary">
                         {company.logoUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
                           <img
                             src={company.logoUrl}
                             alt=""
@@ -210,7 +211,7 @@ function Inner() {
                   <td className="px-4 py-3">
                     <StatusBadge
                       variant={company.isActive ? "success" : "muted"}
-                      label={company.isActive ? "Active" : "Suspended"}
+                      label={company.isActive ? t("active", { defaultValue: "Active" }) : t("suspended", { defaultValue: "Suspended" })}
                       dot
                       size="sm"
                     />
@@ -221,7 +222,7 @@ function Inner() {
                       className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition cursor-pointer"
                     >
                       <Globe className="h-3.5 w-3.5" />
-                      Domains
+                      {t("domains")}
                     </button>
                   </td>
                   <td
@@ -234,21 +235,21 @@ function Inner() {
                           router.push(`/admin/companies/${company.id}`)
                         }
                         className="inline-flex items-center justify-center rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition cursor-pointer"
-                        aria-label="View"
+                        aria-label={t("view", { defaultValue: "View" })}
                       >
                         <Eye className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => setEditing(company)}
                         className="inline-flex items-center justify-center rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition cursor-pointer"
-                        aria-label="Edit"
+                        aria-label={t("edit", { defaultValue: "Edit" })}
                       >
                         <Pencil className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => remove(company)}
                         className="inline-flex items-center justify-center rounded-lg p-2 text-muted-foreground hover:bg-error/10 hover:text-error transition cursor-pointer"
-                        aria-label="Delete"
+                        aria-label={t("delete", { defaultValue: "Delete" })}
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -266,7 +267,7 @@ function Inner() {
         packages={packages}
         onClose={() => setAddOpen(false)}
         onCreated={(name) => {
-          addToast(`${name} created`, "success");
+          addToast(`${name} ${t("created", { defaultValue: "created" })}`, "success");
           load();
         }}
         onError={(m) => addToast(m, "error")}
@@ -278,7 +279,7 @@ function Inner() {
         onClose={() => setEditing(null)}
         onSaved={(name) => {
           setEditing(null);
-          addToast(`${name} updated`, "success");
+          addToast(`${name} ${t("updated", { defaultValue: "updated" })}`, "success");
           load();
         }}
         onError={(m) => addToast(m, "error")}

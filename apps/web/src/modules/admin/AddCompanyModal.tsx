@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useCallback, useMemo, useState } from "react";
 import {
   AlertCircle,
@@ -208,6 +209,7 @@ export function AddCompanyModal({
   onCreated,
   onError,
 }: AddCompanyModalProps) {
+  const t = useTranslations("admin.companies");
   const [step, setStep] = useState(1);
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);

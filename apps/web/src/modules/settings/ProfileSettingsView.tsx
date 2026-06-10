@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import {
   User as UserIcon,
@@ -20,6 +21,7 @@ const inputCls =
   "w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15";
 
 export function ProfileSettingsView() {
+  const t = useTranslations("settings.profile");
   const { user, organizationName, isSuperAdmin, refreshUser } = useAuth();
 
   const [name, setName] = useState("");

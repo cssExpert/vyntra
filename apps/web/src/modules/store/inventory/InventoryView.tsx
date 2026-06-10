@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
@@ -22,6 +23,7 @@ function pageWindow(current: number, total: number): (number | "…")[] {
 }
 
 export function InventoryView() {
+  const t = useTranslations("admin.store.inventory");
   const isLoaded = usePageLoad(600);
   const [search,      setSearch]      = useState("");
   const [stockFilter, setStockFilter] = useState("");
@@ -74,9 +76,9 @@ export function InventoryView() {
           className="flex flex-col gap-4"
         >
           <PageHeader
-            title="Inventory"
-            description="Monitor and manage product stock levels."
-            breadcrumbs={[{ label: "Store", href: "/store" }, { label: "Inventory" }]}
+            title={t("title", { defaultValue: "Inventory" })}
+            description={t("description", { defaultValue: "Monitor and manage product stock levels." })}
+            breadcrumbs={[{ label: t("store", { defaultValue: "Store" }), href: "/store" }, { label: t("title", { defaultValue: "Inventory" }) }]}
           />
 
           {/* Alert banners */}
@@ -85,13 +87,13 @@ export function InventoryView() {
               {outOfStock > 0 && (
                 <div className="flex items-center gap-2 rounded-sm bg-error/10 border border-error/20 px-4 py-2.5">
                   <AlertTriangle size={14} className="text-error" />
-                  <span className="text-xs font-semibold text-error">{outOfStock} product{outOfStock > 1 ? "s" : ""} out of stock</span>
+                  <span className="text-xs font-semibold text-error">{outOfStock} {t("outOfStockAlert", { defaultValue: "product(s) out of stock" })}</span>
                 </div>
               )}
               {lowStock > 0 && (
                 <div className="flex items-center gap-2 rounded-sm bg-warning/10 border border-warning/20 px-4 py-2.5">
                   <AlertTriangle size={14} className="text-warning" />
-                  <span className="text-xs font-semibold text-warning">{lowStock} product{lowStock > 1 ? "s" : ""} running low</span>
+                  <span className="text-xs font-semibold text-warning">{lowStock} {t("lowStockAlert", { defaultValue: "product(s) running low" })}</span>
                 </div>
               )}
             </div>
@@ -106,16 +108,16 @@ export function InventoryView() {
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search product, SKU…"
+                placeholder={t("searchPlaceholder", { defaultValue: "Search product, SKU…" })}
                 className="w-full pl-10 pr-4 py-2.5 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm"
               />
             </div>
             <select value={stockFilter} onChange={(e) => setStockFilter(e.target.value)} className={selectCls}>
-              <option value="">All Stock</option>
-              <option value="in_stock">In Stock</option>
-              <option value="low_stock">Low Stock</option>
-              <option value="out_of_stock">Out of Stock</option>
-              <option value="backorder">Backorder</option>
+              <option value="">{t("allStock", { defaultValue: "All Stock" })}</option>
+              <option value="in_stock">{t("inStockTab", { defaultValue: "In Stock" })}</option>
+              <option value="low_stock">{t("lowStockTab", { defaultValue: "Low Stock" })}</option>
+              <option value="out_of_stock">{t("outOfStockTab", { defaultValue: "Out of Stock" })}</option>
+              <option value="backorder">{t("backorderTab", { defaultValue: "Backorder" })}</option>
             </select>
           </div>
 
@@ -125,13 +127,13 @@ export function InventoryView() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="text-[13px] font-semibold text-muted-foreground">
-                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">Product / SKU</th>
-                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">Type</th>
-                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">Stock</th>
-                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">Threshold</th>
-                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">Status</th>
-                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">Backorder</th>
-                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">Last Updated</th>
+                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("productSKUHeader", { defaultValue: "Product / SKU" })}</th>
+                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("typeHeader", { defaultValue: "Type" })}</th>
+                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("stockHeader", { defaultValue: "Stock" })}</th>
+                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("thresholdHeader", { defaultValue: "Threshold" })}</th>
+                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("statusHeader", { defaultValue: "Status" })}</th>
+                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("backorderHeader", { defaultValue: "Backorder" })}</th>
+                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("lastUpdatedHeader", { defaultValue: "Last Updated" })}</th>
                   <th className="sticky top-0 bg-muted border-b border-border py-4 px-4 text-right" />
                 </tr>
               </thead>
@@ -166,13 +168,13 @@ export function InventoryView() {
                         <StatusBadge variant={badge.variant} label={badge.label} size="sm" dot />
                       </td>
                       <td className="py-4 px-4">
-                        <StatusBadge variant={item.backorderEnabled ? "info" : "muted"} label={item.backorderEnabled ? "Enabled" : "Disabled"} size="sm" />
+                        <StatusBadge variant={item.backorderEnabled ? "info" : "muted"} label={item.backorderEnabled ? t("enabled", { defaultValue: "Enabled" }) : t("disabled", { defaultValue: "Disabled" })} size="sm" />
                       </td>
                       <td className="py-4 px-4 text-xs text-muted-foreground">{item.lastUpdated}</td>
                       <td className="py-4 px-4 text-right">
                         <TableActionMenu
                           items={[
-                            { label: "Edit Stock",  icon: <Pencil size={14} />,  onClick: () => {} },
+                            { label: t("editStock", { defaultValue: "Edit Stock" }),  icon: <Pencil size={14} />,  onClick: () => {} },
                           ]}
                         />
                       </td>
@@ -184,22 +186,22 @@ export function InventoryView() {
             </div>
             <div className="px-6 py-4 border-t border-border bg-muted/30 flex items-center justify-between gap-4 flex-wrap text-sm">
               <div className="flex items-center gap-2 text-muted-foreground">
-                <span>Show</span>
+                <span>{t("show", { defaultValue: "Show" })}</span>
                 <select value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setPageIndex(0); }} className="px-2 py-1.5 bg-background border border-border rounded-sm text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 cursor-pointer">
                   {[10, 25, 50, 100].map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
-                <span>entries</span>
+                <span>{t("entries", { defaultValue: "entries" })}</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-muted-foreground">Showing {fromEntry} to {toEntry} of {filteredCount} entries</span>
+                <span className="text-muted-foreground">{t("showing", { defaultValue: "Showing" })} {fromEntry} {t("to", { defaultValue: "to" })} {toEntry} {t("of", { defaultValue: "of" })} {filteredCount} {t("entries", { defaultValue: "entries" })}</span>
                 <div className="flex items-center gap-1">
-                  <button onClick={() => setPageIndex((p) => Math.max(0, p - 1))} disabled={pageIndex === 0} className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer">← Previous</button>
+                  <button onClick={() => setPageIndex((p) => Math.max(0, p - 1))} disabled={pageIndex === 0} className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer">← {t("previous", { defaultValue: "Previous" })}</button>
                   {pageWindow(pageIndex, pageCount).map((p, idx) =>
                     p === "…" ? <span key={`e-${idx}`} className="w-8 text-center text-muted-foreground">…</span> : (
                       <button key={p} onClick={() => setPageIndex(p as number)} className={`w-8 h-8 text-sm font-semibold rounded-sm transition-all cursor-pointer ${pageIndex === p ? "bg-primary text-primary-foreground" : "border border-border text-muted-foreground hover:bg-muted hover:text-foreground"}`}>{(p as number) + 1}</button>
                     )
                   )}
-                  <button onClick={() => setPageIndex((p) => Math.min(pageCount - 1, p + 1))} disabled={pageIndex >= pageCount - 1} className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer">Next →</button>
+                  <button onClick={() => setPageIndex((p) => Math.min(pageCount - 1, p + 1))} disabled={pageIndex >= pageCount - 1} className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer">{t("next", { defaultValue: "Next" })} →</button>
                 </div>
               </div>
             </div>

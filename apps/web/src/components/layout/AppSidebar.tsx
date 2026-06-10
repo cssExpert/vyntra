@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {

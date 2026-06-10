@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
@@ -21,6 +22,7 @@ import { GalleryTable } from "./gallery/GalleryTable";
 import { GalleryCreateModal } from "./gallery/GalleryCreateModal";
 
 export function GalleryView() {
+  const t = useTranslations("cms.gallery");
   const router = useRouter();
 
   // Load from localStorage on first render, fall back to INITIAL_GALLERIES

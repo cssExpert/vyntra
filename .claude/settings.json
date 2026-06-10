@@ -8,7 +8,8 @@
       "Bash(/Applications/Docker.app/Contents/Resources/bin/docker ps *)",
       "Bash(pnpm -r --parallel dev)",
       "Bash(curl -s http://localhost:3001/api/auth/me)",
-      "Bash(curl -X POST http://localhost:3001/api/admin/settings/storage/test -H 'Content-Type: application/json' -d '{ *)"
+      "Bash(curl -X POST http://localhost:3001/api/admin/settings/storage/test -H 'Content-Type: application/json' -d '{ *)",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('apps/web/src/i18n/messages/en.json'\\)\\)\")"
     ]
   }
 }

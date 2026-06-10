@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useMemo, useEffect } from "react";
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -69,9 +70,9 @@ const SEGMENT_BADGE: Record<string, { variant: "success" | "warning" | "error" |
   inactive: { variant: "muted",   label: "Inactive" },
 };
 
-const COLUMNS = [
+const getColumns = (t: any) => [
   columnHelper.accessor("name", {
-    header: "Customer",
+    header: () => t("customerHeader", { defaultValue: "Customer" }),
     size: 220,
     cell: ({ row }) => {
       const c = row.original;
@@ -94,28 +95,28 @@ const COLUMNS = [
     },
   }),
   columnHelper.accessor("totalOrders", {
-    header: "Orders",
+    header: () => t("ordersHeader", { defaultValue: "Orders" }),
     size: 90,
     cell: ({ getValue }) => (
       <span className="font-semibold text-foreground tabular-nums">{getValue()}</span>
     ),
   }),
   columnHelper.accessor("totalSpent", {
-    header: "Total Spent",
+    header: () => t("totalSpent", { defaultValue: "Total Spent" }),
     size: 120,
     cell: ({ getValue }) => (
       <span className="font-bold text-success tabular-nums">{formatCurrency(getValue())}</span>
     ),
   }),
   columnHelper.accessor("averageOrderValue", {
-    header: "AOV",
+    header: () => t("aov", { defaultValue: "AOV" }),
     size: 100,
     cell: ({ getValue }) => (
       <span className="text-xs text-foreground tabular-nums">{formatCurrency(getValue())}</span>
     ),
   }),
   columnHelper.accessor("rewardPoints", {
-    header: "Points",
+    header: () => t("points", { defaultValue: "Points" }),
     size: 90,
     cell: ({ getValue }) => (
       <div className="flex items-center gap-1">
@@ -125,7 +126,7 @@ const COLUMNS = [
     ),
   }),
   columnHelper.accessor("storeCredit", {
-    header: "Credit",
+    header: () => t("credit", { defaultValue: "Credit" }),
     size: 90,
     cell: ({ getValue }) => {
       const v = getValue();
@@ -135,7 +136,7 @@ const COLUMNS = [
     },
   }),
   columnHelper.accessor("segment", {
-    header: "Segment",
+    header: () => t("segment", { defaultValue: "Segment" }),
     size: 100,
     cell: ({ getValue }) => {
       const seg = getValue();
@@ -145,7 +146,7 @@ const COLUMNS = [
     },
   }),
   columnHelper.accessor("lastOrderDate", {
-    header: "Last Order",
+    header: () => t("lastOrder", { defaultValue: "Last Order" }),
     size: 110,
     cell: ({ getValue }) => (
       <span className="text-xs text-muted-foreground tabular-nums">{getValue() ?? "—"}</span>
@@ -159,17 +160,18 @@ const COLUMNS = [
     cell: ({ row }) => (
       <TableActionMenu
         items={[
-          { label: "View Profile", icon: <Eye size={14} />,    onClick: () => {} },
-          { label: "Send Email",   icon: <Mail size={14} />,   onClick: () => {} },
-          { label: "Edit",         icon: <Pencil size={14} />, onClick: () => {} },
-          { label: "Delete",       icon: <Trash2 size={14} />, onClick: () => {}, variant: "danger", separator: true },
+          { label: t("viewProfile", { defaultValue: "View Profile" }), icon: <Eye size={14} />,    onClick: () => {} },
+          { label: t("sendEmail", { defaultValue: "Send Email" }),   icon: <Mail size={14} />,   onClick: () => {} },
+          { label: t("edit", { defaultValue: "Edit" }),         icon: <Pencil size={14} />, onClick: () => {} },
+          { label: t("delete", { defaultValue: "Delete" }),       icon: <Trash2 size={14} />, onClick: () => {}, variant: "danger", separator: true },
         ]}
       />
     ),
   }),
 ];
 
-export function CustomersView() {
+function Inner() {
+  const t = useTranslations("admin.store.customers");
   const isLoaded = usePageLoad(700);
   const [search,  setSearch]  = useState("");
   const [segment, setSegment] = useState("");
@@ -194,7 +196,7 @@ export function CustomersView() {
 
   const table = useReactTable({
     data: filtered,
-    columns: COLUMNS,
+    columns: getColumns(t),
     state: { sorting, columnPinning, pagination },
     onSortingChange: setSorting,
     onPaginationChange: setPagination,
@@ -228,23 +230,23 @@ export function CustomersView() {
           className="flex flex-col gap-4"
         >
           <PageHeader
-            title="Customers"
-            description={`${SAMPLE_CUSTOMERS.length} customers · ${vipCount} VIP · $${totalSpent.toFixed(0)} lifetime value`}
-            breadcrumbs={[{ label: "Store", href: "/store" }, { label: "Customers" }]}
+            title={t("title", { defaultValue: "Customers" })}
+            description={`${SAMPLE_CUSTOMERS.length} ${t("totalCustomers", { defaultValue: "customers" }).toLowerCase()} · ${vipCount} ${t("vip")} · $${totalSpent.toFixed(0)} ${t("lifetimeValue", { defaultValue: "lifetime value" }).toLowerCase()}`}
+            breadcrumbs={[{ label: t("store", { defaultValue: "Store" }), href: "/store" }, { label: t("title", { defaultValue: "Customers" }) }]}
           >
             <button className="flex items-center gap-2 rounded-sm border border-border px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer">
               <Download className="h-3.5 w-3.5" />
-              Export
+              {t("export", { defaultValue: "Export" })}
             </button>
           </PageHeader>
 
           {/* Quick stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: "Total",    value: SAMPLE_CUSTOMERS.length,                              color: "text-foreground" },
-              { label: "VIP",      value: vipCount,                                              color: "text-warning" },
-              { label: "New",      value: SAMPLE_CUSTOMERS.filter((c) => c.segment === "new").length, color: "text-info" },
-              { label: "At Risk",  value: SAMPLE_CUSTOMERS.filter((c) => c.segment === "at_risk").length, color: "text-error" },
+              { label: t("totalCustomers", { defaultValue: "Total" }),    value: SAMPLE_CUSTOMERS.length,                              color: "text-foreground" },
+              { label: t("vip"),      value: vipCount,                                              color: "text-warning" },
+              { label: t("new", { defaultValue: "New" }),      value: SAMPLE_CUSTOMERS.filter((c) => c.segment === "new").length, color: "text-info" },
+              { label: t("atRisk", { defaultValue: "At Risk" }),  value: SAMPLE_CUSTOMERS.filter((c) => c.segment === "at_risk").length, color: "text-error" },
             ].map((s) => (
               <div key={s.label} className="glass-card p-3 flex items-center gap-3">
                 <Users size={16} className={s.color} />
@@ -265,7 +267,7 @@ export function CustomersView() {
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search customers…"
+                placeholder={t("searchPlaceholder", { defaultValue: "Search customers…" })}
                 className="w-full pl-10 pr-4 py-2.5 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm"
               />
               {search && (
@@ -279,12 +281,12 @@ export function CustomersView() {
               onChange={(e) => setSegment(e.target.value)}
               className="rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all cursor-pointer"
             >
-              <option value="">All Segments</option>
-              <option value="new">New</option>
-              <option value="regular">Regular</option>
-              <option value="vip">VIP</option>
-              <option value="at_risk">At Risk</option>
-              <option value="inactive">Inactive</option>
+              <option value="">{t("allSegments", { defaultValue: "All Segments" })}</option>
+              <option value="new">{t("new", { defaultValue: "New" })}</option>
+              <option value="regular">{t("regular", { defaultValue: "Regular" })}</option>
+              <option value="vip">{t("vip", { defaultValue: "VIP" })}</option>
+              <option value="at_risk">{t("atRisk", { defaultValue: "At Risk" })}</option>
+              <option value="inactive">{t("inactive", { defaultValue: "Inactive" })}</option>
             </select>
           </div>
 
@@ -352,22 +354,22 @@ export function CustomersView() {
             </div>
             <div className="px-6 py-4 border-t border-border bg-muted/30 flex items-center justify-between gap-4 flex-wrap text-sm">
               <div className="flex items-center gap-2 text-muted-foreground">
-                <span>Show</span>
+                <span>{t("show", { defaultValue: "Show" })}</span>
                 <select value={pageSize} onChange={(e) => table.setPageSize(Number(e.target.value))} className="px-2 py-1.5 bg-background border border-border rounded-sm text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 cursor-pointer">
                   {[10, 25, 50, 100].map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
-                <span>entries</span>
+                <span>{t("entries", { defaultValue: "entries" })}</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-muted-foreground">Showing {fromEntry} to {toEntry} of {filteredCount} entries</span>
+                <span className="text-muted-foreground">{t("showing", { defaultValue: "Showing" })} {fromEntry} {t("to", { defaultValue: "to" })} {toEntry} {t("of", { defaultValue: "of" })} {filteredCount} {t("entries", { defaultValue: "entries" })}</span>
                 <div className="flex items-center gap-1">
-                  <button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()} className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer">← Previous</button>
+                  <button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()} className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer">← {t("previous", { defaultValue: "Previous" })}</button>
                   {pageWindow(pageIndex, pageCount).map((p, idx) =>
                     p === "…" ? <span key={`e-${idx}`} className="w-8 text-center text-muted-foreground">…</span> : (
                       <button key={p} onClick={() => table.setPageIndex(p)} className={`w-8 h-8 text-sm font-semibold rounded-sm transition-all cursor-pointer ${pageIndex === p ? "bg-primary text-primary-foreground" : "border border-border text-muted-foreground hover:bg-muted hover:text-foreground"}`}>{(p as number) + 1}</button>
                     )
                   )}
-                  <button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()} className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer">Next →</button>
+                  <button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()} className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer">{t("next", { defaultValue: "Next" })} →</button>
                 </div>
               </div>
             </div>
@@ -376,4 +378,8 @@ export function CustomersView() {
       )}
     </AnimatePresence>
   );
+}
+
+export function CustomersView() {
+  return <Inner />;
 }

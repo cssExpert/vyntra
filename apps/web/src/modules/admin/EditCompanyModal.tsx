@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { Pencil } from "lucide-react";
 import { Modal } from "@/components/common/Modal";
@@ -27,6 +28,7 @@ export function EditCompanyModal({
   onSaved,
   onError,
 }: EditCompanyModalProps) {
+  const t = useTranslations("admin.companies");
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState<UpdateCompanyPayload>({});
 

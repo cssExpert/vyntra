@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
@@ -18,13 +19,13 @@ import { MotionTabs, type MotionTabItem } from "@/components/ui/MotionTabs";
 
 type TabId = "general" | "payment" | "shipping" | "tax" | "notifications" | "ai";
 
-const TABS: MotionTabItem<TabId>[] = [
-  { id: "general",       label: "General",          icon: Store },
-  { id: "payment",       label: "Payment",           icon: CreditCard },
-  { id: "shipping",      label: "Shipping",          icon: Truck },
-  { id: "tax",           label: "Tax",               icon: DollarSign },
-  { id: "notifications", label: "Notifications",     icon: Bell },
-  { id: "ai",            label: "AI & Integrations", icon: Cpu },
+const getTabs = (t: any): MotionTabItem<TabId>[] => [
+  { id: "general",       label: t("generalTab", { defaultValue: "General" }),          icon: Store },
+  { id: "payment",       label: t("paymentTab", { defaultValue: "Payment" }),           icon: CreditCard },
+  { id: "shipping",      label: t("shippingTab", { defaultValue: "Shipping" }),          icon: Truck },
+  { id: "tax",           label: t("taxTab", { defaultValue: "Tax" }),               icon: DollarSign },
+  { id: "notifications", label: t("notificationsTab", { defaultValue: "Notifications" }),     icon: Bell },
+  { id: "ai",            label: t("aiIntegrationsTab", { defaultValue: "AI & Integrations" }), icon: Cpu },
 ];
 
 const inputCls =
@@ -105,6 +106,7 @@ function Toggle({
 }
 
 export function StoreSettingsView() {
+  const t = useTranslations("admin.store.settings");
   const isLoaded = usePageLoad(500);
   const [activeTab, setActiveTab] = useState<TabId>("general");
 
@@ -124,11 +126,11 @@ export function StoreSettingsView() {
           className="flex flex-col gap-4"
         >
           <PageHeader
-            title="Store Settings"
-            description="Configure your store's general settings, payments, shipping, and more."
+            title={t("title", { defaultValue: "Store Settings" })}
+            description={t("storeDescription", { defaultValue: "Configure your store's general settings, payments, shipping, and more." })}
             breadcrumbs={[
-              { label: "Store", href: "/store" },
-              { label: "Settings" },
+              { label: t("store", { defaultValue: "Store" }), href: "/store" },
+              { label: t("settings", { defaultValue: "Settings" }) },
             ]}
           >
             <button
@@ -137,16 +139,16 @@ export function StoreSettingsView() {
               }}
               className="rounded-sm border border-border bg-transparent px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer"
             >
-              Cancel
+              {t("cancel", { defaultValue: "Cancel" })}
             </button>
             <button className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer">
               <Save className="h-3.5 w-3.5" />
-              Save Changes
+              {t("saveChanges", { defaultValue: "Save Changes" })}
             </button>
           </PageHeader>
 
           <MotionTabs
-            tabs={TABS}
+            tabs={getTabs(t)}
             active={activeTab}
             onChange={setActiveTab}
             layoutId="store-settings-tab"

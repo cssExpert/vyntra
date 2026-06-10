@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Palette, Search, Grid, List, X, Sliders, CheckCircle2, Eye, Tag, MoreVertical, Trash2, ExternalLink, Info } from "lucide-react";
@@ -552,6 +553,7 @@ function ThemeTableRow({
 // ── Main View ─────────────────────────────────────────────────────────────────
 
 export function ThemesView() {
+  const t = useTranslations("cms.themes");
   const { previewUrl, ready: siteReady } = useSitePreviewUrl();
 
   function buildPreviewUrl(themeId: string): string | null {
