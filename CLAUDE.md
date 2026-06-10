@@ -30,6 +30,8 @@
 - [Rule 1 — be specific]
 - [Rule 2 - make change what is prompted for ]
 - [Rule 3 - always follow the folder/file structure and use the already available components ]
+- [Rule 4 - always follow the Font Sizes used in modules, keep the heading in ascending order like h1, h2 etc ]
+- [Rule 5 - Use the @tanstack/react-table when asked for table ]
 
 ## Rules - Core
 - ALWAYS run tests after changes
