@@ -16,8 +16,8 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Register static file serving for uploads directory AFTER cors but BEFORE global prefix
-  app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads'), {
+  // Register static file serving for media assets AFTER cors but BEFORE global prefix
+  app.use('/medias', express.static(path.join(process.cwd(), 'public', 'medias'), {
     etag: false,
     maxAge: 0,
   }));

@@ -118,6 +118,7 @@ model Organization {
   pages          Page[]
   blogs          Blog[]
   blogCategories BlogCategory[]
+  blogTags       BlogTag[]
   comments       Comment[]
   media          Media[]
   websiteConfigs WebsiteConfig[]
@@ -364,6 +365,21 @@ model BlogCategory {
   @@map("blog_categories")
 }
 
+model BlogTag {
+  id             String   @id @default(cuid())
+  name           String
+  slug           String
+  organizationId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+  @@map("blog_tags")
+}
+
 model Comment {
   id             String        @id @default(cuid())
   body           String
@@ -398,13 +414,18 @@ model Media {
   fileName       String
   fileType       String
   size           Int?
-  category       String?
+  module         String   @default("cms")
+  subtype        String?
+  provider       String   @default("local")
+  uploadedById   String?
   organizationId String
   createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([organizationId])
+  @@index([organizationId, module])
   @@map("media")
 }
 

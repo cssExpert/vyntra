@@ -31,6 +31,26 @@ export class OrganizationsService {
     });
   }
 
+  async getMembers(organizationId: string | null) {
+    if (!organizationId) return [];
+    const users = await this.prisma.user.findMany({
+      where: { organizationId, isActive: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        roles: { select: { role: true }, take: 1 },
+      },
+      orderBy: { name: 'asc' },
+    });
+    return users.map((u) => ({
+      id: u.id,
+      name: u.name || u.email,
+      email: u.email,
+      role: u.roles[0]?.role ?? 'MEMBER',
+    }));
+  }
+
   /**
    * Full company detail for the super-admin "View Company" page:
    * profile, members (with roles), subscription + package, and the package's

@@ -1,4 +1,4 @@
-export type BlogStatus = "Public" | "Draft" | "Private";
+export type BlogStatus = "Public" | "Draft" | "Scheduled" | "Private";
 
 export interface CmsBlog {
   id: string;

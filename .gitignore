@@ -41,3 +41,6 @@ next-env.d.ts
 
 # lockfile
 pnpm-lock.yaml
+
+# uploaded media assets (local storage)
+apps/api/public/medias/

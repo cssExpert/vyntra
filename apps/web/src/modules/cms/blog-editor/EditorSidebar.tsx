@@ -3,17 +3,44 @@
 import React from "react";
 import { Sparkles } from "lucide-react";
 import { EditorCard } from "./fields";
-import { AUTHOR_PROFILES, stripHtml, type BlogFormState } from "./types";
+import { stripHtml, type AuthorProfile, type BlogFormState } from "./types";
+
+const AVATAR_COLORS = [
+  "bg-blue-500", "bg-violet-500", "bg-emerald-500",
+  "bg-rose-500", "bg-amber-500", "bg-cyan-500", "bg-pink-500",
+];
+function avatarColor(id: string) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) & 0xffffffff;
+  return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
+}
+function authorInitials(name: string) {
+  const p = name.trim().split(/\s+/);
+  return ((p[0]?.[0] ?? "") + (p[1]?.[0] ?? "")).toUpperCase() || name.slice(0, 2).toUpperCase();
+}
 
 export interface EditorSidebarProps {
   form: BlogFormState;
   seoScore: number;
+  availableAuthors: AuthorProfile[];
   onInspect: () => void;
+  patch: (partial: Partial<BlogFormState>) => void;
+  readTimeManuallyEdited: boolean;
+  onReadTimeManualEdit: () => void;
+  onReadTimeAutoReset: () => void;
 }
 
-export function EditorSidebar({ form, seoScore, onInspect }: EditorSidebarProps) {
-  const author =
-    AUTHOR_PROFILES.find((a) => a.id === form.author) ?? AUTHOR_PROFILES[0];
+export function EditorSidebar({
+  form,
+  seoScore,
+  availableAuthors,
+  onInspect,
+  patch,
+  readTimeManuallyEdited,
+  onReadTimeManualEdit,
+  onReadTimeAutoReset,
+}: EditorSidebarProps) {
+  const author = availableAuthors.find((a) => a.id === form.author) ?? availableAuthors[0];
   const plainText = stripHtml(form.content);
   const wordCount = plainText ? plainText.split(/\s+/).filter(Boolean).length : 0;
   const circumference = 150;
@@ -76,29 +103,57 @@ export function EditorSidebar({ form, seoScore, onInspect }: EditorSidebarProps)
             </span>
           </div>
           <div className="p-3 rounded-xl bg-muted/50 border border-border">
-            <span className="text-lg font-bold block text-primary">
-              {form.readTime} min
-            </span>
-            <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-bold">
-              Est. Read Time
-            </span>
+            <div className="flex items-center justify-center gap-0.5">
+              <input
+                type="number"
+                min={1}
+                max={999}
+                value={form.readTime}
+                onChange={(e) => {
+                  const v = Math.max(1, parseInt(e.target.value) || 1);
+                  patch({ readTime: v });
+                  onReadTimeManualEdit();
+                }}
+                className="text-lg font-bold text-primary bg-transparent w-9 text-center outline-none border-none p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                title="Click to override read time"
+              />
+              <span className="text-sm font-bold text-primary">min</span>
+            </div>
+            <div className="flex items-center justify-center gap-1.5 mt-0.5">
+              <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-bold">
+                Est. Read Time
+              </span>
+              {readTimeManuallyEdited && (
+                <button
+                  type="button"
+                  onClick={onReadTimeAutoReset}
+                  title="Reset to auto-calculated value"
+                  className="text-[8px] font-bold text-primary hover:underline leading-none"
+                >
+                  ↺ Auto
+                </button>
+              )}
+            </div>
           </div>
         </div>
         <div className="p-3 rounded-xl bg-muted/50 border border-border flex items-center gap-2.5">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={author.avatar}
-            alt={author.name}
-            className="w-8 h-8 rounded-full object-cover"
-          />
-          <div>
-            <span className="text-[9px] uppercase tracking-widest text-muted-foreground block font-bold">
-              Assigned Publisher
-            </span>
-            <span className="text-xs font-bold block text-foreground">
-              {author.name}
-            </span>
-          </div>
+          {author ? (
+            <>
+              <span className={`w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0 ${avatarColor(author.id)}`}>
+                {authorInitials(author.name)}
+              </span>
+              <div>
+                <span className="text-[9px] uppercase tracking-widest text-muted-foreground block font-bold">
+                  Assigned Publisher
+                </span>
+                <span className="text-xs font-bold block text-foreground">
+                  {author.name}
+                </span>
+              </div>
+            </>
+          ) : (
+            <span className="text-[10px] text-muted-foreground">Loading author…</span>
+          )}
         </div>
       </EditorCard>
 

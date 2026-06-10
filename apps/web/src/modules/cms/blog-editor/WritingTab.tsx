@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { EditorCard, FieldLabel, inputClass } from "./fields";
 import { CoverImagePicker } from "./CoverImagePicker";
 import { RichTextEditor } from "./RichTextEditor";
-import type { BlogFormState } from "./types";
+import { stripHtml, type BlogFormState } from "./types";
 
 export interface WritingTabProps {
   form: BlogFormState;
@@ -27,6 +27,11 @@ export function WritingTab({
   onNext,
   onToast,
 }: WritingTabProps) {
+  const wordCount = React.useMemo(() => {
+    const plain = stripHtml(form.content);
+    return plain ? plain.split(/\s+/).filter(Boolean).length : 0;
+  }, [form.content]);
+
   return (
     <EditorCard className="space-y-5">
       {/* Title */}
@@ -91,6 +96,7 @@ export function WritingTab({
       <CoverImagePicker
         value={form.coverImage}
         onChange={(coverImage) => patch({ coverImage })}
+        subtype="blogs"
         onToast={onToast}
       />
 
@@ -99,6 +105,25 @@ export function WritingTab({
         value={form.content}
         onChange={(content) => patch({ content })}
       />
+
+      {/* Live writing stats */}
+      <div className="flex items-center gap-3 px-1 -mt-1 text-[10px] text-muted-foreground font-medium select-none">
+        <span>
+          <span className="font-bold text-foreground">{wordCount.toLocaleString()}</span> words
+        </span>
+        <span className="text-border">·</span>
+        <span>
+          <span className="font-bold text-foreground">{form.readTime}</span> min read
+        </span>
+        {wordCount > 0 && (
+          <>
+            <span className="text-border">·</span>
+            <span>
+              <span className="font-bold text-foreground">{Math.round(wordCount * 5.1).toLocaleString()}</span> chars
+            </span>
+          </>
+        )}
+      </div>
 
       <div className="flex justify-end pt-2">
         <button

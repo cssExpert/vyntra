@@ -32,6 +32,12 @@ export class CmsController {
   }
 
   @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Get('dashboard')
+  getDashboardStats(@CurrentOrg() orgId: string | null) {
+    return this.cmsService.getDashboardStats(requireOrg(orgId));
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
   @Get('blogs')
   listBlogs(@CurrentOrg() orgId: string | null) {
     return this.cmsService.listBlogs(requireOrg(orgId));
@@ -111,6 +117,29 @@ export class CmsController {
   @Delete('blog-categories/:id')
   deleteBlogCategory(@CurrentOrg() orgId: string | null, @Param('id') id: string) {
     return this.cmsService.deleteBlogCategory(requireOrg(orgId), id);
+  }
+
+  // ── Blog Tags ─────────────────────────────────────────────────────────────
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Get('blog-tags')
+  listBlogTags(@CurrentOrg() orgId: string | null) {
+    return this.cmsService.listBlogTags(requireOrg(orgId));
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Post('blog-tags')
+  findOrCreateBlogTag(
+    @CurrentOrg() orgId: string | null,
+    @Body() body: { name: string },
+  ) {
+    return this.cmsService.findOrCreateBlogTag(requireOrg(orgId), body.name);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Delete('blog-tags/:id')
+  deleteBlogTag(@CurrentOrg() orgId: string | null, @Param('id') id: string) {
+    return this.cmsService.deleteBlogTag(requireOrg(orgId), id);
   }
 
   @Roles(Role.ORG_ADMIN, Role.EDITOR)

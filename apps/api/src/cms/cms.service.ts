@@ -82,6 +82,80 @@ export class CmsService {
     });
   }
 
+  async getDashboardStats(orgId: string) {
+    const now = new Date();
+
+    const [blogs, categories, tags, pages, media] = await Promise.all([
+      this.prisma.blog.findMany({
+        where: { organizationId: orgId },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          published: true,
+          publishedAt: true,
+          isFeatured: true,
+          coverImage: true,
+          category: true,
+          author: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.blogCategory.count({ where: { organizationId: orgId } }),
+      this.prisma.blogTag.count({ where: { organizationId: orgId } }),
+      this.prisma.page.findMany({
+        where: { organizationId: orgId },
+        select: { published: true },
+      }),
+      this.prisma.media.count({ where: { organizationId: orgId } }),
+    ]);
+
+    const published = blogs.filter((b) => b.published).length;
+    const scheduled = blogs.filter(
+      (b) => !b.published && b.publishedAt && new Date(b.publishedAt) > now,
+    ).length;
+    const drafts = blogs.length - published - scheduled;
+    const featured = blogs.filter((b) => b.isFeatured).length;
+
+    // Category distribution from blog.category field (comma-separated)
+    const catCount: Record<string, number> = {};
+    for (const blog of blogs) {
+      if (!blog.category) continue;
+      for (const cat of blog.category.split(',').map((c: string) => c.trim()).filter(Boolean)) {
+        catCount[cat] = (catCount[cat] ?? 0) + 1;
+      }
+    }
+    const topCategories = Object.entries(catCount)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([name, count]) => ({ name, count }));
+
+    return {
+      totalBlogs: blogs.length,
+      published,
+      drafts,
+      scheduled,
+      featured,
+      totalCategories: categories,
+      totalTags: tags,
+      totalPages: pages.length,
+      publishedPages: pages.filter((p) => p.published).length,
+      totalMedia: media,
+      recentBlogs: blogs.slice(0, 6).map((b) => ({
+        id: b.id,
+        title: b.title,
+        slug: b.slug,
+        published: b.published,
+        publishedAt: b.publishedAt,
+        coverImage: b.coverImage,
+        author: b.author,
+        createdAt: b.createdAt,
+      })),
+      topCategories,
+    };
+  }
+
   async getBlog(orgId: string, id: string) {
     const blog = await this.prisma.blog.findFirst({
       where: { id, organizationId: orgId },
@@ -112,7 +186,9 @@ export class CmsService {
         metaDesc: dto.metaDesc,
         keywords: dto.keywords,
         published: dto.published ?? false,
-        publishedAt: dto.published ? (dto.publishedAt ? new Date(dto.publishedAt) : new Date()) : null,
+        publishedAt: dto.published
+          ? (dto.publishedAt ? new Date(dto.publishedAt) : new Date())
+          : (dto.publishedAt ? new Date(dto.publishedAt) : null),
         visibility: dto.visibility ?? 'public',
         allowComments: dto.allowComments ?? true,
         isFeatured: dto.isFeatured ?? false,
@@ -150,10 +226,11 @@ export class CmsService {
         ...(dto.metaDesc !== undefined && { metaDesc: dto.metaDesc }),
         ...(dto.keywords !== undefined && { keywords: dto.keywords }),
         ...(dto.published !== undefined && { published: dto.published }),
-        ...(dto.published === true
-          ? { publishedAt: dto.publishedAt ? new Date(dto.publishedAt) : (blog.publishedAt ?? new Date()) }
-          : {}),
-        ...(dto.published === false ? { publishedAt: null } : {}),
+        ...(dto.publishedAt !== undefined
+          ? { publishedAt: dto.publishedAt ? new Date(dto.publishedAt) : null }
+          : dto.published === true && !blog.publishedAt
+            ? { publishedAt: new Date() }
+            : {}),
         ...(dto.visibility !== undefined && { visibility: dto.visibility }),
         ...(dto.allowComments !== undefined && { allowComments: dto.allowComments }),
         ...(dto.isFeatured !== undefined && { isFeatured: dto.isFeatured }),
@@ -206,6 +283,33 @@ export class CmsService {
     const cat = await this.prisma.blogCategory.findFirst({ where: { id, organizationId: orgId } });
     if (!cat) throw new NotFoundException('Category not found');
     await this.prisma.blogCategory.delete({ where: { id } });
+    return { ok: true };
+  }
+
+  // ── Blog Tags ────────────────────────────────────────────────────────────────
+
+  async listBlogTags(orgId: string) {
+    return this.prisma.blogTag.findMany({
+      where: { organizationId: orgId },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  async findOrCreateBlogTag(orgId: string, name: string) {
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const existing = await this.prisma.blogTag.findFirst({
+      where: { organizationId: orgId, slug },
+    });
+    if (existing) return existing;
+    return this.prisma.blogTag.create({
+      data: { name, slug, organizationId: orgId },
+    });
+  }
+
+  async deleteBlogTag(orgId: string, id: string) {
+    const tag = await this.prisma.blogTag.findFirst({ where: { id, organizationId: orgId } });
+    if (!tag) throw new NotFoundException('Tag not found');
+    await this.prisma.blogTag.delete({ where: { id } });
     return { ok: true };
   }
 

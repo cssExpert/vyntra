@@ -1,12 +1,12 @@
 "use client";
 
 import React from "react";
-import { Settings, ArrowLeft, Check, CheckCircle } from "lucide-react";
+import { Settings, ArrowLeft, Check, CheckCircle, FileText, Clock, Globe, Lock, Users } from "lucide-react";
 import { EditorCard, FieldLabel } from "./fields";
 import { DatePickerField } from "@/components/common/DatePickerField";
 import { TimePickerField } from "@/components/common/TimePickerField";
 import {
-  AUTHOR_PROFILES,
+  type AuthorProfile,
   type BlogEditorStatus,
   type BlogFormState,
   type BlogVisibility,
@@ -15,20 +15,70 @@ import {
 export interface PublishTabProps {
   form: BlogFormState;
   patch: (partial: Partial<BlogFormState>) => void;
+  availableAuthors: AuthorProfile[];
   onBack: () => void;
   onPublish: () => void;
 }
 
-const STATUSES: { id: BlogEditorStatus; label: string }[] = [
-  { id: "draft", label: "Draft" },
-  { id: "scheduled", label: "Schedule" },
-  { id: "published", label: "Public" },
+function authorInitials(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase() || name.slice(0, 2).toUpperCase();
+}
+
+const AVATAR_COLORS = [
+  "bg-blue-500", "bg-violet-500", "bg-emerald-500",
+  "bg-rose-500", "bg-amber-500", "bg-cyan-500", "bg-pink-500",
 ];
 
-const VISIBILITY: { id: BlogVisibility; title: string; desc: string }[] = [
-  { id: "public", title: "Open Access", desc: "Indexed by crawlers and visible to everyone." },
-  { id: "private", title: "Private / Admins Only", desc: "Accessible only by internal team credentials." },
-  { id: "members", title: "Members Restricted", desc: "Requires active community account verification." },
+function avatarColor(id: string): string {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) & 0xffffffff;
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+
+const STATUSES: { id: BlogEditorStatus; label: string; desc: string; icon: React.ElementType; activeClass: string }[] = [
+  {
+    id: "draft",
+    label: "Draft",
+    desc: "Save privately. Not visible to readers.",
+    icon: FileText,
+    activeClass: "border-amber-500 bg-amber-500/10 text-amber-600",
+  },
+  {
+    id: "scheduled",
+    label: "Schedule",
+    desc: "Auto-publish at a chosen date & time.",
+    icon: Clock,
+    activeClass: "border-blue-500 bg-blue-500/10 text-blue-600",
+  },
+  {
+    id: "published",
+    label: "Publish",
+    desc: "Live now. Visible to your audience.",
+    icon: Globe,
+    activeClass: "border-emerald-500 bg-emerald-500/10 text-emerald-600",
+  },
+];
+
+const VISIBILITY: { id: BlogVisibility; title: string; desc: string; icon: React.ElementType }[] = [
+  {
+    id: "public",
+    title: "Open Access",
+    desc: "Indexed by crawlers and visible to everyone.",
+    icon: Globe,
+  },
+  {
+    id: "private",
+    title: "Private / Admins Only",
+    desc: "Accessible only by internal team credentials.",
+    icon: Lock,
+  },
+  {
+    id: "members",
+    title: "Members Restricted",
+    desc: "Requires active community account verification.",
+    icon: Users,
+  },
 ];
 
 const TOGGLES: { label: string; prop: keyof BlogFormState }[] = [
@@ -37,7 +87,7 @@ const TOGGLES: { label: string; prop: keyof BlogFormState }[] = [
   { label: "Pin content to top of index feeds", prop: "pinToTop" },
 ];
 
-export function PublishTab({ form, patch, onBack, onPublish }: PublishTabProps) {
+export function PublishTab({ form, patch, availableAuthors, onBack, onPublish }: PublishTabProps) {
   return (
     <EditorCard className="space-y-6">
       <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
@@ -50,26 +100,48 @@ export function PublishTab({ form, patch, onBack, onPublish }: PublishTabProps) 
         <div className="space-y-4">
           <div>
             <FieldLabel>Release Schedule</FieldLabel>
-            <div className="grid grid-cols-3 gap-2">
-              {STATUSES.map((st) => (
-                <button
-                  key={st.id}
-                  type="button"
-                  onClick={() => patch({ status: st.id })}
-                  className={`py-2 rounded-lg text-xs font-semibold border transition-all ${
-                    form.status === st.id
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-background border-border hover:bg-muted"
-                  }`}
-                >
-                  {st.label}
-                </button>
-              ))}
+            <div className="space-y-2">
+              {STATUSES.map((st) => {
+                const Icon = st.icon;
+                const active = form.status === st.id;
+                return (
+                  <button
+                    key={st.id}
+                    type="button"
+                    onClick={() => patch({ status: st.id })}
+                    className={`w-full p-2.5 rounded-lg border text-left flex items-center gap-3 transition-all ${
+                      active
+                        ? st.activeClass
+                        : "bg-background border-border hover:bg-muted text-foreground"
+                    }`}
+                  >
+                    <span className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                      active ? "bg-white/30" : "bg-muted"
+                    }`}>
+                      <Icon className="w-3.5 h-3.5" />
+                    </span>
+                    <span className="flex-1 text-left">
+                      <span className="font-semibold block text-xs">{st.label}</span>
+                      <span className="text-[10px] opacity-70">{st.desc}</span>
+                    </span>
+                    {active && <Check className="w-3.5 h-3.5 shrink-0" />}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {form.status === "scheduled" && (
-            <div className="p-3.5 rounded-lg border border-dashed border-primary/30 bg-primary/5 grid grid-cols-2 gap-3">
+          {(form.status === "scheduled" || form.status === "published") && (
+            <div className={`p-3.5 rounded-lg border border-dashed grid grid-cols-2 gap-3 ${
+              form.status === "scheduled"
+                ? "border-blue-500/30 bg-blue-500/5"
+                : "border-emerald-500/30 bg-emerald-500/5"
+            }`}>
+              <div className="col-span-2">
+                <p className="text-[9px] uppercase font-bold text-muted-foreground mb-2">
+                  {form.status === "scheduled" ? "Publish at" : "Published on"}
+                </p>
+              </div>
               <div>
                 <label className="block text-[9px] uppercase font-bold text-muted-foreground mb-1.5">
                   Date
@@ -94,32 +166,39 @@ export function PublishTab({ form, patch, onBack, onPublish }: PublishTabProps) 
           <div>
             <FieldLabel>Visibility Status</FieldLabel>
             <div className="space-y-2">
-              {VISIBILITY.map((vis) => (
-                <button
-                  key={vis.id}
-                  type="button"
-                  onClick={() => patch({ visibility: vis.id })}
-                  className={`w-full p-2.5 rounded-lg border text-left text-xs transition-all flex items-start gap-2.5 ${
-                    form.visibility === vis.id
-                      ? "bg-primary/10 border-primary text-primary"
-                      : "bg-background border-border text-muted-foreground"
-                  }`}
-                >
-                  <span className="mt-0.5 w-3 h-3 rounded-full border border-muted-foreground/50 flex items-center justify-center shrink-0">
-                    {form.visibility === vis.id && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    )}
-                  </span>
-                  <span>
-                    <span className="font-semibold block text-foreground">
-                      {vis.title}
+              {VISIBILITY.map((vis) => {
+                const Icon = vis.icon;
+                const active = form.visibility === vis.id;
+                return (
+                  <button
+                    key={vis.id}
+                    type="button"
+                    onClick={() => patch({ visibility: vis.id })}
+                    className={`w-full p-2.5 rounded-lg border text-left flex items-center gap-3 transition-all ${
+                      active
+                        ? "bg-primary/10 border-primary"
+                        : "bg-background border-border hover:bg-muted"
+                    }`}
+                  >
+                    <span className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                      active ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
+                    }`}>
+                      <Icon className="w-3.5 h-3.5" />
                     </span>
-                    <span className="text-[10px] text-muted-foreground">
-                      {vis.desc}
+                    <span className="flex-1">
+                      <span className={`font-semibold block text-xs ${active ? "text-primary" : "text-foreground"}`}>
+                        {vis.title}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground">{vis.desc}</span>
                     </span>
-                  </span>
-                </button>
-              ))}
+                    <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
+                      active ? "border-primary" : "border-border"
+                    }`}>
+                      {active && <span className="w-2 h-2 rounded-full bg-primary" />}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -128,40 +207,46 @@ export function PublishTab({ form, patch, onBack, onPublish }: PublishTabProps) 
         <div className="space-y-4">
           <div>
             <FieldLabel>Assign Active Author</FieldLabel>
-            <div className="space-y-2">
-              {AUTHOR_PROFILES.map((aut) => (
-                <button
-                  key={aut.id}
-                  type="button"
-                  onClick={() => patch({ author: aut.id })}
-                  className={`w-full p-2 rounded-lg border flex items-center justify-between text-xs transition-all ${
-                    form.author === aut.id
-                      ? "border-primary bg-primary/5"
-                      : "border-border hover:bg-muted"
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={aut.avatar}
-                      alt={aut.name}
-                      className="w-7 h-7 rounded-full object-cover"
-                    />
-                    <span className="text-left">
-                      <span className="font-semibold block text-foreground">
-                        {aut.name}
+            {availableAuthors.length === 0 ? (
+              <p className="text-[11px] text-muted-foreground px-1">Loading members…</p>
+            ) : (
+              <div className="space-y-2">
+                {availableAuthors.map((aut) => {
+                  const selected = form.author === aut.id;
+                  return (
+                    <button
+                      key={aut.id}
+                      type="button"
+                      onClick={() => patch({ author: aut.id })}
+                      className={`w-full p-2 rounded-lg border flex items-center justify-between text-xs transition-all ${
+                        selected
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:bg-muted"
+                      }`}
+                    >
+                      <span className="flex items-center gap-2">
+                        <span
+                          className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0 ${avatarColor(aut.id)}`}
+                        >
+                          {authorInitials(aut.name)}
+                        </span>
+                        <span className="text-left">
+                          <span className="font-semibold block text-foreground">
+                            {aut.name}
+                          </span>
+                          <span className="text-[9px] text-muted-foreground">
+                            {aut.role}
+                          </span>
+                        </span>
                       </span>
-                      <span className="text-[9px] text-muted-foreground">
-                        {aut.role}
-                      </span>
-                    </span>
-                  </span>
-                  {form.author === aut.id && (
-                    <Check className="w-3.5 h-3.5 text-primary" />
-                  )}
-                </button>
-              ))}
-            </div>
+                      {selected && (
+                        <Check className="w-3.5 h-3.5 text-primary" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div className="space-y-2.5">
@@ -196,10 +281,16 @@ export function PublishTab({ form, patch, onBack, onPublish }: PublishTabProps) 
         <button
           type="button"
           onClick={onPublish}
-          className="px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs rounded-lg flex items-center gap-1 transition-all active:scale-95"
+          className="px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs rounded-lg flex items-center gap-1.5 transition-all active:scale-95"
         >
           <CheckCircle className="w-3.5 h-3.5" />
-          <span>Confirm &amp; Publish</span>
+          <span>
+            {form.status === "published"
+              ? "Confirm & Publish"
+              : form.status === "scheduled"
+                ? "Confirm & Schedule"
+                : "Save as Draft"}
+          </span>
         </button>
       </div>
     </EditorCard>
