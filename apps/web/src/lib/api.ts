@@ -151,6 +151,17 @@ export function apiGetMyOrg() {
   return apiFetch<ApiCurrentOrg>("/organizations/me");
 }
 
+export interface OrgMember {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
+export function apiGetOrgMembers() {
+  return apiFetch<OrgMember[]>("/organizations/me/members");
+}
+
 /** Public plan catalog (active, public packages). */
 export function apiGetPackages() {
   return apiFetch<ApiPackage[]>("/packages");
@@ -681,6 +692,73 @@ export const cmsBlogCategories = {
     }),
   delete: (id: string) =>
     apiFetch<{ ok: boolean }>(`/cms/blog-categories/${id}`, { method: "DELETE" }),
+};
+
+// ─── Media assets ────────────────────────────────────────
+export interface MediaAsset {
+  id: string;
+  url: string;
+  fileName: string;
+  fileType: string;
+  size: number | null;
+  module: string;
+  subtype: string | null;
+  provider: string;
+  uploadedById: string | null;
+  organizationId: string;
+  createdAt: string;
+}
+
+export interface MediaAssetsPage {
+  items: MediaAsset[];
+  total: number;
+  hasMore: boolean;
+}
+
+const toAbsoluteUrl = (url: string) => {
+  if (url && url.startsWith("/medias/")) {
+    const base = API_BASE.replace(/\/api$/, "");
+    return `${base}${url}`;
+  }
+  return url;
+};
+
+export const mediaAssets = {
+  list: async (params?: { module?: string; subtype?: string; page?: number; limit?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.module) qs.set("module", params.module);
+    if (params?.subtype) qs.set("subtype", params.subtype);
+    if (params?.page) qs.set("page", String(params.page));
+    if (params?.limit) qs.set("limit", String(params.limit));
+    const q = qs.toString();
+    const page = await apiFetch<MediaAssetsPage>(`/upload/assets${q ? `?${q}` : ""}`);
+    return {
+      ...page,
+      items: page.items.map((a) => ({ ...a, url: toAbsoluteUrl(a.url) })),
+    };
+  },
+  delete: (id: string) =>
+    apiFetch<{ ok: boolean }>(`/upload/assets/${id}`, { method: "DELETE" }),
+};
+
+// ─── CMS blog tags ──────────────────────────────────────
+export interface CmsBlogTag {
+  id: string;
+  name: string;
+  slug: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const cmsBlogTags = {
+  list: () => apiFetch<CmsBlogTag[]>("/cms/blog-tags"),
+  findOrCreate: (name: string) =>
+    apiFetch<CmsBlogTag>("/cms/blog-tags", {
+      method: "POST",
+      body: JSON.stringify({ name }),
+    }),
+  delete: (id: string) =>
+    apiFetch<{ ok: boolean }>(`/cms/blog-tags/${id}`, { method: "DELETE" }),
 };
 
 // ─── CMS menus ───────────────────────────────────────────

@@ -15,6 +15,7 @@ export interface UploadOptions {
   onProgress?: (progress: number) => void;
   companyId?: string;
   module?: string;
+  subtype?: string;
 }
 
 export interface UploadResult {
@@ -117,7 +118,7 @@ class StorageService {
    * Uses unified endpoint that routes to the correct provider on the backend
    */
   async upload(options: UploadOptions): Promise<UploadResult> {
-    const { file, filename, onProgress, companyId, module } = options;
+    const { file, filename, onProgress, companyId, module, subtype } = options;
 
     if (!companyId || !module) {
       throw new Error(
@@ -129,14 +130,17 @@ class StorageService {
     formData.append("file", file);
     formData.append("companyId", companyId);
     formData.append("module", module);
+    if (subtype) formData.append("subtype", subtype);
     if (filename) formData.append("filename", filename);
 
     try {
       onProgress?.(30);
 
+      const token = typeof window !== "undefined" ? localStorage.getItem("vyntra_token") : null;
       const response = await fetch(`${API_BASE}/upload/file`, {
         method: "POST",
         body: formData,
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
       onProgress?.(70);
@@ -151,8 +155,8 @@ class StorageService {
 
       // Convert relative URL to absolute URL if needed
       let url = result.url;
-      if (url && url.startsWith('/uploads/')) {
-        const apiBase = API_BASE.replace('/api', ''); // Get http://localhost:3001 from http://localhost:3001/api
+      if (url && url.startsWith('/medias/')) {
+        const apiBase = API_BASE.replace('/api', '');
         url = `${apiBase}${url}`;
       }
 

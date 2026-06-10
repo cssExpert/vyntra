@@ -3,22 +3,16 @@ import {
   Post,
   Delete,
   Get,
+  Query,
   UseInterceptors,
   UploadedFile,
   Body,
   BadRequestException,
   ForbiddenException,
   InternalServerErrorException,
-  Req,
   Param,
-  Res,
-  NotFoundException,
-  Inject,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
-import * as fs from 'fs';
-import * as path from 'path';
 import { Public } from '../common/decorators/public.decorator';
 import { SuperAdminOnly } from '../common/decorators/super-admin.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -80,7 +74,7 @@ export class UploadController {
 
   /**
    * Upload file to local filesystem with multi-tenant directory structure
-   * Directory format: public/uploads/{companyId}/{module}/{filename}
+   * Directory format: public/medias/{organizationId}/{module}/{filename}
    */
   @Post('local')
   @UseInterceptors(FileInterceptor('file'))
@@ -184,7 +178,7 @@ export class UploadController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
     @UploadedFile() file: MulterFile,
-    @Body() body: { companyId: string; module: string; filename?: string },
+    @Body() body: { companyId: string; module: string; subtype?: string; filename?: string },
     @CurrentUser() user: AuthenticatedUser,
   ) {
     if (!file) throw new BadRequestException('No file provided');
@@ -197,47 +191,71 @@ export class UploadController {
     const settings = await this.prisma.adminSettings.findFirst();
     const provider = settings?.storageProvider || 'local';
 
+    let result;
     try {
       switch (provider) {
         case 's3':
-          return await this.uploadService.uploadToS3(
-            file,
-            body.companyId,
-            body.module,
-            body.filename,
-          );
-
+          result = await this.uploadService.uploadToS3(file, body.companyId, body.module, body.filename);
+          break;
         case 'uploadthing':
-          return await this.uploadService.uploadToUploadthing(
-            file,
-            body.companyId,
-            body.module,
-            body.filename,
-          );
-
+          result = await this.uploadService.uploadToUploadthing(file, body.companyId, body.module, body.filename);
+          break;
         case 'vercel-blob':
-          return await this.uploadService.uploadToVercelBlob(
-            file,
-            body.companyId,
-            body.module,
-            body.filename,
-          );
-
+          result = await this.uploadService.uploadToVercelBlob(file, body.companyId, body.module, body.filename);
+          break;
         case 'local':
         default:
-          return await this.uploadService.uploadLocal(
-            file,
-            body.filename,
-            body.companyId,
-            body.module,
-          );
+          result = await this.uploadService.uploadLocal(file, body.filename, body.companyId, body.module);
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Upload failed';
-      throw new InternalServerErrorException(
-        `Upload to ${provider} failed: ${message}`,
-      );
+      throw new InternalServerErrorException(`Upload to ${provider} failed: ${message}`);
     }
+
+    // Persist asset record (only for real org uploads, not superadmin)
+    if (user.organizationId) {
+      this.uploadService.saveMediaRecord({
+        url: result.url,
+        fileName: result.filename,
+        fileType: result.mimeType,
+        size: result.size,
+        organizationId: user.organizationId,
+        module: body.module,
+        subtype: body.subtype,
+        provider,
+        uploadedById: user.id,
+      }).catch((err) => console.warn('Failed to save media record:', err));
+    }
+
+    return result;
+  }
+
+  // ── Asset library ─────────────────────────────────────────────────────────
+
+  @Get('assets')
+  async listAssets(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('module') module?: string,
+    @Query('subtype') subtype?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    if (!user.organizationId) return { items: [], total: 0, hasMore: false };
+    return this.uploadService.listAssets(user.organizationId, {
+      module,
+      subtype,
+      page: page ? parseInt(page, 10) : 1,
+      limit: limit ? parseInt(limit, 10) : 20,
+    });
+  }
+
+  @Delete('assets/:id')
+  async deleteAsset(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ) {
+    if (!user.organizationId) throw new ForbiddenException('No org context');
+    return this.uploadService.deleteAsset(user.organizationId, id);
   }
 
   /**
@@ -264,8 +282,8 @@ export class UploadController {
     @Body() body: { url: string; provider: string },
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    // Parse companyId from the URL path (/uploads/{companyId}/...) and enforce ownership.
-    const match = body.url.match(/\/uploads\/([^/]+)\//);
+    // Parse companyId from the URL path (/medias/{organizationId}/...) and enforce ownership.
+    const match = body.url.match(/\/medias\/([^/]+)\//);
     if (match) {
       this.assertCompanyAccess(user, match[1]);
     }

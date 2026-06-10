@@ -4,8 +4,9 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Eye, Check } from "lucide-react";
-import type { CmsBlogDetail, CmsBlogSaveDto } from "@/lib/api";
-import { cmsBlogs, cmsBlogCategories } from "@/lib/api";
+import type { CmsBlogDetail, CmsBlogSaveDto, OrgMember } from "@/lib/api";
+import { apiGetOrgMembers, cmsBlogs, cmsBlogCategories, cmsBlogTags } from "@/lib/api";
+import { useAuth } from "@/providers/AuthProvider";
 import { EditorStepTabs, type EditorTab } from "./EditorStepTabs";
 import { WritingTab } from "./WritingTab";
 import { MetadataTab } from "./MetadataTab";
@@ -16,31 +17,33 @@ import { DevicePreviewModal } from "./DevicePreviewModal";
 import { PublishSummaryModal } from "./PublishSummaryModal";
 import { ToastStack, useToasts } from "./Toasts";
 import {
-  AUTHOR_PROFILES,
   calculateSeoScore,
   emptyBlogForm,
   slugify,
   stripHtml,
+  type AuthorProfile,
   type BlogEditorStatus,
   type BlogFormState,
 } from "./types";
 
-function mapStatus(published: boolean): BlogEditorStatus {
-  return published ? "published" : "draft";
+function mapStatus(published: boolean, publishedAt: string | null): BlogEditorStatus {
+  if (published) return "published";
+  if (publishedAt && new Date(publishedAt) > new Date()) return "scheduled";
+  return "draft";
 }
 
-function authorNameToId(name: string | null): string {
-  if (!name) return AUTHOR_PROFILES[0].id;
-  const match = AUTHOR_PROFILES.find((p) => p.name === name);
-  return match ? match.id : AUTHOR_PROFILES[0].id;
+function authorNameToId(name: string | null, profiles: AuthorProfile[]): string {
+  if (!name) return profiles[0]?.id ?? "";
+  const match = profiles.find((p) => p.name === name);
+  return match?.id ?? profiles[0]?.id ?? "";
 }
 
-function authorIdToName(id: string): string {
-  const match = AUTHOR_PROFILES.find((p) => p.id === id);
-  return match ? match.name : id;
+function authorIdToName(id: string, profiles: AuthorProfile[]): string {
+  const match = profiles.find((p) => p.id === id);
+  return match?.name ?? id;
 }
 
-function detailToForm(blog: CmsBlogDetail): BlogFormState {
+function detailToForm(blog: CmsBlogDetail, profiles: AuthorProfile[]): BlogFormState {
   const base = emptyBlogForm();
   return {
     ...base,
@@ -57,8 +60,8 @@ function detailToForm(blog: CmsBlogDetail): BlogFormState {
     seoTitle: blog.seoTitle ?? blog.title.substring(0, 60),
     seoDesc: blog.metaDesc ?? "",
     keywords: blog.keywords ?? "",
-    author: authorNameToId(blog.author),
-    status: mapStatus(blog.published),
+    author: authorNameToId(blog.author, profiles),
+    status: mapStatus(blog.published, blog.publishedAt ?? null),
     visibility: (blog.visibility as BlogFormState["visibility"]) ?? "public",
     allowComments: blog.allowComments,
     isFeatured: blog.isFeatured,
@@ -66,6 +69,9 @@ function detailToForm(blog: CmsBlogDetail): BlogFormState {
     publishDate: blog.publishedAt
       ? new Date(blog.publishedAt).toISOString().split("T")[0]
       : base.publishDate,
+    publishTime: blog.publishedAt
+      ? new Date(blog.publishedAt).toISOString().split("T")[1].substring(0, 5)
+      : base.publishTime,
   };
 }
 
@@ -76,13 +82,16 @@ export interface BlogEditorProps {
 
 export function BlogEditor({ blog }: BlogEditorProps) {
   const router = useRouter();
+  const { user } = useAuth();
   const { toasts, addToast, dismiss } = useToasts();
   const [saving, setSaving] = useState(false);
   const [savedBlog, setSavedBlog] = useState<CmsBlogDetail | null>(null);
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
+  const [availableAuthors, setAvailableAuthors] = useState<AuthorProfile[]>([]);
 
   const [form, setForm] = useState<BlogFormState>(() =>
-    blog ? detailToForm(blog) : emptyBlogForm(),
+    blog ? emptyBlogForm() : emptyBlogForm(),
   );
 
   const [activeTab, setActiveTab] = useState<EditorTab>("editor");
@@ -91,11 +100,62 @@ export function BlogEditor({ blog }: BlogEditorProps) {
 
   useEffect(() => {
     cmsBlogCategories.list().then((cats) => setAvailableCategories(cats.map((c) => c.name))).catch(() => {});
-  }, []);
+    cmsBlogTags.list().then((tags) => setAvailableTags(tags.map((t) => t.name))).catch(() => {});
+
+    apiGetOrgMembers()
+      .then((members) => {
+        const profiles: AuthorProfile[] = members.map((m: OrgMember) => ({
+          id: m.id,
+          name: m.name,
+          email: m.email,
+          role: m.role
+            .toLowerCase()
+            .split("_")
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(" "),
+        }));
+        setAvailableAuthors(profiles);
+
+        // Prefill form: editing an existing blog → match stored author name;
+        // new blog → default to the current logged-in user.
+        setForm((prev) => {
+          if (blog) {
+            return { ...prev, ...detailToForm(blog, profiles) };
+          }
+          const currentUserProfile = profiles.find((p) => p.id === user?.id);
+          return { ...prev, author: currentUserProfile?.id ?? profiles[0]?.id ?? "" };
+        });
+      })
+      .catch(() => {
+        // If members can't be loaded (e.g. super-admin), fall back to current user only
+        if (user) {
+          const fallback: AuthorProfile[] = [
+            { id: user.id, name: user.name, email: user.email, role: user.role },
+          ];
+          setAvailableAuthors(fallback);
+          setForm((prev) => ({
+            ...prev,
+            ...(blog ? detailToForm(blog, fallback) : { author: user.id }),
+          }));
+        }
+      });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleTagCreate = async (name: string) => {
+    try {
+      await cmsBlogTags.findOrCreate(name);
+      setAvailableTags((prev) =>
+        prev.includes(name) ? prev : [...prev, name].sort((a, b) => a.localeCompare(b)),
+      );
+    } catch {
+      // tag still gets added to the post even if catalog sync fails
+    }
+  };
 
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(Boolean(blog));
   const [seoTitleManuallyEdited, setSeoTitleManuallyEdited] = useState(Boolean(blog));
   const [seoDescManuallyEdited, setSeoDescManuallyEdited] = useState(Boolean(blog?.metaDesc));
+  const [readTimeManuallyEdited, setReadTimeManuallyEdited] = useState(false);
 
   const patch = (partial: Partial<BlogFormState>) =>
     setForm((prev) => ({ ...prev, ...partial }));
@@ -119,13 +179,14 @@ export function BlogEditor({ blog }: BlogEditorProps) {
   }, [form.excerpt, seoDescManuallyEdited]);
 
   useEffect(() => {
+    if (readTimeManuallyEdited) return;
     const text = stripHtml(form.content);
     const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
     const minutes = Math.max(1, Math.ceil(words / 220));
     setForm((prev) =>
       prev.readTime === minutes ? prev : { ...prev, readTime: minutes },
     );
-  }, [form.content]);
+  }, [form.content, readTimeManuallyEdited]);
 
   const seoScore = useMemo(() => calculateSeoScore(form), [form]);
 
@@ -137,16 +198,16 @@ export function BlogEditor({ blog }: BlogEditorProps) {
     excerpt: form.excerpt || undefined,
     coverImage: form.coverImage || undefined,
     tags: form.tags,
-    author: authorIdToName(form.author),
+    author: authorIdToName(form.author, availableAuthors),
     category: form.category.length > 0 ? form.category.join(",") : undefined,
     seoTitle: form.seoTitle || undefined,
     metaDesc: form.seoDesc || undefined,
     keywords: form.keywords || undefined,
     published: form.status === "published",
     publishedAt:
-      form.status === "published"
-        ? `${form.publishDate}T${form.publishTime}:00`
-        : null,
+      form.status === "draft"
+        ? null
+        : `${form.publishDate}T${form.publishTime}:00`,
     visibility: form.visibility,
     allowComments: form.allowComments,
     isFeatured: form.isFeatured,
@@ -265,6 +326,8 @@ export function BlogEditor({ blog }: BlogEditorProps) {
                   form={form}
                   patch={patch}
                   availableCategories={availableCategories}
+                  availableTags={availableTags}
+                  onTagCreate={handleTagCreate}
                   onBack={() => setActiveTab("editor")}
                   onNext={() => setActiveTab("seo")}
                   onToast={addToast}
@@ -284,6 +347,7 @@ export function BlogEditor({ blog }: BlogEditorProps) {
                 <PublishTab
                   form={form}
                   patch={patch}
+                  availableAuthors={availableAuthors}
                   onBack={() => setActiveTab("seo")}
                   onPublish={handlePublish}
                 />
@@ -295,8 +359,13 @@ export function BlogEditor({ blog }: BlogEditorProps) {
         <div className="lg:col-span-4 lg:sticky lg:top-24 self-start">
           <EditorSidebar
             form={form}
+            patch={patch}
             seoScore={seoScore}
+            availableAuthors={availableAuthors}
             onInspect={() => setIsPreviewOpen(true)}
+            readTimeManuallyEdited={readTimeManuallyEdited}
+            onReadTimeManualEdit={() => setReadTimeManuallyEdited(true)}
+            onReadTimeAutoReset={() => setReadTimeManuallyEdited(false)}
           />
         </div>
       </motion.div>
@@ -313,8 +382,9 @@ export function BlogEditor({ blog }: BlogEditorProps) {
           setShowSummary(false);
           goBack();
         }}
-        form={savedBlog ? detailToForm(savedBlog) : form}
+        form={savedBlog ? detailToForm(savedBlog, availableAuthors) : form}
         seoScore={seoScore}
+        availableAuthors={availableAuthors}
         onCopyLink={() => addToast("Copied feed slug URL", "info")}
       />
       <ToastStack toasts={toasts} onDismiss={dismiss} />

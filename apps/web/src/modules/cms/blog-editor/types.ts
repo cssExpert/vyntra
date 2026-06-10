@@ -27,33 +27,9 @@ export interface BlogFormState {
 export interface AuthorProfile {
   id: string;
   name: string;
+  email: string;
   role: string;
-  avatar: string;
 }
-
-export const AUTHOR_PROFILES: AuthorProfile[] = [
-  {
-    id: "1",
-    name: "Alex Rivera",
-    role: "Lead Technical Writer",
-    avatar:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
-  },
-  {
-    id: "2",
-    name: "Sarah Chen",
-    role: "Senior Developer Advocate",
-    avatar:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80",
-  },
-  {
-    id: "3",
-    name: "Marcus Johnson",
-    role: "Product Manager",
-    avatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
-  },
-];
 
 export const CATEGORIES = [
   "Technology",
@@ -94,7 +70,7 @@ export function emptyBlogForm(): BlogFormState {
     allowComments: true,
     isFeatured: false,
     pinToTop: false,
-    author: "1",
+    author: "",
   };
 }
 

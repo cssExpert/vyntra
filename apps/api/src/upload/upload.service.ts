@@ -63,18 +63,12 @@ export class UploadService {
 
   /**
    * Upload file to local filesystem with multi-tenant directory structure
-   * Directory format: public/uploads/{companyId}/{module}/{purpose}-{timestamp}.{ext}
+   * Directory format: public/medias/{organizationId}/{module}/{purpose}-{timestamp}.{ext}
    *
    * Examples:
-   * - Super admin logo: /uploads/superadmin/branding/logo-1234567890.png
-   * - Company branding: /uploads/comp_abc123/branding/logo-1234567890.png
-   * - User profile: /uploads/comp_abc123/profiles/avatar-1234567890.png
-   *
-   * This ensures:
-   * - Data isolation by company
-   * - Semantic organization by module/purpose
-   * - Easy identification of file purpose
-   * - Support for multiple versions during reupload transition
+   * - Super admin logo: /medias/superadmin/branding/logo-1234567890.png
+   * - Company branding: /medias/comp_abc123/branding/logo-1234567890.png
+   * - User profile: /medias/comp_abc123/profiles/avatar-1234567890.png
    */
   async uploadLocal(
     file: MulterFile,
@@ -88,42 +82,34 @@ export class UploadService {
       );
     }
 
-    // Normalize super admin uploads to use superadmin folder
     const normalizedCompanyId =
       companyId === 'admin' ? 'superadmin' : companyId;
 
-    // Build directory path
     const uploadDir = path.join(
       process.cwd(),
       'public',
-      'uploads',
+      'medias',
       normalizedCompanyId,
       module,
     );
 
-    // Create directory structure if it doesn't exist
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
 
-    // Generate semantic filename with timestamp
     const ext = path.extname(file.originalname);
     const basename = customFilename || this.extractPurposeFromFilename(file.originalname);
     const timestamp = Date.now();
     const filename = `${basename}-${timestamp}${ext}`;
     const filepath = path.join(uploadDir, filename);
 
-    // Write file to disk
     fs.writeFileSync(filepath, file.buffer);
 
-    // Delete old versions of this file (same purpose, different timestamp)
-    // This cleanup happens in the background
     this.deleteOldVersions(uploadDir, basename, ext, filename).catch((err) => {
       console.warn('Failed to cleanup old versions:', err);
     });
 
-    // Return URL path
-    const url = `/uploads/${normalizedCompanyId}/${module}/${filename}`;
+    const url = `/medias/${normalizedCompanyId}/${module}/${filename}`;
 
     return {
       url,
@@ -350,7 +336,7 @@ export class UploadService {
       for (const row of rows) {
         for (const field of target.fields) {
           const value: string | null = row[field];
-          if (!value || !value.includes('/uploads/')) continue;
+          if (!value || !value.includes('/medias/')) continue;
 
           report.total++;
           try {
@@ -392,10 +378,10 @@ export class UploadService {
     localUrl: string,
     provider: string,
   ): Promise<string> {
-    const marker = '/uploads/';
+    const marker = '/medias/';
     const idx = localUrl.indexOf(marker);
     const relative = localUrl.substring(idx + marker.length); // e.g. superadmin/branding/logo-123.png
-    const filePath = path.join(process.cwd(), 'public', 'uploads', relative);
+    const filePath = path.join(process.cwd(), 'public', 'medias', relative);
 
     if (!fs.existsSync(filePath)) {
       throw new Error(`Local file not found on disk: ${relative}`);
@@ -444,6 +430,78 @@ export class UploadService {
       '.bmp': 'image/bmp',
     };
     return map[ext] || 'application/octet-stream';
+  }
+
+  // ── Media asset tracking ─────────────────────────────────────────────────────
+
+  /**
+   * Save a media record after a successful upload.
+   * Skipped for superadmin uploads (no real org FK).
+   */
+  async saveMediaRecord(data: {
+    url: string;
+    fileName: string;
+    fileType: string;
+    size: number;
+    organizationId: string;
+    module: string;
+    subtype?: string;
+    provider: string;
+    uploadedById?: string;
+  }) {
+    return this.prisma.media.create({ data });
+  }
+
+  /**
+   * List media assets for an org with pagination (20 per page by default).
+   * Returns { items, total, hasMore }.
+   */
+  async listAssets(
+    organizationId: string,
+    options: { module?: string; subtype?: string; page?: number; limit?: number } = {},
+  ) {
+    const { module, subtype, page = 1, limit = 20 } = options;
+    const skip = (page - 1) * limit;
+
+    const where = {
+      organizationId,
+      ...(module ? { module } : {}),
+      ...(subtype ? { subtype } : {}),
+    };
+
+    const [items, total] = await Promise.all([
+      this.prisma.media.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.media.count({ where }),
+    ]);
+
+    return { items, total, hasMore: skip + items.length < total };
+  }
+
+  /**
+   * Delete an asset record and remove the file from storage.
+   */
+  async deleteAsset(organizationId: string, id: string) {
+    const asset = await this.prisma.media.findFirst({
+      where: { id, organizationId },
+    });
+    if (!asset) return { ok: false };
+
+    // Remove the physical file (best effort — don't fail if file is gone)
+    try {
+      const settings = await this.prisma.adminSettings.findFirst();
+      const provider = settings?.storageProvider || 'local';
+      await this.deleteFile(asset.url, provider);
+    } catch {
+      // non-fatal
+    }
+
+    await this.prisma.media.delete({ where: { id } });
+    return { ok: true };
   }
 
   /**

@@ -112,7 +112,9 @@ export class CmsService {
         metaDesc: dto.metaDesc,
         keywords: dto.keywords,
         published: dto.published ?? false,
-        publishedAt: dto.published ? (dto.publishedAt ? new Date(dto.publishedAt) : new Date()) : null,
+        publishedAt: dto.published
+          ? (dto.publishedAt ? new Date(dto.publishedAt) : new Date())
+          : (dto.publishedAt ? new Date(dto.publishedAt) : null),
         visibility: dto.visibility ?? 'public',
         allowComments: dto.allowComments ?? true,
         isFeatured: dto.isFeatured ?? false,
@@ -150,10 +152,11 @@ export class CmsService {
         ...(dto.metaDesc !== undefined && { metaDesc: dto.metaDesc }),
         ...(dto.keywords !== undefined && { keywords: dto.keywords }),
         ...(dto.published !== undefined && { published: dto.published }),
-        ...(dto.published === true
-          ? { publishedAt: dto.publishedAt ? new Date(dto.publishedAt) : (blog.publishedAt ?? new Date()) }
-          : {}),
-        ...(dto.published === false ? { publishedAt: null } : {}),
+        ...(dto.publishedAt !== undefined
+          ? { publishedAt: dto.publishedAt ? new Date(dto.publishedAt) : null }
+          : dto.published === true && !blog.publishedAt
+            ? { publishedAt: new Date() }
+            : {}),
         ...(dto.visibility !== undefined && { visibility: dto.visibility }),
         ...(dto.allowComments !== undefined && { allowComments: dto.allowComments }),
         ...(dto.isFeatured !== undefined && { isFeatured: dto.isFeatured }),
@@ -206,6 +209,33 @@ export class CmsService {
     const cat = await this.prisma.blogCategory.findFirst({ where: { id, organizationId: orgId } });
     if (!cat) throw new NotFoundException('Category not found');
     await this.prisma.blogCategory.delete({ where: { id } });
+    return { ok: true };
+  }
+
+  // ── Blog Tags ────────────────────────────────────────────────────────────────
+
+  async listBlogTags(orgId: string) {
+    return this.prisma.blogTag.findMany({
+      where: { organizationId: orgId },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  async findOrCreateBlogTag(orgId: string, name: string) {
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const existing = await this.prisma.blogTag.findFirst({
+      where: { organizationId: orgId, slug },
+    });
+    if (existing) return existing;
+    return this.prisma.blogTag.create({
+      data: { name, slug, organizationId: orgId },
+    });
+  }
+
+  async deleteBlogTag(orgId: string, id: string) {
+    const tag = await this.prisma.blogTag.findFirst({ where: { id, organizationId: orgId } });
+    if (!tag) throw new NotFoundException('Tag not found');
+    await this.prisma.blogTag.delete({ where: { id } });
     return { ok: true };
   }
 

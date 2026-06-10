@@ -28,6 +28,12 @@ export class OrganizationsController {
     return this.organizationsService.getCurrentOrg(organizationId);
   }
 
+  // ── Org members (for author pickers, assignees, etc.) ──
+  @Get('organizations/me/members')
+  getMembers(@CurrentOrg() organizationId: string | null) {
+    return this.organizationsService.getMembers(organizationId);
+  }
+
   // ── Activity / audit log (any authenticated member) ──
   @Get('organizations/activity')
   getActivity(@CurrentOrg() organizationId: string | null) {

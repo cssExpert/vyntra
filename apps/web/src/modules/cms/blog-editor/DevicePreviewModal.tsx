@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Laptop, Tablet, Smartphone, type LucideIcon } from "lucide-react";
 import type { BlogFormState } from "./types";
@@ -36,13 +37,17 @@ export function DevicePreviewModal({
   form,
 }: DevicePreviewModalProps) {
   const [device, setDevice] = useState<Device>("desktop");
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const articleHtml = wrapTables(
     form.content ||
       "<p class='text-muted-foreground italic'>Start writing to preview your article…</p>",
   );
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -154,6 +159,7 @@ export function DevicePreviewModal({
           </div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }
