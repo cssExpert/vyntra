@@ -399,6 +399,9 @@ export class DomainsService {
     name: string;
     slug: string;
     subdomain: string | null;
+    logoUrl?: string | null;
+    darkLogoUrl?: string | null;
+    themeSwitcherEnabled?: boolean;
     subscription: {
       status: string;
       package: {
@@ -417,6 +420,14 @@ export class DomainsService {
       );
     if (!hasCms)
       throw new NotFoundException('CMS module is not enabled for this site');
-    return { id: org.id, name: org.name, slug: org.slug, subdomain: org.subdomain };
+    return {
+      id: org.id,
+      name: org.name,
+      slug: org.slug,
+      subdomain: org.subdomain,
+      logoUrl: org.logoUrl ?? null,
+      darkLogoUrl: org.darkLogoUrl ?? null,
+      themeSwitcherEnabled: org.themeSwitcherEnabled ?? false,
+    };
   }
 }

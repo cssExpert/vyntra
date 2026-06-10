@@ -101,6 +101,21 @@ function buildThemeCss(vars: Record<string, string>): string {
   return `:root { ${entries.map(([k, v]) => `${k}: ${v};`).join(" ")} }`;
 }
 
+// Injected when themeSwitcherEnabled — makes `.dark` class on <html> actually change colours.
+// Brand colours (primary/secondary/accent) are inherited from the light theme as-is.
+const DARK_MODE_CSS = `.dark {
+  color-scheme: dark;
+  --background: #0f172a;
+  --foreground: #e2e8f0;
+  --card: #1e293b;
+  --card-foreground: #e2e8f0;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --border: #334155;
+  --input: #334155;
+  --ring: #475569;
+}`;
+
 const SYSTEM_FONTS = new Set([
   "system-ui", "sans-serif", "serif", "monospace", "cursive", "fantasy",
   "-apple-system", "BlinkMacSystemFont", "ui-sans-serif", "ui-serif",
@@ -183,6 +198,9 @@ export default async function PublicSitePage({
         </>
       )}
       {themeCss && <style dangerouslySetInnerHTML={{ __html: themeCss }} />}
+      {org.themeSwitcherEnabled && (
+        <style dangerouslySetInnerHTML={{ __html: DARK_MODE_CSS }} />
+      )}
     </>
   );
 

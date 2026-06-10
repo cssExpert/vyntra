@@ -482,6 +482,7 @@ async function NavbarShopingo({ org, items }: { org: OrgInfo; items: MenuItem[] 
   return (
     <header className="sticky top-0 z-50">
       {/* Top utility bar */}
+      {/*
       <div style={{ backgroundColor: "var(--foreground, #212529)" }}>
         <div className="max-w-6xl mx-auto px-6 h-9 flex items-center justify-between">
           <span className="text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>
@@ -493,6 +494,7 @@ async function NavbarShopingo({ org, items }: { org: OrgInfo; items: MenuItem[] 
           </div>
         </div>
       </div>
+      */}
 
       {/* Main nav */}
       <nav
@@ -536,7 +538,7 @@ async function NavbarShopingo({ org, items }: { org: OrgInfo; items: MenuItem[] 
               style={{ color: "var(--foreground, #212529)" }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
               </svg>
             </button>
             <button
@@ -545,8 +547,8 @@ async function NavbarShopingo({ org, items }: { org: OrgInfo; items: MenuItem[] 
               style={{ color: "var(--foreground, #212529)" }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/>
-                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+                <circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" />
+                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
               </svg>
             </button>
           </div>
