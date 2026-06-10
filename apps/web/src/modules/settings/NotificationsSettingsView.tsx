@@ -72,7 +72,7 @@ export function NotificationsSettingsView() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     load();

@@ -381,6 +381,5 @@ function Inner() {
 }
 
 export function CustomersView() {
-  const t = useTranslations("store.customers");
   return <Inner />;
 }

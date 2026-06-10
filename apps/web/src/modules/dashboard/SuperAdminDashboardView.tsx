@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { useAuth } from "@/providers/AuthProvider";
@@ -331,22 +332,22 @@ export function SuperAdminDashboardView() {
               {/* Quick Actions */}
               <SectionCard title={t("quickactions", { defaultValue: "Quick Actions" })} description={t("commonadmintasks", { defaultValue: "Common admin tasks" })}>
                 <div className="space-y-2">
-                  <a
+                  <Link
                     href="/admin/companies"
                     className="flex items-center gap-2 rounded-sm p-2.5 text-sm hover:bg-muted transition-colors cursor-pointer group"
                   >
                     <Building2 className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
                     <span>Manage Companies</span>
                     <ArrowRight className="h-3 w-3 ml-auto text-muted-foreground" />
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="/admin/users"
                     className="flex items-center gap-2 rounded-sm p-2.5 text-sm hover:bg-muted transition-colors cursor-pointer group"
                   >
                     <Users className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
                     <span>Manage Users</span>
                     <ArrowRight className="h-3 w-3 ml-auto text-muted-foreground" />
-                  </a>
+                  </Link>
                   <a
                     href="/admin/packages"
                     className="flex items-center gap-2 rounded-sm p-2.5 text-sm hover:bg-muted transition-colors cursor-pointer group"

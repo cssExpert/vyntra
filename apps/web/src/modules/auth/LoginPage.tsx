@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -45,8 +44,6 @@ function Toggle({
 
 // ─── Main page ────────────────────────────────────────────
 export function LoginPage() {
-  const t = useTranslations("auth");
-
   const router = useRouter();
   const {
     login,
