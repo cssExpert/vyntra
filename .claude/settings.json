@@ -13,7 +13,9 @@
       "Bash(npm run *)",
       "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('/Applications/MAMP/htdocs/simran/vyntra/apps/web/src/i18n/messages/en.json', 'utf8'\\)\\); JSON.parse\\(require\\('fs'\\).readFileSync\\('/Applications/MAMP/htdocs/simran/vyntra/apps/web/src/i18n/messages/hi.json', 'utf8'\\)\\); JSON.parse\\(require\\('fs'\\).readFileSync\\('/Applications/MAMP/htdocs/simran/vyntra/apps/web/src/i18n/messages/fr.json', 'utf8'\\)\\); console.log\\('✅ All JSON files valid'\\)\")",
       "Bash(node /tmp/batch-i18n-transform.js)",
-      "Bash(node /tmp/comprehensive-i18n-batch.js)"
+      "Bash(node /tmp/comprehensive-i18n-batch.js)",
+      "Bash(node /tmp/fix-dashboard-namespace.js)",
+      "Bash(node /tmp/fix-dashboard-merge.js)"
     ]
   }
 }
