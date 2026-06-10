@@ -1,6 +1,7 @@
 // Global navbar + footer rendered from the org's Layout config.
 // Rendered server-side as RSC — fetches each menu directly.
 
+import { cookies } from "next/headers";
 import { SiteThemeToggle } from "./SiteThemeToggle";
 import { SiteLanguageSwitcher } from "./SiteLanguageSwitcher";
 
@@ -90,7 +91,7 @@ function OrgLogo({ org, className = "h-8" }: { org: OrgInfo; className?: string 
 // ── Header variants ───────────────────────────────────────────────────────────
 
 /** logo left · nav links right · sticky blur */
-async function NavbarMinimal({ org, items }: { org: OrgInfo; items: MenuItem[] }) {
+async function NavbarMinimal({ org, items, activeLang }: { org: OrgInfo; items: MenuItem[]; activeLang: string }) {
   return (
     <nav
       className="sticky top-0 z-50 backdrop-blur-sm"
@@ -127,6 +128,7 @@ async function NavbarMinimal({ org, items }: { org: OrgInfo; items: MenuItem[] }
               orgId={org.id}
               available={org.siteLanguages!}
               defaultLang={org.defaultSiteLanguage ?? "en"}
+              activeLang={activeLang}
             />
           )}
         </div>
@@ -136,7 +138,7 @@ async function NavbarMinimal({ org, items }: { org: OrgInfo; items: MenuItem[] }
 }
 
 /** logo + nav both centered · two-row */
-async function NavbarCentered({ org, items }: { org: OrgInfo; items: MenuItem[] }) {
+async function NavbarCentered({ org, items, activeLang }: { org: OrgInfo; items: MenuItem[]; activeLang: string }) {
   return (
     <nav
       className="sticky top-0 z-50 backdrop-blur-sm"
@@ -172,6 +174,7 @@ async function NavbarCentered({ org, items }: { org: OrgInfo; items: MenuItem[] 
               orgId={org.id}
               available={org.siteLanguages!}
               defaultLang={org.defaultSiteLanguage ?? "en"}
+              activeLang={activeLang}
             />
           )}
         </div>
@@ -181,7 +184,7 @@ async function NavbarCentered({ org, items }: { org: OrgInfo; items: MenuItem[] 
 }
 
 /** logo left · nav center · last item styled as CTA button right */
-async function NavbarSplit({ org, items }: { org: OrgInfo; items: MenuItem[] }) {
+async function NavbarSplit({ org, items, activeLang }: { org: OrgInfo; items: MenuItem[]; activeLang: string }) {
   const navItems = items.length > 1 ? items.slice(0, -1) : items;
   const ctaItem = items.length > 1 ? items[items.length - 1] : null;
 
@@ -226,6 +229,7 @@ async function NavbarSplit({ org, items }: { org: OrgInfo; items: MenuItem[] }) 
               orgId={org.id}
               available={org.siteLanguages!}
               defaultLang={org.defaultSiteLanguage ?? "en"}
+              activeLang={activeLang}
             />
           )}
           {org.themeSwitcherEnabled && <SiteThemeToggle />}
@@ -250,7 +254,7 @@ async function NavbarSplit({ org, items }: { org: OrgInfo; items: MenuItem[] }) 
 }
 
 /** dark background (inverted) · logo left · nav right */
-async function NavbarDark({ org, items }: { org: OrgInfo; items: MenuItem[] }) {
+async function NavbarDark({ org, items, activeLang }: { org: OrgInfo; items: MenuItem[]; activeLang: string }) {
   return (
     <nav
       className="sticky top-0 z-50"
@@ -286,6 +290,7 @@ async function NavbarDark({ org, items }: { org: OrgInfo; items: MenuItem[] }) {
               orgId={org.id}
               available={org.siteLanguages!}
               defaultLang={org.defaultSiteLanguage ?? "en"}
+              activeLang={activeLang}
             />
           )}
         </div>
@@ -509,7 +514,7 @@ async function FooterDark({
 }
 
 /** Shopingo-style: dark utility top bar + white main nav + cart icon */
-async function NavbarShopingo({ org, items }: { org: OrgInfo; items: MenuItem[] }) {
+async function NavbarShopingo({ org, items, activeLang }: { org: OrgInfo; items: MenuItem[]; activeLang: string }) {
   return (
     <header className="sticky top-0 z-50">
       {/* Top utility bar */}
@@ -716,19 +721,25 @@ export async function SiteNavbar({
   org: OrgInfo;
   layout: SiteLayoutData;
 }) {
+  const cookieStore = await cookies();
+  const rawLang = cookieStore.get("vyntra_site_lang")?.value;
+  const activeLang = (rawLang && org.siteLanguages?.includes(rawLang))
+    ? rawLang
+    : (org.defaultSiteLanguage ?? "en");
+
   const items = layout.navMenuId ? await fetchMenu(org.id, layout.navMenuId) : [];
 
   switch (layout.headerVariant) {
     case "centered":
-      return <NavbarCentered org={org} items={items} />;
+      return <NavbarCentered org={org} items={items} activeLang={activeLang} />;
     case "split":
-      return <NavbarSplit org={org} items={items} />;
+      return <NavbarSplit org={org} items={items} activeLang={activeLang} />;
     case "dark":
-      return <NavbarDark org={org} items={items} />;
+      return <NavbarDark org={org} items={items} activeLang={activeLang} />;
     case "shopingo":
-      return <NavbarShopingo org={org} items={items} />;
+      return <NavbarShopingo org={org} items={items} activeLang={activeLang} />;
     default:
-      return <NavbarMinimal org={org} items={items} />;
+      return <NavbarMinimal org={org} items={items} activeLang={activeLang} />;
   }
 }
 

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 import type { Metadata } from "next";
 import { PageView, SiteHome } from "./PageViews";
 import type { OrgInfo, CmsPage, PageListItem, SiteLayoutData } from "./PageViews";
@@ -27,11 +28,12 @@ async function resolveOrg(
   }
 }
 
-async function fetchLandingPage(orgId: string): Promise<CmsPage | null> {
+async function fetchLandingPage(orgId: string, lang?: string): Promise<CmsPage | null> {
   try {
-    const res = await fetch(`${API}/public/sites/${orgId}/landing-page`, {
-      cache: "no-store",
-    });
+    const url = lang
+      ? `${API}/public/sites/${orgId}/landing-page?lang=${encodeURIComponent(lang)}`
+      : `${API}/public/sites/${orgId}/landing-page`;
+    const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) return null;
     return res.json();
   } catch {
@@ -39,11 +41,12 @@ async function fetchLandingPage(orgId: string): Promise<CmsPage | null> {
   }
 }
 
-async function listPages(orgId: string): Promise<PageListItem[]> {
+async function listPages(orgId: string, lang?: string): Promise<PageListItem[]> {
   try {
-    const res = await fetch(`${API}/public/sites/${orgId}/pages`, {
-      cache: "no-store",
-    });
+    const url = lang
+      ? `${API}/public/sites/${orgId}/pages?lang=${encodeURIComponent(lang)}`
+      : `${API}/public/sites/${orgId}/pages`;
+    const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) return [];
     return res.json();
   } catch {
@@ -51,12 +54,12 @@ async function listPages(orgId: string): Promise<PageListItem[]> {
   }
 }
 
-async function fetchPage(orgId: string, slug: string): Promise<CmsPage | null> {
+async function fetchPage(orgId: string, slug: string, lang?: string): Promise<CmsPage | null> {
   try {
-    const res = await fetch(
-      `${API}/public/sites/${orgId}/pages/${encodeURIComponent(slug)}`,
-      { cache: "no-store" },
-    );
+    const url = lang
+      ? `${API}/public/sites/${orgId}/pages/${encodeURIComponent(slug)}?lang=${encodeURIComponent(lang)}`
+      : `${API}/public/sites/${orgId}/pages/${encodeURIComponent(slug)}`;
+    const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) return null;
     return res.json();
   } catch {
@@ -150,16 +153,20 @@ export async function generateMetadata({
   const org = await resolveOrg(identifier, _chost);
   if (!org) return {};
 
+  const cookieStore = await cookies();
+  const lang = cookieStore.get("vyntra_site_lang")?.value;
+  const activeLang = (lang && org.siteLanguages?.includes(lang)) ? lang : (org.defaultSiteLanguage ?? "en");
+
   const pageSlug = slug?.join("/");
   if (!pageSlug) {
-    const landing = await fetchLandingPage(org.id);
+    const landing = await fetchLandingPage(org.id, activeLang);
     return {
       title: landing ? `${landing.title} — ${org.name}` : org.name,
       description: landing?.metaDesc ?? undefined,
     };
   }
 
-  const page = await fetchPage(org.id, pageSlug);
+  const page = await fetchPage(org.id, pageSlug, activeLang);
   return {
     title: page ? `${page.title} — ${org.name}` : org.name,
     description: page?.metaDesc ?? undefined,
@@ -182,6 +189,13 @@ export default async function PublicSitePage({
   const org = await resolveOrg(identifier, _chost);
   if (!org) notFound();
 
+  // Resolve active language from cookie → org default → "en"
+  const cookieStore = await cookies();
+  const rawLang = cookieStore.get("vyntra_site_lang")?.value;
+  const activeLang = (rawLang && org.siteLanguages?.includes(rawLang))
+    ? rawLang
+    : (org.defaultSiteLanguage ?? "en");
+
   const [themeVars] = await Promise.all([
     fetchActiveTheme(org.id, previewTheme),
   ]);
@@ -190,6 +204,12 @@ export default async function PublicSitePage({
 
   const Head = () => (
     <>
+      {/* Set correct lang attribute for browser auto-translate + accessibility */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `document.documentElement.lang = ${JSON.stringify(activeLang)};`,
+        }}
+      />
       {fontUrl && (
         <>
           <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -205,17 +225,20 @@ export default async function PublicSitePage({
   );
 
   if (!slug || slug.length === 0) {
-    const landing = await fetchLandingPage(org.id);
+    const landing = await fetchLandingPage(org.id, activeLang);
     if (landing) {
       const layout = await fetchSiteLayout(org.id, landing.layoutId);
       return <><Head /><PageView org={org} page={landing} layout={layout} isLanding /></>;
     }
-    const [pages, layout] = await Promise.all([listPages(org.id), fetchSiteLayout(org.id)]);
+    const [pages, layout] = await Promise.all([
+      listPages(org.id, activeLang),
+      fetchSiteLayout(org.id),
+    ]);
     return <><Head /><SiteHome org={org} pages={pages} layout={layout} /></>;
   }
 
   const pageSlug = slug.join("/");
-  const page = await fetchPage(org.id, pageSlug);
+  const page = await fetchPage(org.id, pageSlug, activeLang);
   if (!page) notFound();
   const layout = await fetchSiteLayout(org.id, page.layoutId);
   return <><Head /><PageView org={org} page={page} layout={layout} /></>;

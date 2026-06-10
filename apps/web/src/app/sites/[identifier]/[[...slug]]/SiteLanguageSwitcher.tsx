@@ -1,31 +1,36 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { SITE_LANGUAGES, getLang } from "@/lib/site-languages";
 
 interface Props {
   orgId: string;
-  available: string[];   // language codes enabled by admin
+  available: string[];
   defaultLang: string;
+  activeLang: string; // resolved by RSC from cookie
 }
 
 function storageKey(orgId: string) {
   return `vyntra_site_lang_${orgId}`;
 }
 
-export function SiteLanguageSwitcher({ orgId, available, defaultLang }: Props) {
+export function SiteLanguageSwitcher({ orgId, available, defaultLang, activeLang }: Props) {
   const langs = SITE_LANGUAGES.filter((l) => available.includes(l.code));
-  const [active, setActive] = useState(defaultLang);
+  const router = useRouter();
+  const [active, setActive] = useState(activeLang);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  // Read stored preference on mount
+  // Keep local state in sync if RSC passes a new activeLang (e.g. after refresh)
   useEffect(() => {
-    const stored = localStorage.getItem(storageKey(orgId));
-    if (stored && available.includes(stored)) {
-      setActive(stored);
-    }
-  }, [orgId, available]);
+    setActive(activeLang);
+  }, [activeLang]);
+
+  // Keep <html lang> correct for browser auto-translate + screen readers
+  useEffect(() => {
+    document.documentElement.lang = active;
+  }, [active]);
 
   // Close on outside click
   useEffect(() => {
@@ -38,11 +43,14 @@ export function SiteLanguageSwitcher({ orgId, available, defaultLang }: Props) {
   }, [open]);
 
   const select = (code: string) => {
-    setActive(code);
-    localStorage.setItem(storageKey(orgId), code);
+    setActive(code); // optimistic update — no flash on refresh
     setOpen(false);
-    // Set cookie so SSR pages can read the preference on next navigation
+    // Persist in localStorage for fast reads
+    localStorage.setItem(storageKey(orgId), code);
+    // Set cookie — RSC reads this on next render
     document.cookie = `vyntra_site_lang=${code}; path=/; max-age=31536000; SameSite=Lax`;
+    // Re-run RSC so page content re-fetches with the new language
+    router.refresh();
   };
 
   if (langs.length <= 1) return null;
