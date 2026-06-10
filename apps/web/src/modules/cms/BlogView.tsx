@@ -286,7 +286,7 @@ export function BlogView() {
           ...prev,
         ]);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const columns = useMemo(
@@ -476,8 +476,8 @@ export function BlogView() {
           {/* ── Header ──────────────────────────────────────────────────────── */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <SectionTitle
-              title="Blog Posts"
-              paragraph={`${blogs.length} total${selectedCount > 0 ? ` · ${selectedCount} selected` : ""}`}
+              title={t("blog", { defaultValue: "Blog" })}
+              paragraph={`${filteredCount} ${filteredCount === 1 ? "post" : "posts"}${selectedCount > 0 ? ` · ${selectedCount} selected` : ""}`}
               mb="0"
               className="!w-auto"
             />
@@ -494,7 +494,7 @@ export function BlogView() {
 
               {/* Filters */}
               <FilterPanel
-                title="Choose Filters"
+                title={t("choosefilters", { defaultValue: "Choose Filters" })}
                 hasActiveFilters={hasActiveFilters}
                 onSearch={() => setActiveFilters({ ...filterDraft })}
                 onClear={() => { setFilterDraft(DEFAULT_FILTERS); setActiveFilters(DEFAULT_FILTERS); }}
@@ -586,17 +586,15 @@ export function BlogView() {
                 <button
                   key={tab.key}
                   onClick={() => { setActiveTab(tab.key); setPagination((p) => ({ ...p, pageIndex: 0 })); }}
-                  className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold border-b-2 transition-all -mb-px ${
-                    active
-                      ? "border-primary text-primary"
-                      : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
-                  }`}
+                  className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold border-b-2 transition-all -mb-px ${active
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+                    }`}
                 >
                   {tab.icon}
                   {tab.label}
-                  <span className={`ml-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold ${
-                    active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-                  }`}>
+                  <span className={`ml-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold ${active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+                    }`}>
                     {tabCounts[tab.key]}
                   </span>
                 </button>
@@ -630,8 +628,8 @@ export function BlogView() {
                               {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                               {canSort && (
                                 sorted === "asc" ? <ChevronUp size={12} className="text-primary shrink-0" />
-                                : sorted === "desc" ? <ChevronDown size={12} className="text-primary shrink-0" />
-                                : <ChevronsUpDown size={12} className="text-muted-foreground/40 shrink-0" />
+                                  : sorted === "desc" ? <ChevronDown size={12} className="text-primary shrink-0" />
+                                    : <ChevronsUpDown size={12} className="text-muted-foreground/40 shrink-0" />
                               )}
                             </div>
                           </th>
@@ -657,8 +655,8 @@ export function BlogView() {
                             const id = cell.column.id;
                             const tdCls =
                               id === "select" ? "py-3 px-4"
-                              : id === "actions" ? "py-3 px-4 text-right"
-                              : "py-3 px-4";
+                                : id === "actions" ? "py-3 px-4 text-right"
+                                  : "py-3 px-4";
                             return (
                               <td key={cell.id} className={tdCls} style={{ width: cell.column.getSize() }}>
                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -733,11 +731,10 @@ export function BlogView() {
                       <button
                         key={p}
                         onClick={() => table.setPageIndex(p)}
-                        className={`w-7 h-7 text-xs font-semibold rounded-sm transition-all ${
-                          pageIndex === p
-                            ? "bg-primary text-primary-foreground"
-                            : "border border-border text-muted-foreground hover:bg-muted"
-                        }`}
+                        className={`w-7 h-7 text-xs font-semibold rounded-sm transition-all ${pageIndex === p
+                          ? "bg-primary text-primary-foreground"
+                          : "border border-border text-muted-foreground hover:bg-muted"
+                          }`}
                       >
                         {(p as number) + 1}
                       </button>
@@ -759,7 +756,7 @@ export function BlogView() {
           <Modal
             isOpen={!!deletingBlog}
             onClose={() => setDeletingBlog(null)}
-            title="Delete Blog Post?"
+            title={t("deleteblogpost", { defaultValue: "Delete Blog Post?" })}
             description={
               <>
                 Are you sure you want to delete{" "}

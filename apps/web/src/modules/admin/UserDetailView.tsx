@@ -44,6 +44,7 @@ interface UserWithActivity extends AdminUser {
 type Tab = "overview" | "activity";
 
 function UserDetailInner({ userId }: { userId: string }) {
+  const t = useTranslations("admin.users");
   const router = useRouter();
   const [user, setUser] = useState<UserWithActivity | null>(null);
   const [loading, setLoading] = useState(true);
@@ -97,7 +98,7 @@ function UserDetailInner({ userId }: { userId: string }) {
   }, [load]);
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return "Never";
+    if (!dateString) return t("never", { defaultValue: "Never" });
     const date = new Date(dateString);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
@@ -105,10 +106,10 @@ function UserDetailInner({ userId }: { userId: string }) {
 
     if (diffDays === 0) {
       const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-      return diffHours === 0 ? "Just now" : `${diffHours}h ago`;
+      return diffHours === 0 ? t("justNow", { defaultValue: "Just now" }) : `${diffHours}h ${t("ago", { defaultValue: "ago" })}`;
     }
-    if (diffDays === 1) return "Yesterday";
-    if (diffDays < 7) return `${diffDays}d ago`;
+    if (diffDays === 1) return t("yesterday", { defaultValue: "Yesterday" });
+    if (diffDays < 7) return `${diffDays}d ${t("ago", { defaultValue: "ago" })}`;
     return date.toLocaleDateString();
   };
 
@@ -117,25 +118,25 @@ function UserDetailInner({ userId }: { userId: string }) {
     try {
       const updated = await admin.setUserActive(user.id, !user.isActive);
       setUser({ ...user, ...updated });
-      flash("success", updated.isActive ? "Account unlocked" : "Account locked");
+      flash("success", updated.isActive ? t("accountUnlocked", { defaultValue: "Account unlocked" }) : t("accountLocked", { defaultValue: "Account locked" }));
     } catch (e) {
-      flash("error", e instanceof Error ? e.message : "Failed to toggle lock");
+      flash("error", e instanceof Error ? e.message : t("failedToggleLock", { defaultValue: "Failed to toggle lock" }));
     }
   };
 
   const handlePromote = async () => {
     if (!user) return;
     if (user.organizationId && user.roles.some((r) => r.organizationId)) {
-      flash("error", "Cannot promote company users to super admin");
+      flash("error", t("cannotPromoteCompanyUser", { defaultValue: "Cannot promote company users to super admin" }));
       return;
     }
-    if (!confirm(`Promote ${user.email} to super admin?`)) return;
+    if (!confirm(t("promoteConfirm", { defaultValue: `Promote ${user.email} to super admin?` }))) return;
     try {
       const updated = await admin.promoteUser(user.id);
       setUser({ ...user, ...updated });
-      flash("success", "User promoted to super admin");
+      flash("success", t("userPromoted", { defaultValue: "User promoted to super admin" }));
     } catch (e) {
-      flash("error", e instanceof Error ? e.message : "Failed to promote");
+      flash("error", e instanceof Error ? e.message : t("failedPromote", { defaultValue: "Failed to promote" }));
     }
   };
 

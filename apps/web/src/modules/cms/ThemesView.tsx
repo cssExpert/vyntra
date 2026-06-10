@@ -203,6 +203,7 @@ function ThemeCard({
   activating: boolean;
   livePreviewUrl: string | null;
 }) {
+  const t = useTranslations("cms.themes");
   const [menuOpen, setMenuOpen] = useState(false);
   const v = theme.variables;
   const category = getCategory(v);
@@ -358,7 +359,7 @@ function ThemeCard({
             )}
             <button
               onClick={() => onPreview(theme)}
-              title="Color details"
+              title={t("colordetails", { defaultValue: "Color details" })}
               className="p-1.5 rounded-lg border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
             >
               <Info className="w-3.5 h-3.5" />
@@ -475,6 +476,7 @@ function ThemeTableRow({
   onDelete?: (id: string, name: string) => void; activating: boolean;
   livePreviewUrl: string | null;
 }) {
+  const t = useTranslations("cms.themes");
   const v = theme.variables;
   const primary = getVar(v, "--primary", "#3b82f6");
   const secondary = getVar(v, "--secondary", "#64748b");
@@ -529,7 +531,7 @@ function ThemeTableRow({
               Preview
             </button>
           )}
-          <button onClick={() => onPreview(theme)} title="Color details" className="p-1.5 text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted transition-all">
+          <button onClick={() => onPreview(theme)} title={t("colordetails", { defaultValue: "Color details" })} className="p-1.5 text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted transition-all">
             <Info className="w-3.5 h-3.5" />
           </button>
           <button
@@ -652,7 +654,7 @@ export function ThemesView() {
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-8">
         <SectionTitle
           mb="0"
-          title="Themes Hub"
+          title={t("themeshub", { defaultValue: "Themes Hub" })}
           paragraph="Choose a theme to apply to your public site. Global themes are available to all, custom themes are yours only."
           width="100%"
           className="max-w-full"
@@ -752,7 +754,7 @@ export function ThemesView() {
       {/* Delete confirm */}
       <ConfirmDialog
         open={!!pendingDelete}
-        title="Delete this theme?"
+        title={t("deletethistheme", { defaultValue: "Delete this theme?" })}
         description={
           pendingDelete ? (
             <><span className="font-semibold text-foreground">{pendingDelete.name}</span> will be permanently removed. This cannot be undone.</>

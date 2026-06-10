@@ -42,7 +42,18 @@
       "maintenanceModeHelp": "Mettez la plateforme en mode maintenance",
       "logo": "Logo",
       "favicon": "Favicon / Icône de l'application",
-      "preview": "Aperçu"
+      "preview": "Aperçu",
+      "logoHelp": "Shown in the sidebar and emails. Landscape format works best.",
+      "faviconHelp": "Shown in browser tabs and app launchers. Square 64x64 recommended.",
+      "primaryColorDesc": "Main CTA color — buttons, active states, links",
+      "secondaryColorDesc": "Supporting color — badges, secondary actions",
+      "accentColorDesc": "Highlight color — tags, decorative elements",
+      "featureToggles": "Feature Toggles",
+      "featureTogglesDesc": "Enable or disable platform-wide features.",
+      "active": "Active",
+      "unsavedChanges": "Unsaved changes will be lost if you navigate away.",
+      "saving": "Enregistrement…",
+      "saveSettings": "Save Settings"
     },
     "payment": {
       "title": "Paramètres de paiement",
@@ -116,12 +127,17 @@
       "saved": "Paramètres de stockage enregistrés",
       "error": "Impossible d'enregistrer les paramètres de stockage",
       "testConnection": "Tester la connexion",
-      "connectionSuccess": "Connexion réussie"
+      "connectionSuccess": "Connexion réussie",
+      "providerDesc": "Choose where you want to store files and media",
+      "unsavedChanges": "Unsaved changes will be lost if you navigate away.",
+      "saving": "Enregistrement…",
+      "saveSettings": "Save Settings"
     },
     "email": {
       "title": "Paramètres email",
-      "description": "Configurer le fournisseur de livraison d'email",
+      "description": "Configurez votre fournisseur email pour envoyer des emails transactionnels.",
       "provider": "Fournisseur email",
+      "providerDesc": "Choisissez comment vous souhaitez envoyer des emails",
       "smtp": "SMTP",
       "sendgrid": "SendGrid",
       "mailgun": "Mailgun",
@@ -130,17 +146,37 @@
       "mailgunDescription": "Service email Mailgun",
       "host": "Hôte",
       "port": "Port",
-      "username": "Nom d'utilisateur",
-      "password": "Mot de passe",
-      "fromEmail": "De email",
+      "username": "Nom d'utilisateur / Email",
+      "password": "Mot de passe / Mot de passe application",
+      "fromEmail": "Adresse email d'envoi",
       "apiKey": "Clé API",
       "domain": "Domaine",
       "secure": "Utiliser TLS/SSL",
       "save": "Enregistrer",
       "saved": "Paramètres email enregistrés",
+      "saveSettings": "Enregistrer les paramètres",
+      "saving": "Enregistrement…",
       "error": "Impossible d'enregistrer les paramètres email",
       "testEmail": "Envoyer un email de test",
-      "emailSent": "Email de test envoyé"
+      "sendTestEmail": "Envoyer un email de test",
+      "testEmailDesc": "Envoyez un email de test pour vérifier votre configuration SMTP",
+      "emailSent": "Email de test envoyé",
+      "smtpGuide": "Guide de configuration du fournisseur SMTP:",
+      "gmailStep1": "Activez la vérification en deux étapes:",
+      "gmailStep2": "Allez aux mots de passe d'application:",
+      "gmailStep3": "Sélectionnez \"Mail\" et \"Windows/Mac/Linux\"",
+      "gmailStep4": "Copiez le mot de passe de 16 caractères",
+      "sendgridSetup": "Hôte: smtp.sendgrid.net • Port: 587 • Nom d'utilisateur: \"apikey\" • Mot de passe: your-api-key",
+      "sesSetup": "Hôte: email-smtp.[région].amazonaws.com • Port: 587 • Utilisez vos identifiants SMTP d'AWS",
+      "beforeTesting": "Avant le test:",
+      "testNote1": "Remplissez tous les champs SMTP (Hôte, Port, Email d'envoi, identifiants)",
+      "testNote2": "Pour Gmail: utilisez un mot de passe d'application, pas votre mot de passe habituel",
+      "testNote3": "Assurez-vous que vos identifiants sont corrects",
+      "whatDoes": "Ce que cela fait:",
+      "whatDoesDesc": "Se connecte à votre serveur SMTP et envoie un véritable email de test pour vérifier que tout fonctionne correctement d'un bout à l'autre.",
+      "sendTestTo": "Envoyer un email de test à",
+      "unsavedChanges": "Vous avez des modifications non enregistrées",
+      "sending": "Envoi…"
     },
     "companies": {
       "title": "Entreprises",
@@ -214,7 +250,7 @@
       "stepBranding": "Marque",
       "stepAdministrator": "Administrateur",
       "noPackages": "Aucun plan disponible. Créez-en un d'abord sous Plans.",
-      "upToUsers": "Jusqu'à {{count}} utilisateurs ·",
+      "upToUsers": "Jusqu'à {count} utilisateurs ·",
       "noModules": "Aucun module",
       "brandingOptional": "La marque est optionnelle — vous pouvez la mettre à jour à tout moment depuis la page de modification de l'entreprise.",
       "companyLogo": "Logo de l'entreprise",
@@ -241,7 +277,18 @@
       "back": "Retour",
       "continue": "Continuer",
       "creating": "Création…",
-      "createCompany": "Créer une entreprise"
+      "createCompany": "Créer une entreprise",
+      "passwordMinLength": "Password must be at least 8 characters.",
+      "loadError": "Failed to load company",
+      "notFound": "Company not found",
+      "editTitle": "Modifier l'entreprise",
+      "editDesc": "Mettez à jour les détails de l'entreprise, le plan et le statut opérationnel.",
+      "saveChanges": "Enregistrer les modifications",
+      "saving": "Enregistrement…",
+      "logoUrl": "URL du logo",
+      "statusActive": "Actif",
+      "statusSuspended": "Suspendu",
+      "websiteField": "Site Web"
     },
     "dashboard": {
       "title": "Tableau de bord d'administration",
@@ -255,7 +302,38 @@
       "topCompanies": "Principales entreprises",
       "recentActivities": "Activités récentes",
       "viewAll": "Voir tout",
-      "noData": "Aucune donnée disponible"
+      "noData": "Aucune donnée disponible",
+      "revenueoverview": "Revenue Overview",
+      "monthlyrevenuevsprevious": "Monthly revenue vs previous year",
+      "recentactivity": "Recent Activity",
+      "topleads": "Top Leads",
+      "yourhottestcrmprospects": "Your hottest CRM prospects",
+      "websitehealth": "Website Health",
+      "latestlighthouseauditresults": "Latest Lighthouse audit results",
+      "perf": "Perf",
+      "a11y": "A11y",
+      "best": "Best",
+      "seo": "SEO",
+      "emailcampaigns": "Email Campaigns",
+      "recentcampaignperformance": "Recent campaign performance",
+      "recentpayments": "Recent Payments",
+      "integrationstatus": "Integration Status",
+      "connectedservicesandplatforms": "Connected services and platforms",
+      "superadmindashboard": "Super Admin Dashboard",
+      "systemconfiguration": "System Configuration",
+      "platformsettingsstatus": "Platform settings status",
+      "cloudstorage": "Cloud Storage",
+      "emailprovider": "Email Provider",
+      "paymentgateway": "Payment Gateway",
+      "quickactions": "Quick Actions",
+      "commonadmintasks": "Common admin tasks",
+      "recentcompanies": "Recent Companies",
+      "active": "Active",
+      "availablepackages": "Available Packages",
+      "availablemodules": "Available Modules",
+      "userstatistics": "User Statistics",
+      "dashboard": "Tableau de bord",
+      "welcomebackraviheres": "Bienvenue, Ravi. Voici votre aperçu commercial."
     },
     "packages": {
       "title": "Plans d'abonnement",
@@ -283,7 +361,7 @@
       "public": "Public",
       "private": "Privé",
       "noModules": "Aucun module",
-      "upToUsers": "Jusqu'à {{count}} utilisateurs",
+      "upToUsers": "Jusqu'à {count} utilisateurs",
       "editPackage": "Modifier le plan",
       "addPackage": "Ajouter un plan",
       "chooseModules": "Choisissez les modules que ce plan accorde l'accès.",
@@ -296,7 +374,7 @@
       "failedLoad": "Impossible de charger",
       "failedSave": "Impossible d'enregistrer le forfait",
       "failedDelete": "Impossible de supprimer",
-      "deleteConfirm": "Supprimer le forfait \"{{name}}\"?"
+      "deleteConfirm": "Supprimer le forfait \"{name}\"?"
     },
     "modules": {
       "title": "Modules",
@@ -315,7 +393,18 @@
       "search": "Rechercher des modules",
       "noResults": "Aucun module trouvé",
       "isActive": "Est actif",
-      "loading": "Chargement…"
+      "loading": "Chargement…",
+      "disabled": "Disabled",
+      "actions": "Actions",
+      "viewDetails": "View module details and usage.",
+      "noDescription": "No description",
+      "usingThisModule": "Using This Module",
+      "noCompaniesUsingModule": "No companies are using this module yet.",
+      "updateModuleDetails": "Update module details.",
+      "cancel": "Annuler",
+      "saving": "Enregistrement…",
+      "moduleName": "Module name",
+      "moduleDescription": "Module description"
     },
     "users": {
       "title": "Utilisateurs",
@@ -341,8 +430,74 @@
       "lastLogin": "Dernière connexion",
       "isActive": "Est actif",
       "loading": "Chargement…",
-      "user": "Utilisateur",
-      "users": "Utilisateurs"
+      "user": "user",
+      "users": "users",
+      "never": "Never",
+      "justNow": "Just now",
+      "ago": "ago",
+      "yesterday": "Yesterday",
+      "accountUnlocked": "Account unlocked",
+      "accountLocked": "Account locked",
+      "failedToggleLock": "Failed to toggle lock",
+      "cannotPromoteCompanyUser": "Cannot promote company users to super admin",
+      "userPromoted": "User promoted to super admin",
+      "failedPromote": "Failed to promote",
+      "platform": "Platform",
+      "type": "Type",
+      "member": "Member",
+      "locked": "Locked",
+      "actions": "Actions",
+      "viewDetails": "View Details",
+      "changePassword": "Change Password",
+      "lockAccount": "Lock Account",
+      "unlockAccount": "Unlock Account",
+      "makeSuperAdmin": "Make Super Admin",
+      "promote": "Promote",
+      "toSuperAdmin": "to super admin?",
+      "addUser": "Add New User",
+      "createNewUser": "Create a new system user account",
+      "cancel": "Annuler",
+      "createUser": "Create User",
+      "accountInformation": "Account Information",
+      "emailAddress": "Email Address",
+      "userEmailPlaceholder": "user@example.com",
+      "fullName": "Full Name",
+      "fullNamePlaceholder": "John Doe",
+      "jobTitle": "Job Title",
+      "jobTitlePlaceholder": "e.g. Senior Manager",
+      "department": "Department",
+      "departmentPlaceholder": "e.g. Sales, Engineering",
+      "phoneNumber": "Phone Number",
+      "phoneNumberPlaceholder": "+1 (555) 000-0000",
+      "initialStatus": "Initial Status",
+      "address": "Address",
+      "streetAddress": "Street Address",
+      "streetAddressPlaceholder": "123 Main Street",
+      "city": "City",
+      "cityPlaceholder": "San Francisco",
+      "stateProvince": "State/Province",
+      "stateProvincePlaceholder": "CA",
+      "country": "Country",
+      "countryPlaceholder": "United States",
+      "editUser": "Edit User",
+      "updateDetails": "Update details for",
+      "saveChanges": "Save Changes",
+      "platformUser": "Platform User",
+      "viewOnly": "View only",
+      "accountStatus": "Account Status",
+      "setPassword": "Set a new password for",
+      "saving": "Enregistrement…",
+      "updatePassword": "Update Password",
+      "newPassword": "New Password",
+      "passwordPlaceholder": "At least 8 characters",
+      "hidePassword": "Hide password",
+      "showPassword": "Show password",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Re-enter the new password",
+      "passwordWarning": "The user will need to use this new password the next time they log in.",
+      "deleteUser": "Delete User",
+      "deleteWarning": "Are you sure you want to permanently delete",
+      "cannotUndo": "This action cannot be undone."
     },
     "themes": {
       "title": "Thèmes",
@@ -360,7 +515,11 @@
       "search": "Rechercher des thèmes",
       "noResults": "Aucun thème trouvé",
       "isActive": "Est actif",
-      "loading": "Chargement…"
+      "loading": "Chargement…",
+      "colorPalette": "Color Palette",
+      "cancel": "Annuler",
+      "saving": "Enregistrement…",
+      "saveTheme": "Save Theme"
     },
     "crm": {
       "title": "CRM",
@@ -767,7 +926,11 @@
     "loginFailed": "Échec de la connexion. Veuillez vérifier vos identifiants.",
     "signupSuccess": "Compte créé avec succès",
     "passwordResetSuccess": "Mot de passe réinitialisé avec succès",
-    "welcomeBack": "Bienvenue!"
+    "welcomeBack": "Bienvenue!",
+    "johnsmith": "John Smith",
+    "infocompanynamegmailcom": "info.companyname@gmail.com",
+    "min6characters": "Min. 6 characters",
+    "": "••••••••••"
   },
   "errors": {
     "notFound": "Non trouvé",
@@ -794,35 +957,55 @@
       "description": "Manage your profile information",
       "save": "Enregistrer",
       "cancel": "Annuler",
-      "saved": "Enregistré avec succès"
+      "saved": "Enregistré avec succès",
+      "loading": "Loading profile…",
+      "error": "Failed to update profile."
     },
     "password": {
       "title": "Password Settings",
       "description": "Change your password",
       "save": "Enregistrer",
       "cancel": "Annuler",
-      "saved": "Enregistré avec succès"
+      "saved": "Enregistré avec succès",
+      "fillFields": "Please fill in all fields.",
+      "pwdMinLength": "New password must be at least 8 characters.",
+      "pwdNoMatch": "New passwords do not match.",
+      "pwdChanged": "Password changed successfully.",
+      "error": "Failed to change password.",
+      "saving": "Enregistrement…",
+      "updatePwd": "Update Password",
+      "changePassword": "Change Password",
+      "changePasswordDesc": "Enter your current password, then choose a new one.",
+      "currentPassword": "Current Password",
+      "enterCurrentPwd": "Your current password",
+      "newPassword": "New Password",
+      "minChars8": "At least 8 characters",
+      "confirmPassword": "Confirm New Password",
+      "reenterPassword": "Re-enter the new password"
     },
     "notifications": {
       "title": "Notifications",
       "description": "Manage notification preferences",
       "save": "Enregistrer",
       "cancel": "Annuler",
-      "saved": "Enregistré avec succès"
+      "saved": "Enregistré avec succès",
+      "loadError": "Failed to load notifications."
     },
     "billing": {
       "title": "Billing",
       "description": "Manage your billing information",
       "save": "Enregistrer",
       "cancel": "Annuler",
-      "saved": "Enregistré avec succès"
+      "saved": "Enregistré avec succès",
+      "loading": "Loading billing…"
     },
     "subscription": {
       "title": "Subscription",
       "description": "Manage your subscription plan",
       "save": "Enregistrer",
       "cancel": "Annuler",
-      "saved": "Enregistré avec succès"
+      "saved": "Enregistré avec succès",
+      "loading": "Loading subscription…"
     }
   },
   "cms": {
@@ -833,7 +1016,17 @@
       "edit": "Éditer",
       "delete": "Supprimer",
       "save": "Enregistrer",
-      "cancel": "Annuler"
+      "cancel": "Annuler",
+      "pages": "Pages",
+      "choosefilters": "Choose Filters",
+      "datefilteron": "Date Filter On",
+      "status": "Status",
+      "author": "Author",
+      "searchpages": "Rechercher",
+      "pagetitle": "Page title",
+      "egaboutus": "e.g. About Us",
+      "aboutus": "about-us",
+      "deletepage": "Supprimer"
     },
     "blog": {
       "title": "Blog",
@@ -842,7 +1035,10 @@
       "edit": "Éditer",
       "delete": "Supprimer",
       "save": "Enregistrer",
-      "cancel": "Annuler"
+      "cancel": "Annuler",
+      "blog": "Blog",
+      "searchblogposts": "Rechercher",
+      "deleteblogpost": "Supprimer"
     },
     "gallery": {
       "title": "Gallery",
@@ -851,7 +1047,8 @@
       "edit": "Éditer",
       "delete": "Supprimer",
       "save": "Enregistrer",
-      "cancel": "Annuler"
+      "cancel": "Annuler",
+      "gallerieshub": "Galleries Hub"
     },
     "themes": {
       "title": "Themes",
@@ -860,7 +1057,30 @@
       "edit": "Éditer",
       "delete": "Supprimer",
       "save": "Enregistrer",
-      "cancel": "Annuler"
+      "cancel": "Annuler",
+      "colordetails": "Color details",
+      "searchbynamecategory": "Rechercher",
+      "themeshub": "Themes Hub",
+      "deletethistheme": "Supprimer"
+    }
+  },
+  "store": {
+    "store": {
+      "monthlyrevenuelast6": "Monthly revenue (last 6 months)",
+      "recentorders": "Recent Orders",
+      "lowstockalerts": "Low Stock Alerts",
+      "topproducts": "Top Products",
+      "bestsellingproductsthismonth": "Best-selling products this month",
+      "activeautomations": "Active Automations",
+      "runningworkflowsinyour": "Running workflows in your store"
+    },
+    "orders": {
+      "searchordercustomer": "Rechercher"
+    },
+    "categories": {
+      "view": "View",
+      "edit": "Modifier",
+      "delete": "Supprimer"
     }
   }
 }

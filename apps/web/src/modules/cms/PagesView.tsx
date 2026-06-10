@@ -611,7 +611,7 @@ export function PagesView() {
           {/* ── Page Header ────────────────────────────────────────────────── */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <SectionTitle
-              title="Pages"
+              title={t("pages", { defaultValue: "Pages" })}
               paragraph={`${filteredCount} ${filteredCount === 1 ? "page" : "pages"}${selectedCount > 0 ? ` · ${selectedCount} selected` : ""}`}
               mb="0"
               className="!w-auto"
@@ -635,7 +635,7 @@ export function PagesView() {
 
               {/* Apply Filters */}
               <FilterPanel
-                title="Choose Filters"
+                title={t("choosefilters", { defaultValue: "Choose Filters" })}
                 hasActiveFilters={hasActiveFilters}
                 onSearch={() => setActiveFilters({ ...filterDraft })}
                 onClear={() => {
@@ -1167,7 +1167,7 @@ export function PagesView() {
           <Modal
             isOpen={!!deletingPage}
             onClose={() => setDeletingPage(null)}
-            title="Delete Page?"
+            title={t("deletepage", { defaultValue: "Delete Page?" })}
             description={
               <>
                 Are you sure you want to delete{" "}

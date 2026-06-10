@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { useAuth } from "@/providers/AuthProvider";
@@ -267,7 +268,7 @@ export function SuperAdminDashboardView() {
             {/* Page header */}
             <motion.div variants={itemVariants}>
               <PageHeader
-                title="Super Admin Dashboard"
+                title={t("superadmindashboard", { defaultValue: "Super Admin Dashboard" })}
                 description={`Welcome back, ${user?.name || "Admin"}. Platform overview and system configuration.`}
               >
                 <button
@@ -305,8 +306,8 @@ export function SuperAdminDashboardView() {
             {/* System Configuration */}
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
               <SectionCard
-                title="System Configuration"
-                description="Platform settings status"
+                title={t("systemconfiguration", { defaultValue: "System Configuration" })}
+                description={t("platformsettingsstatus", { defaultValue: "Platform settings status" })}
                 className="lg:col-span-2"
               >
                 <div className="space-y-2.5">
@@ -329,24 +330,24 @@ export function SuperAdminDashboardView() {
               </SectionCard>
 
               {/* Quick Actions */}
-              <SectionCard title="Quick Actions" description="Common admin tasks">
+              <SectionCard title={t("quickactions", { defaultValue: "Quick Actions" })} description={t("commonadmintasks", { defaultValue: "Common admin tasks" })}>
                 <div className="space-y-2">
-                  <a
+                  <Link
                     href="/admin/companies"
                     className="flex items-center gap-2 rounded-sm p-2.5 text-sm hover:bg-muted transition-colors cursor-pointer group"
                   >
                     <Building2 className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
                     <span>Manage Companies</span>
                     <ArrowRight className="h-3 w-3 ml-auto text-muted-foreground" />
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="/admin/users"
                     className="flex items-center gap-2 rounded-sm p-2.5 text-sm hover:bg-muted transition-colors cursor-pointer group"
                   >
                     <Users className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
                     <span>Manage Users</span>
                     <ArrowRight className="h-3 w-3 ml-auto text-muted-foreground" />
-                  </a>
+                  </Link>
                   <a
                     href="/admin/packages"
                     className="flex items-center gap-2 rounded-sm p-2.5 text-sm hover:bg-muted transition-colors cursor-pointer group"
@@ -370,7 +371,7 @@ export function SuperAdminDashboardView() {
             {/* Companies List */}
             {data.companies.length > 0 && (
               <SectionCard
-                title="Recent Companies"
+                title={t("recentcompanies", { defaultValue: "Recent Companies" })}
                 description={`${data.companies.length} total companies`}
                 action={{ label: "View All", href: "/admin/companies" }}
               >
@@ -412,7 +413,7 @@ export function SuperAdminDashboardView() {
             {/* Packages Overview */}
             {data.packages.length > 0 && (
               <SectionCard
-                title="Available Packages"
+                title={t("availablepackages", { defaultValue: "Available Packages" })}
                 description={`${data.packages.length} total packages`}
                 action={{ label: "Manage", href: "/admin/packages" }}
               >
@@ -447,7 +448,7 @@ export function SuperAdminDashboardView() {
             {/* Modules List */}
             {data.modules.length > 0 && (
               <SectionCard
-                title="Available Modules"
+                title={t("availablemodules", { defaultValue: "Available Modules" })}
                 description={`${data.modules.length} total modules`}
                 action={{ label: "Manage", href: "/admin/modules" }}
               >
@@ -475,7 +476,7 @@ export function SuperAdminDashboardView() {
             {/* Users Summary */}
             {data.users.length > 0 && (
               <SectionCard
-                title="User Statistics"
+                title={t("userstatistics", { defaultValue: "User Statistics" })}
                 description={`${data.users.length} total users`}
                 action={{ label: "Manage Users", href: "/admin/users" }}
               >

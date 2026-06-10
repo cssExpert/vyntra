@@ -67,12 +67,12 @@ export function NotificationsSettingsView() {
       setFeedback({
         type: "error",
         message:
-          e instanceof Error ? e.message : "Failed to load notifications.",
+          e instanceof Error ? e.message : t("loadError", { defaultValue: "Failed to load notifications." }),
       });
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     load();

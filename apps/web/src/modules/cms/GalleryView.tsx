@@ -114,7 +114,7 @@ export function GalleryView() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
         <SectionTitle
           mb="0"
-          title="Galleries Hub"
+          title={t("gallerieshub", { defaultValue: "Galleries Hub" })}
           paragraph="Build and design multi-format creative showcases. Organize curated assets, adjust status controls, and analyze live viewer interactions."
           width="100%"
           className="max-w-full"

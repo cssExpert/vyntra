@@ -23,7 +23,7 @@ function pageWindow(current: number, total: number): (number | "…")[] {
 }
 
 export function InventoryView() {
-  const t = useTranslations("admin.store.inventory");
+  const t = useTranslations("store.inventory");
   const isLoaded = usePageLoad(600);
   const [search,      setSearch]      = useState("");
   const [stockFilter, setStockFilter] = useState("");

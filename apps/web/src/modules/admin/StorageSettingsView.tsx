@@ -248,6 +248,7 @@ function ConfigField({
 }
 
 function Inner() {
+  const t = useTranslations("admin.storage");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -427,8 +428,8 @@ function Inner() {
   return (
     <div className="space-y-6 pb-10">
       <PageHeader
-        title="Storage Settings"
-        description="Configure where files and media are stored for your application."
+        title={t("title", { defaultValue: "Storage Settings" })}
+        description={t("description", { defaultValue: "Configure where files and media are stored for your application." })}
       />
 
       {/* Banners */}
@@ -449,8 +450,8 @@ function Inner() {
         {/* ── Select Provider ─────────────────────────────────────────────── */}
         <SectionCard
           icon={HardDrive}
-          title="Storage Provider"
-          description="Choose where you want to store files and media"
+          title={t("provider", { defaultValue: "Storage Provider" })}
+          description={t("providerDesc", { defaultValue: "Choose where you want to store files and media" })}
         >
           <div className="grid gap-4 md:grid-cols-2">
             {STORAGE_OPTIONS.map((option) => (
@@ -919,10 +920,10 @@ function Inner() {
         <p className="text-xs text-muted-foreground">
           {success ? (
             <span className="flex items-center gap-1.5 text-success">
-              <CheckCircle2 className="h-3.5 w-3.5" /> Saved
+              <CheckCircle2 className="h-3.5 w-3.5" /> {t("saved", { defaultValue: "Saved" })}
             </span>
           ) : (
-            "Unsaved changes will be lost if you navigate away."
+            t("unsavedChanges", { defaultValue: "Unsaved changes will be lost if you navigate away." })
           )}
         </p>
         <button
@@ -935,7 +936,7 @@ function Inner() {
           ) : (
             <Save className="h-4 w-4" />
           )}
-          {busy ? "Saving…" : "Save Settings"}
+          {busy ? t("saving", { defaultValue: "Saving…" }) : t("saveSettings", { defaultValue: "Save Settings" })}
         </button>
       </div>
     </div>

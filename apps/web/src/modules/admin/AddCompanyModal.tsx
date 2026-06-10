@@ -77,6 +77,8 @@ interface AddCompanyModalProps {
   onError: (message: string) => void;
 }
 
+type TranslationFunction = any;
+
 type FormState = {
   name: string;
   legalName: string;
@@ -112,47 +114,47 @@ const isUrl = (v: string) => {
 };
 const isPhone = (v: string) => /^[+\d][\d\s\-().]{6,19}$/.test(v.trim());
 
-function validate(form: FormState): Partial<Record<keyof FormState, string>> {
+function validate(form: FormState, t: TranslationFunction): Partial<Record<keyof FormState, string>> {
   const e: Partial<Record<keyof FormState, string>> = {};
 
   if (!form.name.trim()) {
-    e.name = "Company name is required.";
+    e.name = t("nameRequired", { defaultValue: "Company name is required." });
   } else if (form.name.trim().length < 2) {
-    e.name = "Must be at least 2 characters.";
+    e.name = t("nameTooShort", { defaultValue: "Must be at least 2 characters." });
   }
 
   if (!form.email.trim()) {
-    e.email = "Contact email is required.";
+    e.email = t("emailRequired", { defaultValue: "Contact email is required." });
   } else if (!isEmail(form.email)) {
-    e.email = "Enter a valid email address.";
+    e.email = t("emailInvalid", { defaultValue: "Enter a valid email address." });
   }
 
   if (form.website.trim() && !isUrl(form.website)) {
-    e.website = "Enter a valid URL (e.g. https://acme.com).";
+    e.website = t("websiteInvalid", { defaultValue: "Enter a valid URL (e.g. https://acme.com)." });
   }
 
   if (form.phone.trim() && !isPhone(form.phone)) {
-    e.phone = "Enter a valid phone number.";
+    e.phone = t("phoneInvalid", { defaultValue: "Enter a valid phone number." });
   }
 
   if (!form.packageSlug) {
-    e.packageSlug = "Please select a plan.";
+    e.packageSlug = t("packageRequired", { defaultValue: "Please select a plan." });
   }
 
   if (!form.adminFirstName.trim()) {
-    e.adminFirstName = "First name is required.";
+    e.adminFirstName = t("adminFirstNameRequired", { defaultValue: "First name is required." });
   }
 
   if (!form.adminEmail.trim()) {
-    e.adminEmail = "Admin email is required.";
+    e.adminEmail = t("adminEmailRequired", { defaultValue: "Admin email is required." });
   } else if (!isEmail(form.adminEmail)) {
-    e.adminEmail = "Enter a valid email address.";
+    e.adminEmail = t("adminEmailInvalid", { defaultValue: "Enter a valid email address." });
   }
 
   if (!form.adminPassword) {
-    e.adminPassword = "Password is required.";
+    e.adminPassword = t("passwordRequired", { defaultValue: "Password is required." });
   } else if (form.adminPassword.length < 8) {
-    e.adminPassword = "Password must be at least 8 characters.";
+    e.adminPassword = t("passwordMinLength", { defaultValue: "Password must be at least 8 characters." });
   }
 
   return e;
@@ -220,7 +222,7 @@ export function AddCompanyModal({
   const [touched, setTouched] = useState<TouchedState>({});
   const [forceShow, setForceShow] = useState<TouchedState>({});
 
-  const allErrors = useMemo(() => validate(form), [form]);
+  const allErrors = useMemo(() => validate(form, t), [form, t]);
 
   const visibleError = useCallback(
     (field: keyof FormState) =>
