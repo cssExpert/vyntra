@@ -124,7 +124,7 @@ function Inner() {
   const columns = useMemo(
     () => [
       columnHelper.accessor("name", {
-        header: "Module",
+        header: t("name", { defaultValue: "Module" }),
         size: 220,
         cell: ({ row, getValue }) => {
           const ModuleIcon = MODULE_ICON_MAP[row.original.key] ?? Boxes;
@@ -139,26 +139,26 @@ function Inner() {
         },
       }),
       columnHelper.accessor("key", {
-        header: "Key",
+        header: t("key", { defaultValue: "Key" }),
         size: 180,
         cell: ({ getValue }) => (
           <code className="rounded bg-muted px-1.5 py-0.5 text-xs">{getValue()}</code>
         ),
       }),
       columnHelper.accessor("description", {
-        header: "Description",
+        header: t("description", { defaultValue: "Description" }),
         enableSorting: false,
         cell: ({ getValue }) => (
           <span className="text-sm text-muted-foreground">{getValue() ?? "—"}</span>
         ),
       }),
       columnHelper.accessor("isActive", {
-        header: "Status",
+        header: t("active", { defaultValue: "Status" }),
         size: 130,
         cell: ({ getValue }) => (
           <StatusBadge
             variant={getValue() ? "success" : "muted"}
-            label={getValue() ? "Active" : "Disabled"}
+            label={getValue() ? t("active", { defaultValue: "Active" }) : t("disabled", { defaultValue: "Disabled" })}
             dot
             size="sm"
           />
@@ -166,7 +166,7 @@ function Inner() {
       }),
       columnHelper.display({
         id: "actions",
-        header: "Actions",
+        header: t("actions", { defaultValue: "Actions" }),
         size: 90,
         cell: ({ row }) => {
           const m = row.original;
@@ -175,12 +175,12 @@ function Inner() {
               <TableActionMenu
                 items={[
                   {
-                    label: "View Details",
+                    label: t("viewDetails", { defaultValue: "View Details" }),
                     icon: <Eye size={14} />,
                     onClick: () => openDetail(m),
                   },
                   {
-                    label: "Edit",
+                    label: t("edit", { defaultValue: "Edit" }),
                     icon: <Pencil size={14} />,
                     onClick: () => openEdit(m),
                   },
@@ -240,7 +240,7 @@ function Inner() {
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search modules..."
+          placeholder={t("search", { defaultValue: "Search modules..." })}
           className="w-full pl-10 pr-10 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
         {searchTerm && (
@@ -257,9 +257,9 @@ function Inner() {
       <div className="overflow-hidden rounded-xl border border-border bg-card">
         <div className="overflow-x-auto">
           {loading ? (
-            <div className="px-4 py-8 text-center text-muted-foreground">Loading…</div>
+            <div className="px-4 py-8 text-center text-muted-foreground">{t("loading", { defaultValue: "Loading…" })}</div>
           ) : table.getRowModel().rows.length === 0 ? (
-            <div className="px-4 py-8 text-center text-muted-foreground">No modules found</div>
+            <div className="px-4 py-8 text-center text-muted-foreground">{t("noResults", { defaultValue: "No modules found" })}</div>
           ) : (
             <table className="w-full text-sm" style={{ tableLayout: "fixed" }}>
               <thead>
@@ -327,14 +327,14 @@ function Inner() {
           setSelectedModule(null);
         }}
         title={selectedModule?.name}
-        description="View module details and usage."
+        description={t("viewDetails", { defaultValue: "View module details and usage." })}
         maxWidth="lg"
         footer={
           <button
             onClick={() => selectedModule && openEdit(selectedModule)}
             className="flex items-center gap-2 rounded-lg bg-foreground px-3 py-2 text-sm font-semibold text-background hover:opacity-90 transition cursor-pointer"
           >
-            <Pencil className="h-4 w-4" /> Edit
+            <Pencil className="h-4 w-4" /> {t("edit", { defaultValue: "Edit" })}
           </button>
         }
       >
@@ -343,17 +343,17 @@ function Inner() {
             <>
               <div className="grid gap-4">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Key</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("key", { defaultValue: "Key" })}</p>
                   <p className="mt-1 font-mono text-sm">{selectedModule.key}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Description</p>
-                  <p className="mt-1 text-sm">{selectedModule.description || "No description"}</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("description", { defaultValue: "Description" })}</p>
+                  <p className="mt-1 text-sm">{selectedModule.description || t("noDescription", { defaultValue: "No description" })}</p>
                 </div>
               </div>
 
               <div className="border-t border-border pt-6">
-                <h4 className="text-sm font-semibold text-foreground mb-4">Using This Module</h4>
+                <h4 className="text-sm font-semibold text-foreground mb-4">{t("usingThisModule", { defaultValue: "Using This Module" })}</h4>
                 {selectedModule.companies && selectedModule.companies.length > 0 ? (
                   <div className="space-y-2">
                     {selectedModule.companies.map((c) => (
@@ -367,7 +367,7 @@ function Inner() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground">No companies are using this module yet.</p>
+                  <p className="text-sm text-muted-foreground">{t("noCompaniesUsingModule", { defaultValue: "No companies are using this module yet." })}</p>
                 )}
               </div>
             </>
@@ -379,43 +379,43 @@ function Inner() {
       <Modal
         isOpen={editOpen}
         onClose={() => setEditOpen(false)}
-        title="Edit Module"
-        description="Update module details."
+        title={t("edit", { defaultValue: "Edit Module" })}
+        description={t("updateModuleDetails", { defaultValue: "Update module details." })}
         footer={
           <div className="flex justify-end gap-2">
             <button
               onClick={() => setEditOpen(false)}
               className="rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted transition cursor-pointer"
             >
-              Cancel
+              {t("cancel", { defaultValue: "Cancel" })}
             </button>
             <button
               onClick={saveEdit}
               disabled={editBusy || !editForm.name}
               className="rounded-lg bg-foreground px-3 py-2 text-sm font-semibold text-background hover:opacity-90 transition cursor-pointer disabled:opacity-50"
             >
-              {editBusy ? "Saving…" : "Save"}
+              {editBusy ? t("saving", { defaultValue: "Saving…" }) : t("save", { defaultValue: "Save" })}
             </button>
           </div>
         }
       >
         <div className="px-6 py-5 space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium">Name</label>
+            <label className="mb-1.5 block text-sm font-medium">{t("name", { defaultValue: "Name" })}</label>
             <input
               className={adminInput}
               value={editForm.name}
               onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-              placeholder="Module name"
+              placeholder={t("moduleName", { defaultValue: "Module name" })}
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium">Description</label>
+            <label className="mb-1.5 block text-sm font-medium">{t("description", { defaultValue: "Description" })}</label>
             <input
               className={adminInput}
               value={editForm.description}
               onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-              placeholder="Module description"
+              placeholder={t("moduleDescription", { defaultValue: "Module description" })}
             />
           </div>
         </div>

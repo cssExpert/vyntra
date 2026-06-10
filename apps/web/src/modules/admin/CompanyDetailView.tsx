@@ -56,6 +56,7 @@ function statusVariant(status?: string) {
 }
 
 function Inner({ companyId }: { companyId: string }) {
+  const t = useTranslations("admin.companies");
   const router = useRouter();
   const { toasts, addToast, dismiss } = useToaster();
 
@@ -77,7 +78,7 @@ function Inner({ companyId }: { companyId: string }) {
       setCompany(c);
       setPackages(p);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load company");
+      setError(e instanceof Error ? e.message : t("loadError", { defaultValue: "Failed to load company" }));
     } finally {
       setLoading(false);
     }
@@ -89,7 +90,7 @@ function Inner({ companyId }: { companyId: string }) {
 
   if (loading) {
     return (
-      <p className="py-24 text-center text-sm text-muted-foreground">Loading…</p>
+      <p className="py-24 text-center text-sm text-muted-foreground">{t("loading", { defaultValue: "Loading…" })}</p>
     );
   }
 
@@ -100,10 +101,10 @@ function Inner({ companyId }: { companyId: string }) {
           onClick={() => router.push("/admin/companies")}
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition"
         >
-          <ArrowLeft className="h-4 w-4" /> Back to Companies
+          <ArrowLeft className="h-4 w-4" /> {t("back", { defaultValue: "Back to Companies" })}
         </button>
         <p className="rounded-lg bg-error/10 border border-error/20 px-3 py-2 text-sm text-error">
-          {error || "Company not found"}
+          {error || t("notFound", { defaultValue: "Company not found" })}
         </p>
       </div>
     );
@@ -115,7 +116,7 @@ function Inner({ companyId }: { companyId: string }) {
         onClick={() => router.push("/admin/companies")}
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition cursor-pointer"
       >
-        <ArrowLeft className="h-4 w-4" /> Back to Companies
+        <ArrowLeft className="h-4 w-4" /> {t("back", { defaultValue: "Back to Companies" })}
       </button>
 
       <PageHeader
@@ -126,7 +127,7 @@ function Inner({ companyId }: { companyId: string }) {
           onClick={() => setEditing(true)}
           className="flex items-center gap-2 rounded-lg bg-foreground px-3 py-2 text-sm font-semibold text-background hover:opacity-90 transition cursor-pointer"
         >
-          <Pencil className="h-4 w-4" /> Edit Company
+          <Pencil className="h-4 w-4" /> {t("edit", { defaultValue: "Edit Company" })}
         </button>
       </PageHeader>
 

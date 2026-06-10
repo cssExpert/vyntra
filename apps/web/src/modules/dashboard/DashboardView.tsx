@@ -211,8 +211,8 @@ export function DashboardView() {
             {/* Page header */}
             <motion.div variants={itemVariants}>
               <PageHeader
-                title="Dashboard"
-                description="Welcome back, Ravi. Here's your business overview."
+                title={t("dashboard", { defaultValue: "Dashboard" })}
+                description={t("welcomebackraviheres", { defaultValue: "Welcome back, Ravi. Here's your business overview." })}
               >
                 <button className="flex items-center gap-2 rounded-sm border border-border bg-white dark:bg-muted px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200 cursor-pointer">
                   <RefreshCw className="h-3.5 w-3.5" />
@@ -238,8 +238,8 @@ export function DashboardView() {
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
               {/* Revenue chart — takes 2 cols */}
               <SectionCard
-                title="Revenue Overview"
-                description="Monthly revenue vs previous year"
+                title={t("revenueoverview", { defaultValue: "Revenue Overview" })}
+                description={t("monthlyrevenuevsprevious", { defaultValue: "Monthly revenue vs previous year" })}
                 action={{ label: "View Reports", href: "/reports" }}
                 className="lg:col-span-2"
               >
@@ -268,7 +268,7 @@ export function DashboardView() {
 
               {/* Recent Activity */}
               <SectionCard
-                title="Recent Activity"
+                title={t("recentactivity", { defaultValue: "Recent Activity" })}
                 action={{ label: "View All", href: "/reports" }}
               >
                 <div className="space-y-3">
@@ -300,8 +300,8 @@ export function DashboardView() {
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
               {/* CRM Leads */}
               <SectionCard
-                title="Top Leads"
-                description="Your hottest CRM prospects"
+                title={t("topleads", { defaultValue: "Top Leads" })}
+                description={t("yourhottestcrmprospects", { defaultValue: "Your hottest CRM prospects" })}
                 action={{ label: "View CRM", href: "/crm" }}
                 className="lg:col-span-1"
               >
@@ -351,8 +351,8 @@ export function DashboardView() {
 
               {/* Lighthouse Scores */}
               <SectionCard
-                title="Website Health"
-                description="Latest Lighthouse audit results"
+                title={t("websitehealth", { defaultValue: "Website Health" })}
+                description={t("latestlighthouseauditresults", { defaultValue: "Latest Lighthouse audit results" })}
                 action={{ label: "Full Report", href: "/lighthouse" }}
               >
                 {desktopReport && (
@@ -418,8 +418,8 @@ export function DashboardView() {
 
               {/* Email Campaigns */}
               <SectionCard
-                title="Email Campaigns"
-                description="Recent campaign performance"
+                title={t("emailcampaigns", { defaultValue: "Email Campaigns" })}
+                description={t("recentcampaignperformance", { defaultValue: "Recent campaign performance" })}
                 action={{ label: "View All", href: "/email" }}
               >
                 <div className="space-y-3">
@@ -477,7 +477,7 @@ export function DashboardView() {
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               {/* Recent Payments */}
               <SectionCard
-                title="Recent Payments"
+                title={t("recentpayments", { defaultValue: "Recent Payments" })}
                 action={{ label: "View Payments", href: "/payments" }}
               >
                 <div className="overflow-hidden">
@@ -524,8 +524,8 @@ export function DashboardView() {
 
               {/* Integration Status */}
               <SectionCard
-                title="Integration Status"
-                description="Connected services and platforms"
+                title={t("integrationstatus", { defaultValue: "Integration Status" })}
+                description={t("connectedservicesandplatforms", { defaultValue: "Connected services and platforms" })}
                 action={{ label: "Manage", href: "/settings" }}
               >
                 <div className="grid grid-cols-2 gap-2">

@@ -68,7 +68,7 @@ export function SubscriptionSettingsView() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <p className="text-muted-foreground">Loading subscription…</p>
+        <p className="text-muted-foreground">{t("loading", { defaultValue: "Loading subscription…" })}</p>
       </div>
     );
   }

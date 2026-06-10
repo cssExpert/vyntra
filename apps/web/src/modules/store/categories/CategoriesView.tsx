@@ -189,6 +189,7 @@ function CatNodeRenderer(props: Record<string, unknown>) {
     totalVisible: number;
   };
 
+  const t = useTranslations("store.categories");
   const [isHovered, setIsHovered] = useState(false);
   const isLast = treeIndex === totalVisible - 1;
   const hasChildren =
@@ -291,14 +292,14 @@ function CatNodeRenderer(props: Record<string, unknown>) {
         >
           <button
             type="button"
-            title="View"
+            title={t("view", { defaultValue: "View" })}
             className="p-1.5 rounded-md text-primary hover:bg-primary/10 transition-colors cursor-pointer"
           >
             <Eye size={14} />
           </button>
           <button
             type="button"
-            title="Edit"
+            title={t("edit", { defaultValue: "Edit" })}
             onClick={() => onEdit(node.id)}
             className="p-1.5 rounded-md text-teal-500 hover:bg-teal-500/10 transition-colors cursor-pointer"
           >
@@ -306,7 +307,7 @@ function CatNodeRenderer(props: Record<string, unknown>) {
           </button>
           <button
             type="button"
-            title="Delete"
+            title={t("delete", { defaultValue: "Delete" })}
             className="p-1.5 rounded-md text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
           >
             <Trash2 size={14} />
@@ -318,7 +319,7 @@ function CatNodeRenderer(props: Record<string, unknown>) {
 }
 
 export function CategoriesView() {
-  const t = useTranslations("admin.store.categories");
+  const t = useTranslations("store.categories");
   const isLoaded = usePageLoad(600);
   const router = useRouter();
   const [treeData, setTreeData] = useState<TreeItem[]>(() => toTree(INIT));

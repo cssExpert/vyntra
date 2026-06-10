@@ -39,7 +39,7 @@ export function ProfileSettingsView() {
   if (!user) {
     return (
       <div className="flex items-center justify-center py-24">
-        <p className="text-muted-foreground">Loading profile…</p>
+        <p className="text-muted-foreground">{t("loading", { defaultValue: "Loading profile…" })}</p>
       </div>
     );
   }
@@ -55,11 +55,11 @@ export function ProfileSettingsView() {
     try {
       await apiUpdateProfile({ name: trimmed });
       await refreshUser();
-      setFeedback({ type: "success", message: "Profile updated successfully." });
+      setFeedback({ type: "success", message: t("saved", { defaultValue: "Profile updated successfully." }) });
     } catch (e) {
       setFeedback({
         type: "error",
-        message: e instanceof Error ? e.message : "Failed to update profile.",
+        message: e instanceof Error ? e.message : t("error", { defaultValue: "Failed to update profile." }),
       });
     } finally {
       setSaving(false);
@@ -69,8 +69,8 @@ export function ProfileSettingsView() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <PageHeader
-        title="Profile"
-        description="Manage your personal account details."
+        title={t("title", { defaultValue: "Profile" })}
+        description={t("description", { defaultValue: "Manage your personal account details." })}
       >
         <button
           onClick={handleSave}

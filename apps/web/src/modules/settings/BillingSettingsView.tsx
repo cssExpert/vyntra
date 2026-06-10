@@ -53,7 +53,7 @@ export function BillingSettingsView() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <p className="text-muted-foreground">Loading billing…</p>
+        <p className="text-muted-foreground">{t("loading", { defaultValue: "Loading billing…" })}</p>
       </div>
     );
   }
@@ -63,8 +63,8 @@ export function BillingSettingsView() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <PageHeader
-        title="Billing Info"
-        description="Your plan, charges, and invoice history."
+        title={t("title", { defaultValue: "Billing Info" })}
+        description={t("description", { defaultValue: "Your plan, charges, and invoice history." })}
       />
 
       {error && (

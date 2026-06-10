@@ -132,7 +132,7 @@ const ORDER_BADGE: Record<
 // ─── Main view ────────────────────────────────────────────────────────────────
 
 export function StoreView() {
-  const t = useTranslations("admin.store");
+  const t = useTranslations("store");
   const isLoaded = usePageLoad(700);
   const lowStockItems = SAMPLE_INVENTORY.filter(
     (i) => i.stockStatus === "low_stock" || i.stockStatus === "out_of_stock",
@@ -208,8 +208,8 @@ export function StoreView() {
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
               {/* Revenue mini chart */}
               <SectionCard
-                title="Revenue Overview"
-                description="Monthly revenue (last 6 months)"
+                title={t("revenueoverview", { defaultValue: "Revenue Overview" })}
+                description={t("monthlyrevenuelast6", { defaultValue: "Monthly revenue (last 6 months)" })}
                 action={{ label: "Full Report", href: "/store/reports" }}
               >
                 <div className="flex items-end justify-between">
@@ -245,7 +245,7 @@ export function StoreView() {
 
               {/* Recent Orders */}
               <SectionCard
-                title="Recent Orders"
+                title={t("recentorders", { defaultValue: "Recent Orders" })}
                 action={{ label: "View All", href: "/store/orders" }}
               >
                 <div className="space-y-1.5">
@@ -289,7 +289,7 @@ export function StoreView() {
 
               {/* Low Stock */}
               <SectionCard
-                title="Low Stock Alerts"
+                title={t("lowstockalerts", { defaultValue: "Low Stock Alerts" })}
                 description={`${lowStockItems.length} item${lowStockItems.length !== 1 ? "s" : ""} need attention`}
                 action={{ label: "Manage", href: "/store/inventory" }}
               >
@@ -354,8 +354,8 @@ export function StoreView() {
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               {/* Top Products */}
               <SectionCard
-                title="Top Products"
-                description="Best-selling products this month"
+                title={t("topproducts", { defaultValue: "Top Products" })}
+                description={t("bestsellingproductsthismonth", { defaultValue: "Best-selling products this month" })}
                 action={{ label: "All Products", href: "/store/products" }}
               >
                 <div className="space-y-3">
@@ -418,8 +418,8 @@ export function StoreView() {
 
               {/* Active Automations */}
               <SectionCard
-                title="Active Automations"
-                description="Running workflows in your store"
+                title={t("activeautomations", { defaultValue: "Active Automations" })}
+                description={t("runningworkflowsinyour", { defaultValue: "Running workflows in your store" })}
                 action={{ label: "Manage", href: "/store/automations" }}
               >
                 <div className="space-y-1.5">

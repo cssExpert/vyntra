@@ -143,7 +143,7 @@ function Inner() {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return "Never";
+    if (!dateString) return t("never", { defaultValue: "Never" });
     const date = new Date(dateString);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
@@ -151,17 +151,17 @@ function Inner() {
 
     if (diffDays === 0) {
       const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-      return diffHours === 0 ? "Just now" : `${diffHours}h ago`;
+      return diffHours === 0 ? t("justNow", { defaultValue: "Just now" }) : `${diffHours}h ${t("ago", { defaultValue: "ago" })}`;
     }
-    if (diffDays === 1) return "Yesterday";
-    if (diffDays < 7) return `${diffDays}d ago`;
+    if (diffDays === 1) return t("yesterday", { defaultValue: "Yesterday" });
+    if (diffDays < 7) return `${diffDays}d ${t("ago", { defaultValue: "ago" })}`;
     return date.toLocaleDateString();
   };
 
   const columns = useMemo(
     () => [
       columnHelper.accessor("email", {
-        header: "Email",
+        header: t("email", { defaultValue: "Email" }),
         size: 220,
         cell: ({ row }) => {
           const user = row.original;
@@ -183,43 +183,43 @@ function Inner() {
         },
       }),
       columnHelper.accessor("organization", {
-        header: "Organization",
+        header: t("organization", { defaultValue: "Organization" }),
         size: 180,
         cell: ({ row }) => {
           const user = row.original;
           return (
             <span className="text-sm text-muted-foreground">
-              {user.organization?.name ?? (user.superAdmin ? "Platform" : "—")}
+              {user.organization?.name ?? (user.superAdmin ? t("platform", { defaultValue: "Platform" }) : "—")}
             </span>
           );
         },
       }),
       columnHelper.accessor("superAdmin", {
-        header: "Type",
+        header: t("type", { defaultValue: "Type" }),
         size: 140,
         cell: ({ row }) => {
           const user = row.original;
           return user.superAdmin ? (
-            <StatusBadge variant="purple" label="Super Admin" size="sm" />
+            <StatusBadge variant="purple" label={t("superAdmin", { defaultValue: "Super Admin" })} size="sm" />
           ) : (
-            <StatusBadge variant="muted" label="Member" size="sm" />
+            <StatusBadge variant="muted" label={t("member", { defaultValue: "Member" })} size="sm" />
           );
         },
       }),
       columnHelper.accessor("isActive", {
-        header: "Status",
+        header: t("status", { defaultValue: "Status" }),
         size: 140,
         cell: ({ getValue }) => {
           const isActive = getValue();
           return isActive ? (
-            <StatusBadge variant="success" label="Active" size="sm" />
+            <StatusBadge variant="success" label={t("active", { defaultValue: "Active" })} size="sm" />
           ) : (
-            <StatusBadge variant="muted" label="Locked" size="sm" />
+            <StatusBadge variant="muted" label={t("locked", { defaultValue: "Locked" })} size="sm" />
           );
         },
       }),
       columnHelper.accessor("lastLoginAt", {
-        header: "Last Login",
+        header: t("lastLogin", { defaultValue: "Last Login" }),
         size: 140,
         enableSorting: false,
         cell: ({ getValue }) => (
@@ -228,7 +228,7 @@ function Inner() {
       }),
       columnHelper.display({
         id: "actions",
-        header: () => <div className="text-right">Actions</div>,
+        header: () => <div className="text-right">{t("actions", { defaultValue: "Actions" })}</div>,
         size: 100,
         cell: ({ row }) => {
           const user = row.original;
@@ -237,36 +237,36 @@ function Inner() {
               <TableActionMenu
                 items={[
                   {
-                    label: "View Details",
+                    label: t("viewDetails", { defaultValue: "View Details" }),
                     icon: <Eye size={14} />,
                     onClick: () => openDetailPage(user),
                   },
                   {
-                    label: "Edit",
+                    label: t("edit", { defaultValue: "Edit" }),
                     icon: <Edit2 size={14} />,
                     onClick: () => openEditModal(user),
                   },
                   {
-                    label: "Change Password",
+                    label: t("changePassword", { defaultValue: "Change Password" }),
                     icon: <KeyRound size={14} />,
                     onClick: () => openPasswordModal(user),
                   },
                   {
-                    label: user.isActive ? "Lock Account" : "Unlock Account",
+                    label: user.isActive ? t("lockAccount", { defaultValue: "Lock Account" }) : t("unlockAccount", { defaultValue: "Unlock Account" }),
                     icon: user.isActive ? <Lock size={14} /> : <Unlock size={14} />,
                     onClick: () => handleToggleLock(user),
                   },
                   ...(user.isActive && !user.superAdmin && !user.organizationId
                     ? [
                         {
-                          label: "Make Super Admin",
+                          label: t("makeSuperAdmin", { defaultValue: "Make Super Admin" }),
                           icon: <ShieldCheck size={14} />,
                           onClick: () => handlePromote(user),
                         },
                       ]
                     : []),
                   {
-                    label: "Delete",
+                    label: t("delete", { defaultValue: "Delete" }),
                     icon: <Trash2 size={14} />,
                     onClick: () => {
                       setSelectedUser(user);
@@ -466,12 +466,12 @@ function Inner() {
   const handlePromote = async (user: UserWithActivity) => {
     // Prevent company users from being promoted to super admin
     if (user.organizationId && user.roles.some((r) => r.organizationId)) {
-      setError("Cannot promote company users to super admin");
+      setError(t("cannotPromoteCompanyUser", { defaultValue: "Cannot promote company users to super admin" }));
       setTimeout(() => setError(""), 3000);
       return;
     }
 
-    if (!confirm(`Promote ${user.email} to super admin?`)) return;
+    if (!confirm(`${t("promote", { defaultValue: "Promote" })} ${user.email} ${t("toSuperAdmin", { defaultValue: "to super admin?" })}`)) return;
     try {
       const updated = await admin.promoteUser(user.id);
       setUsers(users.map((u) => (u.id === user.id ? updated : u)));
@@ -514,7 +514,7 @@ function Inner() {
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search by email or name..."
+          placeholder={t("search", { defaultValue: "Search by email or name..." })}
           className="w-full pl-10 pr-10 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
         {searchTerm && (
@@ -531,9 +531,9 @@ function Inner() {
       <div className="overflow-hidden rounded-xl border border-border bg-card">
         <div className="overflow-x-auto" ref={scrollRef}>
           {loading ? (
-            <div className="px-4 py-8 text-center text-muted-foreground">Loading…</div>
+            <div className="px-4 py-8 text-center text-muted-foreground">{t("loading", { defaultValue: "Loading…" })}</div>
           ) : table.getRowModel().rows.length === 0 ? (
-            <div className="px-4 py-8 text-center text-muted-foreground">No users found</div>
+            <div className="px-4 py-8 text-center text-muted-foreground">{t("noResults", { defaultValue: "No users found" })}</div>
           ) : (
             <table className="w-full text-sm" style={{ tableLayout: "fixed" }}>
               <thead>
@@ -602,8 +602,8 @@ function Inner() {
       <Modal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        title="Add New User"
-        description="Create a new system user account"
+        title={t("addUser", { defaultValue: "Add New User" })}
+        description={t("createNewUser", { defaultValue: "Create a new system user account" })}
         maxWidth="lg"
         footer={
           <>
@@ -611,13 +611,13 @@ function Inner() {
               onClick={() => setIsAddModalOpen(false)}
               className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg text-sm font-medium transition"
             >
-              Cancel
+              {t("cancel", { defaultValue: "Cancel" })}
             </button>
             <button
               onClick={handleAddUser}
               className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-sm font-medium transition"
             >
-              Create User
+              {t("createUser", { defaultValue: "Create User" })}
             </button>
           </>
         }
@@ -625,17 +625,17 @@ function Inner() {
         <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
           {/* Account Info */}
           <div className="space-y-3">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Account Information</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("accountInformation", { defaultValue: "Account Information" })}</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                  Email Address <span className="text-error">*</span>
+                  {t("emailAddress", { defaultValue: "Email Address" })} <span className="text-error">*</span>
                 </label>
                 <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="user@example.com"
+                  placeholder={t("userEmailPlaceholder", { defaultValue: "user@example.com" })}
                   className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
                 {formErrors.email && <p className="text-xs text-error mt-1">{formErrors.email}</p>}
@@ -643,13 +643,13 @@ function Inner() {
 
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                  Full Name <span className="text-error">*</span>
+                  {t("fullName", { defaultValue: "Full Name" })} <span className="text-error">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="John Doe"
+                  placeholder={t("fullNamePlaceholder", { defaultValue: "John Doe" })}
                   className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
                 {formErrors.name && <p className="text-xs text-error mt-1">{formErrors.name}</p>}
@@ -657,46 +657,46 @@ function Inner() {
 
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                  Job Title
+                  {t("jobTitle", { defaultValue: "Job Title" })}
                 </label>
                 <input
                   type="text"
                   value={formData.jobTitle}
                   onChange={(e) => setFormData({ ...formData, jobTitle: e.target.value })}
-                  placeholder="e.g. Senior Manager"
+                  placeholder={t("jobTitlePlaceholder", { defaultValue: "e.g. Senior Manager" })}
                   className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                  Department
+                  {t("department", { defaultValue: "Department" })}
                 </label>
                 <input
                   type="text"
                   value={formData.department}
                   onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                  placeholder="e.g. Sales, Engineering"
+                  placeholder={t("departmentPlaceholder", { defaultValue: "e.g. Sales, Engineering" })}
                   className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                  Phone Number
+                  {t("phoneNumber", { defaultValue: "Phone Number" })}
                 </label>
                 <input
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="+1 (555) 000-0000"
+                  placeholder={t("phoneNumberPlaceholder", { defaultValue: "+1 (555) 000-0000" })}
                   className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                  Initial Status
+                  {t("initialStatus", { defaultValue: "Initial Status" })}
                 </label>
                 <div className="flex gap-2">
                   <button
@@ -708,7 +708,7 @@ function Inner() {
                         : "bg-background border-border text-muted-foreground hover:bg-muted"
                     }`}
                   >
-                    Active
+                    {t("active", { defaultValue: "Active" })}
                   </button>
                   <button
                     type="button"
@@ -719,7 +719,7 @@ function Inner() {
                         : "bg-background border-border text-muted-foreground hover:bg-muted"
                     }`}
                   >
-                    Locked
+                    {t("locked", { defaultValue: "Locked" })}
                   </button>
                 </div>
               </div>
@@ -728,17 +728,17 @@ function Inner() {
 
           {/* Address Info */}
           <div className="space-y-3 border-t border-border pt-5">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Address</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("address", { defaultValue: "Address" })}</p>
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                  Street Address
+                  {t("streetAddress", { defaultValue: "Street Address" })}
                 </label>
                 <input
                   type="text"
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  placeholder="123 Main Street"
+                  placeholder={t("streetAddressPlaceholder", { defaultValue: "123 Main Street" })}
                   className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
@@ -746,39 +746,39 @@ function Inner() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                    City
+                    {t("city", { defaultValue: "City" })}
                   </label>
                   <input
                     type="text"
                     value={formData.city}
                     onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    placeholder="San Francisco"
+                    placeholder={t("cityPlaceholder", { defaultValue: "San Francisco" })}
                     className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                    State/Province
+                    {t("stateProvince", { defaultValue: "State/Province" })}
                   </label>
                   <input
                     type="text"
                     value={formData.state}
                     onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                    placeholder="CA"
+                    placeholder={t("stateProvincePlaceholder", { defaultValue: "CA" })}
                     className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                    Country
+                    {t("country", { defaultValue: "Country" })}
                   </label>
                   <input
                     type="text"
                     value={formData.country}
                     onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                    placeholder="United States"
+                    placeholder={t("countryPlaceholder", { defaultValue: "United States" })}
                     className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
@@ -786,7 +786,7 @@ function Inner() {
             </div>
           </div>
 
-          
+
         </div>
       </Modal>
 
@@ -794,8 +794,8 @@ function Inner() {
       <Modal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        title="Edit User"
-        description={`Update details for ${selectedUser?.email}`}
+        title={t("editUser", { defaultValue: "Edit User" })}
+        description={`${t("updateDetails", { defaultValue: "Update details for" })} ${selectedUser?.email}`}
         maxWidth="lg"
         footer={
           <>
@@ -803,13 +803,13 @@ function Inner() {
               onClick={() => setIsEditModalOpen(false)}
               className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg text-sm font-medium transition"
             >
-              Cancel
+              {t("cancel", { defaultValue: "Cancel" })}
             </button>
             <button
               onClick={handleEditUser}
               className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-sm font-medium transition"
             >
-              Save Changes
+              {t("saveChanges", { defaultValue: "Save Changes" })}
             </button>
           </>
         }
@@ -817,11 +817,11 @@ function Inner() {
         <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
           {/* Account Info */}
           <div className="space-y-3">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Account Information</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("accountInformation", { defaultValue: "Account Information" })}</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                  Email Address <span className="text-error">*</span>
+                  {t("emailAddress", { defaultValue: "Email Address" })} <span className="text-error">*</span>
                 </label>
                 <input
                   type="email"
@@ -834,7 +834,7 @@ function Inner() {
 
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                  Full Name <span className="text-error">*</span>
+                  {t("fullName", { defaultValue: "Full Name" })} <span className="text-error">*</span>
                 </label>
                 <input
                   type="text"
@@ -847,68 +847,68 @@ function Inner() {
 
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                  Job Title
+                  {t("jobTitle", { defaultValue: "Job Title" })}
                 </label>
                 <input
                   type="text"
                   value={formData.jobTitle}
                   onChange={(e) => setFormData({ ...formData, jobTitle: e.target.value })}
-                  placeholder="e.g. Senior Manager"
+                  placeholder={t("jobTitlePlaceholder", { defaultValue: "e.g. Senior Manager" })}
                   className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                  Department
+                  {t("department", { defaultValue: "Department" })}
                 </label>
                 <input
                   type="text"
                   value={formData.department}
                   onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                  placeholder="e.g. Sales, Engineering"
+                  placeholder={t("departmentPlaceholder", { defaultValue: "e.g. Sales, Engineering" })}
                   className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                  Phone Number
+                  {t("phoneNumber", { defaultValue: "Phone Number" })}
                 </label>
                 <input
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="+1 (555) 000-0000"
+                  placeholder={t("phoneNumberPlaceholder", { defaultValue: "+1 (555) 000-0000" })}
                   className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                  Organization
+                  {t("organization", { defaultValue: "Organization" })}
                 </label>
                 <div className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-muted/30 text-muted-foreground">
-                  {selectedUser?.organization?.name ?? "Platform User"}
+                  {selectedUser?.organization?.name ?? t("platformUser", { defaultValue: "Platform User" })}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">View only</p>
+                <p className="text-xs text-muted-foreground mt-1">{t("viewOnly", { defaultValue: "View only" })}</p>
               </div>
             </div>
           </div>
 
           {/* Address Info */}
           <div className="space-y-3 border-t border-border pt-5">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Address</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("address", { defaultValue: "Address" })}</p>
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                  Street Address
+                  {t("streetAddress", { defaultValue: "Street Address" })}
                 </label>
                 <input
                   type="text"
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  placeholder="123 Main Street"
+                  placeholder={t("streetAddressPlaceholder", { defaultValue: "123 Main Street" })}
                   className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
@@ -916,39 +916,39 @@ function Inner() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                    City
+                    {t("city", { defaultValue: "City" })}
                   </label>
                   <input
                     type="text"
                     value={formData.city}
                     onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    placeholder="San Francisco"
+                    placeholder={t("cityPlaceholder", { defaultValue: "San Francisco" })}
                     className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                    State/Province
+                    {t("stateProvince", { defaultValue: "State/Province" })}
                   </label>
                   <input
                     type="text"
                     value={formData.state}
                     onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                    placeholder="CA"
+                    placeholder={t("stateProvincePlaceholder", { defaultValue: "CA" })}
                     className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                    Country
+                    {t("country", { defaultValue: "Country" })}
                   </label>
                   <input
                     type="text"
                     value={formData.country}
                     onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                    placeholder="United States"
+                    placeholder={t("countryPlaceholder", { defaultValue: "United States" })}
                     className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
@@ -958,7 +958,7 @@ function Inner() {
 
           {/* Account Status */}
           <div className="space-y-3 border-t border-border pt-5">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Account Status</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("accountStatus", { defaultValue: "Account Status" })}</p>
             <div className="flex gap-2">
               <button
                 type="button"
@@ -969,7 +969,7 @@ function Inner() {
                     : "bg-background border-border text-muted-foreground hover:bg-muted"
                 }`}
               >
-                Active
+                {t("active", { defaultValue: "Active" })}
               </button>
               <button
                 type="button"
@@ -980,7 +980,7 @@ function Inner() {
                     : "bg-background border-border text-muted-foreground hover:bg-muted"
                 }`}
               >
-                Locked
+                {t("locked", { defaultValue: "Locked" })}
               </button>
             </div>
           </div>
@@ -991,8 +991,8 @@ function Inner() {
       <Modal
         isOpen={isPasswordModalOpen}
         onClose={() => setIsPasswordModalOpen(false)}
-        title="Change Password"
-        description={`Set a new password for ${selectedUser?.email}`}
+        title={t("changePassword", { defaultValue: "Change Password" })}
+        description={`${t("setPassword", { defaultValue: "Set a new password for" })} ${selectedUser?.email}`}
         maxWidth="md"
         footer={
           <>
@@ -1000,14 +1000,14 @@ function Inner() {
               onClick={() => setIsPasswordModalOpen(false)}
               className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg text-sm font-medium transition"
             >
-              Cancel
+              {t("cancel", { defaultValue: "Cancel" })}
             </button>
             <button
               onClick={handleChangePassword}
               disabled={passwordSaving}
               className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-sm font-medium transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {passwordSaving ? "Saving…" : "Update Password"}
+              {passwordSaving ? t("saving", { defaultValue: "Saving…" }) : t("updatePassword", { defaultValue: "Update Password" })}
             </button>
           </>
         }
@@ -1015,7 +1015,7 @@ function Inner() {
         <div className="p-6 space-y-4">
           <div>
             <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-              New Password <span className="text-error">*</span>
+              {t("newPassword", { defaultValue: "New Password" })} <span className="text-error">*</span>
             </label>
             <div className="relative">
               <input
@@ -1024,14 +1024,14 @@ function Inner() {
                 onChange={(e) =>
                   setPasswordData({ ...passwordData, password: e.target.value })
                 }
-                placeholder="At least 8 characters"
+                placeholder={t("passwordPlaceholder", { defaultValue: "At least 8 characters" })}
                 className="w-full px-3 py-2 pr-10 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((s) => !s)}
                 className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
-                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-label={showPassword ? t("hidePassword", { defaultValue: "Hide password" }) : t("showPassword", { defaultValue: "Show password" })}
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -1040,7 +1040,7 @@ function Inner() {
 
           <div>
             <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-              Confirm Password <span className="text-error">*</span>
+              {t("confirmPassword", { defaultValue: "Confirm Password" })} <span className="text-error">*</span>
             </label>
             <input
               type={showPassword ? "text" : "password"}
@@ -1048,7 +1048,7 @@ function Inner() {
               onChange={(e) =>
                 setPasswordData({ ...passwordData, confirm: e.target.value })
               }
-              placeholder="Re-enter the new password"
+              placeholder={t("confirmPasswordPlaceholder", { defaultValue: "Re-enter the new password" })}
               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           </div>
@@ -1059,8 +1059,7 @@ function Inner() {
 
           <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
             <p className="text-xs text-amber-900 dark:text-amber-300">
-              🔒 The user will need to use this new password the next time they
-              log in.
+              🔒 {t("passwordWarning", { defaultValue: "The user will need to use this new password the next time they log in." })}
             </p>
           </div>
         </div>
@@ -1070,8 +1069,8 @@ function Inner() {
       <Modal
         isOpen={isDeleteConfirmOpen}
         onClose={() => setIsDeleteConfirmOpen(false)}
-        title="Delete User?"
-        description={`Are you sure you want to permanently delete ${selectedUser?.email}? This action cannot be undone.`}
+        title={t("deleteUser", { defaultValue: "Delete User?" })}
+        description={`${t("deleteWarning", { defaultValue: "Are you sure you want to permanently delete" })} ${selectedUser?.email}? ${t("cannotUndo", { defaultValue: "This action cannot be undone." })}`}
         iconVariant="danger"
         maxWidth="md"
         footer={
@@ -1080,13 +1079,13 @@ function Inner() {
               onClick={() => setIsDeleteConfirmOpen(false)}
               className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg text-sm font-medium transition"
             >
-              Cancel
+              {t("cancel", { defaultValue: "Cancel" })}
             </button>
             <button
               onClick={handleDeleteUser}
               className="px-4 py-2 bg-error hover:bg-error/90 text-white rounded-lg text-sm font-medium transition"
             >
-              Delete User
+              {t("deleteUser", { defaultValue: "Delete User" })}
             </button>
           </>
         }

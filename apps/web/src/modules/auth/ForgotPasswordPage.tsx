@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { MoveLeft, Mail } from "lucide-react";
@@ -8,6 +9,8 @@ import { cn } from "@/lib/utils";
 import { HeroPanel } from "./HeroPanel";
 
 export function ForgotPasswordPage() {
+  const t = useTranslations("auth");
+
   const [email, setEmail] = useState("");
   const [emailFocused, setEmailFocused] = useState(false);
   const [isLoading, setIsLoading] = useState(false);

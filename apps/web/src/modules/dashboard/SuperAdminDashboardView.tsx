@@ -267,7 +267,7 @@ export function SuperAdminDashboardView() {
             {/* Page header */}
             <motion.div variants={itemVariants}>
               <PageHeader
-                title="Super Admin Dashboard"
+                title={t("superadmindashboard", { defaultValue: "Super Admin Dashboard" })}
                 description={`Welcome back, ${user?.name || "Admin"}. Platform overview and system configuration.`}
               >
                 <button
@@ -305,8 +305,8 @@ export function SuperAdminDashboardView() {
             {/* System Configuration */}
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
               <SectionCard
-                title="System Configuration"
-                description="Platform settings status"
+                title={t("systemconfiguration", { defaultValue: "System Configuration" })}
+                description={t("platformsettingsstatus", { defaultValue: "Platform settings status" })}
                 className="lg:col-span-2"
               >
                 <div className="space-y-2.5">
@@ -329,7 +329,7 @@ export function SuperAdminDashboardView() {
               </SectionCard>
 
               {/* Quick Actions */}
-              <SectionCard title="Quick Actions" description="Common admin tasks">
+              <SectionCard title={t("quickactions", { defaultValue: "Quick Actions" })} description={t("commonadmintasks", { defaultValue: "Common admin tasks" })}>
                 <div className="space-y-2">
                   <a
                     href="/admin/companies"
@@ -370,7 +370,7 @@ export function SuperAdminDashboardView() {
             {/* Companies List */}
             {data.companies.length > 0 && (
               <SectionCard
-                title="Recent Companies"
+                title={t("recentcompanies", { defaultValue: "Recent Companies" })}
                 description={`${data.companies.length} total companies`}
                 action={{ label: "View All", href: "/admin/companies" }}
               >
@@ -412,7 +412,7 @@ export function SuperAdminDashboardView() {
             {/* Packages Overview */}
             {data.packages.length > 0 && (
               <SectionCard
-                title="Available Packages"
+                title={t("availablepackages", { defaultValue: "Available Packages" })}
                 description={`${data.packages.length} total packages`}
                 action={{ label: "Manage", href: "/admin/packages" }}
               >
@@ -447,7 +447,7 @@ export function SuperAdminDashboardView() {
             {/* Modules List */}
             {data.modules.length > 0 && (
               <SectionCard
-                title="Available Modules"
+                title={t("availablemodules", { defaultValue: "Available Modules" })}
                 description={`${data.modules.length} total modules`}
                 action={{ label: "Manage", href: "/admin/modules" }}
               >
@@ -475,7 +475,7 @@ export function SuperAdminDashboardView() {
             {/* Users Summary */}
             {data.users.length > 0 && (
               <SectionCard
-                title="User Statistics"
+                title={t("userstatistics", { defaultValue: "User Statistics" })}
                 description={`${data.users.length} total users`}
                 action={{ label: "Manage Users", href: "/admin/users" }}
               >

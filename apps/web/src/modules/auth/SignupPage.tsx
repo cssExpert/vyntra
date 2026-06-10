@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
@@ -9,6 +10,8 @@ import { HeroPanel } from "./HeroPanel";
 import Icon from "@/components/common/Icon";
 
 export function SignupPage() {
+  const t = useTranslations("auth");
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

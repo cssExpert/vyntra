@@ -110,6 +110,7 @@ function PreviewModal({
   theme: DbTheme | null;
   onClose: () => void;
 }) {
+  const t = useTranslations("admin.themes");
   if (!theme) return null;
   const v = theme.variables;
   const swatches = [
@@ -172,7 +173,7 @@ function PreviewModal({
 
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">
-              Color Palette
+              {t("colorPalette", { defaultValue: "Color Palette" })}
             </p>
             <div className="flex gap-3 flex-wrap">
               {swatches.map((s) => (
@@ -182,7 +183,7 @@ function PreviewModal({
                     style={{ backgroundColor: getVar(v, s.key, "#ccc") }}
                   />
                   <span className="text-[9px] text-muted-foreground">
-                    {s.label}
+                    {t(s.key, { defaultValue: s.label })}
                   </span>
                   <span className="text-[9px] font-mono text-muted-foreground/70">
                     {getVar(v, s.key, "—")}
@@ -409,6 +410,7 @@ function ThemeFormModal({
   onClose: () => void;
   busy: boolean;
 }) {
+  const t = useTranslations("admin.themes");
   const [showVars, setShowVars] = useState(false);
 
   const colorKeys = CSS_VAR_KEYS.filter(
@@ -429,14 +431,14 @@ function ThemeFormModal({
             onClick={onClose}
             className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted transition-all"
           >
-            Cancel
+            {t("cancel", { defaultValue: "Cancel" })}
           </button>
           <button
             onClick={onSave}
             disabled={busy || !form.name.trim()}
             className="px-5 py-2 text-sm font-semibold bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all disabled:opacity-50"
           >
-            {busy ? "Saving…" : "Save Theme"}
+            {busy ? t("saving", { defaultValue: "Saving…" }) : t("saveTheme", { defaultValue: "Save Theme" })}
           </button>
         </>
       }

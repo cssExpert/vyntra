@@ -294,11 +294,12 @@ function Inner() {
     );
   }
 
+  const t = useTranslations("admin.email");
   return (
     <div className="space-y-6 pb-10">
       <PageHeader
-        title="Email Settings"
-        description="Configure your email provider for sending transactional emails."
+        title={t("title", { defaultValue: "Email Settings" })}
+        description={t("description", { defaultValue: "Configure your email provider for sending transactional emails." })}
       />
 
       {error && (
@@ -318,8 +319,8 @@ function Inner() {
         {/* Email Provider Selection */}
         <SectionCard
           icon={Mail}
-          title="Email Provider"
-          description="Choose how you want to send emails"
+          title={t("provider", { defaultValue: "Email Provider" })}
+          description={t("providerDesc", { defaultValue: "Choose how you want to send emails" })}
         >
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {EMAIL_OPTIONS.map((option) => (
@@ -347,14 +348,14 @@ function Inner() {
               <div className="rounded-lg border border-blue-200 bg-blue-50 p-3.5 flex gap-3">
                 <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
                 <div className="text-sm text-blue-700">
-                  <p className="font-medium mb-2">SMTP Provider Setup Guide:</p>
+                  <p className="font-medium mb-2">{t("smtpGuide", { defaultValue: "SMTP Provider Setup Guide:" })}</p>
 
                   <div className="mb-3 pb-3 border-b border-blue-200">
-                    <p className="font-medium text-xs mb-1">📧 Gmail (Most Common):</p>
-                    <p className="text-xs mb-2">1. Enable 2-Step Verification: <a href="https://myaccount.google.com/security" target="_blank" rel="noopener noreferrer" className="underline">myaccount.google.com/security</a></p>
-                    <p className="text-xs mb-2">2. Go to App Passwords: <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener noreferrer" className="underline">myaccount.google.com/apppasswords</a></p>
-                    <p className="text-xs mb-2">3. Select &quot;Mail&quot; and &quot;Windows/Mac/Linux&quot;</p>
-                    <p className="text-xs mb-2">4. Copy the 16-character password</p>
+                    <p className="font-medium text-xs mb-1">📧 Gmail:</p>
+                    <p className="text-xs mb-2">1. {t("gmailStep1", { defaultValue: "Enable 2-Step Verification:" })} <a href="https://myaccount.google.com/security" target="_blank" rel="noopener noreferrer" className="underline">myaccount.google.com/security</a></p>
+                    <p className="text-xs mb-2">2. {t("gmailStep2", { defaultValue: "Go to App Passwords:" })} <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener noreferrer" className="underline">myaccount.google.com/apppasswords</a></p>
+                    <p className="text-xs mb-2">3. {t("gmailStep3", { defaultValue: "Select \"Mail\" and \"Windows/Mac/Linux\"" })}</p>
+                    <p className="text-xs mb-2">4. {t("gmailStep4", { defaultValue: "Copy the 16-character password" })}</p>
                     <p className="text-xs font-medium text-blue-800 bg-white/50 px-2 py-1 rounded">
                       • Host: smtp.gmail.com<br/>
                       • Port: 587<br/>
@@ -366,12 +367,12 @@ function Inner() {
 
                   <div className="mb-2">
                     <p className="font-medium text-xs mb-1">🪣 SendGrid:</p>
-                    <p className="text-xs">Host: smtp.sendgrid.net • Port: 587 • Username: &quot;apikey&quot; • Password: your-api-key</p>
+                    <p className="text-xs">{t("sendgridSetup", { defaultValue: "Host: smtp.sendgrid.net • Port: 587 • Username: \"apikey\" • Password: your-api-key" })}</p>
                   </div>
 
                   <div>
                     <p className="font-medium text-xs mb-1">☁️ AWS SES:</p>
-                    <p className="text-xs">Host: email-smtp.[region].amazonaws.com • Port: 587 • Use your SMTP credentials from AWS</p>
+                    <p className="text-xs">{t("sesSetup", { defaultValue: "Host: email-smtp.[region].amazonaws.com • Port: 587 • Use your SMTP credentials from AWS" })}</p>
                   </div>
                 </div>
               </div>
@@ -431,27 +432,27 @@ function Inner() {
         {provider === "smtp" && (
           <SectionCard
             icon={Zap}
-            title="Send Test Email"
-            description="Send a test email to verify your SMTP configuration"
+            title={t("testEmail", { defaultValue: "Send Test Email" })}
+            description={t("testEmailDesc", { defaultValue: "Send a test email to verify your SMTP configuration" })}
           >
             <div className="space-y-4">
               <div className="rounded-lg border border-amber-200 bg-amber-50 p-3.5 flex gap-3">
                 <Info className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
                 <div className="text-sm text-amber-700">
-                  <p className="font-medium mb-2">Before Testing:</p>
+                  <p className="font-medium mb-2">{t("beforeTesting", { defaultValue: "Before Testing:" })}</p>
                   <ul className="space-y-1 text-xs list-disc list-inside">
-                    <li>Fill in all SMTP fields (Host, Port, From Email, credentials)</li>
-                    <li>For Gmail: use an App Password, not your regular password</li>
-                    <li>Ensure your credentials are correct</li>
+                    <li>{t("testNote1", { defaultValue: "Fill in all SMTP fields (Host, Port, From Email, credentials)" })}</li>
+                    <li>{t("testNote2", { defaultValue: "For Gmail: use an App Password, not your regular password" })}</li>
+                    <li>{t("testNote3", { defaultValue: "Ensure your credentials are correct" })}</li>
                   </ul>
-                  <p className="font-medium mt-3 mb-1">What This Does:</p>
-                  <p className="text-xs">Connects to your SMTP server and sends an actual test email to verify everything works end-to-end.</p>
+                  <p className="font-medium mt-3 mb-1">{t("whatDoes", { defaultValue: "What This Does:" })}</p>
+                  <p className="text-xs">{t("whatDoesDesc", { defaultValue: "Connects to your SMTP server and sends an actual test email to verify everything works end-to-end." })}</p>
                 </div>
               </div>
 
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium">
-                  Send Test Email To <span className="text-error">*</span>
+                  {t("sendTestTo", { defaultValue: "Send Test Email To" })} <span className="text-error">*</span>
                 </label>
                 <input
                   type="email"
@@ -472,7 +473,7 @@ function Inner() {
                 ) : (
                   <Zap className="h-4 w-4" />
                 )}
-                {testingSmtp ? "Sending..." : "Send Test Email"}
+                {testingSmtp ? t("sending", { defaultValue: "Sending..." }) : t("sendTestEmail", { defaultValue: "Send Test Email" })}
               </button>
             </div>
           </SectionCard>
@@ -484,10 +485,10 @@ function Inner() {
         <p className="text-xs text-muted-foreground">
           {success ? (
             <span className="flex items-center gap-1.5 text-success">
-              <CheckCircle2 className="h-3.5 w-3.5" /> Saved
+              <CheckCircle2 className="h-3.5 w-3.5" /> {t("saved", { defaultValue: "Saved" })}
             </span>
           ) : (
-            "Unsaved changes will be lost if you navigate away."
+            t("unsavedChanges", { defaultValue: "Unsaved changes will be lost if you navigate away." })
           )}
         </p>
         <button
@@ -500,7 +501,7 @@ function Inner() {
           ) : (
             <Save className="h-4 w-4" />
           )}
-          {busy ? "Saving..." : "Save Settings"}
+          {busy ? t("saving", { defaultValue: "Saving..." }) : t("saveSettings", { defaultValue: "Save Settings" })}
         </button>
       </div>
     </div>
@@ -508,7 +509,6 @@ function Inner() {
 }
 
 export function EmailSettingsView() {
-  const t = useTranslations("admin.email");
   return (
     <AdminGuard>
       <Inner />

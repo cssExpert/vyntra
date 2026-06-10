@@ -90,8 +90,8 @@ export function EditCompanyModal({
       onClose={busy ? () => {} : onClose}
       maxWidth="xl"
       icon={<Pencil className="h-5 w-5" />}
-      title="Edit Company"
-      description="Update company details, plan, and operational status."
+      title={t("editTitle", { defaultValue: "Edit Company" })}
+      description={t("editDesc", { defaultValue: "Update company details, plan, and operational status." })}
       footer={
         <div className="flex justify-end gap-2">
           <button
@@ -99,70 +99,70 @@ export function EditCompanyModal({
             disabled={busy}
             className="rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted transition cursor-pointer disabled:opacity-50"
           >
-            Cancel
+            {t("cancel", { defaultValue: "Cancel" })}
           </button>
           <button
             onClick={save}
             disabled={busy || !form.name?.trim()}
             className="rounded-lg bg-foreground px-4 py-2 text-sm font-semibold text-background hover:opacity-90 transition cursor-pointer disabled:opacity-50"
           >
-            {busy ? "Saving…" : "Save Changes"}
+            {busy ? t("saving", { defaultValue: "Saving…" }) : t("saveChanges", { defaultValue: "Save Changes" })}
           </button>
         </div>
       }
     >
       <div className="px-6 py-5">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Company Name">
+          <Field label={t("companyName", { defaultValue: "Company Name" })}>
             <input
               className={adminInput}
               value={form.name ?? ""}
               onChange={(e) => set({ name: e.target.value })}
             />
           </Field>
-          <Field label="Legal / Business Name">
+          <Field label={t("legalName", { defaultValue: "Legal / Business Name" })}>
             <input
               className={adminInput}
               value={form.legalName ?? ""}
               onChange={(e) => set({ legalName: e.target.value })}
             />
           </Field>
-          <Field label="Industry / Domain">
+          <Field label={t("industryDomain", { defaultValue: "Industry / Domain" })}>
             <input
               className={adminInput}
               value={form.industry ?? ""}
               onChange={(e) => set({ industry: e.target.value })}
             />
           </Field>
-          <Field label="Website">
+          <Field label={t("websiteField", { defaultValue: "Website" })}>
             <input
               className={adminInput}
               value={form.website ?? ""}
               onChange={(e) => set({ website: e.target.value })}
             />
           </Field>
-          <Field label="Logo URL">
+          <Field label={t("logoUrl", { defaultValue: "Logo URL" })}>
             <input
               className={adminInput}
               value={form.logoUrl ?? ""}
               onChange={(e) => set({ logoUrl: e.target.value })}
             />
           </Field>
-          <Field label="Contact Email">
+          <Field label={t("contactEmail", { defaultValue: "Contact Email" })}>
             <input
               className={adminInput}
               value={form.email ?? ""}
               onChange={(e) => set({ email: e.target.value })}
             />
           </Field>
-          <Field label="Phone">
+          <Field label={t("phone", { defaultValue: "Phone" })}>
             <input
               className={adminInput}
               value={form.phone ?? ""}
               onChange={(e) => set({ phone: e.target.value })}
             />
           </Field>
-          <Field label="Max Users">
+          <Field label={t("maxUsers", { defaultValue: "Max Users" })}>
             <input
               type="number"
               min={1}
@@ -171,7 +171,7 @@ export function EditCompanyModal({
               onChange={(e) => set({ maxUsers: Number(e.target.value) })}
             />
           </Field>
-          <Field label="Plan">
+          <Field label={t("plan", { defaultValue: "Plan" })}>
             <select
               className={adminInput}
               value={form.packageSlug ?? ""}
@@ -184,17 +184,17 @@ export function EditCompanyModal({
               ))}
             </select>
           </Field>
-          <Field label="Status">
+          <Field label={t("status", { defaultValue: "Status" })}>
             <select
               className={adminInput}
               value={form.isActive ? "active" : "suspended"}
               onChange={(e) => set({ isActive: e.target.value === "active" })}
             >
-              <option value="active">Active</option>
-              <option value="suspended">Suspended</option>
+              <option value="active">{t("statusActive", { defaultValue: "Active" })}</option>
+              <option value="suspended">{t("statusSuspended", { defaultValue: "Suspended" })}</option>
             </select>
           </Field>
-          <Field label="Business Address" full>
+          <Field label={t("businessAddress", { defaultValue: "Business Address" })} full>
             <textarea
               className={cn(adminInput, "min-h-[72px] resize-y")}
               value={form.address ?? ""}
