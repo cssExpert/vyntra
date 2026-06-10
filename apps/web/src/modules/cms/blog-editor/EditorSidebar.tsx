@@ -6,17 +6,26 @@ import { EditorCard } from "./fields";
 import { stripHtml, type AuthorProfile, type BlogFormState } from "./types";
 
 const AVATAR_COLORS = [
-  "bg-blue-500", "bg-violet-500", "bg-emerald-500",
-  "bg-rose-500", "bg-amber-500", "bg-cyan-500", "bg-pink-500",
+  "bg-blue-500",
+  "bg-violet-500",
+  "bg-emerald-500",
+  "bg-rose-500",
+  "bg-amber-500",
+  "bg-cyan-500",
+  "bg-pink-500",
 ];
 function avatarColor(id: string) {
   let h = 0;
-  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) & 0xffffffff;
+  for (let i = 0; i < id.length; i++)
+    h = (h * 31 + id.charCodeAt(i)) & 0xffffffff;
   return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
 }
 function authorInitials(name: string) {
   const p = name.trim().split(/\s+/);
-  return ((p[0]?.[0] ?? "") + (p[1]?.[0] ?? "")).toUpperCase() || name.slice(0, 2).toUpperCase();
+  return (
+    ((p[0]?.[0] ?? "") + (p[1]?.[0] ?? "")).toUpperCase() ||
+    name.slice(0, 2).toUpperCase()
+  );
 }
 
 export interface EditorSidebarProps {
@@ -40,9 +49,12 @@ export function EditorSidebar({
   onReadTimeManualEdit,
   onReadTimeAutoReset,
 }: EditorSidebarProps) {
-  const author = availableAuthors.find((a) => a.id === form.author) ?? availableAuthors[0];
+  const author =
+    availableAuthors.find((a) => a.id === form.author) ?? availableAuthors[0];
   const plainText = stripHtml(form.content);
-  const wordCount = plainText ? plainText.split(/\s+/).filter(Boolean).length : 0;
+  const wordCount = plainText
+    ? plainText.split(/\s+/).filter(Boolean).length
+    : 0;
   const circumference = 150;
 
   return (
@@ -69,7 +81,9 @@ export function EditorSidebar({
                 className="fill-none stroke-primary transition-all duration-500"
                 strokeWidth="4"
                 strokeDasharray={circumference}
-                strokeDashoffset={circumference - (circumference * seoScore) / 100}
+                strokeDashoffset={
+                  circumference - (circumference * seoScore) / 100
+                }
                 strokeLinecap="round"
               />
             </svg>
@@ -139,7 +153,9 @@ export function EditorSidebar({
         <div className="p-3 rounded-xl bg-muted/50 border border-border flex items-center gap-2.5">
           {author ? (
             <>
-              <span className={`w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0 ${avatarColor(author.id)}`}>
+              <span
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0 ${avatarColor(author.id)}`}
+              >
                 {authorInitials(author.name)}
               </span>
               <div>
@@ -152,7 +168,9 @@ export function EditorSidebar({
               </div>
             </>
           ) : (
-            <span className="text-[10px] text-muted-foreground">Loading author…</span>
+            <span className="text-[10px] text-muted-foreground">
+              Loading author…
+            </span>
           )}
         </div>
       </EditorCard>
@@ -160,14 +178,16 @@ export function EditorSidebar({
       {/* Inspect card */}
       <div className="p-5 rounded-2xl bg-gradient-to-tr from-primary/20 to-accent/10 border border-primary/20 text-center space-y-3">
         <Sparkles className="w-6 h-6 mx-auto text-primary" />
-        <h4 className="text-xs font-bold text-foreground">Inspect devices live?</h4>
+        <h4 className="text-xs font-bold text-foreground">
+          Inspect devices live?
+        </h4>
         <p className="text-[10px] text-muted-foreground leading-relaxed">
           Render layout checks across mobile orientations before releasing.
         </p>
         <button
           type="button"
           onClick={onInspect}
-          className="w-full py-2 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold rounded-xl transition-all"
+          className="w-full py-2 bg-primary hover:bg-primary-600 text-primary-foreground text-xs font-bold rounded-xl transition-all"
         >
           Inspect Layout
         </button>

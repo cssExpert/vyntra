@@ -56,7 +56,10 @@ function UserDetailInner({ userId }: { userId: string }) {
     message: string;
   } | null>(null);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const [passwordData, setPasswordData] = useState({ password: "", confirm: "" });
+  const [passwordData, setPasswordData] = useState({
+    password: "",
+    confirm: "",
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
   const [passwordSaving, setPasswordSaving] = useState(false);
@@ -75,7 +78,9 @@ function UserDetailInner({ userId }: { userId: string }) {
       if (foundUser) {
         const userWithActivity: UserWithActivity = {
           ...foundUser,
-          lastLoginAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
+          lastLoginAt: new Date(
+            Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000,
+          ).toISOString(),
           jobTitle: "Senior Manager",
           phone: "+1 (555) 123-4567",
           address: "123 Main Street",
@@ -106,10 +111,13 @@ function UserDetailInner({ userId }: { userId: string }) {
 
     if (diffDays === 0) {
       const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-      return diffHours === 0 ? t("justNow", { defaultValue: "Just now" }) : `${diffHours}h ${t("ago", { defaultValue: "ago" })}`;
+      return diffHours === 0
+        ? t("justNow", { defaultValue: "Just now" })
+        : `${diffHours}h ${t("ago", { defaultValue: "ago" })}`;
     }
     if (diffDays === 1) return t("yesterday", { defaultValue: "Yesterday" });
-    if (diffDays < 7) return `${diffDays}d ${t("ago", { defaultValue: "ago" })}`;
+    if (diffDays < 7)
+      return `${diffDays}d ${t("ago", { defaultValue: "ago" })}`;
     return date.toLocaleDateString();
   };
 
@@ -118,25 +126,55 @@ function UserDetailInner({ userId }: { userId: string }) {
     try {
       const updated = await admin.setUserActive(user.id, !user.isActive);
       setUser({ ...user, ...updated });
-      flash("success", updated.isActive ? t("accountUnlocked", { defaultValue: "Account unlocked" }) : t("accountLocked", { defaultValue: "Account locked" }));
+      flash(
+        "success",
+        updated.isActive
+          ? t("accountUnlocked", { defaultValue: "Account unlocked" })
+          : t("accountLocked", { defaultValue: "Account locked" }),
+      );
     } catch (e) {
-      flash("error", e instanceof Error ? e.message : t("failedToggleLock", { defaultValue: "Failed to toggle lock" }));
+      flash(
+        "error",
+        e instanceof Error
+          ? e.message
+          : t("failedToggleLock", { defaultValue: "Failed to toggle lock" }),
+      );
     }
   };
 
   const handlePromote = async () => {
     if (!user) return;
     if (user.organizationId && user.roles.some((r) => r.organizationId)) {
-      flash("error", t("cannotPromoteCompanyUser", { defaultValue: "Cannot promote company users to super admin" }));
+      flash(
+        "error",
+        t("cannotPromoteCompanyUser", {
+          defaultValue: "Cannot promote company users to super admin",
+        }),
+      );
       return;
     }
-    if (!confirm(t("promoteConfirm", { defaultValue: `Promote ${user.email} to super admin?` }))) return;
+    if (
+      !confirm(
+        t("promoteConfirm", {
+          defaultValue: `Promote ${user.email} to super admin?`,
+        }),
+      )
+    )
+      return;
     try {
       const updated = await admin.promoteUser(user.id);
       setUser({ ...user, ...updated });
-      flash("success", t("userPromoted", { defaultValue: "User promoted to super admin" }));
+      flash(
+        "success",
+        t("userPromoted", { defaultValue: "User promoted to super admin" }),
+      );
     } catch (e) {
-      flash("error", e instanceof Error ? e.message : t("failedPromote", { defaultValue: "Failed to promote" }));
+      flash(
+        "error",
+        e instanceof Error
+          ? e.message
+          : t("failedPromote", { defaultValue: "Failed to promote" }),
+      );
     }
   };
 
@@ -256,7 +294,7 @@ function UserDetailInner({ userId }: { userId: string }) {
           />
           <button
             onClick={() => router.push("/admin/users")}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition"
           >
             <ArrowLeft size={16} />
             Back to List
@@ -337,14 +375,22 @@ function UserDetailInner({ userId }: { userId: string }) {
                 </h3>
                 <div className="space-y-3 ml-8">
                   <div>
-                    <p className="text-xs font-semibold text-muted-foreground mb-1">Email</p>
+                    <p className="text-xs font-semibold text-muted-foreground mb-1">
+                      Email
+                    </p>
                     <p className="text-foreground font-medium">{user.email}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-muted-foreground mb-1">Status</p>
+                    <p className="text-xs font-semibold text-muted-foreground mb-1">
+                      Status
+                    </p>
                     <div className="flex gap-2">
                       {user.isActive ? (
-                        <StatusBadge variant="success" label="Active" size="sm" />
+                        <StatusBadge
+                          variant="success"
+                          label="Active"
+                          size="sm"
+                        />
                       ) : (
                         <StatusBadge variant="muted" label="Locked" size="sm" />
                       )}
@@ -361,7 +407,9 @@ function UserDetailInner({ userId }: { userId: string }) {
                 </h3>
                 <div className="space-y-3 ml-8">
                   <div>
-                    <p className="text-xs font-semibold text-muted-foreground mb-1">Name</p>
+                    <p className="text-xs font-semibold text-muted-foreground mb-1">
+                      Name
+                    </p>
                     <p className="text-foreground font-medium">
                       {user.organization?.name ?? "Platform User"}
                     </p>
@@ -401,19 +449,29 @@ function UserDetailInner({ userId }: { userId: string }) {
                 <div className="space-y-3 ml-8">
                   {user.jobTitle && (
                     <div>
-                      <p className="text-xs font-semibold text-muted-foreground mb-1">Job Title</p>
-                      <p className="text-foreground font-medium">{user.jobTitle}</p>
+                      <p className="text-xs font-semibold text-muted-foreground mb-1">
+                        Job Title
+                      </p>
+                      <p className="text-foreground font-medium">
+                        {user.jobTitle}
+                      </p>
                     </div>
                   )}
                   {user.department && (
                     <div>
-                      <p className="text-xs font-semibold text-muted-foreground mb-1">Department</p>
-                      <p className="text-foreground font-medium">{user.department}</p>
+                      <p className="text-xs font-semibold text-muted-foreground mb-1">
+                        Department
+                      </p>
+                      <p className="text-foreground font-medium">
+                        {user.department}
+                      </p>
                     </div>
                   )}
                   {user.phone && (
                     <div>
-                      <p className="text-xs font-semibold text-muted-foreground mb-1">Phone</p>
+                      <p className="text-xs font-semibold text-muted-foreground mb-1">
+                        Phone
+                      </p>
                       <p className="text-foreground font-medium flex items-center gap-2">
                         <Phone size={14} />
                         {user.phone}
@@ -433,8 +491,12 @@ function UserDetailInner({ userId }: { userId: string }) {
                   <div className="space-y-3 ml-8">
                     {user.address && (
                       <div>
-                        <p className="text-xs font-semibold text-muted-foreground mb-1">Street</p>
-                        <p className="text-foreground font-medium">{user.address}</p>
+                        <p className="text-xs font-semibold text-muted-foreground mb-1">
+                          Street
+                        </p>
+                        <p className="text-foreground font-medium">
+                          {user.address}
+                        </p>
                       </div>
                     )}
                     {(user.city || user.state || user.country) && (
@@ -443,7 +505,9 @@ function UserDetailInner({ userId }: { userId: string }) {
                           City, State, Country
                         </p>
                         <p className="text-foreground font-medium">
-                          {[user.city, user.state, user.country].filter(Boolean).join(", ")}
+                          {[user.city, user.state, user.country]
+                            .filter(Boolean)
+                            .join(", ")}
                         </p>
                       </div>
                     )}
@@ -490,7 +554,6 @@ function UserDetailInner({ userId }: { userId: string }) {
             </div>
           </div>
         )}
-
       </div>
 
       {/* Change Password Modal */}
@@ -511,7 +574,7 @@ function UserDetailInner({ userId }: { userId: string }) {
             <button
               onClick={handleChangePassword}
               disabled={passwordSaving}
-              className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-sm font-medium transition disabled:opacity-60 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-primary hover:bg-primary-600 text-primary-foreground rounded-lg text-sm font-medium transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {passwordSaving ? "Saving…" : "Update Password"}
             </button>
@@ -559,7 +622,9 @@ function UserDetailInner({ userId }: { userId: string }) {
             />
           </div>
 
-          {passwordError && <p className="text-xs text-error">{passwordError}</p>}
+          {passwordError && (
+            <p className="text-xs text-error">{passwordError}</p>
+          )}
 
           <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
             <p className="text-xs text-amber-900 dark:text-amber-300">
@@ -599,7 +664,11 @@ function UserDetailInner({ userId }: { userId: string }) {
   );
 }
 
-export function UserDetailView({ params }: { params: Promise<{ id: string }> }) {
+export function UserDetailView({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const t = useTranslations("admin.users");
   const [userId, setUserId] = useState<string | null>(null);
 

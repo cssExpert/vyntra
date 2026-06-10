@@ -2,7 +2,16 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { X, Palette, Info, Tag, Image as ImageIcon, Globe, Lock, Check } from "lucide-react";
+import {
+  X,
+  Palette,
+  Info,
+  Tag,
+  Image as ImageIcon,
+  Globe,
+  Lock,
+  Check,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Gallery, GalleryStatus } from "../gallery/gallery.types";
 import { PRESET_COVERS } from "../gallery/gallery.data";
@@ -15,7 +24,12 @@ interface ThemeCreateModalProps {
   onError: (msg: string) => void;
 }
 
-export function ThemeCreateModal({ isOpen, onClose, onCreate, onError }: ThemeCreateModalProps) {
+export function ThemeCreateModal({
+  isOpen,
+  onClose,
+  onCreate,
+  onError,
+}: ThemeCreateModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("Portfolio");
@@ -56,7 +70,9 @@ export function ThemeCreateModal({ isOpen, onClose, onCreate, onError }: ThemeCr
       return;
     }
     const finalCover =
-      useCustomCover && customCoverUrl.trim() ? customCoverUrl.trim() : coverUrl;
+      useCustomCover && customCoverUrl.trim()
+        ? customCoverUrl.trim()
+        : coverUrl;
     onCreate({
       id: `theme-${Date.now()}`,
       title,
@@ -105,7 +121,9 @@ export function ThemeCreateModal({ isOpen, onClose, onCreate, onError }: ThemeCr
                   <Palette className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-foreground">Add New Theme</h2>
+                  <h2 className="text-lg font-bold text-foreground">
+                    Add New Theme
+                  </h2>
                   <p className="text-xs text-muted-foreground">
                     Register a new design theme to your collection.
                   </p>
@@ -120,8 +138,10 @@ export function ThemeCreateModal({ isOpen, onClose, onCreate, onError }: ThemeCr
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6 no-scrollbar">
-
+            <form
+              onSubmit={handleSubmit}
+              className="flex-1 overflow-y-auto p-6 space-y-6 no-scrollbar"
+            >
               {/* 1. Theme Info */}
               <div className="space-y-4">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1">
@@ -129,7 +149,9 @@ export function ThemeCreateModal({ isOpen, onClose, onCreate, onError }: ThemeCr
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className={labelCls}>Theme Name <span className="text-rose-500">*</span></label>
+                    <label className={labelCls}>
+                      Theme Name <span className="text-rose-500">*</span>
+                    </label>
                     <input
                       type="text"
                       required
@@ -147,7 +169,9 @@ export function ThemeCreateModal({ isOpen, onClose, onCreate, onError }: ThemeCr
                       className={cn(inputCls, "cursor-pointer font-semibold")}
                     >
                       {themeCategories.map((c) => (
-                        <option key={c} value={c}>{c}</option>
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -224,7 +248,10 @@ export function ThemeCreateModal({ isOpen, onClose, onCreate, onError }: ThemeCr
                         onChange={(e) => setTagInput(e.target.value)}
                         placeholder="Tag & press Enter..."
                         onKeyDown={(e) => {
-                          if (e.key === "Enter") { e.preventDefault(); handleAddTag(e); }
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleAddTag(e);
+                          }
                         }}
                         className={cn(inputCls, "flex-1")}
                       />
@@ -242,9 +269,16 @@ export function ThemeCreateModal({ isOpen, onClose, onCreate, onError }: ThemeCr
                 {tags.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 p-3 bg-muted/50 border border-border rounded-sm">
                     {tags.map((tag) => (
-                      <span key={tag} className="inline-flex items-center gap-1.5 text-xs bg-primary/10 text-primary border border-primary/20 py-1 pl-2.5 pr-1.5 rounded-full">
+                      <span
+                        key={tag}
+                        className="inline-flex items-center gap-1.5 text-xs bg-primary/10 text-primary border border-primary/20 py-1 pl-2.5 pr-1.5 rounded-full"
+                      >
                         {tag}
-                        <button type="button" onClick={() => setTags(tags.filter((t) => t !== tag))} className="p-0.5 rounded-full hover:bg-primary/20">
+                        <button
+                          type="button"
+                          onClick={() => setTags(tags.filter((t) => t !== tag))}
+                          className="p-0.5 rounded-full hover:bg-primary/20"
+                        >
                           <X className="w-3 h-3" />
                         </button>
                       </span>
@@ -260,16 +294,25 @@ export function ThemeCreateModal({ isOpen, onClose, onCreate, onError }: ThemeCr
                     <ImageIcon className="w-3.5 h-3.5" /> 3. Cover Image
                   </h3>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground font-medium">Custom URL</span>
+                    <span className="text-xs text-muted-foreground font-medium">
+                      Custom URL
+                    </span>
                     <button
                       type="button"
                       onClick={() => setUseCustomCover(!useCustomCover)}
                       className={cn(
                         "w-9 h-5 rounded-full p-0.5 transition-colors focus:outline-none",
-                        useCustomCover ? "bg-primary" : "bg-muted border border-border",
+                        useCustomCover
+                          ? "bg-primary"
+                          : "bg-muted border border-border",
                       )}
                     >
-                      <div className={cn("w-4 h-4 rounded-full bg-white transition-transform shadow-sm", useCustomCover ? "translate-x-4" : "translate-x-0")} />
+                      <div
+                        className={cn(
+                          "w-4 h-4 rounded-full bg-white transition-transform shadow-sm",
+                          useCustomCover ? "translate-x-4" : "translate-x-0",
+                        )}
+                      />
                     </button>
                   </div>
                 </div>
@@ -284,7 +327,9 @@ export function ThemeCreateModal({ isOpen, onClose, onCreate, onError }: ThemeCr
                       placeholder="https://images.unsplash.com/..."
                       className={inputCls}
                     />
-                    <p className="text-[10px] text-muted-foreground mt-1">Use high-quality images from Unsplash or Pexels.</p>
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      Use high-quality images from Unsplash or Pexels.
+                    </p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5">
@@ -302,7 +347,11 @@ export function ThemeCreateModal({ isOpen, onClose, onCreate, onError }: ThemeCr
                               : "border-border opacity-60 hover:opacity-100",
                           )}
                         >
-                          <img src={preset.url} alt={preset.label} className="w-full h-full object-cover" />
+                          <img
+                            src={preset.url}
+                            alt={preset.label}
+                            className="w-full h-full object-cover"
+                          />
                           {isSelected && (
                             <div className="absolute inset-0 bg-primary/30 flex items-center justify-center">
                               <Check className="w-5 h-5 text-white drop-shadow-md" />
@@ -319,7 +368,9 @@ export function ThemeCreateModal({ isOpen, onClose, onCreate, onError }: ThemeCr
               <div className="p-3 bg-muted/50 rounded-sm flex items-start gap-3 border border-border">
                 <Palette className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  <span className="font-bold text-foreground">Tip:</span> After adding a theme, open it in the Editor to customize sections, colors, and layout from scratch or via a template.
+                  <span className="font-bold text-foreground">Tip:</span> After
+                  adding a theme, open it in the Editor to customize sections,
+                  colors, and layout from scratch or via a template.
                 </p>
               </div>
             </form>
@@ -336,7 +387,7 @@ export function ThemeCreateModal({ isOpen, onClose, onCreate, onError }: ThemeCr
               <button
                 type="button"
                 onClick={handleSubmit}
-                className="px-5 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-sm text-sm font-semibold transition-all shadow-sm active:scale-[0.98]"
+                className="px-5 py-3 bg-primary hover:bg-primary-600 text-primary-foreground rounded-sm text-sm font-semibold transition-all shadow-sm active:scale-[0.98]"
               >
                 Add Theme
               </button>

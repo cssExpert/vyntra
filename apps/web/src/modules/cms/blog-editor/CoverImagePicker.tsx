@@ -30,9 +30,12 @@ const SUBTYPE_STYLES: Record<string, string> = {
 
 function SubtypeBadge({ subtype }: { subtype: string | null }) {
   if (!subtype) return null;
-  const style = SUBTYPE_STYLES[subtype] ?? "bg-muted text-muted-foreground border-border";
+  const style =
+    SUBTYPE_STYLES[subtype] ?? "bg-muted text-muted-foreground border-border";
   return (
-    <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border ${style}`}>
+    <span
+      className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border ${style}`}
+    >
       {subtype}
     </span>
   );
@@ -56,7 +59,10 @@ interface LibraryModalProps {
   currentSubtype: string;
   onSelect: (url: string) => void;
   onClose: () => void;
-  onToast?: (msg: string, type?: "success" | "error" | "info" | "warning") => void;
+  onToast?: (
+    msg: string,
+    type?: "success" | "error" | "info" | "warning",
+  ) => void;
 }
 
 function LibraryModal({
@@ -80,27 +86,30 @@ function LibraryModal({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load a page of assets
-  const load = useCallback(async (pageNum: number, sub: FilterType, replace: boolean) => {
-    if (pageNum === 1) setLoading(true);
-    else setLoadingMore(true);
-    try {
-      const res = await mediaAssets.list({
-        module: "cms",
-        subtype: sub === "all" ? undefined : sub,
-        page: pageNum,
-        limit: 20,
-      });
-      setItems((prev) => (replace ? res.items : [...prev, ...res.items]));
-      setTotal(res.total);
-      setHasMore(res.hasMore);
-      setPage(pageNum);
-    } catch {
-      onToast?.("Failed to load media library", "error");
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  }, [onToast]);
+  const load = useCallback(
+    async (pageNum: number, sub: FilterType, replace: boolean) => {
+      if (pageNum === 1) setLoading(true);
+      else setLoadingMore(true);
+      try {
+        const res = await mediaAssets.list({
+          module: "cms",
+          subtype: sub === "all" ? undefined : sub,
+          page: pageNum,
+          limit: 20,
+        });
+        setItems((prev) => (replace ? res.items : [...prev, ...res.items]));
+        setTotal(res.total);
+        setHasMore(res.hasMore);
+        setPage(pageNum);
+      } catch {
+        onToast?.("Failed to load media library", "error");
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    },
+    [onToast],
+  );
 
   // Reload when filter changes
   useEffect(() => {
@@ -125,7 +134,9 @@ function LibraryModal({
 
   // ESC to close + lock body scroll
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
     document.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
     return () => {
@@ -174,17 +185,22 @@ function LibraryModal({
   return (
     <div
       className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
-      <div className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-5xl flex flex-col"
-           style={{ maxHeight: "85vh" }}>
-
+      <div
+        className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-5xl flex flex-col"
+        style={{ maxHeight: "85vh" }}
+      >
         {/* Header */}
         <div className="flex items-center justify-between gap-4 px-5 py-4 border-b border-border shrink-0">
           <div>
             <h2 className="text-sm font-bold text-foreground">Media Library</h2>
             <p className="text-[10px] text-muted-foreground mt-0.5">
-              {loading ? "Loading…" : `${total} asset${total !== 1 ? "s" : ""} · CMS module`}
+              {loading
+                ? "Loading…"
+                : `${total} asset${total !== 1 ? "s" : ""} · CMS module`}
             </p>
           </div>
 
@@ -208,16 +224,24 @@ function LibraryModal({
             </div>
 
             {/* Upload */}
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleUpload}
+            />
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary/90 disabled:opacity-60 text-primary-foreground text-xs font-bold rounded-lg transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary-600 disabled:opacity-60 text-primary-foreground text-xs font-bold rounded-lg transition-all"
             >
-              {isUploading
-                ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                : <UploadCloud className="w-3.5 h-3.5" />}
+              {isUploading ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <UploadCloud className="w-3.5 h-3.5" />
+              )}
               Upload new
             </button>
 
@@ -238,7 +262,10 @@ function LibraryModal({
             // Skeleton
             <div className="grid grid-cols-5 gap-3">
               {Array.from({ length: 15 }).map((_, i) => (
-                <div key={i} className="aspect-video rounded-xl bg-muted animate-pulse" />
+                <div
+                  key={i}
+                  className="aspect-video rounded-xl bg-muted animate-pulse"
+                />
               ))}
             </div>
           ) : items.length === 0 ? (
@@ -247,7 +274,9 @@ function LibraryModal({
                 <ImageIcon className="w-7 h-7 text-muted-foreground/40" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-foreground">No media yet</p>
+                <p className="text-sm font-semibold text-foreground">
+                  No media yet
+                </p>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
                   {filter !== "all"
                     ? `No "${filter}" images uploaded.`
@@ -273,7 +302,10 @@ function LibraryModal({
                       role="button"
                       tabIndex={0}
                       onClick={() => onSelect(asset.url)}
-                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onSelect(asset.url); }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ")
+                          onSelect(asset.url);
+                      }}
                       className={`group relative rounded-xl overflow-hidden border-2 transition-all duration-150 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                         selected
                           ? "border-primary shadow-lg shadow-primary/20 scale-[0.97]"
@@ -298,7 +330,9 @@ function LibraryModal({
                           <p className="text-[9px] text-white font-semibold truncate leading-tight">
                             {asset.fileName}
                           </p>
-                          <p className="text-[8px] text-white/70">{formatBytes(asset.size)}</p>
+                          <p className="text-[8px] text-white/70">
+                            {formatBytes(asset.size)}
+                          </p>
                         </div>
 
                         {/* Delete btn — standalone button, not nested inside another button */}
@@ -362,7 +396,10 @@ export interface CoverImagePickerProps {
   value: string;
   onChange: (url: string) => void;
   subtype?: string;
-  onToast?: (msg: string, type?: "success" | "error" | "info" | "warning") => void;
+  onToast?: (
+    msg: string,
+    type?: "success" | "error" | "info" | "warning",
+  ) => void;
 }
 
 export function CoverImagePicker({
@@ -417,7 +454,10 @@ export function CoverImagePicker({
   };
 
   const generateAI = () => {
-    if (!aiPrompt.trim()) { onToast?.("Please enter an AI prompt first!", "warning"); return; }
+    if (!aiPrompt.trim()) {
+      onToast?.("Please enter an AI prompt first!", "warning");
+      return;
+    }
     setIsGenerating(true);
     onToast?.("Generating custom banner…", "info");
     setTimeout(() => {
@@ -462,7 +502,9 @@ export function CoverImagePicker({
               type="button"
               onClick={() => onChange(cov)}
               className={`relative aspect-video rounded-lg overflow-hidden border-2 transition-all ${
-                value === cov ? "border-primary scale-95 shadow-md" : "border-transparent hover:border-muted-foreground/40"
+                value === cov
+                  ? "border-primary scale-95 shadow-md"
+                  : "border-transparent hover:border-muted-foreground/40"
               }`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -475,7 +517,9 @@ export function CoverImagePicker({
       {/* ── AI ── */}
       {tab === "ai" && (
         <div className="p-4 rounded-xl border border-border bg-muted/40 space-y-3">
-          <p className="text-[11px] text-muted-foreground">Prompt the AI to generate a custom cover banner.</p>
+          <p className="text-[11px] text-muted-foreground">
+            Prompt the AI to generate a custom cover banner.
+          </p>
           <div className="flex gap-2">
             <input
               type="text"
@@ -488,9 +532,13 @@ export function CoverImagePicker({
               type="button"
               onClick={generateAI}
               disabled={isGenerating}
-              className="px-3 py-2 bg-primary hover:bg-primary/90 disabled:opacity-60 text-primary-foreground font-bold rounded-lg text-xs flex items-center gap-1 shrink-0"
+              className="px-3 py-2 bg-primary hover:bg-primary-600 disabled:opacity-60 text-primary-foreground font-bold rounded-lg text-xs flex items-center gap-1 shrink-0"
             >
-              {isGenerating ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+              {isGenerating ? (
+                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Sparkles className="w-3.5 h-3.5" />
+              )}
               Generate
             </button>
           </div>
@@ -500,26 +548,45 @@ export function CoverImagePicker({
       {/* ── Upload ── */}
       {tab === "upload" && (
         <div
-          onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setIsDragging(true);
+          }}
           onDragLeave={() => setIsDragging(false)}
           onDrop={handleDrop}
           className={`border-2 border-dashed rounded-xl p-6 text-center transition-all ${
-            isDragging ? "border-primary bg-primary/5" : "border-border bg-muted/30 hover:border-primary/50"
+            isDragging
+              ? "border-primary bg-primary/5"
+              : "border-border bg-muted/30 hover:border-primary/50"
           }`}
         >
-          <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileInput} />
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileInput}
+          />
           <UploadCloud className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
           {isUploading ? (
-            <p className="text-xs font-semibold text-muted-foreground animate-pulse">Uploading…</p>
+            <p className="text-xs font-semibold text-muted-foreground animate-pulse">
+              Uploading…
+            </p>
           ) : (
             <>
               <p className="text-xs font-semibold text-foreground mb-0.5">
                 Drag & drop an image, or{" "}
-                <button type="button" onClick={() => fileInputRef.current?.click()} className="text-primary hover:underline">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="text-primary hover:underline"
+                >
                   browse
                 </button>
               </p>
-              <p className="text-[10px] text-muted-foreground">PNG, JPG, WEBP · Stored via configured provider</p>
+              <p className="text-[10px] text-muted-foreground">
+                PNG, JPG, WEBP · Stored via configured provider
+              </p>
             </>
           )}
         </div>
@@ -542,13 +609,17 @@ export function CoverImagePicker({
       )}
 
       {/* ── Library modal (portal) ── */}
-      {mounted && libraryOpen &&
+      {mounted &&
+        libraryOpen &&
         createPortal(
           <LibraryModal
             currentValue={value}
             uploadCompanyId={uploadCompanyId}
             currentSubtype={subtype}
-            onSelect={(url) => { onChange(url); setLibraryOpen(false); }}
+            onSelect={(url) => {
+              onChange(url);
+              setLibraryOpen(false);
+            }}
             onClose={() => setLibraryOpen(false)}
             onToast={onToast}
           />,

@@ -13,9 +13,6 @@ import {
   Users,
   Package,
   Settings,
-  HardDrive,
-  Mail,
-  CreditCard,
   CheckCircle2,
   AlertCircle,
   ArrowRight,
@@ -150,16 +147,15 @@ export function SuperAdminDashboardView() {
       try {
         setData((prev) => ({ ...prev, loading: true, error: null }));
 
-        const [companies, users, packages, modules, stats, settings] = await Promise.all(
-          [
+        const [companies, users, packages, modules, stats, settings] =
+          await Promise.all([
             adminDashboard.getCompanies(),
             adminDashboard.getUsers(),
             adminDashboard.getPackages(),
             adminDashboard.getModules(),
             adminDashboard.getDashboardStats(),
             adminDashboard.getSettings(),
-          ]
-        );
+          ]);
 
         setData({
           companies,
@@ -186,14 +182,15 @@ export function SuperAdminDashboardView() {
 
   const handleRefresh = async () => {
     setData((prev) => ({ ...prev, loading: true }));
-    const [companies, users, packages, modules, stats, settings] = await Promise.all([
-      adminDashboard.getCompanies(),
-      adminDashboard.getUsers(),
-      adminDashboard.getPackages(),
-      adminDashboard.getModules(),
-      adminDashboard.getDashboardStats(),
-      adminDashboard.getSettings(),
-    ]);
+    const [companies, users, packages, modules, stats, settings] =
+      await Promise.all([
+        adminDashboard.getCompanies(),
+        adminDashboard.getUsers(),
+        adminDashboard.getPackages(),
+        adminDashboard.getModules(),
+        adminDashboard.getDashboardStats(),
+        adminDashboard.getSettings(),
+      ]);
 
     setData({
       companies,
@@ -268,7 +265,9 @@ export function SuperAdminDashboardView() {
             {/* Page header */}
             <motion.div variants={itemVariants}>
               <PageHeader
-                title={t("superadmindashboard", { defaultValue: "Super Admin Dashboard" })}
+                title={t("superadmindashboard", {
+                  defaultValue: "Super Admin Dashboard",
+                })}
                 description={`Welcome back, ${user?.name || "Admin"}. Platform overview and system configuration.`}
               >
                 <button
@@ -279,14 +278,14 @@ export function SuperAdminDashboardView() {
                   <RefreshCw
                     className={cn(
                       "h-3.5 w-3.5",
-                      data.loading && "animate-spin"
+                      data.loading && "animate-spin",
                     )}
                   />
                   <span className="hidden sm:inline">Refresh</span>
                 </button>
                 <a
                   href="/admin/settings"
-                  className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all duration-200 cursor-pointer"
+                  className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all duration-200 cursor-pointer"
                 >
                   <Settings className="h-3.5 w-3.5" />
                   Settings
@@ -306,8 +305,12 @@ export function SuperAdminDashboardView() {
             {/* System Configuration */}
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
               <SectionCard
-                title={t("systemconfiguration", { defaultValue: "System Configuration" })}
-                description={t("platformsettingsstatus", { defaultValue: "Platform settings status" })}
+                title={t("systemconfiguration", {
+                  defaultValue: "System Configuration",
+                })}
+                description={t("platformsettingsstatus", {
+                  defaultValue: "Platform settings status",
+                })}
                 className="lg:col-span-2"
               >
                 <div className="space-y-2.5">
@@ -330,7 +333,12 @@ export function SuperAdminDashboardView() {
               </SectionCard>
 
               {/* Quick Actions */}
-              <SectionCard title={t("quickactions", { defaultValue: "Quick Actions" })} description={t("commonadmintasks", { defaultValue: "Common admin tasks" })}>
+              <SectionCard
+                title={t("quickactions", { defaultValue: "Quick Actions" })}
+                description={t("commonadmintasks", {
+                  defaultValue: "Common admin tasks",
+                })}
+              >
                 <div className="space-y-2">
                   <Link
                     href="/admin/companies"
@@ -371,7 +379,9 @@ export function SuperAdminDashboardView() {
             {/* Companies List */}
             {data.companies.length > 0 && (
               <SectionCard
-                title={t("recentcompanies", { defaultValue: "Recent Companies" })}
+                title={t("recentcompanies", {
+                  defaultValue: "Recent Companies",
+                })}
                 description={`${data.companies.length} total companies`}
                 action={{ label: "View All", href: "/admin/companies" }}
               >
@@ -396,11 +406,7 @@ export function SuperAdminDashboardView() {
                             {new Date(company.createdAt).toLocaleDateString()}
                           </td>
                           <td>
-                            <StatusBadge
-                              variant="success"
-                              label="Active"
-                              dot
-                            />
+                            <StatusBadge variant="success" label="Active" dot />
                           </td>
                         </tr>
                       ))}
@@ -413,7 +419,9 @@ export function SuperAdminDashboardView() {
             {/* Packages Overview */}
             {data.packages.length > 0 && (
               <SectionCard
-                title={t("availablepackages", { defaultValue: "Available Packages" })}
+                title={t("availablepackages", {
+                  defaultValue: "Available Packages",
+                })}
                 description={`${data.packages.length} total packages`}
                 action={{ label: "Manage", href: "/admin/packages" }}
               >
@@ -448,7 +456,9 @@ export function SuperAdminDashboardView() {
             {/* Modules List */}
             {data.modules.length > 0 && (
               <SectionCard
-                title={t("availablemodules", { defaultValue: "Available Modules" })}
+                title={t("availablemodules", {
+                  defaultValue: "Available Modules",
+                })}
                 description={`${data.modules.length} total modules`}
                 action={{ label: "Manage", href: "/admin/modules" }}
               >

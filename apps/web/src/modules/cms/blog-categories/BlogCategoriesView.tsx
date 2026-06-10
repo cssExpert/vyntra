@@ -63,7 +63,12 @@ const SKELETON_COLUMNS: TableSkeletonColumn[] = [
   { width: "flex-[3]", shape: "text", cellWidth: "w-40", headerWidth: "w-12" },
   { width: "flex-[2]", shape: "text", cellWidth: "w-32", headerWidth: "w-10" },
   { width: "flex-[3]", shape: "text", cellWidth: "w-48", headerWidth: "w-20" },
-  { width: "flex-[1.5]", shape: "text", cellWidth: "w-24", headerWidth: "w-16" },
+  {
+    width: "flex-[1.5]",
+    shape: "text",
+    cellWidth: "w-24",
+    headerWidth: "w-16",
+  },
   { width: "w-20", shape: "actions", align: "end", headerWidth: "w-12" },
 ];
 
@@ -155,16 +160,21 @@ export function BlogCategoriesView() {
   const [isFetching, setIsFetching] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
   const [modalMode, setModalMode] = useState<"create" | "edit" | null>(null);
-  const [editingCategory, setEditingCategory] = useState<CmsBlogCategory | null>(null);
+  const [editingCategory, setEditingCategory] =
+    useState<CmsBlogCategory | null>(null);
   const [form, setForm] = useState<CategoryFormState>(emptyForm());
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | undefined>();
 
-  const [deletingCategory, setDeletingCategory] = useState<CmsBlogCategory | null>(null);
+  const [deletingCategory, setDeletingCategory] =
+    useState<CmsBlogCategory | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   const isLoaded = usePageLoad(600);
@@ -186,7 +196,11 @@ export function BlogCategoriesView() {
   };
 
   const openEdit = (cat: CmsBlogCategory) => {
-    setForm({ name: cat.name, slug: cat.slug, description: cat.description ?? "" });
+    setForm({
+      name: cat.name,
+      slug: cat.slug,
+      description: cat.description ?? "",
+    });
     setSlugManuallyEdited(true);
     setFormError(undefined);
     setEditingCategory(cat);
@@ -199,8 +213,14 @@ export function BlogCategoriesView() {
   };
 
   const handleSave = async () => {
-    if (!form.name.trim()) { setFormError("Name is required"); return; }
-    if (!form.slug.trim()) { setFormError("Slug is required"); return; }
+    if (!form.name.trim()) {
+      setFormError("Name is required");
+      return;
+    }
+    if (!form.slug.trim()) {
+      setFormError("Slug is required");
+      return;
+    }
     setSaving(true);
     setFormError(undefined);
     try {
@@ -210,7 +230,9 @@ export function BlogCategoriesView() {
           slug: form.slug.trim(),
           description: form.description.trim() || undefined,
         });
-        setCategories((prev) => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)));
+        setCategories((prev) =>
+          [...prev, created].sort((a, b) => a.name.localeCompare(b.name)),
+        );
       } else if (editingCategory) {
         const updated = await cmsBlogCategories.update(editingCategory.id, {
           name: form.name.trim(),
@@ -218,7 +240,9 @@ export function BlogCategoriesView() {
           description: form.description.trim() || undefined,
         });
         setCategories((prev) =>
-          prev.map((c) => (c.id === updated.id ? updated : c)).sort((a, b) => a.name.localeCompare(b.name)),
+          prev
+            .map((c) => (c.id === updated.id ? updated : c))
+            .sort((a, b) => a.name.localeCompare(b.name)),
         );
       }
       closeModal();
@@ -256,7 +280,9 @@ export function BlogCategoriesView() {
         header: "Slug",
         size: 160,
         cell: ({ getValue }) => (
-          <span className="font-mono text-xs text-muted-foreground">/{getValue()}</span>
+          <span className="font-mono text-xs text-muted-foreground">
+            /{getValue()}
+          </span>
         ),
       }),
       columnHelper.accessor("description", {
@@ -273,7 +299,9 @@ export function BlogCategoriesView() {
         header: "Created",
         size: 130,
         cell: ({ getValue }) => (
-          <span className="text-muted-foreground">{formatDate(getValue())}</span>
+          <span className="text-muted-foreground">
+            {formatDate(getValue())}
+          </span>
         ),
       }),
       columnHelper.display({
@@ -306,7 +334,7 @@ export function BlogCategoriesView() {
         },
       }),
     ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
     [],
   );
 
@@ -333,7 +361,11 @@ export function BlogCategoriesView() {
   return (
     <AnimatePresence mode="wait" initial={false}>
       {!isLoaded || isFetching ? (
-        <motion.div key="skeleton" exit={{ opacity: 0 }} transition={{ duration: 0.12 }}>
+        <motion.div
+          key="skeleton"
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.12 }}
+        >
           <TableSkeleton columns={SKELETON_COLUMNS} rows={6} />
         </motion.div>
       ) : (
@@ -354,9 +386,12 @@ export function BlogCategoriesView() {
             <div className="flex items-center gap-2">
               <button
                 onClick={openCreate}
-                className="inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer group active:scale-[0.98]"
+                className="inline-flex items-center gap-2 rounded-sm bg-brand-500 px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-brand-600 transition-all cursor-pointer group active:scale-[0.98]"
               >
-                <Plus size={16} className="stroke-[3] transition-transform group-hover:rotate-90 duration-300" />
+                <Plus
+                  size={16}
+                  className="stroke-[3] transition-transform group-hover:rotate-90 duration-300"
+                />
                 Add Category
               </button>
               {/* Search */}
@@ -369,7 +404,7 @@ export function BlogCategoriesView() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search categories..."
-                  className="pl-9 pr-8 py-2.5 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all w-52"
+                  className="pl-9 pr-8 py-2.5 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15 w-52"
                 />
                 {searchTerm && (
                   <button
@@ -385,14 +420,24 @@ export function BlogCategoriesView() {
 
           {/* Table */}
           <div className="mt-6 bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden">
-            <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: "calc(100vh - 270px)" }}>
+            <div
+              className="overflow-x-auto overflow-y-auto"
+              style={{ maxHeight: "calc(100vh - 270px)" }}
+            >
               <table
                 className="text-left border-collapse"
-                style={{ tableLayout: "fixed", width: "100%", minWidth: "760px" }}
+                style={{
+                  tableLayout: "fixed",
+                  width: "100%",
+                  minWidth: "760px",
+                }}
               >
                 <thead>
                   {table.getHeaderGroups().map((headerGroup) => (
-                    <tr key={headerGroup.id} className="text-[13px] font-semibold text-muted-foreground select-none">
+                    <tr
+                      key={headerGroup.id}
+                      className="text-[13px] font-semibold text-muted-foreground select-none"
+                    >
                       {headerGroup.headers.map((header) => {
                         const canSort = header.column.getCanSort();
                         const sorted = header.column.getIsSorted();
@@ -400,17 +445,40 @@ export function BlogCategoriesView() {
                         return (
                           <th
                             key={header.id}
-                            onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
+                            onClick={
+                              canSort
+                                ? header.column.getToggleSortingHandler()
+                                : undefined
+                            }
                             style={{ width: header.getSize() }}
                             className={`sticky top-0 z-10 bg-muted font-semibold py-4 px-4 border-b border-border ${isActions ? "text-right" : ""} ${canSort ? "cursor-pointer hover:text-foreground transition-colors" : ""}`}
                           >
-                            <div className={`flex items-center gap-1 ${isActions ? "justify-end" : ""}`}>
-                              {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                              {canSort && (
-                                sorted === "asc" ? <ChevronUp size={13} className="text-primary shrink-0" />
-                                : sorted === "desc" ? <ChevronDown size={13} className="text-primary shrink-0" />
-                                : <ChevronsUpDown size={13} className="text-muted-foreground/40 shrink-0" />
-                              )}
+                            <div
+                              className={`flex items-center gap-1 ${isActions ? "justify-end" : ""}`}
+                            >
+                              {header.isPlaceholder
+                                ? null
+                                : flexRender(
+                                    header.column.columnDef.header,
+                                    header.getContext(),
+                                  )}
+                              {canSort &&
+                                (sorted === "asc" ? (
+                                  <ChevronUp
+                                    size={13}
+                                    className="text-primary shrink-0"
+                                  />
+                                ) : sorted === "desc" ? (
+                                  <ChevronDown
+                                    size={13}
+                                    className="text-primary shrink-0"
+                                  />
+                                ) : (
+                                  <ChevronsUpDown
+                                    size={13}
+                                    className="text-muted-foreground/40 shrink-0"
+                                  />
+                                ))}
                             </div>
                           </th>
                         );
@@ -436,18 +504,32 @@ export function BlogCategoriesView() {
                               style={{ width: cell.column.getSize() }}
                               className={`py-4 px-4 ${cell.column.id === "actions" ? "text-right" : ""}`}
                             >
-                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext(),
+                              )}
                             </td>
                           ))}
                         </motion.tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={columns.length} className="py-14 text-center text-muted-foreground bg-muted/10">
+                        <td
+                          colSpan={columns.length}
+                          className="py-14 text-center text-muted-foreground bg-muted/10"
+                        >
                           <div className="flex flex-col items-center gap-2">
-                            <Tag size={28} className="text-muted-foreground/40" />
-                            <p className="font-semibold text-foreground">No categories yet</p>
-                            <p className="text-xs">Create a category to start organizing your blog posts.</p>
+                            <Tag
+                              size={28}
+                              className="text-muted-foreground/40"
+                            />
+                            <p className="font-semibold text-foreground">
+                              No categories yet
+                            </p>
+                            <p className="text-xs">
+                              Create a category to start organizing your blog
+                              posts.
+                            </p>
                           </div>
                         </td>
                       </tr>
@@ -466,7 +548,11 @@ export function BlogCategoriesView() {
                   onChange={(e) => table.setPageSize(Number(e.target.value))}
                   className="px-2 py-1.5 bg-background border border-border rounded-sm text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 cursor-pointer"
                 >
-                  {[10, 25, 50].map((s) => <option key={s} value={s}>{s}</option>)}
+                  {[10, 25, 50].map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
                 </select>
                 <span>entries</span>
               </div>
@@ -527,9 +613,13 @@ export function BlogCategoriesView() {
                   type="button"
                   onClick={handleSave}
                   disabled={saving}
-                  className="px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-sm text-sm font-semibold transition-all active:scale-95 disabled:opacity-60"
+                  className="px-5 py-2 bg-primary hover:bg-primary-600 text-primary-foreground rounded-sm text-sm font-semibold transition-all active:scale-95 disabled:opacity-60"
                 >
-                  {saving ? "Saving…" : modalMode === "create" ? "Create" : "Save Changes"}
+                  {saving
+                    ? "Saving…"
+                    : modalMode === "create"
+                      ? "Create"
+                      : "Save Changes"}
                 </button>
               </>
             }
@@ -554,7 +644,8 @@ export function BlogCategoriesView() {
                 <strong className="text-foreground font-bold">
                   &ldquo;{deletingCategory?.name}&rdquo;
                 </strong>
-                ? Blog posts using this category will keep the value but it won&apos;t appear as an option.
+                ? Blog posts using this category will keep the value but it
+                won&apos;t appear as an option.
               </>
             }
             icon={<Trash2 size={18} />}

@@ -158,9 +158,14 @@ export function UploadView() {
     // Use real content when available, fall back to generated mock
     const previewHtml =
       extracted?.html ??
-      generatePreviewHtml(formData.name, formData.description, formData.category);
-    const pages =
-      extracted?.pages.length ? extracted.pages : generateMockPages(formData.category);
+      generatePreviewHtml(
+        formData.name,
+        formData.description,
+        formData.category,
+      );
+    const pages = extracted?.pages.length
+      ? extracted.pages
+      : generateMockPages(formData.category);
     const assets = extracted?.assets ?? generateMockAssets();
 
     // Thumbnail priority: auto-detected from ZIP > manually entered URL > category fallback
@@ -436,7 +441,7 @@ export function UploadView() {
               <button
                 type="button"
                 onClick={() => router.push("/cms/themes")}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-sm text-sm font-bold transition-all duration-200 shadow-sm active:scale-[0.98] cursor-pointer"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary-600 text-primary-foreground rounded-sm text-sm font-bold transition-all duration-200 shadow-sm active:scale-[0.98] cursor-pointer"
               >
                 View in Themes Hub
               </button>

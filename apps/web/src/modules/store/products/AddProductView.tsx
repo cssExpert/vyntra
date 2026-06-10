@@ -216,7 +216,7 @@ export function AddProductView() {
             <Save size={14} />
             Save Draft
           </button>
-          <button className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer">
+          <button className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer">
             <Send size={14} />
             Publish
           </button>
@@ -428,7 +428,7 @@ export function AddProductView() {
                   <Save size={13} />
                   Draft
                 </button>
-                <button className="flex-1 flex items-center justify-center gap-1.5 rounded-sm bg-primary py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer">
+                <button className="flex-1 flex items-center justify-center gap-1.5 rounded-sm bg-primary py-2 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer">
                   <Send size={13} />
                   Publish
                 </button>
@@ -570,7 +570,7 @@ export function AddProductView() {
               <Save size={14} />
               Save Draft
             </button>
-            <button className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer shadow-sm shadow-primary/20">
+            <button className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer shadow-sm shadow-primary/20">
               <Send size={14} />
               Publish
             </button>

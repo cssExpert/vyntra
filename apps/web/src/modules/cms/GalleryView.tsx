@@ -13,7 +13,7 @@ import type {
   ViewMode,
   SortKey,
 } from "./gallery/gallery.types";
-import { INITIAL_GALLERIES } from "./gallery/gallery.data";
+// import { INITIAL_GALLERIES } from "./gallery/gallery.data";
 import { loadGalleries, saveGalleries } from "./gallery/gallery.store";
 import { GalleryStats } from "./gallery/GalleryStats";
 import { GalleryControls } from "./gallery/GalleryControls";
@@ -121,7 +121,7 @@ export function GalleryView() {
         />
         <button
           onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all duration-200 cursor-pointer group transform active:scale-[0.98] shrink-0"
+          className="inline-flex items-center gap-2 rounded-sm bg-brand-500 px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-brand-600 transition-all duration-200 cursor-pointer group transform active:scale-[0.98] shrink-0"
         >
           <Plus
             size={18}

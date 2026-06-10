@@ -1,7 +1,16 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Sparkles, RefreshCw, Copy, AlertCircle, Code, CheckCircle2, Award, ChevronRight } from "lucide-react";
+import {
+  Sparkles,
+  RefreshCw,
+  Copy,
+  AlertCircle,
+  Code,
+  CheckCircle2,
+  Award,
+  ChevronRight,
+} from "lucide-react";
 
 interface LighthouseAIOptimizerProps {
   initialPrompt: string;
@@ -10,7 +19,9 @@ interface LighthouseAIOptimizerProps {
 }
 
 export function LighthouseAIOptimizer({
-  initialPrompt, onPromptChange, handleCopy,
+  initialPrompt,
+  onPromptChange,
+  handleCopy,
 }: LighthouseAIOptimizerProps) {
   const [aiPrompt, setAiPrompt] = useState(initialPrompt);
   const [aiResponse, setAiResponse] = useState("");
@@ -30,11 +41,13 @@ export function LighthouseAIOptimizer({
     const payload = {
       contents: [{ parts: [{ text: prompt }] }],
       systemInstruction: {
-        parts: [{
-          text: `You are Lighthouse Keeper, an elite NextJS, React, and web performance engineer.
+        parts: [
+          {
+            text: `You are Lighthouse Keeper, an elite NextJS, React, and web performance engineer.
 Your goal is to optimize files, modules, and strategies to reach a perfect 100 score in Google Lighthouse.
 Provide clean, production-ready optimizations with comparative code diffs or explanations. Use Markdown syntax.`,
-        }],
+          },
+        ],
       },
     };
 
@@ -43,16 +56,27 @@ Provide clean, production-ready optimizations with comparative code diffs or exp
       try {
         const response = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=`,
-          { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) },
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          },
         );
-        if (!response.ok) throw new Error(`HTTP Error Status: ${response.status}`);
+        if (!response.ok)
+          throw new Error(`HTTP Error Status: ${response.status}`);
         const data = await response.json();
         const contentText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (contentText) { setAiResponse(contentText); setIsAiLoading(false); return; }
+        if (contentText) {
+          setAiResponse(contentText);
+          setIsAiLoading(false);
+          return;
+        }
         throw new Error("Empty response payload from Gemini API.");
       } catch {
         if (attempt === 5) {
-          setAiError("Optimizations currently offline. Please verify network access or try again shortly.");
+          setAiError(
+            "Optimizations currently offline. Please verify network access or try again shortly.",
+          );
           setIsAiLoading(false);
           break;
         }
@@ -74,14 +98,29 @@ Provide clean, production-ready optimizations with comparative code diffs or exp
       if (line.trim().startsWith("```")) {
         if (insideCodeBlock) {
           elements.push(
-            <div key={`code-${index}`} className="relative my-4 rounded-xl border border-border overflow-hidden bg-neutral-950 font-mono text-sm leading-relaxed text-neutral-200">
+            <div
+              key={`code-${index}`}
+              className="relative my-4 rounded-xl border border-border overflow-hidden bg-neutral-950 font-mono text-sm leading-relaxed text-neutral-200"
+            >
               <div className="flex items-center justify-between px-4 py-2 bg-neutral-900 border-b border-neutral-800">
-                <span className="text-xs font-semibold text-primary tracking-wider uppercase">{currentCodeLanguage || "Code"}</span>
-                <button onClick={() => handleCopy(currentCodeLines.join("\n"), "Code block copied!")} className="p-1 hover:bg-neutral-800 rounded transition-colors text-neutral-400 hover:text-neutral-200">
+                <span className="text-xs font-semibold text-primary tracking-wider uppercase">
+                  {currentCodeLanguage || "Code"}
+                </span>
+                <button
+                  onClick={() =>
+                    handleCopy(
+                      currentCodeLines.join("\n"),
+                      "Code block copied!",
+                    )
+                  }
+                  className="p-1 hover:bg-neutral-800 rounded transition-colors text-neutral-400 hover:text-neutral-200"
+                >
                   <Copy size={14} />
                 </button>
               </div>
-              <pre className="p-4 overflow-x-auto select-text"><code>{currentCodeLines.join("\n")}</code></pre>
+              <pre className="p-4 overflow-x-auto select-text">
+                <code>{currentCodeLines.join("\n")}</code>
+              </pre>
             </div>,
           );
           currentCodeLines = [];
@@ -98,8 +137,16 @@ Provide clean, production-ready optimizations with comparative code diffs or exp
         let lastIndex = 0;
         let match;
         while ((match = boldRegex.exec(line)) !== null) {
-          if (match.index > lastIndex) lineParts.push(line.substring(lastIndex, match.index));
-          lineParts.push(<strong key={`bold-${match.index}`} className="font-extrabold text-foreground">{match[1]}</strong>);
+          if (match.index > lastIndex)
+            lineParts.push(line.substring(lastIndex, match.index));
+          lineParts.push(
+            <strong
+              key={`bold-${match.index}`}
+              className="font-extrabold text-foreground"
+            >
+              {match[1]}
+            </strong>,
+          );
           lastIndex = boldRegex.lastIndex;
         }
         if (lastIndex < line.length) lineParts.push(line.substring(lastIndex));
@@ -111,28 +158,51 @@ Provide clean, production-ready optimizations with comparative code diffs or exp
             let codeLastIdx = 0;
             let codeMatch;
             while ((codeMatch = inlineCodeRegex.exec(part)) !== null) {
-              if (codeMatch.index > codeLastIdx) finalParts.push(part.substring(codeLastIdx, codeMatch.index));
-              finalParts.push(<code key={`inline-${partIndex}-${codeMatch.index}`} className="px-1.5 py-0.5 rounded bg-neutral-800 text-amber-400 font-mono text-xs">{codeMatch[1]}</code>);
+              if (codeMatch.index > codeLastIdx)
+                finalParts.push(part.substring(codeLastIdx, codeMatch.index));
+              finalParts.push(
+                <code
+                  key={`inline-${partIndex}-${codeMatch.index}`}
+                  className="px-1.5 py-0.5 rounded bg-neutral-800 text-amber-400 font-mono text-xs"
+                >
+                  {codeMatch[1]}
+                </code>,
+              );
               codeLastIdx = inlineCodeRegex.lastIndex;
             }
-            if (codeLastIdx < part.length) finalParts.push(part.substring(codeLastIdx));
+            if (codeLastIdx < part.length)
+              finalParts.push(part.substring(codeLastIdx));
           } else {
             finalParts.push(part);
           }
         });
 
         if (line.trim().startsWith("- ") || line.trim().startsWith("* ")) {
-          elements.push(<li key={index} className="ml-6 list-disc text-muted-foreground my-1 leading-relaxed">{finalParts.length > 0 ? finalParts : line.substring(2)}</li>);
+          elements.push(
+            <li
+              key={index}
+              className="ml-6 list-disc text-muted-foreground my-1 leading-relaxed"
+            >
+              {finalParts.length > 0 ? finalParts : line.substring(2)}
+            </li>,
+          );
         } else if (line.trim() === "") {
           elements.push(<div key={index} className="h-3" />);
         } else {
-          elements.push(<p key={index} className="text-muted-foreground my-1 leading-relaxed">{finalParts.length > 0 ? finalParts : line}</p>);
+          elements.push(
+            <p
+              key={index}
+              className="text-muted-foreground my-1 leading-relaxed"
+            >
+              {finalParts.length > 0 ? finalParts : line}
+            </p>,
+          );
         }
       }
     });
 
     return <div className="space-y-1 text-muted-foreground">{elements}</div>;
-  }, [aiResponse]);
+  }, [aiResponse, handleCopy]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -140,11 +210,17 @@ Provide clean, production-ready optimizations with comparative code diffs or exp
       <div className="lg:col-span-5 space-y-6">
         <div className="p-6 rounded-2xl border border-border bg-card/30">
           <div className="flex items-center gap-2 mb-3">
-            <div className="p-1.5 rounded-lg bg-primary/10 text-primary"><Sparkles size={16} /></div>
-            <h3 className="text-base font-extrabold text-foreground">Ask the Lighthouse Keeper</h3>
+            <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
+              <Sparkles size={16} />
+            </div>
+            <h3 className="text-base font-extrabold text-foreground">
+              Ask the Lighthouse Keeper
+            </h3>
           </div>
           <p className="text-xs text-muted-foreground mb-6">
-            Paste sluggish components, layout bottlenecks, or audit feedback below. The Gemini engine will instantly refactor code for high performance.
+            Paste sluggish components, layout bottlenecks, or audit feedback
+            below. The Gemini engine will instantly refactor code for high
+            performance.
           </p>
 
           <div className="space-y-4">
@@ -177,7 +253,10 @@ Provide clean, production-ready optimizations with comparative code diffs or exp
                     className="w-full text-left p-2.5 rounded-lg border border-border bg-background/50 hover:bg-muted text-xs text-muted-foreground hover:text-foreground transition flex items-center justify-between group"
                   >
                     <span className="truncate mr-2">{preset}</span>
-                    <ChevronRight size={14} className="text-muted-foreground/60 group-hover:text-primary transition" />
+                    <ChevronRight
+                      size={14}
+                      className="text-muted-foreground/60 group-hover:text-primary transition"
+                    />
                   </button>
                 ))}
               </div>
@@ -186,12 +265,18 @@ Provide clean, production-ready optimizations with comparative code diffs or exp
             <button
               onClick={() => callGeminiAPI(aiPrompt)}
               disabled={isAiLoading || !aiPrompt}
-              className="w-full py-3.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold shadow-glow-brand flex items-center justify-center gap-2 transition disabled:opacity-50"
+              className="w-full py-3.5 rounded-xl bg-primary hover:bg-primary-600 text-primary-foreground text-xs font-bold shadow-glow-brand flex items-center justify-center gap-2 transition disabled:opacity-50"
             >
               {isAiLoading ? (
-                <><RefreshCw size={14} className="animate-spin" /><span>AI Generating Fixes...</span></>
+                <>
+                  <RefreshCw size={14} className="animate-spin" />
+                  <span>AI Generating Fixes...</span>
+                </>
               ) : (
-                <><Sparkles size={14} /><span>Generate Instant Fix</span></>
+                <>
+                  <Sparkles size={14} />
+                  <span>Generate Instant Fix</span>
+                </>
               )}
             </button>
           </div>
@@ -199,10 +284,12 @@ Provide clean, production-ready optimizations with comparative code diffs or exp
 
         <div className="p-5 rounded-2xl border border-border/60 bg-card/30 text-xs text-muted-foreground space-y-3">
           <h4 className="font-bold text-foreground flex items-center gap-1.5">
-            <Award size={14} className="text-emerald-400" /> Keeper's Guarantee
+            <Award size={14} className="text-emerald-400" /> Keeper&rsquo;s
+            Guarantee
           </h4>
           <p className="leading-relaxed">
-            All optimized blocks generated contain best-practice patterns compliant with current Google Lighthouse core rules.
+            All optimized blocks generated contain best-practice patterns
+            compliant with current Google Lighthouse core rules.
           </p>
         </div>
       </div>
@@ -212,11 +299,18 @@ Provide clean, production-ready optimizations with comparative code diffs or exp
         <div className="p-6 rounded-2xl border border-border bg-card/30 h-full flex flex-col min-h-[500px]">
           <div className="flex items-center justify-between pb-4 border-b border-border mb-6">
             <div>
-              <h3 className="text-base font-extrabold text-foreground">Lighthouse Code Refactoring</h3>
-              <p className="text-xs text-muted-foreground">Automated performance optimizations directly generated by AI</p>
+              <h3 className="text-base font-extrabold text-foreground">
+                Lighthouse Code Refactoring
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Automated performance optimizations directly generated by AI
+              </p>
             </div>
             {aiResponse && (
-              <button onClick={() => handleCopy(aiResponse)} className="text-xs text-primary hover:text-primary/80 font-semibold flex items-center gap-1.5 transition">
+              <button
+                onClick={() => handleCopy(aiResponse)}
+                className="text-xs text-primary hover:text-primary/80 font-semibold flex items-center gap-1.5 transition"
+              >
                 <Copy size={13} /> Copy Report
               </button>
             )}
@@ -233,22 +327,33 @@ Provide clean, production-ready optimizations with comparative code diffs or exp
                 <p className="text-sm font-semibold text-foreground animate-pulse text-center">
                   Analyzing bottleneck patterns...
                   <br />
-                  <span className="text-xs font-normal text-muted-foreground font-mono">Generating perfect score implementations</span>
+                  <span className="text-xs font-normal text-muted-foreground font-mono">
+                    Generating perfect score implementations
+                  </span>
                 </p>
               </div>
             ) : aiError ? (
               <div className="flex-1 flex flex-col items-center justify-center py-12 text-center">
                 <AlertCircle size={40} className="text-rose-500 mb-4" />
-                <p className="text-sm text-foreground font-semibold">{aiError}</p>
+                <p className="text-sm text-foreground font-semibold">
+                  {aiError}
+                </p>
               </div>
             ) : parsedAiMarkdown ? (
-              <div className="text-sm overflow-y-auto max-h-[600px] pr-2">{parsedAiMarkdown}</div>
+              <div className="text-sm overflow-y-auto max-h-[600px] pr-2">
+                {parsedAiMarkdown}
+              </div>
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center py-12 text-center text-muted-foreground space-y-3">
                 <Code size={40} className="text-border" />
                 <div>
-                  <p className="text-sm font-semibold text-muted-foreground">Ready for Optimization Input</p>
-                  <p className="text-xs text-muted-foreground/60 max-w-sm mt-1">Click any preset on the left or type your dynamic audit issue to receive optimized refactor instructions.</p>
+                  <p className="text-sm font-semibold text-muted-foreground">
+                    Ready for Optimization Input
+                  </p>
+                  <p className="text-xs text-muted-foreground/60 max-w-sm mt-1">
+                    Click any preset on the left or type your dynamic audit
+                    issue to receive optimized refactor instructions.
+                  </p>
                 </div>
               </div>
             )}
@@ -257,7 +362,8 @@ Provide clean, production-ready optimizations with comparative code diffs or exp
               <div className="mt-6 pt-4 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
                 <span>Engine: Gemini-2.5-Flash</span>
                 <span className="flex items-center gap-1 text-emerald-400">
-                  <CheckCircle2 size={13} strokeWidth={2.5} /> Double Checked Optimizations
+                  <CheckCircle2 size={13} strokeWidth={2.5} /> Double Checked
+                  Optimizations
                 </span>
               </div>
             )}

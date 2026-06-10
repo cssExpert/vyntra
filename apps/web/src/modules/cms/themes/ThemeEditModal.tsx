@@ -269,7 +269,7 @@ export function ThemeEditModal({
               <button
                 type="button"
                 onClick={handleSave}
-                className="px-5 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-sm text-sm font-semibold transition-all shadow-sm active:scale-[0.98]"
+                className="px-5 py-2.5 bg-primary hover:bg-primary-600 text-primary-foreground rounded-sm text-sm font-semibold transition-all shadow-sm active:scale-[0.98]"
               >
                 Save Changes
               </button>

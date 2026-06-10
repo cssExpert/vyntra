@@ -34,7 +34,9 @@ function PasswordField({
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-sm font-medium text-foreground">{label}</label>
+      <label className="block text-sm font-medium text-foreground">
+        {label}
+      </label>
       <div className="relative">
         <input
           type={show ? "text" : "password"}
@@ -72,18 +74,30 @@ export function PasswordSettingsView() {
   const handleSave = async () => {
     setFeedback(null);
     if (!current || !next) {
-      setFeedback({ type: "error", message: t("fillFields", { defaultValue: "Please fill in all fields." }) });
+      setFeedback({
+        type: "error",
+        message: t("fillFields", {
+          defaultValue: "Please fill in all fields.",
+        }),
+      });
       return;
     }
     if (next.length < 8) {
       setFeedback({
         type: "error",
-        message: t("pwdMinLength", { defaultValue: "New password must be at least 8 characters." }),
+        message: t("pwdMinLength", {
+          defaultValue: "New password must be at least 8 characters.",
+        }),
       });
       return;
     }
     if (next !== confirm) {
-      setFeedback({ type: "error", message: t("pwdNoMatch", { defaultValue: "New passwords do not match." }) });
+      setFeedback({
+        type: "error",
+        message: t("pwdNoMatch", {
+          defaultValue: "New passwords do not match.",
+        }),
+      });
       return;
     }
     setSaving(true);
@@ -92,11 +106,19 @@ export function PasswordSettingsView() {
       setCurrent("");
       setNext("");
       setConfirm("");
-      setFeedback({ type: "success", message: t("pwdChanged", { defaultValue: "Password changed successfully." }) });
+      setFeedback({
+        type: "success",
+        message: t("pwdChanged", {
+          defaultValue: "Password changed successfully.",
+        }),
+      });
     } catch (e) {
       setFeedback({
         type: "error",
-        message: e instanceof Error ? e.message : t("error", { defaultValue: "Failed to change password." }),
+        message:
+          e instanceof Error
+            ? e.message
+            : t("error", { defaultValue: "Failed to change password." }),
       });
     } finally {
       setSaving(false);
@@ -107,15 +129,19 @@ export function PasswordSettingsView() {
     <div className="mx-auto max-w-2xl space-y-6">
       <PageHeader
         title={t("title", { defaultValue: "Manage Password" })}
-        description={t("description", { defaultValue: "Update the password you use to sign in." })}
+        description={t("description", {
+          defaultValue: "Update the password you use to sign in.",
+        })}
       >
         <button
           onClick={handleSave}
           disabled={saving}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Save size={16} />
-          {saving ? t("saving", { defaultValue: "Saving…" }) : t("updatePwd", { defaultValue: "Update Password" })}
+          {saving
+            ? t("saving", { defaultValue: "Saving…" })
+            : t("updatePwd", { defaultValue: "Update Password" })}
         </button>
       </PageHeader>
 
@@ -139,7 +165,9 @@ export function PasswordSettingsView() {
       <SectionCard
         icon={Lock}
         title={t("changePassword", { defaultValue: "Change Password" })}
-        description={t("changePasswordDesc", { defaultValue: "Enter your current password, then choose a new one." })}
+        description={t("changePasswordDesc", {
+          defaultValue: "Enter your current password, then choose a new one.",
+        })}
       >
         <div className="space-y-5">
           <PasswordField
@@ -148,7 +176,9 @@ export function PasswordSettingsView() {
             onChange={setCurrent}
             show={showCurrent}
             onToggle={() => setShowCurrent((s) => !s)}
-            placeholder={t("enterCurrentPwd", { defaultValue: "Your current password" })}
+            placeholder={t("enterCurrentPwd", {
+              defaultValue: "Your current password",
+            })}
           />
           <PasswordField
             label={t("newPassword", { defaultValue: "New Password" })}
@@ -156,15 +186,21 @@ export function PasswordSettingsView() {
             onChange={setNext}
             show={showNext}
             onToggle={() => setShowNext((s) => !s)}
-            placeholder={t("minChars8", { defaultValue: "At least 8 characters" })}
+            placeholder={t("minChars8", {
+              defaultValue: "At least 8 characters",
+            })}
           />
           <PasswordField
-            label={t("confirmPassword", { defaultValue: "Confirm New Password" })}
+            label={t("confirmPassword", {
+              defaultValue: "Confirm New Password",
+            })}
             value={confirm}
             onChange={setConfirm}
             show={showNext}
             onToggle={() => setShowNext((s) => !s)}
-            placeholder={t("reenterPassword", { defaultValue: "Re-enter the new password" })}
+            placeholder={t("reenterPassword", {
+              defaultValue: "Re-enter the new password",
+            })}
           />
         </div>
       </SectionCard>

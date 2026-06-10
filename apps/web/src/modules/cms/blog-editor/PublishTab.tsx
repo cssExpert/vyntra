@@ -1,7 +1,17 @@
 "use client";
 
 import React from "react";
-import { Settings, ArrowLeft, Check, CheckCircle, FileText, Clock, Globe, Lock, Users } from "lucide-react";
+import {
+  Settings,
+  ArrowLeft,
+  Check,
+  CheckCircle,
+  FileText,
+  Clock,
+  Globe,
+  Lock,
+  Users,
+} from "lucide-react";
 import { EditorCard, FieldLabel } from "./fields";
 import { DatePickerField } from "@/components/common/DatePickerField";
 import { TimePickerField } from "@/components/common/TimePickerField";
@@ -22,21 +32,36 @@ export interface PublishTabProps {
 
 function authorInitials(name: string): string {
   const parts = name.trim().split(/\s+/);
-  return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase() || name.slice(0, 2).toUpperCase();
+  return (
+    ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase() ||
+    name.slice(0, 2).toUpperCase()
+  );
 }
 
 const AVATAR_COLORS = [
-  "bg-blue-500", "bg-violet-500", "bg-emerald-500",
-  "bg-rose-500", "bg-amber-500", "bg-cyan-500", "bg-pink-500",
+  "bg-blue-500",
+  "bg-violet-500",
+  "bg-emerald-500",
+  "bg-rose-500",
+  "bg-amber-500",
+  "bg-cyan-500",
+  "bg-pink-500",
 ];
 
 function avatarColor(id: string): string {
   let hash = 0;
-  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) & 0xffffffff;
+  for (let i = 0; i < id.length; i++)
+    hash = (hash * 31 + id.charCodeAt(i)) & 0xffffffff;
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
-const STATUSES: { id: BlogEditorStatus; label: string; desc: string; icon: React.ElementType; activeClass: string }[] = [
+const STATUSES: {
+  id: BlogEditorStatus;
+  label: string;
+  desc: string;
+  icon: React.ElementType;
+  activeClass: string;
+}[] = [
   {
     id: "draft",
     label: "Draft",
@@ -60,7 +85,12 @@ const STATUSES: { id: BlogEditorStatus; label: string; desc: string; icon: React
   },
 ];
 
-const VISIBILITY: { id: BlogVisibility; title: string; desc: string; icon: React.ElementType }[] = [
+const VISIBILITY: {
+  id: BlogVisibility;
+  title: string;
+  desc: string;
+  icon: React.ElementType;
+}[] = [
   {
     id: "public",
     title: "Open Access",
@@ -87,7 +117,13 @@ const TOGGLES: { label: string; prop: keyof BlogFormState }[] = [
   { label: "Pin content to top of index feeds", prop: "pinToTop" },
 ];
 
-export function PublishTab({ form, patch, availableAuthors, onBack, onPublish }: PublishTabProps) {
+export function PublishTab({
+  form,
+  patch,
+  availableAuthors,
+  onBack,
+  onPublish,
+}: PublishTabProps) {
   return (
     <EditorCard className="space-y-6">
       <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
@@ -115,13 +151,17 @@ export function PublishTab({ form, patch, availableAuthors, onBack, onPublish }:
                         : "bg-background border-border hover:bg-muted text-foreground"
                     }`}
                   >
-                    <span className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                      active ? "bg-white/30" : "bg-muted"
-                    }`}>
+                    <span
+                      className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                        active ? "bg-white/30" : "bg-muted"
+                      }`}
+                    >
                       <Icon className="w-3.5 h-3.5" />
                     </span>
                     <span className="flex-1 text-left">
-                      <span className="font-semibold block text-xs">{st.label}</span>
+                      <span className="font-semibold block text-xs">
+                        {st.label}
+                      </span>
                       <span className="text-[10px] opacity-70">{st.desc}</span>
                     </span>
                     {active && <Check className="w-3.5 h-3.5 shrink-0" />}
@@ -132,11 +172,13 @@ export function PublishTab({ form, patch, availableAuthors, onBack, onPublish }:
           </div>
 
           {(form.status === "scheduled" || form.status === "published") && (
-            <div className={`p-3.5 rounded-lg border border-dashed grid grid-cols-2 gap-3 ${
-              form.status === "scheduled"
-                ? "border-blue-500/30 bg-blue-500/5"
-                : "border-emerald-500/30 bg-emerald-500/5"
-            }`}>
+            <div
+              className={`p-3.5 rounded-lg border border-dashed grid grid-cols-2 gap-3 ${
+                form.status === "scheduled"
+                  ? "border-blue-500/30 bg-blue-500/5"
+                  : "border-emerald-500/30 bg-emerald-500/5"
+              }`}
+            >
               <div className="col-span-2">
                 <p className="text-[9px] uppercase font-bold text-muted-foreground mb-2">
                   {form.status === "scheduled" ? "Publish at" : "Published on"}
@@ -180,21 +222,33 @@ export function PublishTab({ form, patch, availableAuthors, onBack, onPublish }:
                         : "bg-background border-border hover:bg-muted"
                     }`}
                   >
-                    <span className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                      active ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
-                    }`}>
+                    <span
+                      className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                        active
+                          ? "bg-primary/20 text-primary"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
                       <Icon className="w-3.5 h-3.5" />
                     </span>
                     <span className="flex-1">
-                      <span className={`font-semibold block text-xs ${active ? "text-primary" : "text-foreground"}`}>
+                      <span
+                        className={`font-semibold block text-xs ${active ? "text-primary" : "text-foreground"}`}
+                      >
                         {vis.title}
                       </span>
-                      <span className="text-[10px] text-muted-foreground">{vis.desc}</span>
+                      <span className="text-[10px] text-muted-foreground">
+                        {vis.desc}
+                      </span>
                     </span>
-                    <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                      active ? "border-primary" : "border-border"
-                    }`}>
-                      {active && <span className="w-2 h-2 rounded-full bg-primary" />}
+                    <span
+                      className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
+                        active ? "border-primary" : "border-border"
+                      }`}
+                    >
+                      {active && (
+                        <span className="w-2 h-2 rounded-full bg-primary" />
+                      )}
                     </span>
                   </button>
                 );
@@ -208,7 +262,9 @@ export function PublishTab({ form, patch, availableAuthors, onBack, onPublish }:
           <div>
             <FieldLabel>Assign Active Author</FieldLabel>
             {availableAuthors.length === 0 ? (
-              <p className="text-[11px] text-muted-foreground px-1">Loading members…</p>
+              <p className="text-[11px] text-muted-foreground px-1">
+                Loading members…
+              </p>
             ) : (
               <div className="space-y-2">
                 {availableAuthors.map((aut) => {
@@ -281,7 +337,7 @@ export function PublishTab({ form, patch, availableAuthors, onBack, onPublish }:
         <button
           type="button"
           onClick={onPublish}
-          className="px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs rounded-lg flex items-center gap-1.5 transition-all active:scale-95"
+          className="px-5 py-2 bg-primary hover:bg-primary-600 text-primary-foreground font-bold text-xs rounded-lg flex items-center gap-1.5 transition-all active:scale-95"
         >
           <CheckCircle className="w-3.5 h-3.5" />
           <span>

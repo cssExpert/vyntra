@@ -436,9 +436,11 @@ function ThemeFormModal({
           <button
             onClick={onSave}
             disabled={busy || !form.name.trim()}
-            className="px-5 py-2 text-sm font-semibold bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all disabled:opacity-50"
+            className="px-5 py-2 text-sm font-semibold bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 transition-all disabled:opacity-50"
           >
-            {busy ? t("saving", { defaultValue: "Saving…" }) : t("saveTheme", { defaultValue: "Save Theme" })}
+            {busy
+              ? t("saving", { defaultValue: "Saving…" })
+              : t("saveTheme", { defaultValue: "Save Theme" })}
           </button>
         </>
       }
@@ -627,7 +629,7 @@ function Inner() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [previewTheme, setPreviewTheme] = useState<DbTheme | null>(null);
   const [pendingDelete, setPendingDelete] = useState<DbTheme | null>(null);
-  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [, setDeleteLoading] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit" | null>(null);
   const [editTarget, setEditTarget] = useState<DbTheme | null>(null);
   const [form, setForm] = useState<ThemeForm>(emptyForm());
@@ -728,13 +730,10 @@ function Inner() {
   return (
     <div className="space-y-6 pb-20">
       <div className="flex items-center justify-between gap-4">
-        <PageHeader
-          title={t("title")}
-          description={t("description")}
-        />
+        <PageHeader title={t("title")} description={t("description")} />
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-all shrink-0"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary-600 transition-all shrink-0"
         >
           <Plus className="w-4 h-4" /> {t("add")}
         </button>

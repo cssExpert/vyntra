@@ -33,7 +33,9 @@ export function PublishSummaryModal({
   useEffect(() => setMounted(true), []);
 
   const authorName =
-    availableAuthors.find((a) => a.id === form.author)?.name ?? form.author ?? "—";
+    availableAuthors.find((a) => a.id === form.author)?.name ??
+    form.author ??
+    "—";
 
   if (!mounted) return null;
 
@@ -45,7 +47,9 @@ export function PublishSummaryModal({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4"
-          onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) onClose();
+          }}
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.94, y: 12 }}
@@ -61,10 +65,14 @@ export function PublishSummaryModal({
               </div>
               <div>
                 <h3 className="text-base font-bold text-foreground">
-                  {form.status === "published" ? "Published!" : "Saved Successfully"}
+                  {form.status === "published"
+                    ? "Published!"
+                    : "Saved Successfully"}
                 </h3>
                 <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                  <strong className="text-foreground">&ldquo;{form.title}&rdquo;</strong>{" "}
+                  <strong className="text-foreground">
+                    &ldquo;{form.title}&rdquo;
+                  </strong>{" "}
                   {form.status === "scheduled"
                     ? `is scheduled for ${form.publishDate} at ${form.publishTime}.`
                     : form.status === "published"
@@ -79,7 +87,14 @@ export function PublishSummaryModal({
               <Row label="SLUG" value={`/blog/${form.slug}`} />
               <Row label="AUTHOR" value={authorName} />
               <Row label="CATEGORIES" value={form.category.join(", ") || "—"} />
-              <Row label="TAGS" value={form.tags.length > 0 ? `${form.tags.length} tag${form.tags.length !== 1 ? "s" : ""}` : "—"} />
+              <Row
+                label="TAGS"
+                value={
+                  form.tags.length > 0
+                    ? `${form.tags.length} tag${form.tags.length !== 1 ? "s" : ""}`
+                    : "—"
+                }
+              />
               <Row label="READ TIME" value={`${form.readTime} min`} />
               <Row
                 label="STATUS"
@@ -89,7 +104,13 @@ export function PublishSummaryModal({
               <Row
                 label="SEO GRADE"
                 value={`${seoScore}/100`}
-                valueClass={seoScore >= 80 ? "text-emerald-500" : seoScore >= 40 ? "text-amber-500" : "text-rose-500"}
+                valueClass={
+                  seoScore >= 80
+                    ? "text-emerald-500"
+                    : seoScore >= 40
+                      ? "text-amber-500"
+                      : "text-rose-500"
+                }
               />
             </div>
 
@@ -117,7 +138,7 @@ export function PublishSummaryModal({
               <button
                 type="button"
                 onClick={onClose}
-                className={`py-2 bg-primary hover:bg-primary/90 text-xs font-semibold rounded-lg text-primary-foreground transition-colors ${
+                className={`py-2 bg-primary hover:bg-primary-600 text-xs font-semibold rounded-lg text-primary-foreground transition-colors ${
                   form.status !== "published" || !form.slug ? "col-span-2" : ""
                 }`}
               >

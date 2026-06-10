@@ -620,7 +620,7 @@ export function PagesView() {
             <div className="flex items-center gap-2">
               <button
                 onClick={handleAddPageClick}
-                className="inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer group active:scale-[0.98]"
+                className="inline-flex items-center gap-2 rounded-sm bg-brand-500 px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-brand-600 transition-all cursor-pointer group active:scale-[0.98]"
               >
                 <Plus
                   size={16}
@@ -724,7 +724,7 @@ export function PagesView() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search pages..."
-                  className="pl-9 pr-8 py-2.5 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all w-52"
+                  className="pl-9 pr-8 py-2.5 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15 w-52"
                 />
                 {searchTerm && (
                   <button
@@ -776,7 +776,7 @@ export function PagesView() {
                 <button
                   onClick={handleBulkApplyLayout}
                   disabled={bulkApplying}
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-md bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 transition-all active:scale-95 shrink-0"
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-md bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary-600 disabled:opacity-50 transition-all active:scale-95 shrink-0"
                 >
                   <CheckCheck size={14} />
                   {bulkApplying ? "Applying…" : "Apply"}
@@ -1033,7 +1033,7 @@ export function PagesView() {
                 <button
                   type="submit"
                   form="page-form"
-                  className="px-5 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-sm text-sm font-semibold transition-all shadow-sm active:scale-95"
+                  className="px-5 py-2.5 bg-primary hover:bg-primary-600 text-primary-foreground rounded-sm text-sm font-semibold transition-all shadow-sm active:scale-95"
                 >
                   {editingPage ? "Save Changes" : "Open in Editor →"}
                 </button>

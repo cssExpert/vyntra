@@ -15,8 +15,6 @@ import {
   EyeOff,
   KeyRound,
   Edit2,
-  LogIn,
-  Clock,
   ChevronUp,
   ChevronDown,
   ChevronsUpDown,
@@ -55,7 +53,10 @@ interface UserWithActivity extends AdminUser {
 
 const columnHelper = createColumnHelper<UserWithActivity>();
 
-interface ScrollState { left: boolean; right: boolean }
+interface ScrollState {
+  left: boolean;
+  right: boolean;
+}
 
 function getPinStyles(
   column: Column<UserWithActivity>,
@@ -65,14 +66,15 @@ function getPinStyles(
   const isPinned = column.getIsPinned();
   if (!isPinned) return {};
 
-  const isLastLeft   = isPinned === "left"  && column.getIsLastColumn("left");
+  const isLastLeft = isPinned === "left" && column.getIsLastColumn("left");
   const isFirstRight = isPinned === "right" && column.getIsFirstColumn("right");
 
-  const showShadow = (isLastLeft && scroll.left) || (isFirstRight && scroll.right);
+  const showShadow =
+    (isLastLeft && scroll.left) || (isFirstRight && scroll.right);
 
   return {
     position: "sticky",
-    left:  isPinned === "left"  ? column.getStart("left")  : undefined,
+    left: isPinned === "left" ? column.getStart("left") : undefined,
     right: isPinned === "right" ? column.getAfter("right") : undefined,
     zIndex: 2,
     backgroundColor: isHeader ? "hsl(var(--muted))" : "hsl(var(--card))",
@@ -91,12 +93,17 @@ function Inner() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedUser, setSelectedUser] = useState<UserWithActivity | null>(null);
+  const [selectedUser, setSelectedUser] = useState<UserWithActivity | null>(
+    null,
+  );
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const [passwordData, setPasswordData] = useState({ password: "", confirm: "" });
+  const [passwordData, setPasswordData] = useState({
+    password: "",
+    confirm: "",
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
   const [passwordSaving, setPasswordSaving] = useState(false);
@@ -108,15 +115,19 @@ function Inner() {
 
   // Scroll-aware pin shadows
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [scroll, setScroll] = useState<ScrollState>({ left: false, right: false });
+  const [scroll, setScroll] = useState<ScrollState>({
+    left: false,
+    right: false,
+  });
 
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const check = () => setScroll({
-      left:  el.scrollLeft > 0,
-      right: el.scrollLeft < el.scrollWidth - el.clientWidth - 1,
-    });
+    const check = () =>
+      setScroll({
+        left: el.scrollLeft > 0,
+        right: el.scrollLeft < el.scrollWidth - el.clientWidth - 1,
+      });
     check();
     el.addEventListener("scroll", check, { passive: true });
     window.addEventListener("resize", check);
@@ -151,10 +162,13 @@ function Inner() {
 
     if (diffDays === 0) {
       const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-      return diffHours === 0 ? t("justNow", { defaultValue: "Just now" }) : `${diffHours}h ${t("ago", { defaultValue: "ago" })}`;
+      return diffHours === 0
+        ? t("justNow", { defaultValue: "Just now" })
+        : `${diffHours}h ${t("ago", { defaultValue: "ago" })}`;
     }
     if (diffDays === 1) return t("yesterday", { defaultValue: "Yesterday" });
-    if (diffDays < 7) return `${diffDays}d ${t("ago", { defaultValue: "ago" })}`;
+    if (diffDays < 7)
+      return `${diffDays}d ${t("ago", { defaultValue: "ago" })}`;
     return date.toLocaleDateString();
   };
 
@@ -172,7 +186,9 @@ function Inner() {
             >
               <p
                 className={`font-medium underline ${
-                  !user.isActive ? "line-through text-muted-foreground" : "text-foreground hover:text-primary"
+                  !user.isActive
+                    ? "line-through text-muted-foreground"
+                    : "text-foreground hover:text-primary"
                 }`}
               >
                 {user.name ?? "—"}
@@ -189,7 +205,10 @@ function Inner() {
           const user = row.original;
           return (
             <span className="text-sm text-muted-foreground">
-              {user.organization?.name ?? (user.superAdmin ? t("platform", { defaultValue: "Platform" }) : "—")}
+              {user.organization?.name ??
+                (user.superAdmin
+                  ? t("platform", { defaultValue: "Platform" })
+                  : "—")}
             </span>
           );
         },
@@ -200,9 +219,17 @@ function Inner() {
         cell: ({ row }) => {
           const user = row.original;
           return user.superAdmin ? (
-            <StatusBadge variant="purple" label={t("superAdmin", { defaultValue: "Super Admin" })} size="sm" />
+            <StatusBadge
+              variant="purple"
+              label={t("superAdmin", { defaultValue: "Super Admin" })}
+              size="sm"
+            />
           ) : (
-            <StatusBadge variant="muted" label={t("member", { defaultValue: "Member" })} size="sm" />
+            <StatusBadge
+              variant="muted"
+              label={t("member", { defaultValue: "Member" })}
+              size="sm"
+            />
           );
         },
       }),
@@ -212,9 +239,17 @@ function Inner() {
         cell: ({ getValue }) => {
           const isActive = getValue();
           return isActive ? (
-            <StatusBadge variant="success" label={t("active", { defaultValue: "Active" })} size="sm" />
+            <StatusBadge
+              variant="success"
+              label={t("active", { defaultValue: "Active" })}
+              size="sm"
+            />
           ) : (
-            <StatusBadge variant="muted" label={t("locked", { defaultValue: "Locked" })} size="sm" />
+            <StatusBadge
+              variant="muted"
+              label={t("locked", { defaultValue: "Locked" })}
+              size="sm"
+            />
           );
         },
       }),
@@ -223,12 +258,18 @@ function Inner() {
         size: 140,
         enableSorting: false,
         cell: ({ getValue }) => (
-          <span className="text-xs text-muted-foreground">{formatDate(getValue())}</span>
+          <span className="text-xs text-muted-foreground">
+            {formatDate(getValue())}
+          </span>
         ),
       }),
       columnHelper.display({
         id: "actions",
-        header: () => <div className="text-right">{t("actions", { defaultValue: "Actions" })}</div>,
+        header: () => (
+          <div className="text-right">
+            {t("actions", { defaultValue: "Actions" })}
+          </div>
+        ),
         size: 100,
         cell: ({ row }) => {
           const user = row.original;
@@ -247,19 +288,29 @@ function Inner() {
                     onClick: () => openEditModal(user),
                   },
                   {
-                    label: t("changePassword", { defaultValue: "Change Password" }),
+                    label: t("changePassword", {
+                      defaultValue: "Change Password",
+                    }),
                     icon: <KeyRound size={14} />,
                     onClick: () => openPasswordModal(user),
                   },
                   {
-                    label: user.isActive ? t("lockAccount", { defaultValue: "Lock Account" }) : t("unlockAccount", { defaultValue: "Unlock Account" }),
-                    icon: user.isActive ? <Lock size={14} /> : <Unlock size={14} />,
+                    label: user.isActive
+                      ? t("lockAccount", { defaultValue: "Lock Account" })
+                      : t("unlockAccount", { defaultValue: "Unlock Account" }),
+                    icon: user.isActive ? (
+                      <Lock size={14} />
+                    ) : (
+                      <Unlock size={14} />
+                    ),
                     onClick: () => handleToggleLock(user),
                   },
                   ...(user.isActive && !user.superAdmin && !user.organizationId
                     ? [
                         {
-                          label: t("makeSuperAdmin", { defaultValue: "Make Super Admin" }),
+                          label: t("makeSuperAdmin", {
+                            defaultValue: "Make Super Admin",
+                          }),
                           icon: <ShieldCheck size={14} />,
                           onClick: () => handlePromote(user),
                         },
@@ -283,7 +334,7 @@ function Inner() {
       }),
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [],
   );
 
   const load = useCallback(async () => {
@@ -294,8 +345,12 @@ function Inner() {
       // Add mock activity data
       const usersWithActivity: UserWithActivity[] = fetchedUsers.map((u) => ({
         ...u,
-        lastLoginAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
-        lastActivityAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
+        lastLoginAt: new Date(
+          Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000,
+        ).toISOString(),
+        lastActivityAt: new Date(
+          Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000,
+        ).toISOString(),
       }));
       setUsers(usersWithActivity);
     } catch (e) {
@@ -314,9 +369,9 @@ function Inner() {
       users.filter(
         (u) =>
           u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (u.name?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
+          (u.name?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false),
       ),
-    [users, searchTerm]
+    [users, searchTerm],
   );
 
   const table = useReactTable({
@@ -466,12 +521,21 @@ function Inner() {
   const handlePromote = async (user: UserWithActivity) => {
     // Prevent company users from being promoted to super admin
     if (user.organizationId && user.roles.some((r) => r.organizationId)) {
-      setError(t("cannotPromoteCompanyUser", { defaultValue: "Cannot promote company users to super admin" }));
+      setError(
+        t("cannotPromoteCompanyUser", {
+          defaultValue: "Cannot promote company users to super admin",
+        }),
+      );
       setTimeout(() => setError(""), 3000);
       return;
     }
 
-    if (!confirm(`${t("promote", { defaultValue: "Promote" })} ${user.email} ${t("toSuperAdmin", { defaultValue: "to super admin?" })}`)) return;
+    if (
+      !confirm(
+        `${t("promote", { defaultValue: "Promote" })} ${user.email} ${t("toSuperAdmin", { defaultValue: "to super admin?" })}`,
+      )
+    )
+      return;
     try {
       const updated = await admin.promoteUser(user.id);
       setUsers(users.map((u) => (u.id === user.id ? updated : u)));
@@ -489,7 +553,7 @@ function Inner() {
         />
         <button
           onClick={openAddModal}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition"
         >
           <Plus className="h-4 w-4" />
           {t("add")}
@@ -514,7 +578,9 @@ function Inner() {
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder={t("search", { defaultValue: "Search by email or name..." })}
+          placeholder={t("search", {
+            defaultValue: "Search by email or name...",
+          })}
           className="w-full pl-10 pr-10 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
         {searchTerm && (
@@ -531,9 +597,13 @@ function Inner() {
       <div className="overflow-hidden rounded-xl border border-border bg-card">
         <div className="overflow-x-auto" ref={scrollRef}>
           {loading ? (
-            <div className="px-4 py-8 text-center text-muted-foreground">{t("loading", { defaultValue: "Loading…" })}</div>
+            <div className="px-4 py-8 text-center text-muted-foreground">
+              {t("loading", { defaultValue: "Loading…" })}
+            </div>
           ) : table.getRowModel().rows.length === 0 ? (
-            <div className="px-4 py-8 text-center text-muted-foreground">{t("noResults", { defaultValue: "No users found" })}</div>
+            <div className="px-4 py-8 text-center text-muted-foreground">
+              {t("noResults", { defaultValue: "No users found" })}
+            </div>
           ) : (
             <table className="w-full text-sm" style={{ tableLayout: "fixed" }}>
               <thead>
@@ -548,23 +618,44 @@ function Inner() {
                       return (
                         <th
                           key={header.id}
-                          onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
+                          onClick={
+                            canSort
+                              ? header.column.getToggleSortingHandler()
+                              : undefined
+                          }
                           className={`px-4 py-3 font-medium text-left ${
-                            canSort ? "cursor-pointer hover:text-foreground" : ""
+                            canSort
+                              ? "cursor-pointer hover:text-foreground"
+                              : ""
                           }`}
-                          style={{ width: header.getSize(), ...getPinStyles(header.column, true, scroll) }}
+                          style={{
+                            width: header.getSize(),
+                            ...getPinStyles(header.column, true, scroll),
+                          }}
                         >
                           <div className="flex items-center gap-1">
                             {header.isPlaceholder
                               ? null
-                              : flexRender(header.column.columnDef.header, header.getContext())}
+                              : flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext(),
+                                )}
                             {canSort &&
                               (sorted === "asc" ? (
-                                <ChevronUp size={14} className="text-primary shrink-0" />
+                                <ChevronUp
+                                  size={14}
+                                  className="text-primary shrink-0"
+                                />
                               ) : sorted === "desc" ? (
-                                <ChevronDown size={14} className="text-primary shrink-0" />
+                                <ChevronDown
+                                  size={14}
+                                  className="text-primary shrink-0"
+                                />
                               ) : (
-                                <ChevronsUpDown size={14} className="text-muted-foreground/40 shrink-0" />
+                                <ChevronsUpDown
+                                  size={14}
+                                  className="text-muted-foreground/40 shrink-0"
+                                />
                               ))}
                           </div>
                         </th>
@@ -585,9 +676,15 @@ function Inner() {
                       <td
                         key={cell.id}
                         className="px-4 py-3"
-                        style={{ width: cell.column.getSize(), ...getPinStyles(cell.column, false, scroll) }}
+                        style={{
+                          width: cell.column.getSize(),
+                          ...getPinStyles(cell.column, false, scroll),
+                        }}
                       >
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
                       </td>
                     ))}
                   </tr>
@@ -603,7 +700,9 @@ function Inner() {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         title={t("addUser", { defaultValue: "Add New User" })}
-        description={t("createNewUser", { defaultValue: "Create a new system user account" })}
+        description={t("createNewUser", {
+          defaultValue: "Create a new system user account",
+        })}
         maxWidth="lg"
         footer={
           <>
@@ -615,7 +714,7 @@ function Inner() {
             </button>
             <button
               onClick={handleAddUser}
-              className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-sm font-medium transition"
+              className="px-4 py-2 bg-primary hover:bg-primary-600 text-primary-foreground rounded-lg text-sm font-medium transition"
             >
               {t("createUser", { defaultValue: "Create User" })}
             </button>
@@ -625,34 +724,50 @@ function Inner() {
         <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
           {/* Account Info */}
           <div className="space-y-3">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("accountInformation", { defaultValue: "Account Information" })}</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              {t("accountInformation", { defaultValue: "Account Information" })}
+            </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                  {t("emailAddress", { defaultValue: "Email Address" })} <span className="text-error">*</span>
+                  {t("emailAddress", { defaultValue: "Email Address" })}{" "}
+                  <span className="text-error">*</span>
                 </label>
                 <input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder={t("userEmailPlaceholder", { defaultValue: "user@example.com" })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                  placeholder={t("userEmailPlaceholder", {
+                    defaultValue: "user@example.com",
+                  })}
                   className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
-                {formErrors.email && <p className="text-xs text-error mt-1">{formErrors.email}</p>}
+                {formErrors.email && (
+                  <p className="text-xs text-error mt-1">{formErrors.email}</p>
+                )}
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                  {t("fullName", { defaultValue: "Full Name" })} <span className="text-error">*</span>
+                  {t("fullName", { defaultValue: "Full Name" })}{" "}
+                  <span className="text-error">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder={t("fullNamePlaceholder", { defaultValue: "John Doe" })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  placeholder={t("fullNamePlaceholder", {
+                    defaultValue: "John Doe",
+                  })}
                   className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
-                {formErrors.name && <p className="text-xs text-error mt-1">{formErrors.name}</p>}
+                {formErrors.name && (
+                  <p className="text-xs text-error mt-1">{formErrors.name}</p>
+                )}
               </div>
 
               <div>
@@ -662,8 +777,12 @@ function Inner() {
                 <input
                   type="text"
                   value={formData.jobTitle}
-                  onChange={(e) => setFormData({ ...formData, jobTitle: e.target.value })}
-                  placeholder={t("jobTitlePlaceholder", { defaultValue: "e.g. Senior Manager" })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, jobTitle: e.target.value })
+                  }
+                  placeholder={t("jobTitlePlaceholder", {
+                    defaultValue: "e.g. Senior Manager",
+                  })}
                   className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
@@ -675,8 +794,12 @@ function Inner() {
                 <input
                   type="text"
                   value={formData.department}
-                  onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                  placeholder={t("departmentPlaceholder", { defaultValue: "e.g. Sales, Engineering" })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, department: e.target.value })
+                  }
+                  placeholder={t("departmentPlaceholder", {
+                    defaultValue: "e.g. Sales, Engineering",
+                  })}
                   className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
@@ -688,8 +811,12 @@ function Inner() {
                 <input
                   type="tel"
                   value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder={t("phoneNumberPlaceholder", { defaultValue: "+1 (555) 000-0000" })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
+                  }
+                  placeholder={t("phoneNumberPlaceholder", {
+                    defaultValue: "+1 (555) 000-0000",
+                  })}
                   className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
@@ -712,7 +839,9 @@ function Inner() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setFormData({ ...formData, isActive: false })}
+                    onClick={() =>
+                      setFormData({ ...formData, isActive: false })
+                    }
                     className={`flex-1 py-2 rounded-lg border text-xs font-semibold transition-all ${
                       !formData.isActive
                         ? "bg-muted border-border text-foreground"
@@ -728,7 +857,9 @@ function Inner() {
 
           {/* Address Info */}
           <div className="space-y-3 border-t border-border pt-5">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("address", { defaultValue: "Address" })}</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              {t("address", { defaultValue: "Address" })}
+            </p>
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
@@ -737,8 +868,12 @@ function Inner() {
                 <input
                   type="text"
                   value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  placeholder={t("streetAddressPlaceholder", { defaultValue: "123 Main Street" })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, address: e.target.value })
+                  }
+                  placeholder={t("streetAddressPlaceholder", {
+                    defaultValue: "123 Main Street",
+                  })}
                   className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
@@ -751,8 +886,12 @@ function Inner() {
                   <input
                     type="text"
                     value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    placeholder={t("cityPlaceholder", { defaultValue: "San Francisco" })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, city: e.target.value })
+                    }
+                    placeholder={t("cityPlaceholder", {
+                      defaultValue: "San Francisco",
+                    })}
                     className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
@@ -764,8 +903,12 @@ function Inner() {
                   <input
                     type="text"
                     value={formData.state}
-                    onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                    placeholder={t("stateProvincePlaceholder", { defaultValue: "CA" })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, state: e.target.value })
+                    }
+                    placeholder={t("stateProvincePlaceholder", {
+                      defaultValue: "CA",
+                    })}
                     className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
@@ -777,16 +920,18 @@ function Inner() {
                   <input
                     type="text"
                     value={formData.country}
-                    onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                    placeholder={t("countryPlaceholder", { defaultValue: "United States" })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, country: e.target.value })
+                    }
+                    placeholder={t("countryPlaceholder", {
+                      defaultValue: "United States",
+                    })}
                     className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
               </div>
             </div>
           </div>
-
-
         </div>
       </Modal>
 
@@ -807,7 +952,7 @@ function Inner() {
             </button>
             <button
               onClick={handleEditUser}
-              className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-sm font-medium transition"
+              className="px-4 py-2 bg-primary hover:bg-primary-600 text-primary-foreground rounded-lg text-sm font-medium transition"
             >
               {t("saveChanges", { defaultValue: "Save Changes" })}
             </button>
@@ -817,32 +962,44 @@ function Inner() {
         <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
           {/* Account Info */}
           <div className="space-y-3">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("accountInformation", { defaultValue: "Account Information" })}</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              {t("accountInformation", { defaultValue: "Account Information" })}
+            </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                  {t("emailAddress", { defaultValue: "Email Address" })} <span className="text-error">*</span>
+                  {t("emailAddress", { defaultValue: "Email Address" })}{" "}
+                  <span className="text-error">*</span>
                 </label>
                 <input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
-                {formErrors.email && <p className="text-xs text-error mt-1">{formErrors.email}</p>}
+                {formErrors.email && (
+                  <p className="text-xs text-error mt-1">{formErrors.email}</p>
+                )}
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                  {t("fullName", { defaultValue: "Full Name" })} <span className="text-error">*</span>
+                  {t("fullName", { defaultValue: "Full Name" })}{" "}
+                  <span className="text-error">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
-                {formErrors.name && <p className="text-xs text-error mt-1">{formErrors.name}</p>}
+                {formErrors.name && (
+                  <p className="text-xs text-error mt-1">{formErrors.name}</p>
+                )}
               </div>
 
               <div>
@@ -852,8 +1009,12 @@ function Inner() {
                 <input
                   type="text"
                   value={formData.jobTitle}
-                  onChange={(e) => setFormData({ ...formData, jobTitle: e.target.value })}
-                  placeholder={t("jobTitlePlaceholder", { defaultValue: "e.g. Senior Manager" })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, jobTitle: e.target.value })
+                  }
+                  placeholder={t("jobTitlePlaceholder", {
+                    defaultValue: "e.g. Senior Manager",
+                  })}
                   className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
@@ -865,8 +1026,12 @@ function Inner() {
                 <input
                   type="text"
                   value={formData.department}
-                  onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                  placeholder={t("departmentPlaceholder", { defaultValue: "e.g. Sales, Engineering" })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, department: e.target.value })
+                  }
+                  placeholder={t("departmentPlaceholder", {
+                    defaultValue: "e.g. Sales, Engineering",
+                  })}
                   className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
@@ -878,8 +1043,12 @@ function Inner() {
                 <input
                   type="tel"
                   value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder={t("phoneNumberPlaceholder", { defaultValue: "+1 (555) 000-0000" })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
+                  }
+                  placeholder={t("phoneNumberPlaceholder", {
+                    defaultValue: "+1 (555) 000-0000",
+                  })}
                   className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
@@ -889,16 +1058,21 @@ function Inner() {
                   {t("organization", { defaultValue: "Organization" })}
                 </label>
                 <div className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-muted/30 text-muted-foreground">
-                  {selectedUser?.organization?.name ?? t("platformUser", { defaultValue: "Platform User" })}
+                  {selectedUser?.organization?.name ??
+                    t("platformUser", { defaultValue: "Platform User" })}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">{t("viewOnly", { defaultValue: "View only" })}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {t("viewOnly", { defaultValue: "View only" })}
+                </p>
               </div>
             </div>
           </div>
 
           {/* Address Info */}
           <div className="space-y-3 border-t border-border pt-5">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("address", { defaultValue: "Address" })}</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              {t("address", { defaultValue: "Address" })}
+            </p>
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
@@ -907,8 +1081,12 @@ function Inner() {
                 <input
                   type="text"
                   value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  placeholder={t("streetAddressPlaceholder", { defaultValue: "123 Main Street" })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, address: e.target.value })
+                  }
+                  placeholder={t("streetAddressPlaceholder", {
+                    defaultValue: "123 Main Street",
+                  })}
                   className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
@@ -921,8 +1099,12 @@ function Inner() {
                   <input
                     type="text"
                     value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    placeholder={t("cityPlaceholder", { defaultValue: "San Francisco" })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, city: e.target.value })
+                    }
+                    placeholder={t("cityPlaceholder", {
+                      defaultValue: "San Francisco",
+                    })}
                     className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
@@ -934,8 +1116,12 @@ function Inner() {
                   <input
                     type="text"
                     value={formData.state}
-                    onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                    placeholder={t("stateProvincePlaceholder", { defaultValue: "CA" })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, state: e.target.value })
+                    }
+                    placeholder={t("stateProvincePlaceholder", {
+                      defaultValue: "CA",
+                    })}
                     className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
@@ -947,8 +1133,12 @@ function Inner() {
                   <input
                     type="text"
                     value={formData.country}
-                    onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                    placeholder={t("countryPlaceholder", { defaultValue: "United States" })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, country: e.target.value })
+                    }
+                    placeholder={t("countryPlaceholder", {
+                      defaultValue: "United States",
+                    })}
                     className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
@@ -958,7 +1148,9 @@ function Inner() {
 
           {/* Account Status */}
           <div className="space-y-3 border-t border-border pt-5">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("accountStatus", { defaultValue: "Account Status" })}</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              {t("accountStatus", { defaultValue: "Account Status" })}
+            </p>
             <div className="flex gap-2">
               <button
                 type="button"
@@ -1005,9 +1197,11 @@ function Inner() {
             <button
               onClick={handleChangePassword}
               disabled={passwordSaving}
-              className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-sm font-medium transition disabled:opacity-60 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-primary hover:bg-primary-600 text-primary-foreground rounded-lg text-sm font-medium transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {passwordSaving ? t("saving", { defaultValue: "Saving…" }) : t("updatePassword", { defaultValue: "Update Password" })}
+              {passwordSaving
+                ? t("saving", { defaultValue: "Saving…" })
+                : t("updatePassword", { defaultValue: "Update Password" })}
             </button>
           </>
         }
@@ -1015,7 +1209,8 @@ function Inner() {
         <div className="p-6 space-y-4">
           <div>
             <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-              {t("newPassword", { defaultValue: "New Password" })} <span className="text-error">*</span>
+              {t("newPassword", { defaultValue: "New Password" })}{" "}
+              <span className="text-error">*</span>
             </label>
             <div className="relative">
               <input
@@ -1024,14 +1219,20 @@ function Inner() {
                 onChange={(e) =>
                   setPasswordData({ ...passwordData, password: e.target.value })
                 }
-                placeholder={t("passwordPlaceholder", { defaultValue: "At least 8 characters" })}
+                placeholder={t("passwordPlaceholder", {
+                  defaultValue: "At least 8 characters",
+                })}
                 className="w-full px-3 py-2 pr-10 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((s) => !s)}
                 className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
-                aria-label={showPassword ? t("hidePassword", { defaultValue: "Hide password" }) : t("showPassword", { defaultValue: "Show password" })}
+                aria-label={
+                  showPassword
+                    ? t("hidePassword", { defaultValue: "Hide password" })
+                    : t("showPassword", { defaultValue: "Show password" })
+                }
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -1040,7 +1241,8 @@ function Inner() {
 
           <div>
             <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-              {t("confirmPassword", { defaultValue: "Confirm Password" })} <span className="text-error">*</span>
+              {t("confirmPassword", { defaultValue: "Confirm Password" })}{" "}
+              <span className="text-error">*</span>
             </label>
             <input
               type={showPassword ? "text" : "password"}
@@ -1048,7 +1250,9 @@ function Inner() {
               onChange={(e) =>
                 setPasswordData({ ...passwordData, confirm: e.target.value })
               }
-              placeholder={t("confirmPasswordPlaceholder", { defaultValue: "Re-enter the new password" })}
+              placeholder={t("confirmPasswordPlaceholder", {
+                defaultValue: "Re-enter the new password",
+              })}
               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           </div>
@@ -1059,7 +1263,11 @@ function Inner() {
 
           <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
             <p className="text-xs text-amber-900 dark:text-amber-300">
-              🔒 {t("passwordWarning", { defaultValue: "The user will need to use this new password the next time they log in." })}
+              🔒{" "}
+              {t("passwordWarning", {
+                defaultValue:
+                  "The user will need to use this new password the next time they log in.",
+              })}
             </p>
           </div>
         </div>
@@ -1090,7 +1298,6 @@ function Inner() {
           </>
         }
       />
-
     </div>
   );
 }

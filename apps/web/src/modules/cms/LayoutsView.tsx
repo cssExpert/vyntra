@@ -690,7 +690,7 @@ function LayoutForm({
           type="button"
           disabled={saving || !form.name.trim()}
           onClick={() => onSave(form)}
-          className="px-5 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-sm text-sm font-semibold transition-all shadow-sm active:scale-95 disabled:opacity-50"
+          className="px-5 py-2.5 bg-primary hover:bg-primary-600 text-primary-foreground rounded-sm text-sm font-semibold transition-all shadow-sm active:scale-95 disabled:opacity-50"
         >
           {saving ? "Saving…" : "Save Layout"}
         </button>
@@ -917,7 +917,7 @@ export function LayoutsView() {
             setActive(null);
             setModal("create");
           }}
-          className="inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer group active:scale-[0.98] shrink-0"
+          className="inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer group active:scale-[0.98] shrink-0"
         >
           <Plus
             size={16}

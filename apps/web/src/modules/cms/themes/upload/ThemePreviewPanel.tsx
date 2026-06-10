@@ -217,7 +217,7 @@ export function ThemePreviewPanel({
               "w-full flex items-center justify-center gap-2.5 px-5 py-4 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer",
               isPublishing
                 ? "bg-primary/60 text-primary-foreground cursor-not-allowed"
-                : "bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg active:scale-[0.98]",
+                : "bg-primary hover:bg-primary-600 text-primary-foreground shadow-md hover:shadow-lg active:scale-[0.98]",
             )}
           >
             {isPublishing ? (

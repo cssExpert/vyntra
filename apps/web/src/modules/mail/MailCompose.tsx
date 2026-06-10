@@ -762,7 +762,7 @@ export function MailCompose({
                     <button
                       onClick={handleSend}
                       disabled={!to.trim()}
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-sm bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold transition-all disabled:opacity-50 active:scale-[0.98]"
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-sm bg-primary hover:bg-primary-600 text-primary-foreground text-xs font-semibold transition-all disabled:opacity-50 active:scale-[0.98]"
                     >
                       <Send size={13} /> Send
                     </button>

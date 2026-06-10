@@ -370,7 +370,7 @@ export function GalleryCreateModal({
               <button
                 type="button"
                 onClick={handleSubmit}
-                className="px-5 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-sm text-sm font-semibold transition-all shadow-sm active:scale-[0.98]"
+                className="px-5 py-3 bg-primary hover:bg-primary-600 text-primary-foreground rounded-sm text-sm font-semibold transition-all shadow-sm active:scale-[0.98]"
               >
                 Build Gallery
               </button>

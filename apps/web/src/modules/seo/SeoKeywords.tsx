@@ -1,7 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, Search, RefreshCw, Copy, ChevronRight, Layers, Info } from "lucide-react";
+import {
+  Sparkles,
+  Search,
+  RefreshCw,
+  Copy,
+  ChevronRight,
+  Layers,
+  Info,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ViewProps, Keyword, Cluster } from "./seo.types";
 import { callGemini, getMockKeywords } from "./seo.utils";
@@ -13,8 +21,16 @@ export function SeoKeywords({ showNotification, handleCopy }: ViewProps) {
   const [clusters, setClusters] = useState<Cluster[]>([]);
 
   const defaultClusters = (seed: string): Cluster[] => [
-    { title: `${seed} Fundamentals`, pages: [`What is ${seed}?`, `Ultimate guide to ${seed} integration`], value: "High" },
-    { title: "Advanced Frameworks", pages: [`Scale-up ${seed} optimizations`, `Avoid top 10 ${seed} errors`], value: "Medium" },
+    {
+      title: `${seed} Fundamentals`,
+      pages: [`What is ${seed}?`, `Ultimate guide to ${seed} integration`],
+      value: "High",
+    },
+    {
+      title: "Advanced Frameworks",
+      pages: [`Scale-up ${seed} optimizations`, `Avoid top 10 ${seed} errors`],
+      value: "Medium",
+    },
   ];
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -31,14 +47,24 @@ Provide a JSON response:
   "keywords": [{ "keyword": "...", "volume": 1200, "difficulty": 34, "cpc": 2.45, "intent": "Informational", "relevance": 95 }],
   "clusters": [{ "title": "Cluster Theme", "pages": ["Page Title 1", "Page Title 2"], "value": "High" }]
 }`;
-      const data = (await callGemini(prompt, "You are a professional SEO keyword architect. Reply ONLY with valid JSON.", true)) as { keywords?: Keyword[]; clusters?: Cluster[] };
+      const data = (await callGemini(
+        prompt,
+        "You are a professional SEO keyword architect. Reply ONLY with valid JSON.",
+        true,
+      )) as { keywords?: Keyword[]; clusters?: Cluster[] };
       setResults(data.keywords || getMockKeywords(keywordInput));
       setClusters(data.clusters || defaultClusters(keywordInput));
-      showNotification(`Loaded SEO suggestions for: ${keywordInput}`, "success");
+      showNotification(
+        `Loaded SEO suggestions for: ${keywordInput}`,
+        "success",
+      );
     } catch {
       setResults(getMockKeywords(keywordInput));
       setClusters(defaultClusters(keywordInput));
-      showNotification("AI core is recovering. Loaded standard semantic variations.", "success");
+      showNotification(
+        "AI core is recovering. Loaded standard semantic variations.",
+        "success",
+      );
     } finally {
       setLoading(false);
     }
@@ -46,10 +72,22 @@ Provide a JSON response:
 
   const getDifficultyBadge = (difficulty: number) => {
     if (difficulty < 30)
-      return <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">Easy ({difficulty})</span>;
+      return (
+        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+          Easy ({difficulty})
+        </span>
+      );
     if (difficulty < 50)
-      return <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20">Medium ({difficulty})</span>;
-    return <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-500 border border-rose-500/20">Hard ({difficulty})</span>;
+      return (
+        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20">
+          Medium ({difficulty})
+        </span>
+      );
+    return (
+      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-500 border border-rose-500/20">
+        Hard ({difficulty})
+      </span>
+    );
   };
 
   const getIntentBadge = (intent: string) => {
@@ -60,7 +98,12 @@ Provide a JSON response:
       Navigational: "bg-primary/10 text-primary border-primary/25",
     };
     return (
-      <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-md border", styles[intent] || "bg-muted text-muted-foreground border-border")}>
+      <span
+        className={cn(
+          "text-[10px] font-bold px-2 py-0.5 rounded-md border",
+          styles[intent] || "bg-muted text-muted-foreground border-border",
+        )}
+      >
         {intent}
       </span>
     );
@@ -75,7 +118,10 @@ Provide a JSON response:
         <p className="text-muted-foreground text-sm mt-1">
           Discover high-relevance intent targets and organic clusters.
         </p>
-        <form onSubmit={handleSearch} className="mt-6 flex flex-col sm:flex-row gap-3">
+        <form
+          onSubmit={handleSearch}
+          className="mt-6 flex flex-col sm:flex-row gap-3"
+        >
           <div className="relative flex-1">
             <Search className="absolute left-4 top-3.5 w-5 h-5 text-muted-foreground/60" />
             <input
@@ -89,12 +135,17 @@ Provide a JSON response:
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-3.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-sm transition-all flex items-center justify-center gap-2 shrink-0 disabled:opacity-50"
+            className="px-6 py-3.5 rounded-xl bg-primary hover:bg-primary-600 text-primary-foreground font-semibold text-sm transition-all flex items-center justify-center gap-2 shrink-0 disabled:opacity-50"
           >
             {loading ? (
-              <><RefreshCw className="w-4 h-4 animate-spin" /> Gathering Intel...</>
+              <>
+                <RefreshCw className="w-4 h-4 animate-spin" /> Gathering
+                Intel...
+              </>
             ) : (
-              <><Sparkles className="w-4 h-4" /> Explore Intent</>
+              <>
+                <Sparkles className="w-4 h-4" /> Explore Intent
+              </>
             )}
           </button>
         </form>
@@ -104,8 +155,12 @@ Provide a JSON response:
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 bg-card border border-border rounded-2xl overflow-hidden">
             <div className="p-5 border-b border-border flex items-center justify-between">
-              <h3 className="font-bold text-foreground text-base">Key Search Variations</h3>
-              <span className="text-xs text-muted-foreground font-semibold">{results.length} targets identified</span>
+              <h3 className="font-bold text-foreground text-base">
+                Key Search Variations
+              </h3>
+              <span className="text-xs text-muted-foreground font-semibold">
+                {results.length} targets identified
+              </span>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
@@ -121,15 +176,31 @@ Provide a JSON response:
                 </thead>
                 <tbody className="divide-y divide-border/60 font-medium">
                   {results.map((item, idx) => (
-                    <tr key={idx} className="hover:bg-muted/30 transition-colors">
-                      <td className="p-4 text-foreground font-bold">{item.keyword}</td>
-                      <td className="p-4 text-muted-foreground">{item.volume.toLocaleString()}</td>
-                      <td className="p-4">{getDifficultyBadge(item.difficulty)}</td>
-                      <td className="p-4 text-muted-foreground">${item.cpc.toFixed(2)}</td>
+                    <tr
+                      key={idx}
+                      className="hover:bg-muted/30 transition-colors"
+                    >
+                      <td className="p-4 text-foreground font-bold">
+                        {item.keyword}
+                      </td>
+                      <td className="p-4 text-muted-foreground">
+                        {item.volume.toLocaleString()}
+                      </td>
+                      <td className="p-4">
+                        {getDifficultyBadge(item.difficulty)}
+                      </td>
+                      <td className="p-4 text-muted-foreground">
+                        ${item.cpc.toFixed(2)}
+                      </td>
                       <td className="p-4">{getIntentBadge(item.intent)}</td>
                       <td className="p-4 text-right">
                         <button
-                          onClick={() => handleCopy(item.keyword, `Copied: "${item.keyword}"`)}
+                          onClick={() =>
+                            handleCopy(
+                              item.keyword,
+                              `Copied: "${item.keyword}"`,
+                            )
+                          }
                           className="p-1.5 rounded bg-background hover:bg-muted text-muted-foreground hover:text-foreground transition-all"
                         >
                           <Copy className="w-3.5 h-3.5" />
@@ -141,9 +212,16 @@ Provide a JSON response:
               </table>
             </div>
             <div className="p-4 border-t border-border bg-background/30 flex justify-between items-center text-xs text-muted-foreground">
-              <span>Intent metrics verified dynamically matching 2026 guidelines.</span>
+              <span>
+                Intent metrics verified dynamically matching 2026 guidelines.
+              </span>
               <button
-                onClick={() => handleCopy(results.map((r) => r.keyword).join("\n"), "Copied all variations!")}
+                onClick={() =>
+                  handleCopy(
+                    results.map((r) => r.keyword).join("\n"),
+                    "Copied all variations!",
+                  )
+                }
                 className="flex items-center gap-1.5 text-primary hover:text-primary/80 font-semibold"
               >
                 <Copy className="w-3.5 h-3.5" /> Copy Bulk List
@@ -154,23 +232,33 @@ Provide a JSON response:
           <div className="space-y-6">
             <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
               <h3 className="font-bold text-foreground text-base flex items-center gap-2">
-                <Layers className="w-5 h-5 text-primary" /> Topic Cluster Blueprint
+                <Layers className="w-5 h-5 text-primary" /> Topic Cluster
+                Blueprint
               </h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Ensure maximum topical authority by creating pages for these exact structures.
+                Ensure maximum topical authority by creating pages for these
+                exact structures.
               </p>
               <div className="space-y-4 pt-2">
                 {clusters.map((cluster, idx) => (
-                  <div key={idx} className="p-4 bg-background/50 border border-border rounded-xl space-y-3 hover:border-border/80 transition-all">
+                  <div
+                    key={idx}
+                    className="p-4 bg-background/50 border border-border rounded-xl space-y-3 hover:border-border/80 transition-all"
+                  >
                     <div className="flex justify-between items-center">
-                      <h4 className="font-bold text-sm text-foreground">{cluster.title}</h4>
+                      <h4 className="font-bold text-sm text-foreground">
+                        {cluster.title}
+                      </h4>
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/25">
                         Priority: {cluster.value}
                       </span>
                     </div>
                     <ul className="space-y-2 pl-1 border-l-2 border-border">
                       {cluster.pages.map((p, pIdx) => (
-                        <li key={pIdx} className="text-xs text-muted-foreground flex items-center gap-1.5">
+                        <li
+                          key={pIdx}
+                          className="text-xs text-muted-foreground flex items-center gap-1.5"
+                        >
                           <ChevronRight className="w-3 h-3 text-primary" />
                           <span>{p}</span>
                         </li>
@@ -186,7 +274,9 @@ Provide a JSON response:
                 <Info className="w-4 h-4" /> 2026 Search Intent Blueprint
               </h4>
               <p className="text-xs text-muted-foreground leading-relaxed mt-2">
-                Commercial and transactional terms should always map to dedicated comparison tables, interactive tools, or purchase pathways.
+                Commercial and transactional terms should always map to
+                dedicated comparison tables, interactive tools, or purchase
+                pathways.
               </p>
             </div>
           </div>
@@ -196,9 +286,12 @@ Provide a JSON response:
           <div className="w-12 h-12 rounded-full bg-card flex items-center justify-center text-muted-foreground">
             <Search className="w-6 h-6 animate-pulse" />
           </div>
-          <h3 className="font-bold text-foreground text-lg">Awaiting Your Topic Input</h3>
+          <h3 className="font-bold text-foreground text-lg">
+            Awaiting Your Topic Input
+          </h3>
           <p className="text-muted-foreground text-sm max-w-sm">
-            Enter a keyword above to extract immediate structural content blueprints & competitor targets.
+            Enter a keyword above to extract immediate structural content
+            blueprints & competitor targets.
           </p>
         </div>
       )}

@@ -30,13 +30,14 @@ import { useEditorStore } from "@/store/editorStore";
 import { useSitePreviewUrl } from "@/hooks/useSitePreviewUrl";
 import { cmsPages } from "@/lib/api";
 import { COMPONENT_BLOCKS } from "@/lib/componentBlocks";
-import Icon from "@/components/common/Icon";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
 import Canvas from "./Canvas";
 import RightSidebar from "./RightSidebar";
 import BlockPickerModal from "./BlockPickerModal";
 
-const TemplatePicker = dynamic(() => import("./TemplatePicker"), { ssr: false });
+const TemplatePicker = dynamic(() => import("./TemplatePicker"), {
+  ssr: false,
+});
 import { nanoid } from "nanoid";
 import type { ComponentBlock, EditorNode } from "@/types/editor";
 
@@ -137,7 +138,7 @@ function EditorHeader({
             onClick={onPublish}
             disabled={publishState === "saving" || draftState === "saving"}
             className={`text-xs font-semibold px-4 py-1.5 rounded-lg transition-colors disabled:opacity-60
-              ${publishState === "saved" ? "bg-emerald-600 text-white" : publishState === "error" ? "bg-rose-600 text-white" : "bg-primary hover:bg-primary/90 text-primary-foreground"}`}
+              ${publishState === "saved" ? "bg-emerald-600 text-white" : publishState === "error" ? "bg-rose-600 text-white" : "bg-primary hover:bg-primary-600 text-primary-foreground"}`}
           >
             {publishLabel}
           </button>
@@ -186,25 +187,28 @@ export default function EditorLayout() {
       return;
     }
     if (isEditingExisting && pageSlug) {
-      cmsPages.load(pageSlug).then((page) => {
-        if (page.isLandingPage) setIsLandingPage(true);
-        if (page.layoutId) setLayoutId(page.layoutId);
-        if (page.content) {
-          try {
-            const nodes = JSON.parse(page.content);
-            if (Array.isArray(nodes) && nodes.length > 0) {
-              clearCanvas();
-              nodes.forEach((node) => addNode(node));
-              setShowTemplatePicker(false);
-              return;
+      cmsPages
+        .load(pageSlug)
+        .then((page) => {
+          if (page.isLandingPage) setIsLandingPage(true);
+          if (page.layoutId) setLayoutId(page.layoutId);
+          if (page.content) {
+            try {
+              const nodes = JSON.parse(page.content);
+              if (Array.isArray(nodes) && nodes.length > 0) {
+                clearCanvas();
+                nodes.forEach((node) => addNode(node));
+                setShowTemplatePicker(false);
+                return;
+              }
+            } catch {
+              // content is legacy HTML — leave canvas blank so user can rebuild
             }
-          } catch {
-            // content is legacy HTML — leave canvas blank so user can rebuild
           }
-        }
-        // Page exists but has no editor nodes (legacy HTML or empty) — don't show picker
-        setShowTemplatePicker(false);
-      }).catch(() => setShowTemplatePicker(true));
+          // Page exists but has no editor nodes (legacy HTML or empty) — don't show picker
+          setShowTemplatePicker(false);
+        })
+        .catch(() => setShowTemplatePicker(true));
       return;
     }
     setShowTemplatePicker(!isEditingExisting);
@@ -216,7 +220,11 @@ export default function EditorLayout() {
     const { nodes } = useEditorStore.getState();
     setPublishState("saving");
     try {
-      await cmsPages.save(pageSlug, { content: JSON.stringify(nodes), publish: true, layoutId });
+      await cmsPages.save(pageSlug, {
+        content: JSON.stringify(nodes),
+        publish: true,
+        layoutId,
+      });
       setPublishState("saved");
       setTimeout(() => setPublishState("idle"), 2500);
     } catch {
@@ -230,7 +238,11 @@ export default function EditorLayout() {
     const { nodes } = useEditorStore.getState();
     setDraftState("saving");
     try {
-      await cmsPages.save(pageSlug, { content: JSON.stringify(nodes), publish: false, layoutId });
+      await cmsPages.save(pageSlug, {
+        content: JSON.stringify(nodes),
+        publish: false,
+        layoutId,
+      });
       setDraftState("saved");
       setTimeout(() => setDraftState("idle"), 2500);
     } catch {
@@ -356,7 +368,14 @@ export default function EditorLayout() {
         <div className="flex flex-1 min-h-0 overflow-hidden select-none">
           <LeftSidebar />
           <div className="flex-1 flex flex-col min-w-0 canvas-container overflow-hidden bg-muted dark:bg-background">
-            <EditorHeader pageSlug={pageSlug} onPublish={handlePublish} publishState={publishState} onSaveDraft={handleSaveDraft} draftState={draftState} isLandingPage={isLandingPage} />
+            <EditorHeader
+              pageSlug={pageSlug}
+              onPublish={handlePublish}
+              publishState={publishState}
+              onSaveDraft={handleSaveDraft}
+              draftState={draftState}
+              isLandingPage={isLandingPage}
+            />
             <Canvas />
             <BottomToolbar />
           </div>

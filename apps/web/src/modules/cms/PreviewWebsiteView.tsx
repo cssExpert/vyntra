@@ -15,12 +15,16 @@ import { useSitePreviewUrl } from "@/hooks/useSitePreviewUrl";
 
 type Device = "desktop" | "tablet" | "mobile";
 
-const DEVICES: { id: Device; label: string; icon: LucideIcon; width: string }[] =
-  [
-    { id: "desktop", label: "Desktop", icon: Laptop, width: "100%" },
-    { id: "tablet", label: "Tablet", icon: Tablet, width: "768px" },
-    { id: "mobile", label: "Mobile", icon: Smartphone, width: "390px" },
-  ];
+const DEVICES: {
+  id: Device;
+  label: string;
+  icon: LucideIcon;
+  width: string;
+}[] = [
+  { id: "desktop", label: "Desktop", icon: Laptop, width: "100%" },
+  { id: "tablet", label: "Tablet", icon: Tablet, width: "768px" },
+  { id: "mobile", label: "Mobile", icon: Smartphone, width: "390px" },
+];
 
 export function PreviewWebsiteView() {
   const { previewUrl } = useSitePreviewUrl();
@@ -86,7 +90,7 @@ export function PreviewWebsiteView() {
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg
-                bg-primary hover:bg-primary/90 text-primary-foreground transition-colors"
+                bg-primary hover:bg-primary-600 text-primary-foreground transition-colors"
             >
               Open in new tab
               <ExternalLink className="w-3 h-3" />

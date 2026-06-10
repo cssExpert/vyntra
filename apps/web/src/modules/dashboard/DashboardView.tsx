@@ -12,8 +12,6 @@ import {
   Zap,
   CheckCircle2,
   AlertCircle,
-  Clock,
-  ExternalLink,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatCard } from "@/components/ui/StatCard";
@@ -29,12 +27,7 @@ import {
   SAMPLE_CAMPAIGNS,
   INTEGRATIONS,
 } from "@/data/sampleData";
-import {
-  formatCurrency,
-  formatDate,
-  formatPercent,
-  formatNumber,
-} from "@/lib/utils";
+import { formatCurrency, formatDate, formatNumber } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 const containerVariants = {
@@ -212,13 +205,16 @@ export function DashboardView() {
             <motion.div variants={itemVariants}>
               <PageHeader
                 title={t("dashboard", { defaultValue: "Dashboard" })}
-                description={t("welcomebackraviheres", { defaultValue: "Welcome back, Ravi. Here's your business overview." })}
+                description={t("welcomebackraviheres", {
+                  defaultValue:
+                    "Welcome back, Ravi. Here's your business overview.",
+                })}
               >
                 <button className="flex items-center gap-2 rounded-sm border border-border bg-white dark:bg-muted px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200 cursor-pointer">
                   <RefreshCw className="h-3.5 w-3.5" />
                   <span className="hidden sm:inline">Refresh</span>
                 </button>
-                <button className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all duration-200 cursor-pointer">
+                <button className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all duration-200 cursor-pointer">
                   <Plus className="h-3.5 w-3.5" />
                   Quick Add
                 </button>
@@ -238,8 +234,12 @@ export function DashboardView() {
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
               {/* Revenue chart — takes 2 cols */}
               <SectionCard
-                title={t("revenueoverview", { defaultValue: "Revenue Overview" })}
-                description={t("monthlyrevenuevsprevious", { defaultValue: "Monthly revenue vs previous year" })}
+                title={t("revenueoverview", {
+                  defaultValue: "Revenue Overview",
+                })}
+                description={t("monthlyrevenuevsprevious", {
+                  defaultValue: "Monthly revenue vs previous year",
+                })}
                 action={{ label: "View Reports", href: "/reports" }}
                 className="lg:col-span-2"
               >
@@ -301,7 +301,9 @@ export function DashboardView() {
               {/* CRM Leads */}
               <SectionCard
                 title={t("topleads", { defaultValue: "Top Leads" })}
-                description={t("yourhottestcrmprospects", { defaultValue: "Your hottest CRM prospects" })}
+                description={t("yourhottestcrmprospects", {
+                  defaultValue: "Your hottest CRM prospects",
+                })}
                 action={{ label: "View CRM", href: "/crm" }}
                 className="lg:col-span-1"
               >
@@ -352,7 +354,9 @@ export function DashboardView() {
               {/* Lighthouse Scores */}
               <SectionCard
                 title={t("websitehealth", { defaultValue: "Website Health" })}
-                description={t("latestlighthouseauditresults", { defaultValue: "Latest Lighthouse audit results" })}
+                description={t("latestlighthouseauditresults", {
+                  defaultValue: "Latest Lighthouse audit results",
+                })}
                 action={{ label: "Full Report", href: "/lighthouse" }}
               >
                 {desktopReport && (
@@ -419,7 +423,9 @@ export function DashboardView() {
               {/* Email Campaigns */}
               <SectionCard
                 title={t("emailcampaigns", { defaultValue: "Email Campaigns" })}
-                description={t("recentcampaignperformance", { defaultValue: "Recent campaign performance" })}
+                description={t("recentcampaignperformance", {
+                  defaultValue: "Recent campaign performance",
+                })}
                 action={{ label: "View All", href: "/email" }}
               >
                 <div className="space-y-3">
@@ -524,8 +530,12 @@ export function DashboardView() {
 
               {/* Integration Status */}
               <SectionCard
-                title={t("integrationstatus", { defaultValue: "Integration Status" })}
-                description={t("connectedservicesandplatforms", { defaultValue: "Connected services and platforms" })}
+                title={t("integrationstatus", {
+                  defaultValue: "Integration Status",
+                })}
+                description={t("connectedservicesandplatforms", {
+                  defaultValue: "Connected services and platforms",
+                })}
                 action={{ label: "Manage", href: "/settings" }}
               >
                 <div className="grid grid-cols-2 gap-2">

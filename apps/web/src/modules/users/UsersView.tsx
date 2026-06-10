@@ -545,7 +545,7 @@ export function UsersView() {
               <div>
                 <button
                   onClick={handleAddUserClick}
-                  className="inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all duration-200 cursor-pointer group transform active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all duration-200 cursor-pointer group transform active:scale-[0.98]"
                 >
                   <Plus
                     size={18}
@@ -847,7 +847,7 @@ export function UsersView() {
 
                     <button
                       onClick={handleAddUserClick}
-                      className="mt-6 inline-flex items-center gap-2 rounded-sm bg-primary px-4 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all duration-200 cursor-pointer transform active:scale-95 group"
+                      className="mt-6 inline-flex items-center gap-2 rounded-sm bg-primary px-4 py-3 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all duration-200 cursor-pointer transform active:scale-95 group"
                     >
                       <Plus
                         size={16}
@@ -899,7 +899,7 @@ export function UsersView() {
                   <button
                     type="submit"
                     form="user-add-edit-form"
-                    className="px-5 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-sm text-sm font-semibold transition-all shadow-sm active:scale-95"
+                    className="px-5 py-3 bg-primary hover:bg-primary-600 text-primary-foreground rounded-sm text-sm font-semibold transition-all shadow-sm active:scale-95"
                   >
                     {editingUser ? "Save Changes" : "Create User"}
                   </button>

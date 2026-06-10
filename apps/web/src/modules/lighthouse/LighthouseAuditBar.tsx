@@ -1,7 +1,16 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Compass, Monitor, Smartphone, Settings, RefreshCw, Play, Wifi, Cpu } from "lucide-react";
+import {
+  Compass,
+  Monitor,
+  Smartphone,
+  Settings,
+  RefreshCw,
+  Play,
+  Wifi,
+  Cpu,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { DeviceType } from "./lighthouse.types";
 
@@ -21,10 +30,17 @@ interface LighthouseAuditBarProps {
 }
 
 export function LighthouseAuditBar({
-  url, setUrl, device, setDevice, isScanning,
-  networkThrottling, setNetworkThrottling,
-  cpuThrottling, setCpuThrottling,
-  showSettings, setShowSettings,
+  url,
+  setUrl,
+  device,
+  setDevice,
+  isScanning,
+  networkThrottling,
+  setNetworkThrottling,
+  cpuThrottling,
+  setCpuThrottling,
+  showSettings,
+  setShowSettings,
   onRunAudit,
 }: LighthouseAuditBarProps) {
   return (
@@ -55,7 +71,12 @@ export function LighthouseAuditBar({
               <button
                 onClick={() => setDevice("desktop")}
                 disabled={isScanning}
-                className={cn("p-1.5 rounded transition", device === "desktop" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
+                className={cn(
+                  "p-1.5 rounded transition",
+                  device === "desktop"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
                 title="Emulate Desktop"
               >
                 <Monitor size={15} />
@@ -63,7 +84,12 @@ export function LighthouseAuditBar({
               <button
                 onClick={() => setDevice("mobile")}
                 disabled={isScanning}
-                className={cn("p-1.5 rounded transition", device === "mobile" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
+                className={cn(
+                  "p-1.5 rounded transition",
+                  device === "mobile"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
                 title="Emulate Mobile"
               >
                 <Smartphone size={15} />
@@ -88,12 +114,18 @@ export function LighthouseAuditBar({
           <button
             onClick={onRunAudit}
             disabled={isScanning || !url}
-            className="w-full md:min-w-[230px] text-nowrap px-6 py-3.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-bold shadow-glow-brand flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full md:min-w-[230px] text-nowrap px-6 py-3.5 rounded-xl bg-primary hover:bg-primary-600 text-primary-foreground text-sm font-bold shadow-glow-brand flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isScanning ? (
-              <><RefreshCw size={16} className="animate-spin" /><span>Auditing...</span></>
+              <>
+                <RefreshCw size={16} className="animate-spin" />
+                <span>Auditing...</span>
+              </>
             ) : (
-              <><Play size={16} className="fill-current" /><span>Generate Audit Report</span></>
+              <>
+                <Play size={16} className="fill-current" />
+                <span>Generate Audit Report</span>
+              </>
             )}
           </button>
         </div>
@@ -115,9 +147,21 @@ export function LighthouseAuditBar({
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   {[
-                    { id: "none", label: "No Throttling", desc: "Raw Connection" },
-                    { id: "fast3g", label: "Fast 3G", desc: "1.6 Mbps, 150ms RTT" },
-                    { id: "slow4g", label: "Slow 4G", desc: "4 Mbps, 40ms RTT" },
+                    {
+                      id: "none",
+                      label: "No Throttling",
+                      desc: "Raw Connection",
+                    },
+                    {
+                      id: "fast3g",
+                      label: "Fast 3G",
+                      desc: "1.6 Mbps, 150ms RTT",
+                    },
+                    {
+                      id: "slow4g",
+                      label: "Slow 4G",
+                      desc: "4 Mbps, 40ms RTT",
+                    },
                   ].map((n) => (
                     <button
                       key={n.id}
@@ -130,7 +174,9 @@ export function LighthouseAuditBar({
                       )}
                     >
                       <div className="font-bold">{n.label}</div>
-                      <div className="text-[10px] text-muted-foreground/60 mt-1">{n.desc}</div>
+                      <div className="text-[10px] text-muted-foreground/60 mt-1">
+                        {n.desc}
+                      </div>
                     </button>
                   ))}
                 </div>
@@ -142,8 +188,16 @@ export function LighthouseAuditBar({
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   {[
-                    { id: "none", label: "No Throttling", desc: "Host CPU Speed" },
-                    { id: "4x", label: "4x Slowdown", desc: "Mid-range Mobile" },
+                    {
+                      id: "none",
+                      label: "No Throttling",
+                      desc: "Host CPU Speed",
+                    },
+                    {
+                      id: "4x",
+                      label: "4x Slowdown",
+                      desc: "Mid-range Mobile",
+                    },
                     { id: "6x", label: "6x Slowdown", desc: "Low-end Mobile" },
                   ].map((c) => (
                     <button
@@ -157,7 +211,9 @@ export function LighthouseAuditBar({
                       )}
                     >
                       <div className="font-bold">{c.label}</div>
-                      <div className="text-[10px] text-muted-foreground/60 mt-1">{c.desc}</div>
+                      <div className="text-[10px] text-muted-foreground/60 mt-1">
+                        {c.desc}
+                      </div>
                     </button>
                   ))}
                 </div>

@@ -268,7 +268,7 @@ export function AIAssistantView() {
             <button
               type="submit"
               disabled={!input.trim() || isTyping}
-              className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+              className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
             >
               <Send size={14} />
               Send

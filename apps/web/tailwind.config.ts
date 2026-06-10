@@ -25,7 +25,11 @@ const config: Config = {
       colors: {
         // Brand palette — backed by CSS variables, updated by applyTheme when
         // the user changes the primary colour in Settings.
+        // `brand` and `primary` are aliases of the same palette: bg-brand ===
+        // bg-primary and bg-brand-500 === bg-primary-500.
         brand: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
           50:  "hsl(var(--brand-50))",
           100: "hsl(var(--brand-100))",
           200: "hsl(var(--brand-200))",
@@ -61,6 +65,17 @@ const config: Config = {
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          50:  "hsl(var(--brand-50))",
+          100: "hsl(var(--brand-100))",
+          200: "hsl(var(--brand-200))",
+          300: "hsl(var(--brand-300))",
+          400: "hsl(var(--brand-400))",
+          500: "hsl(var(--brand-500))",
+          600: "hsl(var(--brand-600))",
+          700: "hsl(var(--brand-700))",
+          800: "hsl(var(--brand-800))",
+          900: "hsl(var(--brand-900))",
+          950: "hsl(var(--brand-950))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",

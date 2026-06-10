@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
@@ -174,17 +176,16 @@ export function StoreView() {
           >
             {/* Page header */}
             <motion.div variants={itemVariants}>
-              <PageHeader
-                title={t("title")}
-                description={t("description")}
-              >
+              <PageHeader title={t("title")} description={t("description")}>
                 <button className="flex items-center gap-2 rounded-sm border border-border bg-white dark:bg-muted px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200 cursor-pointer">
                   <RefreshCw className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">{t("refresh", { defaultValue: "Refresh" })}</span>
+                  <span className="hidden sm:inline">
+                    {t("refresh", { defaultValue: "Refresh" })}
+                  </span>
                 </button>
                 <a
                   href="/store/products/add"
-                  className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all duration-200 cursor-pointer"
+                  className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all duration-200 cursor-pointer"
                 >
                   <Plus
                     size={18}
@@ -208,8 +209,12 @@ export function StoreView() {
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
               {/* Revenue mini chart */}
               <SectionCard
-                title={t("revenueoverview", { defaultValue: "Revenue Overview" })}
-                description={t("monthlyrevenuelast6", { defaultValue: "Monthly revenue (last 6 months)" })}
+                title={t("revenueoverview", {
+                  defaultValue: "Revenue Overview",
+                })}
+                description={t("monthlyrevenuelast6", {
+                  defaultValue: "Monthly revenue (last 6 months)",
+                })}
                 action={{ label: "Full Report", href: "/store/reports" }}
               >
                 <div className="flex items-end justify-between">
@@ -289,7 +294,9 @@ export function StoreView() {
 
               {/* Low Stock */}
               <SectionCard
-                title={t("lowstockalerts", { defaultValue: "Low Stock Alerts" })}
+                title={t("lowstockalerts", {
+                  defaultValue: "Low Stock Alerts",
+                })}
                 description={`${lowStockItems.length} item${lowStockItems.length !== 1 ? "s" : ""} need attention`}
                 action={{ label: "Manage", href: "/store/inventory" }}
               >
@@ -355,7 +362,9 @@ export function StoreView() {
               {/* Top Products */}
               <SectionCard
                 title={t("topproducts", { defaultValue: "Top Products" })}
-                description={t("bestsellingproductsthismonth", { defaultValue: "Best-selling products this month" })}
+                description={t("bestsellingproductsthismonth", {
+                  defaultValue: "Best-selling products this month",
+                })}
                 action={{ label: "All Products", href: "/store/products" }}
               >
                 <div className="space-y-3">
@@ -378,9 +387,11 @@ export function StoreView() {
                           </span>
                           <div className="h-7 w-7 shrink-0 rounded-sm overflow-hidden bg-muted flex items-center justify-center">
                             {product.featuredImage ? (
-                              <img
+                              <Image
                                 src={product.featuredImage}
-                                alt=""
+                                alt="Image"
+                                width={28}
+                                height={28}
                                 className="h-7 w-7 object-cover"
                               />
                             ) : (
@@ -418,8 +429,12 @@ export function StoreView() {
 
               {/* Active Automations */}
               <SectionCard
-                title={t("activeautomations", { defaultValue: "Active Automations" })}
-                description={t("runningworkflowsinyour", { defaultValue: "Running workflows in your store" })}
+                title={t("activeautomations", {
+                  defaultValue: "Active Automations",
+                })}
+                description={t("runningworkflowsinyour", {
+                  defaultValue: "Running workflows in your store",
+                })}
                 action={{ label: "Manage", href: "/store/automations" }}
               >
                 <div className="space-y-1.5">

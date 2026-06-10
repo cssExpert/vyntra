@@ -67,7 +67,9 @@ export function NotificationsSettingsView() {
       setFeedback({
         type: "error",
         message:
-          e instanceof Error ? e.message : t("loadError", { defaultValue: "Failed to load notifications." }),
+          e instanceof Error
+            ? e.message
+            : t("loadError", { defaultValue: "Failed to load notifications." }),
       });
     } finally {
       setLoading(false);
@@ -83,7 +85,10 @@ export function NotificationsSettingsView() {
     setFeedback(null);
     try {
       await apiUpdateOrgSettings({ emailNotifications, slackNotifications });
-      setFeedback({ type: "success", message: "Notification preferences saved." });
+      setFeedback({
+        type: "success",
+        message: "Notification preferences saved.",
+      });
     } catch (e) {
       setFeedback({
         type: "error",
@@ -111,7 +116,7 @@ export function NotificationsSettingsView() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Save size={16} />
           {saving ? "Saving…" : "Save Changes"}

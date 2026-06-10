@@ -96,9 +96,13 @@ function buildSelectStyles<T extends string>(): StylesConfig<
       ...base,
       minHeight: "42px",
       backgroundColor: "hsl(var(--background))",
-      borderColor: state.isFocused ? "hsl(var(--primary))" : "hsl(var(--border))",
+      borderColor: state.isFocused
+        ? "hsl(var(--primary))"
+        : "hsl(var(--border))",
       borderRadius: "var(--radius)",
-      boxShadow: state.isFocused ? "0 0 0 2px hsl(var(--primary) / 0.2)" : "none",
+      boxShadow: state.isFocused
+        ? "0 0 0 2px hsl(var(--primary) / 0.2)"
+        : "none",
       cursor: "default",
       transition: "border-color 0.2s ease, box-shadow 0.2s ease",
       "&:hover": { borderColor: "hsl(var(--border))" },
@@ -387,7 +391,9 @@ export function AddContactDrawer({
                 <Select<SelectOption<ContactStage>, false>
                   classNamePrefix="rs"
                   options={STAGE_OPTIONS}
-                  value={STAGE_OPTIONS.find((o) => o.value === form.stage) ?? null}
+                  value={
+                    STAGE_OPTIONS.find((o) => o.value === form.stage) ?? null
+                  }
                   onChange={(opt) =>
                     setForm((p) => ({ ...p, stage: opt?.value ?? "lead" }))
                   }
@@ -395,7 +401,9 @@ export function AddContactDrawer({
                   isSearchable
                   isClearable={false}
                   formatOptionLabel={(opt, { context, inputValue }) =>
-                    context === "menu" ? highlightLabel(opt.label, inputValue) : opt.label
+                    context === "menu"
+                      ? highlightLabel(opt.label, inputValue)
+                      : opt.label
                   }
                   styles={stageStyles}
                   menuPortalTarget={portalTarget}
@@ -407,7 +415,9 @@ export function AddContactDrawer({
                 <Select<SelectOption, false>
                   classNamePrefix="rs"
                   options={OWNER_OPTIONS}
-                  value={OWNER_OPTIONS.find((o) => o.value === form.owner) ?? null}
+                  value={
+                    OWNER_OPTIONS.find((o) => o.value === form.owner) ?? null
+                  }
                   onChange={(opt) =>
                     setForm((p) => ({ ...p, owner: opt?.value ?? "" }))
                   }
@@ -415,7 +425,9 @@ export function AddContactDrawer({
                   isSearchable
                   isClearable
                   formatOptionLabel={(opt, { context, inputValue }) =>
-                    context === "menu" ? highlightLabel(opt.label, inputValue) : opt.label
+                    context === "menu"
+                      ? highlightLabel(opt.label, inputValue)
+                      : opt.label
                   }
                   styles={ownerStyles}
                   menuPortalTarget={portalTarget}
@@ -427,7 +439,9 @@ export function AddContactDrawer({
                 <Select<SelectOption, false>
                   classNamePrefix="rs"
                   options={SOURCE_OPTIONS}
-                  value={SOURCE_OPTIONS.find((o) => o.value === form.source) ?? null}
+                  value={
+                    SOURCE_OPTIONS.find((o) => o.value === form.source) ?? null
+                  }
                   onChange={(opt) =>
                     setForm((p) => ({
                       ...p,
@@ -438,7 +452,9 @@ export function AddContactDrawer({
                   isSearchable
                   isClearable
                   formatOptionLabel={(opt, { context, inputValue }) =>
-                    context === "menu" ? highlightLabel(opt.label, inputValue) : opt.label
+                    context === "menu"
+                      ? highlightLabel(opt.label, inputValue)
+                      : opt.label
                   }
                   styles={sourceStyles}
                   menuPortalTarget={portalTarget}
@@ -470,7 +486,7 @@ export function AddContactDrawer({
               </button>
               <button
                 onClick={handleSubmit}
-                className="rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer shadow-glow-brand"
+                className="rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary-600 transition-colors cursor-pointer shadow-glow-brand"
               >
                 Save contact
               </button>

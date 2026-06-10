@@ -5,7 +5,12 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Eye, Check } from "lucide-react";
 import type { CmsBlogDetail, CmsBlogSaveDto, OrgMember } from "@/lib/api";
-import { apiGetOrgMembers, cmsBlogs, cmsBlogCategories, cmsBlogTags } from "@/lib/api";
+import {
+  apiGetOrgMembers,
+  cmsBlogs,
+  cmsBlogCategories,
+  cmsBlogTags,
+} from "@/lib/api";
 import { useAuth } from "@/providers/AuthProvider";
 import { EditorStepTabs, type EditorTab } from "./EditorStepTabs";
 import { WritingTab } from "./WritingTab";
@@ -26,13 +31,19 @@ import {
   type BlogFormState,
 } from "./types";
 
-function mapStatus(published: boolean, publishedAt: string | null): BlogEditorStatus {
+function mapStatus(
+  published: boolean,
+  publishedAt: string | null,
+): BlogEditorStatus {
   if (published) return "published";
   if (publishedAt && new Date(publishedAt) > new Date()) return "scheduled";
   return "draft";
 }
 
-function authorNameToId(name: string | null, profiles: AuthorProfile[]): string {
+function authorNameToId(
+  name: string | null,
+  profiles: AuthorProfile[],
+): string {
   if (!name) return profiles[0]?.id ?? "";
   const match = profiles.find((p) => p.name === name);
   return match?.id ?? profiles[0]?.id ?? "";
@@ -43,7 +54,10 @@ function authorIdToName(id: string, profiles: AuthorProfile[]): string {
   return match?.name ?? id;
 }
 
-function detailToForm(blog: CmsBlogDetail, profiles: AuthorProfile[]): BlogFormState {
+function detailToForm(
+  blog: CmsBlogDetail,
+  profiles: AuthorProfile[],
+): BlogFormState {
   const base = emptyBlogForm();
   return {
     ...base,
@@ -55,7 +69,10 @@ function detailToForm(blog: CmsBlogDetail, profiles: AuthorProfile[]): BlogFormS
     coverImage: blog.coverImage ?? base.coverImage,
     tags: blog.tags ?? [],
     category: blog.category
-      ? blog.category.split(",").map((c) => c.trim()).filter(Boolean)
+      ? blog.category
+          .split(",")
+          .map((c) => c.trim())
+          .filter(Boolean)
       : [],
     seoTitle: blog.seoTitle ?? blog.title.substring(0, 60),
     seoDesc: blog.metaDesc ?? "",
@@ -99,8 +116,14 @@ export function BlogEditor({ blog }: BlogEditorProps) {
   const [showSummary, setShowSummary] = useState(false);
 
   useEffect(() => {
-    cmsBlogCategories.list().then((cats) => setAvailableCategories(cats.map((c) => c.name))).catch(() => {});
-    cmsBlogTags.list().then((tags) => setAvailableTags(tags.map((t) => t.name))).catch(() => {});
+    cmsBlogCategories
+      .list()
+      .then((cats) => setAvailableCategories(cats.map((c) => c.name)))
+      .catch(() => {});
+    cmsBlogTags
+      .list()
+      .then((tags) => setAvailableTags(tags.map((t) => t.name)))
+      .catch(() => {});
 
     apiGetOrgMembers()
       .then((members) => {
@@ -123,14 +146,22 @@ export function BlogEditor({ blog }: BlogEditorProps) {
             return { ...prev, ...detailToForm(blog, profiles) };
           }
           const currentUserProfile = profiles.find((p) => p.id === user?.id);
-          return { ...prev, author: currentUserProfile?.id ?? profiles[0]?.id ?? "" };
+          return {
+            ...prev,
+            author: currentUserProfile?.id ?? profiles[0]?.id ?? "",
+          };
         });
       })
       .catch(() => {
         // If members can't be loaded (e.g. super-admin), fall back to current user only
         if (user) {
           const fallback: AuthorProfile[] = [
-            { id: user.id, name: user.name, email: user.email, role: user.role },
+            {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              role: user.role,
+            },
           ];
           setAvailableAuthors(fallback);
           setForm((prev) => ({
@@ -145,7 +176,9 @@ export function BlogEditor({ blog }: BlogEditorProps) {
     try {
       await cmsBlogTags.findOrCreate(name);
       setAvailableTags((prev) =>
-        prev.includes(name) ? prev : [...prev, name].sort((a, b) => a.localeCompare(b)),
+        prev.includes(name)
+          ? prev
+          : [...prev, name].sort((a, b) => a.localeCompare(b)),
       );
     } catch {
       // tag still gets added to the post even if catalog sync fails
@@ -153,8 +186,12 @@ export function BlogEditor({ blog }: BlogEditorProps) {
   };
 
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(Boolean(blog));
-  const [seoTitleManuallyEdited, setSeoTitleManuallyEdited] = useState(Boolean(blog));
-  const [seoDescManuallyEdited, setSeoDescManuallyEdited] = useState(Boolean(blog?.metaDesc));
+  const [seoTitleManuallyEdited, setSeoTitleManuallyEdited] = useState(
+    Boolean(blog),
+  );
+  const [seoDescManuallyEdited, setSeoDescManuallyEdited] = useState(
+    Boolean(blog?.metaDesc),
+  );
   const [readTimeManuallyEdited, setReadTimeManuallyEdited] = useState(false);
 
   const patch = (partial: Partial<BlogFormState>) =>
@@ -262,7 +299,9 @@ export function BlogEditor({ blog }: BlogEditorProps) {
               {blog ? "Edit Blog Post" : "Add New Blog Post"}
             </h1>
             <p className="text-[11px] text-muted-foreground truncate">
-              {blog ? blog.title : "Draft a new article with live SEO + preview"}
+              {blog
+                ? blog.title
+                : "Draft a new article with live SEO + preview"}
             </p>
           </div>
         </div>
@@ -285,7 +324,7 @@ export function BlogEditor({ blog }: BlogEditorProps) {
           <button
             onClick={handlePublish}
             disabled={saving}
-            className="px-4 py-2 bg-primary hover:bg-primary/90 active:scale-[0.98] text-primary-foreground font-bold text-xs rounded-lg flex items-center gap-1.5 transition-all disabled:opacity-60"
+            className="px-4 py-2 bg-primary hover:bg-primary-600 active:scale-[0.98] text-primary-foreground font-bold text-xs rounded-lg flex items-center gap-1.5 transition-all disabled:opacity-60"
           >
             <Check className="w-4 h-4" />
             <span>{saving ? "Saving…" : "Save & Publish"}</span>

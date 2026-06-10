@@ -17,15 +17,41 @@ import {
 import { cn } from "@/lib/utils";
 import { MotionTabs, type MotionTabItem } from "@/components/ui/MotionTabs";
 
-type TabId = "general" | "payment" | "shipping" | "tax" | "notifications" | "ai";
+type TabId =
+  | "general"
+  | "payment"
+  | "shipping"
+  | "tax"
+  | "notifications"
+  | "ai";
 
 const getTabs = (t: any): MotionTabItem<TabId>[] => [
-  { id: "general",       label: t("generalTab", { defaultValue: "General" }),          icon: Store },
-  { id: "payment",       label: t("paymentTab", { defaultValue: "Payment" }),           icon: CreditCard },
-  { id: "shipping",      label: t("shippingTab", { defaultValue: "Shipping" }),          icon: Truck },
-  { id: "tax",           label: t("taxTab", { defaultValue: "Tax" }),               icon: DollarSign },
-  { id: "notifications", label: t("notificationsTab", { defaultValue: "Notifications" }),     icon: Bell },
-  { id: "ai",            label: t("aiIntegrationsTab", { defaultValue: "AI & Integrations" }), icon: Cpu },
+  {
+    id: "general",
+    label: t("generalTab", { defaultValue: "General" }),
+    icon: Store,
+  },
+  {
+    id: "payment",
+    label: t("paymentTab", { defaultValue: "Payment" }),
+    icon: CreditCard,
+  },
+  {
+    id: "shipping",
+    label: t("shippingTab", { defaultValue: "Shipping" }),
+    icon: Truck,
+  },
+  { id: "tax", label: t("taxTab", { defaultValue: "Tax" }), icon: DollarSign },
+  {
+    id: "notifications",
+    label: t("notificationsTab", { defaultValue: "Notifications" }),
+    icon: Bell,
+  },
+  {
+    id: "ai",
+    label: t("aiIntegrationsTab", { defaultValue: "AI & Integrations" }),
+    icon: Cpu,
+  },
 ];
 
 const inputCls =
@@ -127,7 +153,10 @@ export function StoreSettingsView() {
         >
           <PageHeader
             title={t("title", { defaultValue: "Store Settings" })}
-            description={t("storeDescription", { defaultValue: "Configure your store's general settings, payments, shipping, and more." })}
+            description={t("storeDescription", {
+              defaultValue:
+                "Configure your store's general settings, payments, shipping, and more.",
+            })}
             breadcrumbs={[
               { label: t("store", { defaultValue: "Store" }), href: "/store" },
               { label: t("settings", { defaultValue: "Settings" }) },
@@ -141,7 +170,7 @@ export function StoreSettingsView() {
             >
               {t("cancel", { defaultValue: "Cancel" })}
             </button>
-            <button className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer">
+            <button className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer">
               <Save className="h-3.5 w-3.5" />
               {t("saveChanges", { defaultValue: "Save Changes" })}
             </button>
@@ -264,7 +293,7 @@ export function StoreSettingsView() {
                           "px-4 py-1.5 rounded-sm text-xs font-semibold transition-all cursor-pointer",
                           gw.connected
                             ? "bg-error/10 text-error border border-error/20 hover:bg-error/20"
-                            : "bg-primary text-primary-foreground hover:bg-primary/90",
+                            : "bg-primary text-primary-foreground hover:bg-primary-600",
                         )}
                       >
                         {gw.connected ? "Disconnect" : "Connect"}
@@ -382,7 +411,7 @@ export function StoreSettingsView() {
                 >
                   Cancel
                 </button>
-                <button className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer">
+                <button className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer">
                   <Save className="h-3.5 w-3.5" />
                   Save Changes
                 </button>

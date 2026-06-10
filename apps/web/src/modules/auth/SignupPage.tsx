@@ -179,7 +179,7 @@ export function SignupPage() {
                 "transition-all duration-200",
                 "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                 isFormReady && !isLoading
-                  ? "bg-primary hover:bg-primary/90 active:scale-[0.99] cursor-pointer"
+                  ? "bg-primary hover:bg-primary-600 active:scale-[0.99] cursor-pointer"
                   : "bg-primary/40 cursor-not-allowed",
               )}
             >
