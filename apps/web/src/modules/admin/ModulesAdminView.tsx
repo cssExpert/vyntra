@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import {
   Boxes,
   Pencil,
@@ -56,6 +57,7 @@ const MODULE_ICON_MAP: Record<string, LucideIcon> = {
 const columnHelper = createColumnHelper<AdminModule>();
 
 function Inner() {
+  const t = useTranslations("admin.modules");
   const [modules, setModules] = useState<AdminModule[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -216,8 +218,8 @@ function Inner() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Modules"
-        description="The catalog of features packages can grant."
+        title={t("title")}
+        description={t("description")}
       />
 
       {error && (

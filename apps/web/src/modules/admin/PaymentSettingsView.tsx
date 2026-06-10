@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { CreditCard, Info, Lightbulb, Webhook } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Collapse } from "@/components/ui/Collapse";
@@ -157,20 +158,21 @@ const providerItems: CollapseItem[] = providers.map((p) => ({
 }));
 
 function Inner() {
+  const t = useTranslations("admin.payment");
+
   return (
     <div className="space-y-6 pb-10">
       <PageHeader
-        title="Payment Methods"
-        description="Configure payment providers for processing customer transactions."
+        title={t("title")}
+        description={t("description")}
       />
 
       <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 flex gap-3">
         <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
         <div className="text-sm text-blue-700">
-          <h3 className="text-base font-bold mb-1">Coming Soon</h3>
+          <h3 className="text-base font-bold mb-1">{t("comingSoon")}</h3>
           <p>
-            Payment provider configuration will be available in the next update.
-            You can set up your payment provider manually in the meantime.
+            {t("paymentConfigComingSoon")}
           </p>
         </div>
       </div>
@@ -179,8 +181,8 @@ function Inner() {
         {/* ── Payment Providers ──────────────────────────────────────────── */}
         <SectionCard
           icon={CreditCard}
-          title="Available Payment Providers"
-          description="Click to learn more about each provider"
+          title={t("availablePaymentProviders")}
+          description={t("learnMoreProviders")}
         >
           <Collapse items={providerItems} />
         </SectionCard>
@@ -188,48 +190,43 @@ function Inner() {
         {/* ── Setup Recommendations ──────────────────────────────────────── */}
         <SectionCard
           icon={Lightbulb}
-          title="Setup Recommendations"
-          description="Secure and scalable payment gateway integration with seamless checkout, multi-payment support, and real-time transaction management."
+          title={t("setupRecommendations")}
+          description={t("setupRecommendationsDesc")}
         >
           <div className="space-y-3">
             <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
               <h4 className="font-bold text-amber-900 mb-2">
-                For Global SaaS Applications
+                {t("globalSaaS")}
               </h4>
               <p className="text-sm text-amber-800">
-                Use <strong>Stripe</strong> as primary +{" "}
-                <strong>Lemon Squeezy</strong> for tax compliance, or{" "}
-                <strong>Stripe</strong> with tax integration.
+                {t("globalSaaSText")}
               </p>
             </div>
 
             <div className="rounded-xl border border-purple-200 bg-purple-50 p-4">
               <h4 className="font-bold text-purple-900 mb-2">
-                For India/Asia Focus
+                {t("indiaAsia")}
               </h4>
               <p className="text-sm text-purple-800">
-                Use <strong>Razorpay</strong> as primary for local payments +{" "}
-                <strong>Stripe</strong> for international cards.
+                {t("indiaAsiaText")}
               </p>
             </div>
 
             <div className="rounded-xl border border-green-200 bg-green-50 p-4">
               <h4 className="font-bold text-green-900 mb-2">
-                For Simple Subscription SaaS
+                {t("simpleSubscription")}
               </h4>
               <p className="text-sm text-green-800">
-                Use <strong>Lemon Squeezy</strong> (simplest setup, global tax
-                handling) or <strong>Stripe</strong> (more control).
+                {t("simpleSubscriptionText")}
               </p>
             </div>
 
             <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
               <h4 className="font-bold text-blue-900 mb-2">
-                For Existing Business
+                {t("existingBusiness")}
               </h4>
               <p className="text-sm text-blue-800">
-                Check if you already have <strong>Stripe</strong> or{" "}
-                <strong>PayPal</strong> configured for seamless integration.
+                {t("existingBusinessText")}
               </p>
             </div>
           </div>
@@ -238,26 +235,23 @@ function Inner() {
         {/* ── Webhook Configuration ────────────────────────────────────── */}
         <SectionCard
           icon={Webhook}
-          title="Webhook Configuration"
-          description="Reliable webhook configuration for real-time event tracking, automated workflows, and seamless third-party system integrations."
+          title={t("webhookConfiguration")}
+          description={t("webhookConfigDesc")}
         >
           <div className="space-y-3">
             <p className="text-sm text-foreground">
-              After setting up your payment provider, you&rsquo;ll need to
-              configure webhooks for real-time transaction updates.
+              {t("afterSetup")}
             </p>
             <div className="rounded-xl bg-muted/40 p-4 space-y-2">
               <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide">
-                Example Webhook URL (replace with your domain)
+                {t("exampleWebhookUrl")}
               </p>
               <code className="block text-xs font-mono text-foreground bg-background px-3 py-2 rounded-lg border border-border overflow-x-auto">
                 https://your-domain.com/api/webhooks/payments
               </code>
             </div>
             <p className="text-xs text-muted-foreground">
-              Configure this URL in your payment provider&rsquo;s dashboard to
-              receive webhook events for payment status changes, refunds, and
-              subscriptions.
+              {t("configureUrl")}
             </p>
           </div>
         </SectionCard>

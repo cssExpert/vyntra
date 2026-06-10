@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   ShieldCheck,
   Plus,
@@ -84,6 +85,7 @@ function getPinStyles(
 }
 
 function Inner() {
+  const t = useTranslations("admin.users");
   const router = useRouter();
   const [users, setUsers] = useState<UserWithActivity[]>([]);
   const [loading, setLoading] = useState(true);
@@ -482,15 +484,15 @@ function Inner() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <PageHeader
-          title="Users"
-          description={`${filteredUsers.length} ${filteredUsers.length === 1 ? "user" : "users"} across every organization`}
+          title={t("title")}
+          description={`${filteredUsers.length} ${filteredUsers.length === 1 ? t("user", { defaultValue: "user" }) : t("users", { defaultValue: "users" })} across every organization`}
         />
         <button
           onClick={openAddModal}
           className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition"
         >
           <Plus className="h-4 w-4" />
-          Add User
+          {t("add")}
         </button>
       </div>
 

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { createPortal } from "react-dom";
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import {
   Plus,
   Pencil,
@@ -616,6 +617,7 @@ function ThemeFormModal({
 // ── Inner (guard-wrapped) ─────────────────────────────────────────────────────
 
 function Inner() {
+  const t = useTranslations("admin.themes");
   const [themes, setThemes] = useState<DbTheme[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -725,14 +727,14 @@ function Inner() {
     <div className="space-y-6 pb-20">
       <div className="flex items-center justify-between gap-4">
         <PageHeader
-          title="Global Themes"
-          description="Themes available to all organizations. Manage the platform's built-in theme library."
+          title={t("title")}
+          description={t("description")}
         />
         <button
           onClick={openCreate}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-all shrink-0"
         >
-          <Plus className="w-4 h-4" /> New Theme
+          <Plus className="w-4 h-4" /> {t("add")}
         </button>
       </div>
 

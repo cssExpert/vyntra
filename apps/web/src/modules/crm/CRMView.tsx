@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
@@ -15,6 +16,7 @@ import { SAMPLE_CONTACTS } from "./data/contacts";
 import type { ContactListTab, CRMContact, CRMViewMode } from "./types";
 
 export function CRMView() {
+  const t = useTranslations("admin.crm");
   // ── View state ──────────────────────────────────────────
   const [activeTab,   setActiveTab]   = useState<ContactListTab>("all");
   const [viewMode,    setViewMode]    = useState<CRMViewMode>("board");

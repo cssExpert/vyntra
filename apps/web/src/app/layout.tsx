@@ -12,6 +12,10 @@ import { AuthProvider } from "@/providers/AuthProvider";
 import { SettingsProvider } from "@/providers/SettingsProvider";
 import { AdminSettingsProvider } from "@/providers/AdminSettingsProvider";
 import { NavigationProgress } from "@/components/layout/NavigationProgress";
+// Static imports for messages
+import enMessages from "@/i18n/messages/en.json";
+import hiMessages from "@/i18n/messages/hi.json";
+import frMessages from "@/i18n/messages/fr.json";
 import "./globals.css";
 
 const inter = Inter({
@@ -80,11 +84,17 @@ export default async function RootLayout({
   const cookieStore = await cookies();
   const locale = (cookieStore.get("NEXT_LOCALE")?.value || "en") as string;
 
-  // Dynamically import messages based on locale
-  const messageImport = await import(`@/i18n/messages/${locale}.json`).catch(
-    async () => import("@/i18n/messages/en.json")
-  );
-  const messages = messageImport.default;
+  console.log("✅ RootLayout: locale from cookie =", locale);
+
+  // Select messages based on locale
+  const messagesMap = {
+    en: enMessages,
+    hi: hiMessages,
+    fr: frMessages,
+  } as const;
+
+  const messages = messagesMap[locale as keyof typeof messagesMap] || enMessages;
+  console.log("✅ RootLayout: Using messages for locale:", locale);
 
   return (
     <html

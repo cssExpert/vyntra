@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { PencilLine, Plus, Trash2 } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -29,6 +30,7 @@ const emptyForm: FormState = {
 };
 
 function Inner() {
+  const t = useTranslations("admin.packages");
   const [packages, setPackages] = useState<AdminPackage[]>([]);
   const [modules, setModules] = useState<AdminModule[]>([]);
   const [loading, setLoading] = useState(true);
@@ -121,14 +123,14 @@ function Inner() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Packages"
-        description="Plans and the modules each one unlocks. This controls what companies see."
+        title={t("title")}
+        description={t("description")}
       >
         <button
           onClick={openCreate}
           className="flex items-center gap-2 rounded-lg bg-foreground px-3 py-2 text-sm font-semibold text-background hover:opacity-90 transition cursor-pointer"
         >
-          <Plus className="h-4 w-4" /> Add Package
+          <Plus className="h-4 w-4" /> {t("add")}
         </button>
       </PageHeader>
 
@@ -139,7 +141,7 @@ function Inner() {
       )}
 
       {loading ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <p className="text-sm text-muted-foreground">{t("loading", { defaultValue: "Loading…" })}</p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {packages.map((p) => (

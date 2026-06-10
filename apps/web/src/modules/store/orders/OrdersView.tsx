@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
@@ -25,6 +26,7 @@ const selectCls =
   "rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all cursor-pointer";
 
 export function OrdersView() {
+  const t = useTranslations("admin.store");
   const isLoaded = usePageLoad(700);
 
   useEffect(() => {
@@ -77,11 +79,11 @@ export function OrdersView() {
           className="flex flex-col gap-4"
         >
           <PageHeader
-            title="Orders"
+            title={t("orders")}
             description={`${SAMPLE_ORDERS.length} orders · $${total.toFixed(2)} total revenue`}
             breadcrumbs={[
               { label: "Store", href: "/store" },
-              { label: "Orders" },
+              { label: t("orders") },
             ]}
           >
             <button className="flex items-center gap-2 rounded-sm border border-border bg-transparent px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer">

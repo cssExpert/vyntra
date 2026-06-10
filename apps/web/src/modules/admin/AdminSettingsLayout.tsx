@@ -3,78 +3,81 @@
 import { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Settings, HardDrive, Mail, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MotionTabs } from "@/components/ui/MotionTabs";
 import type { MotionTabItem } from "@/components/ui/MotionTabs";
 
-const SETTINGS_TABS: MotionTabItem[] = [
-  {
-    id: "app",
-    label: "App Settings",
-    icon: Settings,
-    href: "/admin/settings",
-  },
-  {
-    id: "storage",
-    label: "Storage",
-    icon: HardDrive,
-    href: "/admin/settings/storage",
-  },
-  {
-    id: "email",
-    label: "Email",
-    icon: Mail,
-    href: "/admin/settings/email",
-  },
-  {
-    id: "payment",
-    label: "Payment",
-    icon: CreditCard,
-    href: "/admin/settings/payment",
-  },
-];
-
-const SETTINGS_SIDEBAR = [
-  {
-    id: "app",
-    label: "App Settings",
-    description: "General platform configuration",
-    icon: Settings,
-    href: "/admin/settings",
-  },
-  {
-    id: "storage",
-    label: "Storage",
-    description: "Cloud storage & file management",
-    icon: HardDrive,
-    href: "/admin/settings/storage",
-  },
-  {
-    id: "email",
-    label: "Email",
-    description: "SMTP and email provider settings",
-    icon: Mail,
-    href: "/admin/settings/email",
-  },
-  {
-    id: "payment",
-    label: "Payment Methods",
-    description: "Payment provider configuration",
-    icon: CreditCard,
-    href: "/admin/settings/payment",
-  },
-];
-
-function getActiveTab(pathname: string): string {
-  if (pathname === "/admin/settings") return "app";
-  if (pathname === "/admin/settings/storage") return "storage";
-  if (pathname === "/admin/settings/email") return "email";
-  if (pathname === "/admin/settings/payment") return "payment";
-  return "app";
-}
-
 export function AdminSettingsLayout({ children }: { children: ReactNode }) {
+  const t = useTranslations("admin.settingsNav");
+
+  const SETTINGS_TABS: MotionTabItem[] = [
+    {
+      id: "app",
+      label: t("appSettings"),
+      icon: Settings,
+      href: "/admin/settings",
+    },
+    {
+      id: "storage",
+      label: t("storage"),
+      icon: HardDrive,
+      href: "/admin/settings/storage",
+    },
+    {
+      id: "email",
+      label: t("email"),
+      icon: Mail,
+      href: "/admin/settings/email",
+    },
+    {
+      id: "payment",
+      label: t("payment"),
+      icon: CreditCard,
+      href: "/admin/settings/payment",
+    },
+  ];
+
+  const SETTINGS_SIDEBAR = [
+    {
+      id: "app",
+      label: t("appSettings"),
+      description: "General platform configuration",
+      icon: Settings,
+      href: "/admin/settings",
+    },
+    {
+      id: "storage",
+      label: t("storage"),
+      description: "Cloud storage & file management",
+      icon: HardDrive,
+      href: "/admin/settings/storage",
+    },
+    {
+      id: "email",
+      label: t("email"),
+      description: "SMTP and email provider settings",
+      icon: Mail,
+      href: "/admin/settings/email",
+    },
+    {
+      id: "payment",
+      label: t("payment"),
+      description: "Payment provider configuration",
+      icon: CreditCard,
+      href: "/admin/settings/payment",
+    },
+  ];
+
+  function getActiveTab(pathname: string): string {
+    if (pathname === "/admin/settings") return "app";
+    if (pathname === "/admin/settings/storage") return "storage";
+    if (pathname === "/admin/settings/email") return "email";
+    if (pathname === "/admin/settings/payment") return "payment";
+    return "app";
+  }
+
   const pathname = usePathname();
   const activeTab = getActiveTab(pathname);
 

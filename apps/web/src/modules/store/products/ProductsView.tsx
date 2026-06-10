@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
@@ -10,6 +11,7 @@ import { ProductsTable } from "./components/ProductsTable";
 import { SAMPLE_PRODUCTS } from "../store.data";
 
 export function ProductsView() {
+  const t = useTranslations("admin.store");
   const isLoaded = usePageLoad(700);
 
   useEffect(() => {
@@ -75,9 +77,9 @@ export function ProductsView() {
           className="flex flex-col gap-4"
         >
           <PageHeader
-            title="Products"
-            description="Manage your entire product catalog."
-            breadcrumbs={[{ label: "Store", href: "/store" }, { label: "Products" }]}
+            title={t("products")}
+            description={t("productsDescription")}
+            breadcrumbs={[{ label: "Store", href: "/store" }, { label: t("products") }]}
           />
 
           <ProductsHeader

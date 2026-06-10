@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -131,6 +132,7 @@ const ORDER_BADGE: Record<
 // ─── Main view ────────────────────────────────────────────────────────────────
 
 export function StoreView() {
+  const t = useTranslations("admin.store");
   const isLoaded = usePageLoad(700);
   const lowStockItems = SAMPLE_INVENTORY.filter(
     (i) => i.stockStatus === "low_stock" || i.stockStatus === "out_of_stock",
@@ -173,12 +175,12 @@ export function StoreView() {
             {/* Page header */}
             <motion.div variants={itemVariants}>
               <PageHeader
-                title="Store"
-                description="Commerce overview — revenue, orders, customers, and top products."
+                title={t("title")}
+                description={t("description")}
               >
                 <button className="flex items-center gap-2 rounded-sm border border-border bg-white dark:bg-muted px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200 cursor-pointer">
                   <RefreshCw className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">Refresh</span>
+                  <span className="hidden sm:inline">{t("refresh", { defaultValue: "Refresh" })}</span>
                 </button>
                 <a
                   href="/store/products/add"
@@ -188,7 +190,7 @@ export function StoreView() {
                     size={18}
                     className="stroke-[3] transition-transform group-hover:rotate-90 duration-300"
                   />
-                  Add Product
+                  {t("addProduct")}
                 </a>
               </PageHeader>
             </motion.div>

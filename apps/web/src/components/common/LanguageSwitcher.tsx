@@ -1,7 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
 import { Globe } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -21,12 +19,25 @@ export function LanguageSwitcher() {
   }, []);
 
   const handleChangeLocale = (locale: Locale) => {
-    // Set cookie
-    document.cookie = `NEXT_LOCALE=${locale};path=/;max-age=${60 * 60 * 24 * 365}`;
+    console.log("🌐 [Before] Switching to:", locale);
+    console.log("🌐 [Before] Current cookie:", document.cookie);
+
+    // Set cookie with proper options
+    const date = new Date();
+    date.setTime(date.getTime() + 365 * 24 * 60 * 60 * 1000);
+    const cookieString = `NEXT_LOCALE=${locale};path=/;expires=${date.toUTCString()};SameSite=Lax`;
+    document.cookie = cookieString;
+
+    console.log("🌐 [After] Cookie set:", document.cookie);
+    console.log("🌐 [After] Cookie string was:", cookieString);
+
     setCurrentLocale(locale);
     setIsOpen(false);
     // Reload to apply locale change
-    window.location.reload();
+    setTimeout(() => {
+      console.log("🌐 Reloading page...");
+      window.location.reload();
+    }, 100);
   };
 
   return (
