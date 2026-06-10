@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsBoolean,
   IsEmail,
   IsInt,
@@ -165,4 +166,13 @@ export class OrganizationSettingsDto {
   @IsOptional()
   @IsBoolean()
   slackNotifications?: boolean;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  siteLanguages?: string[];
+
+  @IsOptional()
+  @IsString()
+  defaultSiteLanguage?: string;
 }

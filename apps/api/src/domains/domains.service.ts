@@ -384,6 +384,8 @@ export class DomainsService {
       logoUrl: true,
       darkLogoUrl: true,
       themeSwitcherEnabled: true,
+      siteLanguages: true,
+      defaultSiteLanguage: true,
       subscription: {
         include: {
           package: {
@@ -402,6 +404,8 @@ export class DomainsService {
     logoUrl?: string | null;
     darkLogoUrl?: string | null;
     themeSwitcherEnabled?: boolean;
+    siteLanguages?: string[];
+    defaultSiteLanguage?: string;
     subscription: {
       status: string;
       package: {
@@ -428,6 +432,8 @@ export class DomainsService {
       logoUrl: org.logoUrl ?? null,
       darkLogoUrl: org.darkLogoUrl ?? null,
       themeSwitcherEnabled: org.themeSwitcherEnabled ?? false,
+      siteLanguages: org.siteLanguages ?? ["en"],
+      defaultSiteLanguage: org.defaultSiteLanguage ?? "en",
     };
   }
 }

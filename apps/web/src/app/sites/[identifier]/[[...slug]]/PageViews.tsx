@@ -10,6 +10,8 @@ export interface OrgInfo {
   logoUrl: string | null;
   darkLogoUrl: string | null;
   themeSwitcherEnabled: boolean;
+  siteLanguages: string[];
+  defaultSiteLanguage: string;
 }
 
 export interface CmsPage {

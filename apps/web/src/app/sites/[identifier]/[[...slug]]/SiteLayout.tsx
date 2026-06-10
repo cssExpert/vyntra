@@ -2,6 +2,7 @@
 // Rendered server-side as RSC — fetches each menu directly.
 
 import { SiteThemeToggle } from "./SiteThemeToggle";
+import { SiteLanguageSwitcher } from "./SiteLanguageSwitcher";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
@@ -20,6 +21,8 @@ interface OrgInfo {
   logoUrl?: string | null;
   darkLogoUrl?: string | null;
   themeSwitcherEnabled?: boolean;
+  siteLanguages?: string[];
+  defaultSiteLanguage?: string;
 }
 
 interface SiteLayoutData {
@@ -119,6 +122,13 @@ async function NavbarMinimal({ org, items }: { org: OrgInfo; items: MenuItem[] }
             </a>
           ))}
           {org.themeSwitcherEnabled && <SiteThemeToggle />}
+          {(org.siteLanguages?.length ?? 0) > 1 && (
+            <SiteLanguageSwitcher
+              orgId={org.id}
+              available={org.siteLanguages!}
+              defaultLang={org.defaultSiteLanguage ?? "en"}
+            />
+          )}
         </div>
       </div>
     </nav>
@@ -157,6 +167,13 @@ async function NavbarCentered({ org, items }: { org: OrgInfo; items: MenuItem[] 
             </a>
           ))}
           {org.themeSwitcherEnabled && <SiteThemeToggle />}
+          {(org.siteLanguages?.length ?? 0) > 1 && (
+            <SiteLanguageSwitcher
+              orgId={org.id}
+              available={org.siteLanguages!}
+              defaultLang={org.defaultSiteLanguage ?? "en"}
+            />
+          )}
         </div>
       </div>
     </nav>
@@ -202,8 +219,15 @@ async function NavbarSplit({ org, items }: { org: OrgInfo; items: MenuItem[] }) 
           ))}
         </div>
 
-        {/* CTA + theme toggle — right */}
+        {/* CTA + theme toggle + language — right */}
         <div className="justify-self-end flex items-center gap-2">
+          {(org.siteLanguages?.length ?? 0) > 1 && (
+            <SiteLanguageSwitcher
+              orgId={org.id}
+              available={org.siteLanguages!}
+              defaultLang={org.defaultSiteLanguage ?? "en"}
+            />
+          )}
           {org.themeSwitcherEnabled && <SiteThemeToggle />}
           {ctaItem && (
             <a
@@ -257,6 +281,13 @@ async function NavbarDark({ org, items }: { org: OrgInfo; items: MenuItem[] }) {
             </a>
           ))}
           {org.themeSwitcherEnabled && <SiteThemeToggle />}
+          {(org.siteLanguages?.length ?? 0) > 1 && (
+            <SiteLanguageSwitcher
+              orgId={org.id}
+              available={org.siteLanguages!}
+              defaultLang={org.defaultSiteLanguage ?? "en"}
+            />
+          )}
         </div>
       </div>
     </nav>
@@ -529,8 +560,15 @@ async function NavbarShopingo({ org, items }: { org: OrgInfo; items: MenuItem[] 
             </div>
           )}
 
-          {/* Theme toggle + Cart icon */}
+          {/* Language + Theme toggle + Cart icon */}
           <div className="flex items-center gap-3 shrink-0">
+            {(org.siteLanguages?.length ?? 0) > 1 && (
+              <SiteLanguageSwitcher
+                orgId={org.id}
+                available={org.siteLanguages!}
+                defaultLang={org.defaultSiteLanguage ?? "en"}
+              />
+            )}
             {org.themeSwitcherEnabled && <SiteThemeToggle />}
             <button
               aria-label="Search"

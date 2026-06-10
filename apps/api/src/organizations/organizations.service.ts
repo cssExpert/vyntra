@@ -237,6 +237,8 @@ export class OrganizationsService {
         emailNotifications: true,
         slackNotifications: true,
         themeSwitcherEnabled: true,
+        siteLanguages: true,
+        defaultSiteLanguage: true,
       },
     });
     if (!org) throw new NotFoundException('Organization not found');
@@ -258,6 +260,8 @@ export class OrganizationsService {
     if (dto.darkLogoUrl !== undefined) data.darkLogoUrl = dto.darkLogoUrl;
     if (dto.faviconUrl !== undefined) data.faviconUrl = dto.faviconUrl;
     if (dto.themeSwitcherEnabled !== undefined) data.themeSwitcherEnabled = dto.themeSwitcherEnabled;
+    if (dto.siteLanguages !== undefined) data.siteLanguages = dto.siteLanguages;
+    if (dto.defaultSiteLanguage) data.defaultSiteLanguage = dto.defaultSiteLanguage;
     if (dto.primaryColor) data.primaryColor = dto.primaryColor;
     if (dto.secondaryColor) data.secondaryColor = dto.secondaryColor;
     if (dto.accentColor) data.accentColor = dto.accentColor;
@@ -280,6 +284,8 @@ export class OrganizationsService {
         emailNotifications: true,
         slackNotifications: true,
         themeSwitcherEnabled: true,
+        siteLanguages: true,
+        defaultSiteLanguage: true,
       },
     });
   }

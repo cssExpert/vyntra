@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Globe, CheckCircle2, AlertCircle, Key, Palette, Sun, Moon, Image as ImageIcon } from "lucide-react";
+import { Globe, CheckCircle2, AlertCircle, Key, Palette, Sun, Moon, Image as ImageIcon, Languages } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { cn } from "@/lib/utils";
 import { orgDomain, type OrgDomain, type DnsInfo, apiGetOrgSettings, apiUpdateOrgSettings } from "@/lib/api";
 import { ImageUploadWithStorage } from "@/components/common/ImageUploadWithStorage";
 import { useAuth } from "@/providers/AuthProvider";
+import { SITE_LANGUAGES } from "@/lib/site-languages";
 
 function FieldGroup({
   label,
@@ -487,11 +488,176 @@ function BrandingTab() {
   );
 }
 
+// ── Languages Tab ─────────────────────────────────────────────────────────────
+
+function LanguagesTab() {
+  const [selectedLangs, setSelectedLangs] = useState<string[]>(["en"]);
+  const [defaultLang, setDefaultLang] = useState("en");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    apiGetOrgSettings()
+      .then((s) => {
+        setSelectedLangs(s.siteLanguages?.length ? s.siteLanguages : ["en"]);
+        setDefaultLang(s.defaultSiteLanguage || "en");
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const flash = (msg: string, isErr = false) => {
+    if (isErr) { setError(msg); setTimeout(() => setError(""), 4000); }
+    else { setSuccess(msg); setTimeout(() => setSuccess(""), 4000); }
+  };
+
+  const toggle = (code: string) => {
+    if (code === "en") return; // English always enabled
+    setSelectedLangs((prev) =>
+      prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code],
+    );
+  };
+
+  const save = async () => {
+    const langs = selectedLangs.length ? selectedLangs : ["en"];
+    const def = langs.includes(defaultLang) ? defaultLang : "en";
+    setSaving(true);
+    try {
+      await apiUpdateOrgSettings({ siteLanguages: langs, defaultSiteLanguage: def });
+      flash("Language settings saved.");
+    } catch {
+      flash("Failed to save language settings.", true);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16 text-muted-foreground text-sm">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent mr-2" />
+        Loading…
+      </div>
+    );
+  }
+
+  const enabledLangs = SITE_LANGUAGES.filter((l) => selectedLangs.includes(l.code));
+
+  return (
+    <div className="space-y-5">
+      {error && (
+        <div className="flex items-center gap-2.5 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+          <AlertCircle className="h-4 w-4 shrink-0" /> {error}
+        </div>
+      )}
+      {success && (
+        <div className="flex items-center gap-2.5 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 text-sm text-emerald-600">
+          <CheckCircle2 className="h-4 w-4 shrink-0" /> {success}
+        </div>
+      )}
+
+      {/* Language selection */}
+      <SectionCard
+        icon={Languages}
+        title="Available Languages"
+        description="Select which languages visitors can switch between on your public site. English is always available and set as the baseline."
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {SITE_LANGUAGES.map((lang) => {
+            const isSelected = selectedLangs.includes(lang.code);
+            const isRequired = lang.code === "en";
+            return (
+              <button
+                key={lang.code}
+                type="button"
+                onClick={() => toggle(lang.code)}
+                disabled={isRequired}
+                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl border text-left transition-all ${
+                  isSelected
+                    ? "border-primary/40 bg-primary/5 text-foreground"
+                    : "border-border bg-background text-muted-foreground hover:border-border/80"
+                } ${isRequired ? "opacity-70 cursor-default" : "cursor-pointer"}`}
+              >
+                {/* Checkbox indicator */}
+                <span className={`flex-shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${
+                  isSelected ? "border-primary bg-primary" : "border-muted-foreground/40"
+                }`}>
+                  {isSelected && (
+                    <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="2 6 5 9 10 3"/>
+                    </svg>
+                  )}
+                </span>
+                <span className="text-lg leading-none">{lang.flag}</span>
+                <span className="flex-1 min-w-0">
+                  <span className="block text-xs font-semibold text-foreground">{lang.name}</span>
+                  <span className="block text-[10px] text-muted-foreground">{lang.native}</span>
+                </span>
+                {isRequired && (
+                  <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
+                    default
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </SectionCard>
+
+      {/* Default language */}
+      <SectionCard
+        icon={Globe}
+        title="Default Language"
+        description="Language shown to visitors who haven't chosen a preference. Must be one of the enabled languages above."
+      >
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+          {enabledLangs.map((lang) => {
+            const isDefault = defaultLang === lang.code;
+            return (
+              <button
+                key={lang.code}
+                type="button"
+                onClick={() => setDefaultLang(lang.code)}
+                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border text-left transition-all ${
+                  isDefault
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-background text-foreground hover:border-primary/40"
+                }`}
+              >
+                <span className="text-base leading-none">{lang.flag}</span>
+                <span className="text-xs font-semibold">{lang.name}</span>
+              </button>
+            );
+          })}
+        </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          {enabledLangs.length === 1
+            ? "Enable more languages above to offer a choice."
+            : `${enabledLangs.length} language${enabledLangs.length !== 1 ? "s" : ""} enabled. Visitors can switch using the language selector in the site navbar.`}
+        </p>
+      </SectionCard>
+
+      <div className="flex justify-end">
+        <button
+          onClick={save}
+          disabled={saving}
+          className="px-5 py-2.5 bg-primary text-primary-foreground text-sm font-semibold rounded-xl hover:opacity-90 transition disabled:opacity-50 cursor-pointer"
+        >
+          {saving ? "Saving…" : "Save Languages"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ── CmsSettingsView ───────────────────────────────────────────────────────────
 
 const TABS = [
-  { id: "branding", label: "Branding" },
-  { id: "domain", label: "Domain" },
+  { id: "branding",  label: "Branding" },
+  { id: "languages", label: "Languages" },
+  { id: "domain",    label: "Domain" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -524,6 +690,7 @@ export function CmsSettingsView() {
       </div>
 
       {activeTab === "branding" && <BrandingTab />}
+      {activeTab === "languages" && <LanguagesTab />}
       {activeTab === "domain" && <DomainTab />}
     </div>
   );

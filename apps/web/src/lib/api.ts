@@ -175,6 +175,8 @@ export interface OrganizationSettings {
   darkLogoUrl: string | null;
   faviconUrl: string | null;
   themeSwitcherEnabled: boolean;
+  siteLanguages: string[];
+  defaultSiteLanguage: string;
   primaryColor: string;
   secondaryColor: string;
   accentColor: string;

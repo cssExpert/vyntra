@@ -96,8 +96,12 @@ model Organization {
   themeSwitcherEnabled Boolean  @default(false)
 
   // Internationalization & Localization
-  defaultLocale String @default("en") // company-wide default UI language
-  timezone      String? // org-specific timezone (nullable)
+  defaultLocale        String   @default("en") // company-wide default UI language
+  timezone             String?  // org-specific timezone (nullable)
+
+  // Public site language settings
+  siteLanguages        String[] @default(["en"]) // enabled language codes for the public site
+  defaultSiteLanguage  String   @default("en")   // default language shown to visitors
 
   // Domain / hosting
   subdomain               String?  @unique // e.g. "acme" → acme.vyntra.com; set by super admin
