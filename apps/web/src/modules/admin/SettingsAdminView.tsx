@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useTranslations } from "next-intl";
 import {
   Settings,
   Save,
@@ -199,6 +200,7 @@ function ColorPickerField({
 // ─────────────────────────────────────────────────────────────────────────────
 
 function Inner() {
+  const t = useTranslations("admin.appSettings");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -286,8 +288,8 @@ function Inner() {
   return (
     <div className="space-y-6 pb-10">
       <PageHeader
-        title="Admin Settings"
-        description="Manage platform-wide settings and configuration."
+        title={t("title")}
+        description={t("description")}
       />
 
       {/* Banners */}
@@ -308,8 +310,8 @@ function Inner() {
         {/* ── Logo & Icon ─────────────────────────────────────────────────── */}
         <SectionCard
           icon={Palette}
-          title="Logo & Icon"
-          description="Upload your brand logo and favicon. PNG or SVG with transparent background recommended."
+          title={t("logoIcon")}
+          description={t("logoIconDescription")}
         >
           <div className="grid gap-8 sm:grid-cols-2">
             <div className="space-y-3">
@@ -360,8 +362,8 @@ function Inner() {
         {/* ── Brand Colors ─────────────────────────────────────────────────── */}
         <SectionCard
           icon={Palette}
-          title="Brand Colors"
-          description="Customize colors used across buttons, links, and highlights."
+          title={t("brandColors")}
+          description={t("brandColorsDescription")}
         >
           <div className="space-y-3">
             <ColorPickerField
@@ -418,12 +420,12 @@ function Inner() {
         {/* ── General Settings ─────────────────────────────────────────────── */}
         <SectionCard
           icon={Settings}
-          title="General"
-          description="Platform-wide name and contact details."
+          title={t("general")}
+          description={t("generalDescription")}
         >
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium">Site Name</label>
+              <label className="block text-sm font-medium">{t("siteName")}</label>
               <input
                 className={adminInput}
                 value={settings.siteName ?? ""}
@@ -432,7 +434,7 @@ function Inner() {
               />
             </div>
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium">Support Email</label>
+              <label className="block text-sm font-medium">{t("supportEmail")}</label>
               <input
                 type="email"
                 className={adminInput}
@@ -447,12 +449,12 @@ function Inner() {
         {/* ── Localization ─────────────────────────────────────────────────── */}
         <SectionCard
           icon={Globe}
-          title="Localization"
-          description="Configure global timezone and language settings."
+          title={t("localization")}
+          description={t("localizationDescription")}
         >
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium">Default Timezone</label>
+              <label className="block text-sm font-medium">{t("timezone")}</label>
               <select
                 className={adminInput}
                 value={settings.timezone ?? "UTC"}
@@ -465,7 +467,7 @@ function Inner() {
                 ))}
               </select>
               <p className="text-xs text-muted-foreground">
-                Used for server logs, scheduled tasks, and system timestamps
+                {t("timezoneHelp")}
               </p>
             </div>
           </div>
@@ -474,8 +476,8 @@ function Inner() {
         {/* ── Limits & Quotas ──────────────────────────────────────────────── */}
         <SectionCard
           icon={Users}
-          title="Limits & Quotas"
-          description="Control how many organizations and users can be created."
+          title={t("limitsQuotas")}
+          description={t("limitsQuotasDescription")}
         >
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
