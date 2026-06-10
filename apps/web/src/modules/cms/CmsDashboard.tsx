@@ -378,6 +378,32 @@ export function CmsDashboard() {
             )}
           </div>
 
+          {/* Top tags */}
+          <div className="bg-card border border-border rounded-2xl p-5">
+            <SectionHeader title="Top Tags" />
+
+            {stats.topTags.length === 0 ? (
+              <p className="text-[11px] text-muted-foreground py-4 text-center">No tags used yet.</p>
+            ) : (
+              <div className="flex flex-wrap gap-1.5">
+                {stats.topTags.map((tag, i) => (
+                  <span
+                    key={tag.name}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold border"
+                    style={{
+                      background: `hsl(${(i * 43 + 200) % 360}, 70%, 94%)`,
+                      borderColor: `hsl(${(i * 43 + 200) % 360}, 60%, 78%)`,
+                      color: `hsl(${(i * 43 + 200) % 360}, 50%, 38%)`,
+                    }}
+                  >
+                    {tag.name}
+                    <span className="opacity-70">·{tag.count}</span>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Quick actions */}
           <div className="bg-card border border-border rounded-2xl p-5">
             <SectionHeader title="Quick Actions" />

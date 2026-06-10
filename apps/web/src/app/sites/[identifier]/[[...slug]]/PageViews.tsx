@@ -7,6 +7,9 @@ export interface OrgInfo {
   name: string;
   slug: string;
   subdomain: string | null;
+  logoUrl: string | null;
+  darkLogoUrl: string | null;
+  themeSwitcherEnabled: boolean;
 }
 
 export interface CmsPage {

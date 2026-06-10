@@ -1,6 +1,8 @@
 // Global navbar + footer rendered from the org's Layout config.
 // Rendered server-side as RSC — fetches each menu directly.
 
+import { SiteThemeToggle } from "./SiteThemeToggle";
+
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
 interface MenuItem {
@@ -15,6 +17,9 @@ interface OrgInfo {
   id: string;
   name: string;
   slug: string;
+  logoUrl?: string | null;
+  darkLogoUrl?: string | null;
+  themeSwitcherEnabled?: boolean;
 }
 
 interface SiteLayoutData {
@@ -51,6 +56,34 @@ function visClass(vis: string[]): string {
   return "";
 }
 
+// ── Shared helpers ────────────────────────────────────────────────────────────
+
+function OrgLogo({ org, className = "h-8" }: { org: OrgInfo; className?: string }) {
+  if (org.logoUrl) {
+    return (
+      <>
+        {/* light logo — hidden in dark mode when a dark logo is provided */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={org.logoUrl}
+          alt={org.name}
+          className={`${className} object-contain ${org.darkLogoUrl ? "block dark:hidden" : "block"}`}
+        />
+        {/* dark logo — only shown in dark mode */}
+        {org.darkLogoUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={org.darkLogoUrl}
+            alt={org.name}
+            className={`${className} object-contain hidden dark:block`}
+          />
+        )}
+      </>
+    );
+  }
+  return <span>{org.name}</span>;
+}
+
 // ── Header variants ───────────────────────────────────────────────────────────
 
 /** logo left · nav links right · sticky blur */
@@ -70,24 +103,23 @@ async function NavbarMinimal({ org, items }: { org: OrgInfo; items: MenuItem[] }
           className="text-lg font-bold tracking-tight shrink-0 transition-opacity hover:opacity-70"
           style={{ color: "var(--primary, #3b82f6)" }}
         >
-          {org.name}
+          <OrgLogo org={org} />
         </a>
-        {items.length > 0 && (
-          <div className="flex items-center gap-6 flex-wrap">
-            {items.map((item) => (
-              <a
-                key={item.id}
-                href={item.url}
-                target={item.target}
-                rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
-                className={["text-sm transition-opacity hover:opacity-70", visClass(item.visibility)].filter(Boolean).join(" ")}
-                style={{ color: "var(--foreground, #374151)" }}
-              >
-                {item.label}
-              </a>
-            ))}
-          </div>
-        )}
+        <div className="flex items-center gap-6 flex-wrap">
+          {items.map((item) => (
+            <a
+              key={item.id}
+              href={item.url}
+              target={item.target}
+              rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
+              className={["text-sm transition-opacity hover:opacity-70", visClass(item.visibility)].filter(Boolean).join(" ")}
+              style={{ color: "var(--foreground, #374151)" }}
+            >
+              {item.label}
+            </a>
+          ))}
+          {org.themeSwitcherEnabled && <SiteThemeToggle />}
+        </div>
       </div>
     </nav>
   );
@@ -109,24 +141,23 @@ async function NavbarCentered({ org, items }: { org: OrgInfo; items: MenuItem[] 
           className="text-xl font-bold tracking-tight transition-opacity hover:opacity-70"
           style={{ color: "var(--primary, #3b82f6)" }}
         >
-          {org.name}
+          <OrgLogo org={org} />
         </a>
-        {items.length > 0 && (
-          <div className="flex items-center gap-6 flex-wrap justify-center">
-            {items.map((item) => (
-              <a
-                key={item.id}
-                href={item.url}
-                target={item.target}
-                rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
-                className={["text-sm transition-opacity hover:opacity-70", visClass(item.visibility)].filter(Boolean).join(" ")}
-                style={{ color: "var(--foreground, #374151)" }}
-              >
-                {item.label}
-              </a>
-            ))}
-          </div>
-        )}
+        <div className="flex items-center gap-6 flex-wrap justify-center">
+          {items.map((item) => (
+            <a
+              key={item.id}
+              href={item.url}
+              target={item.target}
+              rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
+              className={["text-sm transition-opacity hover:opacity-70", visClass(item.visibility)].filter(Boolean).join(" ")}
+              style={{ color: "var(--foreground, #374151)" }}
+            >
+              {item.label}
+            </a>
+          ))}
+          {org.themeSwitcherEnabled && <SiteThemeToggle />}
+        </div>
       </div>
     </nav>
   );
@@ -152,7 +183,7 @@ async function NavbarSplit({ org, items }: { org: OrgInfo; items: MenuItem[] }) 
           className="text-lg font-bold tracking-tight transition-opacity hover:opacity-70 justify-self-start"
           style={{ color: "var(--primary, #3b82f6)" }}
         >
-          {org.name}
+          <OrgLogo org={org} />
         </a>
 
         {/* Nav — center */}
@@ -171,8 +202,9 @@ async function NavbarSplit({ org, items }: { org: OrgInfo; items: MenuItem[] }) 
           ))}
         </div>
 
-        {/* CTA — right */}
-        <div className="justify-self-end">
+        {/* CTA + theme toggle — right */}
+        <div className="justify-self-end flex items-center gap-2">
+          {org.themeSwitcherEnabled && <SiteThemeToggle />}
           {ctaItem && (
             <a
               href={ctaItem.url}
@@ -209,24 +241,23 @@ async function NavbarDark({ org, items }: { org: OrgInfo; items: MenuItem[] }) {
           className="text-lg font-bold tracking-tight shrink-0 transition-opacity hover:opacity-70"
           style={{ color: "var(--background, #ffffff)" }}
         >
-          {org.name}
+          <OrgLogo org={org} />
         </a>
-        {items.length > 0 && (
-          <div className="flex items-center gap-6 flex-wrap">
-            {items.map((item) => (
-              <a
-                key={item.id}
-                href={item.url}
-                target={item.target}
-                rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
-                className={["text-sm transition-opacity hover:opacity-70", visClass(item.visibility)].filter(Boolean).join(" ")}
-                style={{ color: "color-mix(in srgb, var(--background, #ffffff) 85%, transparent)" }}
-              >
-                {item.label}
-              </a>
-            ))}
-          </div>
-        )}
+        <div className="flex items-center gap-6 flex-wrap">
+          {items.map((item) => (
+            <a
+              key={item.id}
+              href={item.url}
+              target={item.target}
+              rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
+              className={["text-sm transition-opacity hover:opacity-70", visClass(item.visibility)].filter(Boolean).join(" ")}
+              style={{ color: "color-mix(in srgb, var(--background, #ffffff) 85%, transparent)" }}
+            >
+              {item.label}
+            </a>
+          ))}
+          {org.themeSwitcherEnabled && <SiteThemeToggle />}
+        </div>
       </div>
     </nav>
   );
@@ -476,7 +507,7 @@ async function NavbarShopingo({ org, items }: { org: OrgInfo; items: MenuItem[] 
             className="text-xl font-bold tracking-tight shrink-0 transition-opacity hover:opacity-70"
             style={{ fontFamily: "var(--font-heading, 'Raleway', sans-serif)", color: "var(--foreground, #212529)" }}
           >
-            {org.name}
+            <OrgLogo org={org} />
           </a>
 
           {items.length > 0 && (
@@ -496,8 +527,9 @@ async function NavbarShopingo({ org, items }: { org: OrgInfo; items: MenuItem[] 
             </div>
           )}
 
-          {/* Cart icon */}
+          {/* Theme toggle + Cart icon */}
           <div className="flex items-center gap-3 shrink-0">
+            {org.themeSwitcherEnabled && <SiteThemeToggle />}
             <button
               aria-label="Search"
               className="p-1.5 transition-opacity hover:opacity-60"

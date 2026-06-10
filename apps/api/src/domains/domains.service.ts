@@ -381,6 +381,9 @@ export class DomainsService {
       name: true,
       slug: true,
       subdomain: true,
+      logoUrl: true,
+      darkLogoUrl: true,
+      themeSwitcherEnabled: true,
       subscription: {
         include: {
           package: {

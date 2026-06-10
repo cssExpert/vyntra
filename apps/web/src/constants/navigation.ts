@@ -53,6 +53,7 @@ export const NAV_SECTIONS: NavSection[] = [
         icon: "FileText",
         module: "CMS",
         children: [
+          { id: "cms-dashboard", label: "Dashboard",        href: "/cms",                  icon: "" },
           { id: "cms-pages",    label: "Pages",            href: "/cms/pages",            icon: "" },
           { id: "cms-blogs",    label: "Blogs",            href: "/cms/blogs",            icon: "" },
           { id: "cms-blog-categories", label: "Blog Categories", href: "/cms/blog-categories", icon: "" },

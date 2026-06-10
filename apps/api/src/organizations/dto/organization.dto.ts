@@ -136,7 +136,15 @@ export class OrganizationSettingsDto {
 
   @IsOptional()
   @IsString()
+  darkLogoUrl?: string;
+
+  @IsOptional()
+  @IsString()
   faviconUrl?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  themeSwitcherEnabled?: boolean;
 
   @IsOptional()
   @IsString()

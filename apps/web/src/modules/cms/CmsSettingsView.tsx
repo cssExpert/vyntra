@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Globe, CheckCircle2, AlertCircle, Key } from "lucide-react";
+import { Globe, CheckCircle2, AlertCircle, Key, Palette, Sun, Moon, Image as ImageIcon } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { cn } from "@/lib/utils";
-import { orgDomain, type OrgDomain, type DnsInfo } from "@/lib/api";
+import { orgDomain, type OrgDomain, type DnsInfo, apiGetOrgSettings, apiUpdateOrgSettings } from "@/lib/api";
+import { ImageUploadWithStorage } from "@/components/common/ImageUploadWithStorage";
+import { useAuth } from "@/providers/AuthProvider";
 
 function FieldGroup({
   label,
@@ -309,18 +311,220 @@ function DomainTab() {
   );
 }
 
-// ── Navigation Tab ────────────────────────────────────────────────────────────
+// ── Branding Tab ──────────────────────────────────────────────────────────────
+
+function Toggle({ enabled, onToggle }: { enabled: boolean; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${enabled ? "bg-primary" : "bg-muted-foreground/30"}`}
+      aria-pressed={enabled}
+    >
+      <span
+        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${enabled ? "translate-x-6" : "translate-x-1"}`}
+      />
+    </button>
+  );
+}
+
+function BrandingTab() {
+  const { user } = useAuth();
+  const uploadCompanyId = user?.organizationId || "superadmin";
+
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [darkLogoUrl, setDarkLogoUrl] = useState<string | null>(null);
+  const [faviconUrl, setFaviconUrl] = useState<string | null>(null);
+  const [themeSwitcherEnabled, setThemeSwitcherEnabled] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    apiGetOrgSettings()
+      .then((s) => {
+        setLogoUrl(s.logoUrl);
+        setDarkLogoUrl(s.darkLogoUrl);
+        setFaviconUrl(s.faviconUrl);
+        setThemeSwitcherEnabled(s.themeSwitcherEnabled);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const flash = (msg: string, isErr = false) => {
+    if (isErr) { setError(msg); setTimeout(() => setError(""), 4000); }
+    else { setSuccess(msg); setTimeout(() => setSuccess(""), 4000); }
+  };
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      await apiUpdateOrgSettings({
+        logoUrl: logoUrl ?? undefined,
+        darkLogoUrl: darkLogoUrl ?? undefined,
+        faviconUrl: faviconUrl ?? undefined,
+        themeSwitcherEnabled,
+      });
+      flash("Branding saved successfully.");
+    } catch {
+      flash("Failed to save branding.", true);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16 text-muted-foreground text-sm">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent mr-2" />
+        Loading…
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      {error && (
+        <div className="flex items-center gap-2.5 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+          <AlertCircle className="h-4 w-4 shrink-0" /> {error}
+        </div>
+      )}
+      {success && (
+        <div className="flex items-center gap-2.5 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 text-sm text-emerald-600">
+          <CheckCircle2 className="h-4 w-4 shrink-0" /> {success}
+        </div>
+      )}
+
+      {/* Logos */}
+      <SectionCard
+        icon={ImageIcon}
+        title="Site Logos"
+        description="Logos displayed in your public site's navigation bar."
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          {/* Light logo */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <Sun className="h-4 w-4 text-amber-500" />
+              Light Mode Logo
+            </div>
+            <p className="text-xs text-muted-foreground">PNG, SVG, JPEG — max 5 MB. Landscape format recommended.</p>
+            <ImageUploadWithStorage
+              value={logoUrl}
+              onChange={setLogoUrl}
+              companyId={uploadCompanyId}
+              module="branding"
+              accept="image/png,image/jpeg,image/svg+xml,image/webp"
+              maxSizeMB={5}
+            />
+          </div>
+
+          {/* Dark logo */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <Moon className="h-4 w-4 text-indigo-400" />
+              Dark Mode Logo
+            </div>
+            <p className="text-xs text-muted-foreground">Shown when visitors switch to dark mode. Falls back to light logo if not set.</p>
+            <ImageUploadWithStorage
+              value={darkLogoUrl}
+              onChange={setDarkLogoUrl}
+              companyId={uploadCompanyId}
+              module="branding"
+              accept="image/png,image/jpeg,image/svg+xml,image/webp"
+              maxSizeMB={5}
+            />
+          </div>
+
+          {/* Favicon */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <Globe className="h-4 w-4 text-primary" />
+              Favicon / App Icon
+            </div>
+            <p className="text-xs text-muted-foreground">512×512 PNG, ICO, or SVG. Shown in browser tab and bookmarks.</p>
+            <ImageUploadWithStorage
+              value={faviconUrl}
+              onChange={setFaviconUrl}
+              companyId={uploadCompanyId}
+              module="branding"
+              accept="image/png,image/x-icon,image/svg+xml"
+              maxSizeMB={2}
+            />
+          </div>
+        </div>
+      </SectionCard>
+
+      {/* Theme switcher */}
+      <SectionCard
+        icon={Palette}
+        title="Theme Switcher"
+        description="Allow visitors to toggle between light and dark mode on your public site."
+      >
+        <div className="flex items-center justify-between rounded-xl border border-border bg-muted/20 px-4 py-3.5">
+          <div>
+            <p className="text-sm font-medium text-foreground">Enable theme switcher</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              A Sun / Moon toggle button will appear in your site's navigation bar.
+            </p>
+          </div>
+          <Toggle enabled={themeSwitcherEnabled} onToggle={() => setThemeSwitcherEnabled((v) => !v)} />
+        </div>
+      </SectionCard>
+
+      <div className="flex justify-end">
+        <button
+          onClick={save}
+          disabled={saving}
+          className="px-5 py-2.5 bg-primary text-primary-foreground text-sm font-semibold rounded-xl hover:opacity-90 transition disabled:opacity-50 cursor-pointer"
+        >
+          {saving ? "Saving…" : "Save Branding"}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 // ── CmsSettingsView ───────────────────────────────────────────────────────────
 
+const TABS = [
+  { id: "branding", label: "Branding" },
+  { id: "domain", label: "Domain" },
+] as const;
+
+type TabId = (typeof TABS)[number]["id"];
+
 export function CmsSettingsView() {
+  const [activeTab, setActiveTab] = useState<TabId>("branding");
+
   return (
     <div className="space-y-6 pb-0">
       <PageHeader
         title="CMS Settings"
-        description="Configure domain, publishing, and site-level options for your CMS."
+        description="Configure domain, branding, and site-level options for your CMS."
       />
-      <DomainTab />
+
+      {/* Tab strip */}
+      <div className="flex items-center gap-1 border-b border-border">
+        {TABS.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-all -mb-px ${
+              activeTab === tab.id
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === "branding" && <BrandingTab />}
+      {activeTab === "domain" && <DomainTab />}
     </div>
   );
 }

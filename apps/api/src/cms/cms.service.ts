@@ -97,6 +97,7 @@ export class CmsService {
           isFeatured: true,
           coverImage: true,
           category: true,
+          tags: true,
           author: true,
           createdAt: true,
         },
@@ -131,6 +132,19 @@ export class CmsService {
       .slice(0, 5)
       .map(([name, count]) => ({ name, count }));
 
+    // Tag distribution from blog.tags array field
+    const tagCount: Record<string, number> = {};
+    for (const blog of blogs) {
+      for (const tag of (blog.tags ?? [])) {
+        const t = tag.trim();
+        if (t) tagCount[t] = (tagCount[t] ?? 0) + 1;
+      }
+    }
+    const topTags = Object.entries(tagCount)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([name, count]) => ({ name, count }));
+
     return {
       totalBlogs: blogs.length,
       published,
@@ -153,6 +167,7 @@ export class CmsService {
         createdAt: b.createdAt,
       })),
       topCategories,
+      topTags,
     };
   }
 

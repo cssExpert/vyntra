@@ -85,13 +85,15 @@ model Organization {
   updatedAt DateTime @updatedAt
 
   // Branding & Settings
-  logoUrl         String?
-  faviconUrl      String?
-  primaryColor    String   @default("#3b82f6")
-  secondaryColor  String   @default("#8b5cf6")
-  accentColor     String   @default("#ec4899")
-  emailNotifications Boolean @default(true)
-  slackNotifications Boolean @default(false)
+  logoUrl              String?
+  darkLogoUrl          String?
+  faviconUrl           String?
+  primaryColor         String   @default("#3b82f6")
+  secondaryColor       String   @default("#8b5cf6")
+  accentColor          String   @default("#ec4899")
+  emailNotifications   Boolean  @default(true)
+  slackNotifications   Boolean  @default(false)
+  themeSwitcherEnabled Boolean  @default(false)
 
   // Internationalization & Localization
   defaultLocale String @default("en") // company-wide default UI language

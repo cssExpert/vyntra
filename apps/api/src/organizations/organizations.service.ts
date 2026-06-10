@@ -229,12 +229,14 @@ export class OrganizationsService {
         email: true,
         slug: true,
         logoUrl: true,
+        darkLogoUrl: true,
         faviconUrl: true,
         primaryColor: true,
         secondaryColor: true,
         accentColor: true,
         emailNotifications: true,
         slackNotifications: true,
+        themeSwitcherEnabled: true,
       },
     });
     if (!org) throw new NotFoundException('Organization not found');
@@ -253,7 +255,9 @@ export class OrganizationsService {
     if (dto.name) data.name = dto.name;
     if (dto.email) data.email = dto.email;
     if (dto.logoUrl !== undefined) data.logoUrl = dto.logoUrl;
+    if (dto.darkLogoUrl !== undefined) data.darkLogoUrl = dto.darkLogoUrl;
     if (dto.faviconUrl !== undefined) data.faviconUrl = dto.faviconUrl;
+    if (dto.themeSwitcherEnabled !== undefined) data.themeSwitcherEnabled = dto.themeSwitcherEnabled;
     if (dto.primaryColor) data.primaryColor = dto.primaryColor;
     if (dto.secondaryColor) data.secondaryColor = dto.secondaryColor;
     if (dto.accentColor) data.accentColor = dto.accentColor;
@@ -268,12 +272,14 @@ export class OrganizationsService {
         email: true,
         slug: true,
         logoUrl: true,
+        darkLogoUrl: true,
         faviconUrl: true,
         primaryColor: true,
         secondaryColor: true,
         accentColor: true,
         emailNotifications: true,
         slackNotifications: true,
+        themeSwitcherEnabled: true,
       },
     });
   }

@@ -172,7 +172,9 @@ export interface OrganizationSettings {
   email: string | null;
   slug: string;
   logoUrl: string | null;
+  darkLogoUrl: string | null;
   faviconUrl: string | null;
+  themeSwitcherEnabled: boolean;
   primaryColor: string;
   secondaryColor: string;
   accentColor: string;
@@ -674,6 +676,7 @@ export interface CmsDashboardStats {
     createdAt: string;
   }[];
   topCategories: { name: string; count: number }[];
+  topTags: { name: string; count: number }[];
 }
 
 export const cmsDashboard = {
