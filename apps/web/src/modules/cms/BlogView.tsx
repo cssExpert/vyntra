@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
@@ -164,6 +165,7 @@ const DEFAULT_FILTERS: BlogFilters = {
 
 export function BlogView() {
   const router = useRouter();
+  const t = useTranslations("cms");
   const [blogs, setBlogs] = useState<CmsBlog[]>([]);
   const [isFetching, setIsFetching] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
