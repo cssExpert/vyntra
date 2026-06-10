@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Menu, Search, Command } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
+import { LanguageSwitcher } from "@/components/common/LanguageSwitcher";
 import { ProfileMenu } from "@/components/layout/ProfileMenu";
 import { useCommandPalette } from "@/components/layout/CommandPalette";
 import { NotificationsDropdown } from "@/components/layout/NotificationsDropdown";
@@ -89,6 +90,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
 
       {/* Right actions */}
       <div className="flex items-center gap-2 ml-4">
+        <LanguageSwitcher />
         <ThemeToggle />
         <NotificationsDropdown />
         <ProfileMenu />

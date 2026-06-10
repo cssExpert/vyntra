@@ -18,6 +18,7 @@ import {
   MessageSquare,
   Key,
   Smartphone,
+  Globe,
 } from "lucide-react";
 import { Sketch } from "@uiw/react-color";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -25,6 +26,7 @@ import { SectionCard } from "@/components/ui/SectionCard";
 import { ImageUploadWithStorage } from "@/components/common/ImageUploadWithStorage";
 import { AdminGuard, adminInput } from "./AdminGuard";
 import { cn } from "@/lib/utils";
+import { TIMEZONES } from "@/lib/timezones";
 import {
   apiGetAdminSettings,
   apiUpdateAdminSettings,
@@ -438,6 +440,33 @@ function Inner() {
                 onChange={(e) => handleChange("supportEmail", e.target.value)}
                 placeholder="support@ervflow.com"
               />
+            </div>
+          </div>
+        </SectionCard>
+
+        {/* ── Localization ─────────────────────────────────────────────────── */}
+        <SectionCard
+          icon={Globe}
+          title="Localization"
+          description="Configure global timezone and language settings."
+        >
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium">Default Timezone</label>
+              <select
+                className={adminInput}
+                value={settings.timezone ?? "UTC"}
+                onChange={(e) => handleChange("timezone", e.target.value)}
+              >
+                {TIMEZONES.map((tz) => (
+                  <option key={tz.value} value={tz.value}>
+                    {tz.label}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-muted-foreground">
+                Used for server logs, scheduled tasks, and system timestamps
+              </p>
             </div>
           </div>
         </SectionCard>
