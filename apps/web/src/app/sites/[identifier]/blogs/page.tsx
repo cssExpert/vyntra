@@ -23,7 +23,8 @@ const POSTS: Post[] = [
     category: "Technology",
     date: "June 10, 2026",
     readTime: "5 min read",
-    image: "https://placehold.co/800x400/3b82f6/white?text=Tech",
+    image:
+      "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1200&auto=format&fit=crop",
     color: "bg-[#EC4899]",
   },
   {
@@ -155,26 +156,26 @@ export default function App() {
               onClick={() => handleSelect(post.id)}
             >
               <span
-                className={`absolute z-2 top-5 right-5 h-4 w-4 rounded-full ${post.color}`}
+                className={`absolute z-10 top-5 right-5 h-4 w-4 rounded-full ${post.color}`}
               ></span>
-              <div className="absolute z-1 inset-0 bg-gradient-to-b from-transparent from-0% to-black to-75% backdrop-blur-md"></div>
+              <div className="absolute z-1 inset-0 bg-gradient-to-b from-transparent from-0% to-black to-75% backdrop-blur-sm"></div>
               <div
                 className="absolute inset-0 bg-cover bg-center opacity-50 group-hover:opacity-20 transition-opacity"
                 style={{ backgroundImage: `url('${post.image}')` }}
               />
               <div className="relative z-10">
-                <span className="bg-blue-600/10 text-blue-600 px-3 py-1 rounded-full font-bold text-[10px] uppercase tracking-widest">
+                <span className="bg-white/10 text-amber-500 px-3 py-1 rounded-full font-bold text-[10px] uppercase tracking-widest">
                   {post.category}
                 </span>
                 <h3
-                  className={`${isFeatured ? "text-2xl md:text-4xl" : "text-xl md:text-2xl"} font-extrabold mt-3 mb-2 leading-snug group-hover:text-blue-600 transition`}
+                  className={`${isFeatured ? "text-2xl md:text-4xl" : "text-xl md:text-2xl"} font-extrabold mt-3 mb-2 leading-snug text-slate-200 group-hover:text-amber-500 transition`}
                 >
                   {post.title}
                 </h3>
                 <p className="text-white text-sm mb-4 line-clamp-2">
                   {post.excerpt}
                 </p>
-                <div className="flex items-center gap-4 text-[10px] font-semibold text-slate-400">
+                <div className="flex items-center gap-4 text-[10px] font-semibold text-slate-300">
                   <span>{post.date}</span>
                   <span>•</span>
                   <span>{post.readTime}</span>
