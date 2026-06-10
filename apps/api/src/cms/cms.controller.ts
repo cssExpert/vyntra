@@ -32,6 +32,12 @@ export class CmsController {
   }
 
   @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Get('dashboard')
+  getDashboardStats(@CurrentOrg() orgId: string | null) {
+    return this.cmsService.getDashboardStats(requireOrg(orgId));
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
   @Get('blogs')
   listBlogs(@CurrentOrg() orgId: string | null) {
     return this.cmsService.listBlogs(requireOrg(orgId));

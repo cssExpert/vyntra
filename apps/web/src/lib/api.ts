@@ -651,6 +651,35 @@ export const cmsPages = {
     }),
 };
 
+// ─── CMS dashboard stats ─────────────────────────────────
+export interface CmsDashboardStats {
+  totalBlogs: number;
+  published: number;
+  drafts: number;
+  scheduled: number;
+  featured: number;
+  totalCategories: number;
+  totalTags: number;
+  totalPages: number;
+  publishedPages: number;
+  totalMedia: number;
+  recentBlogs: {
+    id: string;
+    title: string;
+    slug: string;
+    published: boolean;
+    publishedAt: string | null;
+    coverImage: string | null;
+    author: string | null;
+    createdAt: string;
+  }[];
+  topCategories: { name: string; count: number }[];
+}
+
+export const cmsDashboard = {
+  stats: () => apiFetch<CmsDashboardStats>("/cms/dashboard"),
+};
+
 export const cmsBlogs = {
   list: () => apiFetch<CmsBlogListItem[]>("/cms/blogs"),
   get: (id: string) => apiFetch<CmsBlogDetail>(`/cms/blogs/${id}`),
