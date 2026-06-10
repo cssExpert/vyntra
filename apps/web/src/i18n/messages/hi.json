@@ -250,7 +250,7 @@
       "stepBranding": "ब्रांडिंग",
       "stepAdministrator": "व्यवस्थापक",
       "noPackages": "कोई पैकेज उपलब्ध नहीं है। पहले पैकेज के तहत एक बनाएं।",
-      "upToUsers": "{{count}} उपयोगकर्ताओं तक ·",
+      "upToUsers": "{count} उपयोगकर्ताओं तक ·",
       "noModules": "कोई मॉड्यूल नहीं",
       "brandingOptional": "ब्रांडिंग वैकल्पिक है — आप इसे कंपनी के संपादन पृष्ठ से किसी भी समय अपडेट कर सकते हैं।",
       "companyLogo": "कंपनी का लोगो",
@@ -331,7 +331,9 @@
       "active": "Active (हिंदी)",
       "availablepackages": "Available Packages (हिंदी)",
       "availablemodules": "Available Modules (हिंदी)",
-      "userstatistics": "User Statistics (हिंदी)"
+      "userstatistics": "User Statistics (हिंदी)",
+      "dashboard": "डैशबोर्ड",
+      "welcomebackraviheres": "स्वागत है, राज। यह आपका व्यावसायिक अवलोकन है।"
     },
     "packages": {
       "title": "सदस्यता योजनाएं",
@@ -359,7 +361,7 @@
       "public": "सार्वजनिक",
       "private": "निजी",
       "noModules": "कोई मॉड्यूल नहीं",
-      "upToUsers": "{{count}} उपयोगकर्ताओं तक",
+      "upToUsers": "{count} उपयोगकर्ताओं तक",
       "editPackage": "योजना संपादित करें",
       "addPackage": "योजना जोड़ें",
       "chooseModules": "इस योजना के साथ शामिल मॉड्यूल चुनें।",
@@ -372,7 +374,7 @@
       "failedLoad": "लोड करने में विफल",
       "failedSave": "पैकेज सहेजने में विफल",
       "failedDelete": "हटाने में विफल",
-      "deleteConfirm": "\"{{name}}\" पैकेज को हटाएं?"
+      "deleteConfirm": "\"{name}\" पैकेज को हटाएं?"
     },
     "modules": {
       "title": "मॉड्यूल",

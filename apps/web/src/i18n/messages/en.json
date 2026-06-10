@@ -322,7 +322,9 @@
       "active": "Active",
       "availablepackages": "Available Packages",
       "availablemodules": "Available Modules",
-      "userstatistics": "User Statistics"
+      "userstatistics": "User Statistics",
+      "dashboard": "Dashboard",
+      "welcomebackraviheres": "Welcome back, Ravi. Here's your business overview."
     },
     "packages": {
       "title": "Subscription Plans",

@@ -250,7 +250,7 @@
       "stepBranding": "Marque",
       "stepAdministrator": "Administrateur",
       "noPackages": "Aucun plan disponible. Créez-en un d'abord sous Plans.",
-      "upToUsers": "Jusqu'à {{count}} utilisateurs ·",
+      "upToUsers": "Jusqu'à {count} utilisateurs ·",
       "noModules": "Aucun module",
       "brandingOptional": "La marque est optionnelle — vous pouvez la mettre à jour à tout moment depuis la page de modification de l'entreprise.",
       "companyLogo": "Logo de l'entreprise",
@@ -331,7 +331,9 @@
       "active": "Active",
       "availablepackages": "Available Packages",
       "availablemodules": "Available Modules",
-      "userstatistics": "User Statistics"
+      "userstatistics": "User Statistics",
+      "dashboard": "Tableau de bord",
+      "welcomebackraviheres": "Bienvenue, Ravi. Voici votre aperçu commercial."
     },
     "packages": {
       "title": "Plans d'abonnement",
@@ -359,7 +361,7 @@
       "public": "Public",
       "private": "Privé",
       "noModules": "Aucun module",
-      "upToUsers": "Jusqu'à {{count}} utilisateurs",
+      "upToUsers": "Jusqu'à {count} utilisateurs",
       "editPackage": "Modifier le plan",
       "addPackage": "Ajouter un plan",
       "chooseModules": "Choisissez les modules que ce plan accorde l'accès.",
@@ -372,7 +374,7 @@
       "failedLoad": "Impossible de charger",
       "failedSave": "Impossible d'enregistrer le forfait",
       "failedDelete": "Impossible de supprimer",
-      "deleteConfirm": "Supprimer le forfait \"{{name}}\"?"
+      "deleteConfirm": "Supprimer le forfait \"{name}\"?"
     },
     "modules": {
       "title": "Modules",
