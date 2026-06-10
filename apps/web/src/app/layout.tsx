@@ -6,6 +6,7 @@ import {
   Merienda,
 } from "next/font/google";
 import { ThemeProvider } from "@/providers/ThemeProvider";
+import { LocaleSync } from "@/providers/LocaleSync";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { SettingsProvider } from "@/providers/SettingsProvider";
 import { AdminSettingsProvider } from "@/providers/AdminSettingsProvider";
@@ -86,14 +87,16 @@ export default function RootLayout({
         className="min-h-screen bg-background font-sans antialiased"
       >
         <ThemeProvider>
-          <AdminSettingsProvider>
-            <AuthProvider>
-              <SettingsProvider>
-                <NavigationProgress />
-                {children}
-              </SettingsProvider>
-            </AuthProvider>
-          </AdminSettingsProvider>
+          <LocaleSync>
+            <AdminSettingsProvider>
+              <AuthProvider>
+                <SettingsProvider>
+                  <NavigationProgress />
+                  {children}
+                </SettingsProvider>
+              </AuthProvider>
+            </AdminSettingsProvider>
+          </LocaleSync>
         </ThemeProvider>
       </body>
     </html>
