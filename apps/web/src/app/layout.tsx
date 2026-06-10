@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { cookies } from "next/headers";
 import {
   Inter,
   Plus_Jakarta_Sans,
@@ -71,14 +72,23 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = await cookies();
+  const locale = (cookieStore.get("NEXT_LOCALE")?.value || "en") as string;
+
+  // Dynamically import messages based on locale
+  const messageImport = await import(`@/i18n/messages/${locale}.json`).catch(
+    async () => import("@/i18n/messages/en.json")
+  );
+  const messages = messageImport.default;
+
   return (
     <html
-      lang="en"
+      lang={locale}
       suppressHydrationWarning
       className={`${inter.variable} ${plusJakarta.variable} ${jetbrainsMono.variable} ${merienda.variable}`}
     >
@@ -87,7 +97,7 @@ export default function RootLayout({
         className="min-h-screen bg-background font-sans antialiased"
       >
         <ThemeProvider>
-          <LocaleSync>
+          <LocaleSync locale={locale} messages={messages}>
             <AdminSettingsProvider>
               <AuthProvider>
                 <SettingsProvider>
