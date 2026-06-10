@@ -11,6 +11,7 @@ interface Post {
   date: string;
   readTime: string;
   image: string;
+  color: string;
 }
 
 const POSTS: Post[] = [
@@ -23,6 +24,7 @@ const POSTS: Post[] = [
     date: "June 10, 2026",
     readTime: "5 min read",
     image: "https://placehold.co/800x400/3b82f6/white?text=Tech",
+    color: "bg-[#EC4899]",
   },
   {
     id: 2,
@@ -32,6 +34,7 @@ const POSTS: Post[] = [
     date: "June 8, 2026",
     readTime: "4 min read",
     image: "https://placehold.co/400x400/8b5cf6/white?text=Design",
+    color: "bg-[#EC4899]",
   },
   {
     id: 3,
@@ -41,6 +44,7 @@ const POSTS: Post[] = [
     date: "June 5, 2026",
     readTime: "6 min read",
     image: "https://placehold.co/400x400/10b981/white?text=Productivity",
+    color: "bg-[#EC4899]",
   },
   {
     id: 4,
@@ -51,6 +55,7 @@ const POSTS: Post[] = [
     date: "June 12, 2026",
     readTime: "7 min read",
     image: "https://placehold.co/400x800/f59e0b/white?text=AI+Design",
+    color: "bg-[#EC4899]",
   },
   {
     id: 5,
@@ -60,6 +65,7 @@ const POSTS: Post[] = [
     date: "June 14, 2026",
     readTime: "8 min read",
     image: "https://placehold.co/800x400/ef4444/white?text=Performance",
+    color: "bg-[#EC4899]",
   },
   {
     id: 6,
@@ -69,6 +75,7 @@ const POSTS: Post[] = [
     date: "June 15, 2026",
     readTime: "5 min read",
     image: "https://placehold.co/400x400/6366f1/white?text=Global",
+    color: "bg-[#EC4899]",
   },
   {
     id: 7,
@@ -78,6 +85,7 @@ const POSTS: Post[] = [
     date: "June 14, 2026",
     readTime: "8 min read",
     image: "https://placehold.co/800x400/ef4444/white?text=Performance",
+    color: "bg-[#EC4899]",
   },
   {
     id: 8,
@@ -87,6 +95,7 @@ const POSTS: Post[] = [
     date: "June 15, 2026",
     readTime: "5 min read",
     image: "https://placehold.co/400x400/6366f1/white?text=Global",
+    color: "bg-[#EC4899]",
   },
 ];
 
@@ -145,8 +154,12 @@ export default function App() {
               className={`group relative overflow-hidden bg-white rounded-3xl p-6 shadow-xs shadow-slate-100 transition-all duration-300 border border-black/1 group-hover: border-black/2 cursor-pointer flex flex-col justify-end ${layoutClass}`}
               onClick={() => handleSelect(post.id)}
             >
+              <span
+                className={`absolute z-2 top-5 right-5 h-4 w-4 rounded-full ${post.color}`}
+              ></span>
+              <div className="absolute z-1 inset-0 bg-gradient-to-b from-transparent from-0% to-black to-75% backdrop-blur-md"></div>
               <div
-                className="absolute inset-0 bg-cover bg-center opacity-10 group-hover:opacity-20 transition-opacity"
+                className="absolute inset-0 bg-cover bg-center opacity-50 group-hover:opacity-20 transition-opacity"
                 style={{ backgroundImage: `url('${post.image}')` }}
               />
               <div className="relative z-10">
@@ -158,7 +171,7 @@ export default function App() {
                 >
                   {post.title}
                 </h3>
-                <p className="text-slate-600 text-sm mb-4 line-clamp-2">
+                <p className="text-white text-sm mb-4 line-clamp-2">
                   {post.excerpt}
                 </p>
                 <div className="flex items-center gap-4 text-[10px] font-semibold text-slate-400">
