@@ -37,8 +37,12 @@
 - NEVER commit directly to main
 - Keep files under 300 lines — split if larger
 
-## Rules - Multi-Tenant File Storage & Upload Integration (CRITICAL)
+## Git Safety Rules
+- Never run git add, git commit, or git push unless I explicitly ask.
+- Before making any Git operation, ask for confirmation.
+- You may edit files, but do not commit or push changes automatically.
 
+## Rules - Multi-Tenant File Storage & Upload Integration (CRITICAL)
 All file uploads MUST use the centralized storage system for data isolation, security, GDPR compliance, and multi-provider support. **See STORAGE_INTEGRATION.md for complete guide.**
 
 ### File Structure & Storage
