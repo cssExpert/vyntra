@@ -478,7 +478,7 @@ export function BlogView() {
           {/* ── Header ──────────────────────────────────────────────────────── */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <SectionTitle
-              title={t("blog", { defaultValue: "Blog" })}
+              title={t("blog.blog", { defaultValue: "Blog" })}
               paragraph={`${filteredCount} ${filteredCount === 1 ? "post" : "posts"}${selectedCount > 0 ? ` · ${selectedCount} selected` : ""}`}
               mb="0"
               className="!w-auto"
@@ -496,7 +496,7 @@ export function BlogView() {
 
               {/* Filters */}
               <FilterPanel
-                title={t("choosefilters", { defaultValue: "Choose Filters" })}
+                title={t("pages.choosefilters", { defaultValue: "Choose Filters" })}
                 hasActiveFilters={hasActiveFilters}
                 onSearch={() => setActiveFilters({ ...filterDraft })}
                 onClear={() => { setFilterDraft(DEFAULT_FILTERS); setActiveFilters(DEFAULT_FILTERS); }}
@@ -758,7 +758,7 @@ export function BlogView() {
           <Modal
             isOpen={!!deletingBlog}
             onClose={() => setDeletingBlog(null)}
-            title={t("deleteblogpost", { defaultValue: "Delete Blog Post?" })}
+            title={t("blog.deleteblogpost", { defaultValue: "Delete Blog Post?" })}
             description={
               <>
                 Are you sure you want to delete{" "}
