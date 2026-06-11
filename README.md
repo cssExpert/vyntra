@@ -51,7 +51,7 @@ Built with a modern SaaS-first architecture, Vyntra helps businesses streamline 
 * Headings → Satoshi
 * Body → Inter
 
-### Buttons
+### Buttons Component
 
 import { Button } from "@/components/ui/button";
 import { Plus, ArrowRight } from "lucide-react";
@@ -78,6 +78,18 @@ import { Plus, ArrowRight } from "lucide-react";
 
 Disabled``` Disabled ```
 <Button disabled>Unavailable</Button>
+
+
+### Input Component
+
+import { Input } from "@/components/ui/input";
+
+<Input size="xs" placeholder="Tag" />        // h-7, text-xs
+<Input size="sm" placeholder="Search..." />    // h-8, text-xs
+<Input placeholder="Email" />                // default — h-9, text-sm (unchanged)
+<Input size="lg" placeholder="Title" />      // h-10
+<Input size="xl" placeholder="Headline" />   // h-11, text-base
+
 
 ---
 

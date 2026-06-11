@@ -322,7 +322,12 @@ export function BlogEditor({ blog }: BlogEditorProps) {
             <span className="hidden sm:inline">Preview</span>
           </Button>
 
-          <Button size="lg" startIcon={<Check />} onClick={handlePublish}>
+          <Button
+            size="lg"
+            startIcon={<Check />}
+            onClick={handlePublish}
+            className="active:scale-[0.98]"
+          >
             <span>{saving ? "Saving…" : "Save & Publish"}</span>
           </Button>
         </div>

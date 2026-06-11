@@ -7,6 +7,7 @@ import { CoverImagePicker } from "./CoverImagePicker";
 import { RichTextEditor } from "./RichTextEditor";
 import { stripHtml, type BlogFormState } from "./types";
 import IconTitle from "@/components/common/IconTitle";
+import { Input } from "@/components/ui/input";
 
 export interface WritingTabProps {
   form: BlogFormState;
@@ -44,13 +45,11 @@ export function WritingTab({
       />
       <div>
         <FieldLabel>Blog Post Title</FieldLabel>
-        <input
-          type="text"
-          required
+        <Input
+          size="xl"
           value={form.title}
           onChange={(e) => patch({ title: e.target.value })}
-          placeholder="e.g. 10 Online Shopping Tips for Smart Buyers…"
-          className={`${inputClass} !py-3 font-medium !text-md`}
+          placeholder="e.g. 10 Online Shopping Tips for Smart Buyers..."
         />
       </div>
 
@@ -58,12 +57,11 @@ export function WritingTab({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <FieldLabel>Subtitle / Hook Line</FieldLabel>
-          <input
-            type="text"
+          <Input
+            size="lg"
             value={form.subtitle}
             onChange={(e) => patch({ subtitle: e.target.value })}
-            placeholder="Catchy reader hook summary…"
-            className={inputClass}
+            placeholder="Catchy reader hook summary..."
           />
         </div>
         <div>
@@ -86,8 +84,8 @@ export function WritingTab({
             <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground font-mono">
               /blog/
             </span>
-            <input
-              type="text"
+            <Input
+              size="lg"
               value={form.slug}
               onChange={(e) => {
                 setSlugManuallyEdited(true);
