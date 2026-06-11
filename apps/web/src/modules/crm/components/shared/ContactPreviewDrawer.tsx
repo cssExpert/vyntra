@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
   ExternalLink,
-  Copy,
   FileEdit,
   Mail,
   Phone,
@@ -22,7 +21,6 @@ import {
   Tag,
   Clock,
   User,
-  ChevronRight,
 } from "lucide-react";
 import { cn, formatCurrency, getInitials } from "@/lib/utils";
 import { StatusBadge } from "@/components/ui/StatusBadge";
