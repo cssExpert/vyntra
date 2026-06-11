@@ -95,13 +95,13 @@ export function BlockHandle({ editor }: { editor: Editor }) {
       tippyOptions={tippyOptions}
       onNodeChange={handleNodeChange}
     >
-      <div className="relative flex items-center gap-0.5 pr-1">
+      <div className="relative flex items-center gap-0.5 pr-1 !border-0">
         {/* Insert block below — opens the slash command menu */}
         <button
           type="button"
           title="Insert block ( / )"
           onClick={openSlashBelow}
-          className="h-6 w-5 flex items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+          className="h-6 w-5 flex items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer !border-0"
         >
           <Plus className="w-4 h-4" />
         </button>
@@ -114,7 +114,7 @@ export function BlockHandle({ editor }: { editor: Editor }) {
             selectBlock();
             setMenuOpen((o) => !o);
           }}
-          className="h-6 w-4 flex items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-grab active:cursor-grabbing"
+          className="h-6 w-4 flex items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-grab active:cursor-grabbing  !border-0"
         >
           <GripVertical className="w-4 h-4" />
         </button>

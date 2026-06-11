@@ -51,6 +51,34 @@ Built with a modern SaaS-first architecture, Vyntra helps businesses streamline 
 * Headings → Satoshi
 * Body → Inter
 
+### Buttons
+
+import { Button } from "@/components/ui/button";
+import { Plus, ArrowRight } from "lucide-react";
+
+``` Colour ```
+<Button>Save</Button>                          // primary (theme color)
+<Button variant="secondary">Filters</Button>   // blue secondary
+<Button variant="outline">Export</Button>      // also: muted, ghost, link, destructive, success
+
+``` Size ```
+<Button size="xs">Tag</Button>                 // xs · sm · default · lg · xl · icon
+// icon sizes auto-scale per button size ([&_svg]:size-*)
+
+``` Icons — start or end ```
+<Button startIcon={<Plus />}>New Post</Button>
+<Button endIcon={<ArrowRight />}>Next</Button>
+
+``` Radius — managed from the parent ```
+<Button radius="full">Pill</Button>            // none · sm · md (default) · lg · xl · full
+
+``` Loading — spinner replaces the start icon, button auto-disables, aria-busy set ```
+<Button loading>Save</Button>
+<Button loading loadingText="Saving…">Save</Button>
+
+Disabled``` Disabled ```
+<Button disabled>Unavailable</Button>
+
 ---
 
 ## 📂 Project Structure

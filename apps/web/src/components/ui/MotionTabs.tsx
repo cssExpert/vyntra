@@ -48,7 +48,7 @@ export function MotionTabs<T extends string = string>({
   const activeTab = tabs.find((t) => t.id === active);
 
   return (
-    <div className={`@container ${className}`}>
+    <div className={`${className}`}>
       <div className="p-1 rounded-xl flex items-center gap-1 border border-border bg-card flex-wrap @xxl:flex-nowrap">
         {tabs.map((tab) => {
           const Icon = tab.icon;

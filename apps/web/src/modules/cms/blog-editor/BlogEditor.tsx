@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { MoveLeft, Eye, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type { CmsBlogDetail, CmsBlogSaveDto, OrgMember } from "@/lib/api";
 import {
   apiGetOrgMembers,
@@ -312,23 +313,18 @@ export function BlogEditor({ blog }: BlogEditorProps) {
             <span className="font-extrabold">{seoScore}%</span>
           </div>
 
-          <button
-            type="button"
+          <Button
+            size="lg"
+            variant="outline"
             onClick={() => setIsPreviewOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium rounded-lg border border-border bg-card hover:bg-muted text-foreground transition-all"
+            startIcon={<Eye className="w-4 h-4 text-primary" />}
           >
-            <Eye className="w-4 h-4 text-primary" />
             <span className="hidden sm:inline">Preview</span>
-          </button>
+          </Button>
 
-          <button
-            onClick={handlePublish}
-            disabled={saving}
-            className="px-4 py-2.5 bg-primary hover:bg-primary-600 active:scale-[0.98] text-primary-foreground font-medium text-sm rounded-lg flex items-center gap-1.5 transition-all disabled:opacity-60"
-          >
-            <Check className="w-4 h-4" />
+          <Button size="lg" startIcon={<Check />} onClick={handlePublish}>
             <span>{saving ? "Saving…" : "Save & Publish"}</span>
-          </button>
+          </Button>
         </div>
       </div>
 

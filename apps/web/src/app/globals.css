@@ -862,6 +862,13 @@ select {
   background-color: hsl(var(--border));
 }
 
+/* Tiptap's block drag handle (BlockHandle.tsx, rendered via tippy) shares
+   the .drag-handle class with the store categories row handle — the row
+   underline above must not apply to it. */
+[data-tippy-root] .drag-handle::after {
+  content: none;
+}
+
 .categ-container {
   border-bottom: 1px solid hsl(var(--border)) !important;
 }

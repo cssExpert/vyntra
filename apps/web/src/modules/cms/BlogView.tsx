@@ -704,16 +704,18 @@ export function BlogView() {
           </div>
 
           {/* ── Status tabs ─────────────────────────────────────────────────── */}
-          <MotionTabs
-            tabs={blogTabs}
-            active={activeTab}
-            onChange={(key) => {
-              setActiveTab(key);
-              setPagination((p) => ({ ...p, pageIndex: 0 }));
-            }}
-            layoutId="cms-blogs-tab"
-            className="w-fit mt-5"
-          />
+          <div className="@container">
+            <MotionTabs
+              tabs={blogTabs}
+              active={activeTab}
+              onChange={(key) => {
+                setActiveTab(key);
+                setPagination((p) => ({ ...p, pageIndex: 0 }));
+              }}
+              layoutId="cms-blogs-tab"
+              className="w-fit mt-5"
+            />
+          </div>
 
           {/* ── Table ───────────────────────────────────────────────────────── */}
           <div className="mt-4 bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden">
