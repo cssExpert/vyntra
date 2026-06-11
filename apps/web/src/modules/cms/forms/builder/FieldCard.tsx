@@ -8,7 +8,7 @@ import {
 } from "framer-motion";
 import { GripVertical, Plus, X, Copy, Trash2 } from "lucide-react";
 
-import { FIELD_TYPES, getFieldMeta } from "./field-config";
+import { FIELD_TYPES, getFieldMeta, renderFieldIcon } from "./field-config";
 import { isChoiceField, type FieldType, type FormField } from "../forms.types";
 
 interface FieldCardProps {
@@ -61,17 +61,18 @@ export function FieldCard({
 }: FieldCardProps) {
   const dragControls = useDragControls();
   const meta = getFieldMeta(field.type);
-  const Icon = meta.icon;
 
   const setOption = (i: number, value: string) =>
-    onChange({ options: field.options.map((o, idx) => (idx === i ? value : o)) });
+    onChange({
+      options: field.options.map((o, idx) => (idx === i ? value : o)),
+    });
 
   return (
     <Reorder.Item
       value={field}
       dragListener={false}
       dragControls={dragControls}
-      layout
+      layout="position"
       initial={{ opacity: 0, y: 12, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, scale: 0.96 }}
@@ -83,18 +84,6 @@ export function FieldCard({
           : "border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:border-primary/20"
       }`}
     >
-      {/* Active accent bar */}
-      <AnimatePresence>
-        {isActive && (
-          <motion.span
-            initial={{ scaleY: 0 }}
-            animate={{ scaleY: 1 }}
-            exit={{ scaleY: 0 }}
-            className="absolute left-0 top-0 bottom-0 w-1 bg-primary origin-top"
-          />
-        )}
-      </AnimatePresence>
-
       <div className="flex items-start gap-3 p-4">
         {/* Drag handle */}
         <button
@@ -109,14 +98,14 @@ export function FieldCard({
         <div className="flex-1 min-w-0">
           {/* Top row: label + type select */}
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-primary/10 shrink-0">
-              <Icon className="w-3.5 h-3.5 text-primary" />
+            <span className="inline-flex items-center justify-center w-9 h-9 rounded-md bg-primary/10 shrink-0">
+              {renderFieldIcon(meta.icon, "w-5 h-5 text-primary")}
             </span>
             <input
               value={field.label}
               onChange={(e) => onChange({ label: e.target.value })}
               placeholder={`Question ${index + 1}`}
-              className="flex-1 min-w-[160px] bg-transparent text-sm font-semibold text-foreground placeholder:text-muted-foreground/50 outline-none border-b border-transparent focus:border-primary/40 py-1 transition-colors"
+              className="flex-1 min-w-[160px] h-9 bg-muted/40 border border-border rounded-lg px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
             />
             <select
               value={field.type}
@@ -132,7 +121,7 @@ export function FieldCard({
                 });
               }}
               onClick={(e) => e.stopPropagation()}
-              className="px-2.5 py-1.5 bg-background border border-border rounded-md text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 cursor-pointer"
+              className="px-2.5 py-1.5 h-9 bg-background border border-border rounded-md text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 cursor-pointer"
             >
               {FIELD_TYPES.map((t) => (
                 <option key={t.type} value={t.type}>
@@ -142,17 +131,19 @@ export function FieldCard({
             </select>
           </div>
 
-          {/* Expanded settings */}
-          <AnimatePresence initial={false}>
-            {isActive && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.22, ease: "easeOut" }}
-                className="overflow-hidden"
-              >
-                <div className="pt-4 space-y-3">
+          {/* Expanded settings — always mounted; CSS grid-rows slide
+              (0fr ↔ 1fr) is browser-driven and stays smooth where JS
+              height animations stutter. `invisible` keeps the collapsed
+              panel out of the tab order. */}
+          <div
+            className={`grid transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+              isActive
+                ? "visible grid-rows-[1fr] opacity-100"
+                : "invisible grid-rows-[0fr] opacity-0"
+            }`}
+          >
+            <div className="min-h-0 overflow-hidden">
+              <div className="pt-4 space-y-3">
                   {isChoiceField(field.type) ? (
                     <div className="space-y-2">
                       <AnimatePresence initial={false}>
@@ -259,9 +250,8 @@ export function FieldCard({
                     </div>
                   </div>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+              </div>
+            </div>
         </div>
       </div>
     </Reorder.Item>

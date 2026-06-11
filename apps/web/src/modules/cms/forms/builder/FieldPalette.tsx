@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { MousePointerClick } from "lucide-react";
 
-import { FIELD_TYPES } from "./field-config";
+import { FIELD_TYPES, renderFieldIcon } from "./field-config";
 import type { FieldType } from "../forms.types";
 
 interface FieldPaletteProps {
@@ -23,7 +23,6 @@ export function FieldPalette({ onAdd }: FieldPaletteProps) {
 
       <div className="grid grid-cols-1 gap-1.5">
         {FIELD_TYPES.map((meta, i) => {
-          const Icon = meta.icon;
           return (
             <motion.button
               key={meta.type}
@@ -37,7 +36,10 @@ export function FieldPalette({ onAdd }: FieldPaletteProps) {
               className="flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-left border border-transparent hover:border-primary/20 hover:bg-primary/5 transition-colors group cursor-pointer"
             >
               <span className="w-7 h-7 rounded-md bg-muted group-hover:bg-primary/10 flex items-center justify-center shrink-0 transition-colors">
-                <Icon className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
+                {renderFieldIcon(
+                  meta.icon,
+                  "w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors",
+                )}
               </span>
               <span className="min-w-0">
                 <span className="block text-[13px] font-medium text-foreground leading-tight">

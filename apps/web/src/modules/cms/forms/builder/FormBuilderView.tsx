@@ -137,7 +137,9 @@ export function FormBuilderView({ formId }: FormBuilderViewProps) {
         <div className="flex items-center gap-2">
           <select
             value={form.status}
-            onChange={(e) => patchForm({ status: e.target.value as FormStatus })}
+            onChange={(e) =>
+              patchForm({ status: e.target.value as FormStatus })
+            }
             className="px-3 py-2.5 bg-background border border-border rounded-sm text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 cursor-pointer"
           >
             <option value="Draft">Draft</option>
@@ -154,7 +156,7 @@ export function FormBuilderView({ formId }: FormBuilderViewProps) {
           <button
             onClick={handleSave}
             disabled={justSaved}
-            className="inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-all active:scale-[0.98] disabled:opacity-80"
+            className="inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary-600 transition-all active:scale-[0.98] disabled:opacity-80"
           >
             <AnimatePresence mode="wait" initial={false}>
               {justSaved ? (
@@ -193,19 +195,18 @@ export function FormBuilderView({ formId }: FormBuilderViewProps) {
             layout
             className="bg-card border border-border rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden"
           >
-            <div className="h-2 bg-gradient-brand" />
             <div className="p-5 space-y-2">
               <input
                 value={form.name}
                 onChange={(e) => patchForm({ name: e.target.value })}
                 placeholder="Untitled form"
-                className="w-full bg-transparent text-2xl font-bold text-foreground placeholder:text-muted-foreground/40 outline-none border-b border-transparent focus:border-primary/40 pb-1 transition-colors"
+                className="w-full bg-transparent text-2xl font-bold text-foreground placeholder:text-muted-foreground/40 outline-none border-0 transition-colors ring-0 focus:ring-0"
               />
               <input
                 value={form.description}
                 onChange={(e) => patchForm({ description: e.target.value })}
                 placeholder="Form description (optional)"
-                className="w-full bg-transparent text-sm text-muted-foreground placeholder:text-muted-foreground/40 outline-none border-b border-transparent focus:border-primary/30 pb-1 transition-colors"
+                className="w-full bg-transparent text-sm text-muted-foreground placeholder:text-muted-foreground/40 outline-none border-0 transition-colors ring-0 focus:ring-0"
               />
             </div>
           </motion.div>
