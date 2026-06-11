@@ -29,7 +29,6 @@ interface TopbarProps {
   onMenuClick: () => void;
 }
 
-
 export function Topbar({ onMenuClick }: TopbarProps) {
   const pathname = usePathname();
   const { open: openPalette } = useCommandPalette();
@@ -73,15 +72,17 @@ export function Topbar({ onMenuClick }: TopbarProps) {
         <button
           onClick={openPalette}
           className={cn(
-            "flex flex-1 max-w-sm items-center gap-2 rounded-lg",
-            "border border-border bg-muted/50 px-3 py-2",
+            "flex flex-1 max-w-xs min-h-9 sm:min-h-inherit md:max-w-sm items-center gap-2 rounded-lg",
+            "border border-border bg-muted/50 pl-2 pr-1.5 sm:px-3 py-1 sm:py-2",
             "text-sm text-muted-foreground",
             "hover:bg-muted transition-all duration-200 cursor-pointer",
           )}
         >
           <Search className="h-3.5 w-3.5 flex-shrink-0" />
-          <span className="flex-1 text-left">Search anything...</span>
-          <kbd className="hidden sm:flex items-center gap-0.5 rounded border border-border bg-background px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">
+          <span className="hidden sm:flex flex-1 text-left">
+            Search anything...
+          </span>
+          <kbd className="ml-auto flex items-center gap-0.5 rounded border border-border bg-background px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">
             <Command className="h-2.5 w-2.5" />
             <span>K</span>
           </kbd>
@@ -89,7 +90,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
       </div>
 
       {/* Right actions */}
-      <div className="flex items-center gap-2 ml-4">
+      <div className="flex items-center gap-1 md:pag-2 ml-4">
         <LanguageSwitcher />
         <ThemeToggle />
         <NotificationsDropdown />

@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, Star, Upload, Check, Send } from "lucide-react";
+import { motion } from "framer-motion";
+import { Eye, Star, Upload, Check, Send } from "lucide-react";
 
+import { Modal } from "@/components/common/Modal";
 import type { CmsForm, FormField } from "../forms.types";
 
 const inputCls =
@@ -135,116 +136,94 @@ export function FormPreviewModal({ form, onClose }: FormPreviewModalProps) {
   }, [form?.id]);
 
   return (
-    <AnimatePresence>
-      {form && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] bg-foreground/40 backdrop-blur-sm flex items-start justify-center overflow-y-auto p-4 sm:p-8"
-          onClick={onClose}
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 24, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 16, scale: 0.98 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-            onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-2xl bg-background rounded-2xl shadow-2xl overflow-hidden my-auto"
-          >
-            {/* Gradient header */}
-            <div className="h-2.5 bg-gradient-brand" />
+    <Modal
+      isOpen={!!form}
+      onClose={onClose}
+      title={form?.name?.trim() || "Untitled form"}
+      description={
+        form?.description || "Form preview — responses are not saved."
+      }
+      icon={<Eye size={18} />}
+      maxWidth="xl"
+      footer={
+        submitted ? (
+          <>
             <button
-              onClick={onClose}
-              className="absolute top-5 right-4 p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-              aria-label="Close preview"
+              type="button"
+              onClick={() => setSubmitted(false)}
+              className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm text-sm font-semibold transition-all"
             >
-              <X size={16} />
+              Fill again
             </button>
-
-            {submitted ? (
-              <div className="px-8 py-16 text-center">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 18 }}
-                  className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-4"
-                >
-                  <Check className="w-8 h-8 text-emerald-600" />
-                </motion.div>
-                <p className="text-lg font-bold text-foreground">
-                  Response submitted
-                </p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  This is a preview — nothing was actually saved.
-                </p>
-                <button
-                  onClick={() => setSubmitted(false)}
-                  className="mt-6 px-4 py-2 text-sm font-semibold text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                >
-                  Fill again
-                </button>
-              </div>
-            ) : (
-              <div className="px-6 sm:px-8 py-6">
-                <div className="mb-6">
-                  <h2 className="text-xl font-bold text-foreground">
-                    {form.name || "Untitled form"}
-                  </h2>
-                  {form.description && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {form.description}
-                    </p>
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-sm text-sm font-semibold transition-all active:scale-95"
+            >
+              Close
+            </button>
+          </>
+        ) : form && form.fields.length > 0 ? (
+          <button
+            type="button"
+            onClick={() => setSubmitted(true)}
+            className="inline-flex items-center gap-2 px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-sm text-sm font-semibold transition-all active:scale-95"
+          >
+            <Send size={14} />
+            Submit
+          </button>
+        ) : undefined
+      }
+    >
+      {form &&
+        (submitted ? (
+          <div className="px-8 py-12 text-center">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 18 }}
+              className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-4"
+            >
+              <Check className="w-8 h-8 text-emerald-600" />
+            </motion.div>
+            <p className="text-lg font-bold text-foreground">
+              Response submitted
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              This is a preview — nothing was actually saved.
+            </p>
+          </div>
+        ) : (
+          <div className="p-6 space-y-5">
+            {form.fields.map((field, i) => (
+              <motion.div
+                key={field.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.05 + i * 0.05, duration: 0.25 }}
+              >
+                <label className="block text-sm font-semibold text-foreground mb-1.5">
+                  {field.label || `Question ${i + 1}`}
+                  {field.required && (
+                    <span className="text-rose-500 ml-0.5">*</span>
                   )}
-                </div>
-
-                <div className="space-y-5">
-                  {form.fields.map((field, i) => (
-                    <motion.div
-                      key={field.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.05 + i * 0.05, duration: 0.25 }}
-                    >
-                      <label className="block text-sm font-semibold text-foreground mb-1.5">
-                        {field.label || `Question ${i + 1}`}
-                        {field.required && (
-                          <span className="text-rose-500 ml-0.5">*</span>
-                        )}
-                      </label>
-                      {field.helpText && (
-                        <p className="text-xs text-muted-foreground mb-2">
-                          {field.helpText}
-                        </p>
-                      )}
-                      <PreviewField field={field} />
-                    </motion.div>
-                  ))}
-
-                  {form.fields.length === 0 && (
-                    <p className="text-sm text-muted-foreground text-center py-8">
-                      This form has no fields yet.
-                    </p>
-                  )}
-                </div>
-
-                {form.fields.length > 0 && (
-                  <motion.button
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.1 + form.fields.length * 0.05 }}
-                    onClick={() => setSubmitted(true)}
-                    className="mt-7 inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground text-sm font-semibold rounded-lg hover:bg-primary/90 transition-all active:scale-[0.98]"
-                  >
-                    <Send size={14} />
-                    Submit
-                  </motion.button>
+                </label>
+                {field.helpText && (
+                  <p className="text-xs text-muted-foreground mb-2">
+                    {field.helpText}
+                  </p>
                 )}
-              </div>
+                <PreviewField field={field} />
+              </motion.div>
+            ))}
+
+            {form.fields.length === 0 && (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                This form has no fields yet.
+              </p>
             )}
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          </div>
+        ))}
+    </Modal>
   );
 }

@@ -28,6 +28,34 @@
     border-color: hsl(var(--primary));
     box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
   }
+
+  /* Kill the @tailwindcss/forms default blue focus ring/border on inputs.
+     Components opt back in with focus:ring-* / focus:border-* utilities,
+     which take precedence over this base rule. */
+  input:where(:not([type])):focus,
+  [type="text"]:focus,
+  [type="email"]:focus,
+  [type="url"]:focus,
+  [type="password"]:focus,
+  [type="number"]:focus,
+  [type="date"]:focus,
+  [type="datetime-local"]:focus,
+  [type="month"]:focus,
+  [type="search"]:focus,
+  [type="tel"]:focus,
+  [type="time"]:focus,
+  [type="week"]:focus,
+  [type="checkbox"]:focus,
+  [type="radio"]:focus,
+  [multiple]:focus,
+  textarea:focus {
+    --tw-ring-color: transparent;
+    border-color: hsl(var(--border));
+  }
+  input:where([type="checkbox"]),
+  input:where([type="radio"]) {
+    color: hsl(var(--primary));
+  }
 }
 
 /* ─── CSS Custom Properties ─────────────────────────────── */
@@ -74,7 +102,7 @@
 
     --border: 214 32% 91%;
     --input: 214 32% 91%;
-    --ring: 14 71% 48%;
+    --ring: 14 92% 59%; /* #f76235 */
 
     --radius: 0.75rem;
 
@@ -137,7 +165,7 @@
 
     --border: 0 0% 22%; /* #383838 — best achievable on #0F0F0F bg */
     --input: 0 0% 22%;
-    --ring: 14 71% 48%;
+    --ring: 14 92% 59%; /* #f76235 */
 
     /* Sidebar Dark */
     --sidebar-bg: 0 0% 9%; /* #171717 */

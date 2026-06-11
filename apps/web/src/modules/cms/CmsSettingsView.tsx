@@ -2,11 +2,27 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Globe, CheckCircle2, AlertCircle, Key, Palette, Sun, Moon, Image as ImageIcon, Languages } from "lucide-react";
+import {
+  Globe,
+  CheckCircle2,
+  AlertCircle,
+  Key,
+  Palette,
+  Sun,
+  Moon,
+  Image as ImageIcon,
+  Languages,
+} from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { cn } from "@/lib/utils";
-import { orgDomain, type OrgDomain, type DnsInfo, apiGetOrgSettings, apiUpdateOrgSettings } from "@/lib/api";
+import {
+  orgDomain,
+  type OrgDomain,
+  type DnsInfo,
+  apiGetOrgSettings,
+  apiUpdateOrgSettings,
+} from "@/lib/api";
 import { ImageUploadWithStorage } from "@/components/common/ImageUploadWithStorage";
 import { useAuth } from "@/providers/AuthProvider";
 import { SITE_LANGUAGES } from "@/lib/site-languages";
@@ -22,7 +38,9 @@ function FieldGroup({
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-sm font-medium text-foreground">{label}</label>
+      <label className="block text-sm font-medium text-foreground">
+        {label}
+      </label>
       {children}
       {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
     </div>
@@ -85,22 +103,31 @@ function DomainTab() {
   }, []);
 
   const flash = (msg: string, isErr = false) => {
-    if (isErr) { setError(msg); setTimeout(() => setError(""), 4000); }
-    else { setSuccess(msg); setTimeout(() => setSuccess(""), 4000); }
+    if (isErr) {
+      setError(msg);
+      setTimeout(() => setError(""), 4000);
+    } else {
+      setSuccess(msg);
+      setTimeout(() => setSuccess(""), 4000);
+    }
   };
 
   const save = async () => {
     if (!customInput.trim()) return clear();
     setBusy(true);
     try {
-      const updated = await orgDomain.setCustom(customInput.trim().toLowerCase());
+      const updated = await orgDomain.setCustom(
+        customInput.trim().toLowerCase(),
+      );
       setDomain(updated);
       const dnsData = await orgDomain.dnsInfo();
       setDns(dnsData);
       flash("Custom domain saved. Add the DNS records below, then verify.");
     } catch (e) {
       flash(e instanceof Error ? e.message : "Failed to save", true);
-    } finally { setBusy(false); }
+    } finally {
+      setBusy(false);
+    }
   };
 
   const clear = async () => {
@@ -114,20 +141,25 @@ function DomainTab() {
       flash("Custom domain removed.");
     } catch (e) {
       flash(e instanceof Error ? e.message : "Failed to remove", true);
-    } finally { setBusy(false); }
+    } finally {
+      setBusy(false);
+    }
   };
 
   const verify = async () => {
     setVerifyBusy(true);
     try {
       const result = await orgDomain.verify();
-      if (result.verified) setDomain((d) => d ? { ...d, customDomainVerified: true } : d);
+      if (result.verified)
+        setDomain((d) => (d ? { ...d, customDomainVerified: true } : d));
       const dnsData = await orgDomain.dnsInfo();
       setDns(dnsData);
       flash(result.message, !result.verified);
     } catch (e) {
       flash(e instanceof Error ? e.message : "Verification failed", true);
-    } finally { setVerifyBusy(false); }
+    } finally {
+      setVerifyBusy(false);
+    }
   };
 
   if (loading) {
@@ -191,7 +223,9 @@ function DomainTab() {
                 className={cn(inputCls, "flex-1")}
                 placeholder="example.com"
                 value={customInput}
-                onChange={(e) => setCustomInput(e.target.value.toLowerCase().trim())}
+                onChange={(e) =>
+                  setCustomInput(e.target.value.toLowerCase().trim())
+                }
               />
               <button
                 onClick={save}
@@ -215,8 +249,12 @@ function DomainTab() {
                   <p className="text-sm font-medium text-foreground">
                     {domain.customDomain}
                   </p>
-                  <p className={`text-xs ${domain.customDomainVerified ? "text-success" : "text-warning"}`}>
-                    {domain.customDomainVerified ? "Verified" : "Pending verification"}
+                  <p
+                    className={`text-xs ${domain.customDomainVerified ? "text-success" : "text-warning"}`}
+                  >
+                    {domain.customDomainVerified
+                      ? "Verified"
+                      : "Pending verification"}
                   </p>
                 </div>
               </div>
@@ -277,9 +315,15 @@ function DomainTab() {
                         {r.type}
                       </span>
                     </td>
-                    <td className="px-3 py-2.5 font-mono text-foreground break-all">{r.name}</td>
-                    <td className="px-3 py-2.5 font-mono text-foreground break-all max-w-[200px]">{r.value}</td>
-                    <td className="px-3 py-2.5 text-muted-foreground">{r.ttl}</td>
+                    <td className="px-3 py-2.5 font-mono text-foreground break-all">
+                      {r.name}
+                    </td>
+                    <td className="px-3 py-2.5 font-mono text-foreground break-all max-w-[200px]">
+                      {r.value}
+                    </td>
+                    <td className="px-3 py-2.5 text-muted-foreground">
+                      {r.ttl}
+                    </td>
                     <td className="px-3 py-2.5">
                       <CopyBtn text={r.value} />
                     </td>
@@ -315,7 +359,13 @@ function DomainTab() {
 
 // ── Branding Tab ──────────────────────────────────────────────────────────────
 
-function Toggle({ enabled, onToggle }: { enabled: boolean; onToggle: () => void }) {
+function Toggle({
+  enabled,
+  onToggle,
+}: {
+  enabled: boolean;
+  onToggle: () => void;
+}) {
   return (
     <button
       type="button"
@@ -356,8 +406,13 @@ function BrandingTab() {
   }, []);
 
   const flash = (msg: string, isErr = false) => {
-    if (isErr) { setError(msg); setTimeout(() => setError(""), 4000); }
-    else { setSuccess(msg); setTimeout(() => setSuccess(""), 4000); }
+    if (isErr) {
+      setError(msg);
+      setTimeout(() => setError(""), 4000);
+    } else {
+      setSuccess(msg);
+      setTimeout(() => setSuccess(""), 4000);
+    }
   };
 
   const save = async () => {
@@ -412,7 +467,9 @@ function BrandingTab() {
               <Sun className="h-4 w-4 text-amber-500" />
               Light Mode Logo
             </div>
-            <p className="text-xs text-muted-foreground">PNG, SVG, JPEG — max 5 MB. Landscape format recommended.</p>
+            <p className="text-xs text-muted-foreground">
+              PNG, SVG, JPEG — max 5 MB. Landscape format recommended.
+            </p>
             <ImageUploadWithStorage
               value={logoUrl}
               onChange={setLogoUrl}
@@ -429,7 +486,10 @@ function BrandingTab() {
               <Moon className="h-4 w-4 text-indigo-400" />
               Dark Mode Logo
             </div>
-            <p className="text-xs text-muted-foreground">Shown when visitors switch to dark mode. Falls back to light logo if not set.</p>
+            <p className="text-xs text-muted-foreground">
+              Shown when visitors switch to dark mode. Falls back to light logo
+              if not set.
+            </p>
             <ImageUploadWithStorage
               value={darkLogoUrl}
               onChange={setDarkLogoUrl}
@@ -446,7 +506,9 @@ function BrandingTab() {
               <Globe className="h-4 w-4 text-primary" />
               Favicon / App Icon
             </div>
-            <p className="text-xs text-muted-foreground">512×512 PNG, ICO, or SVG. Shown in browser tab and bookmarks.</p>
+            <p className="text-xs text-muted-foreground">
+              512×512 PNG, ICO, or SVG. Shown in browser tab and bookmarks.
+            </p>
             <ImageUploadWithStorage
               value={faviconUrl}
               onChange={setFaviconUrl}
@@ -467,12 +529,18 @@ function BrandingTab() {
       >
         <div className="flex items-center justify-between rounded-xl border border-border bg-muted/20 px-4 py-3.5">
           <div>
-            <p className="text-sm font-medium text-foreground">Enable theme switcher</p>
+            <p className="text-sm font-medium text-foreground">
+              Enable theme switcher
+            </p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              A Sun / Moon toggle button will appear in your site&apos;s navigation bar.
+              A Sun / Moon toggle button will appear in your site&apos;s
+              navigation bar.
             </p>
           </div>
-          <Toggle enabled={themeSwitcherEnabled} onToggle={() => setThemeSwitcherEnabled((v) => !v)} />
+          <Toggle
+            enabled={themeSwitcherEnabled}
+            onToggle={() => setThemeSwitcherEnabled((v) => !v)}
+          />
         </div>
       </SectionCard>
 
@@ -510,8 +578,13 @@ function LanguagesTab() {
   }, []);
 
   const flash = (msg: string, isErr = false) => {
-    if (isErr) { setError(msg); setTimeout(() => setError(""), 4000); }
-    else { setSuccess(msg); setTimeout(() => setSuccess(""), 4000); }
+    if (isErr) {
+      setError(msg);
+      setTimeout(() => setError(""), 4000);
+    } else {
+      setSuccess(msg);
+      setTimeout(() => setSuccess(""), 4000);
+    }
   };
 
   const toggle = (code: string) => {
@@ -526,7 +599,10 @@ function LanguagesTab() {
     const def = langs.includes(defaultLang) ? defaultLang : "en";
     setSaving(true);
     try {
-      await apiUpdateOrgSettings({ siteLanguages: langs, defaultSiteLanguage: def });
+      await apiUpdateOrgSettings({
+        siteLanguages: langs,
+        defaultSiteLanguage: def,
+      });
       flash("Language settings saved.");
     } catch {
       flash("Failed to save language settings.", true);
@@ -544,7 +620,9 @@ function LanguagesTab() {
     );
   }
 
-  const enabledLangs = SITE_LANGUAGES.filter((l) => selectedLangs.includes(l.code));
+  const enabledLangs = SITE_LANGUAGES.filter((l) =>
+    selectedLangs.includes(l.code),
+  );
 
   return (
     <div className="space-y-5">
@@ -582,19 +660,36 @@ function LanguagesTab() {
                 } ${isRequired ? "opacity-70 cursor-default" : "cursor-pointer"}`}
               >
                 {/* Checkbox indicator */}
-                <span className={`flex-shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${
-                  isSelected ? "border-primary bg-primary" : "border-muted-foreground/40"
-                }`}>
+                <span
+                  className={`flex-shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${
+                    isSelected
+                      ? "border-primary bg-primary"
+                      : "border-muted-foreground/40"
+                  }`}
+                >
                   {isSelected && (
-                    <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="2 6 5 9 10 3"/>
+                    <svg
+                      width="9"
+                      height="9"
+                      viewBox="0 0 12 12"
+                      fill="none"
+                      stroke="white"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="2 6 5 9 10 3" />
                     </svg>
                   )}
                 </span>
                 <span className="text-lg leading-none">{lang.flag}</span>
                 <span className="flex-1 min-w-0">
-                  <span className="block text-xs font-semibold text-foreground">{lang.name}</span>
-                  <span className="block text-[10px] text-muted-foreground">{lang.native}</span>
+                  <span className="block text-xs font-semibold text-foreground">
+                    {lang.name}
+                  </span>
+                  <span className="block text-[10px] text-muted-foreground">
+                    {lang.native}
+                  </span>
                 </span>
                 {isRequired && (
                   <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
@@ -656,9 +751,9 @@ function LanguagesTab() {
 // ── CmsSettingsView ───────────────────────────────────────────────────────────
 
 const TABS = [
-  { id: "branding",  label: "Branding" },
+  { id: "branding", label: "Branding" },
   { id: "languages", label: "Languages" },
-  { id: "domain",    label: "Domain" },
+  { id: "domain", label: "Domain" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];

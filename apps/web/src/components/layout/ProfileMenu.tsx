@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   User,
   FileText,
@@ -130,7 +131,17 @@ export function ProfileMenu() {
   );
   const [isOpen, setIsOpen] = useState(false);
   const [activeItem, setActiveItem] = useState<string | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  /* Position of the dropdown panel (top-right, fixed) */
+  const [pos, setPos] = useState({ top: 0, right: 0 });
+  const [mounted, setMounted] = useState(false);
+
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  /* Portal needs document to exist (SSR guard) */
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleLogout = () => {
     setIsOpen(false);
@@ -138,16 +149,26 @@ export function ProfileMenu() {
     router.replace("/");
   };
 
+  /* Calculate position from button rect when opening */
+  const toggle = useCallback(() => {
+    if (!isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setPos({
+        top: rect.bottom + 10,
+        right: window.innerWidth - rect.right,
+      });
+    }
+    setIsOpen((v) => !v);
+  }, [isOpen]);
+
   // Close on outside click
   useEffect(() => {
     if (!isOpen) return;
     function handleClickOutside(e: MouseEvent) {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
-      ) {
-        setIsOpen(false);
-      }
+      const target = e.target as Node;
+      const inButton = buttonRef.current?.contains(target);
+      const inDropdown = dropdownRef.current?.contains(target);
+      if (!inButton && !inDropdown) setIsOpen(false);
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -164,10 +185,11 @@ export function ProfileMenu() {
   }, [isOpen]);
 
   return (
-    <div ref={containerRef} className="relative">
+    <>
       {/* ── Trigger ── */}
       <button
-        onClick={() => setIsOpen((prev) => !prev)}
+        ref={buttonRef}
+        onClick={toggle}
         aria-haspopup="true"
         aria-expanded={isOpen}
         className={cn(
@@ -193,121 +215,139 @@ export function ProfileMenu() {
         </motion.div>
       </button>
 
-      {/* ── Dropdown Panel ── */}
-      <AnimatePresence>
-        {isOpen && (
-          /**
-           * LAYER 1 — fade only (opacity), no CSS transform.
-           * backdropFilter must live here so the browser never composites
-           * this element inside a transform stacking context.
-           */
-          <motion.div
-            variants={fadeVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="absolute right-0 top-full mt-2 z-50 w-72 rounded-2xl shadow-glass-lg"
-            style={{
-              backdropFilter: "blur(20px)",
-              WebkitBackdropFilter: "blur(20px)",
-            }}
-          >
-            {/**
-             * LAYER 2 — scale + slide animation + overflow-hidden clipping.
-             * bg-card/80 keeps 20% transparency so blur is visible.
-             * staggerChildren propagates down to itemVariants.
+      {/*
+        Portal renders backdrop + dropdown directly in <body>, escaping the
+        topbar's sticky/transform stacking context (same approach as
+        NotificationsDropdown).
+      */}
+      {mounted &&
+        isOpen &&
+        createPortal(
+          <>
+            {/* Backdrop — covers full viewport below topbar */}
+            <div
+              className="fixed inset-x-0 bottom-0 z-[998] bg-black/20 backdrop-blur-[2px]"
+              style={{ top: 64 }} /* topbar height */
+              onClick={() => setIsOpen(false)}
+            />
+
+            {/*
+             * LAYER 1 — fade only (opacity), no CSS transform.
+             * backdropFilter must live here so the browser never composites
+             * this element inside a transform stacking context.
              */}
             <motion.div
-              variants={panelVariants}
-              className="rounded-2xl overflow-hidden border border-border bg-card flex flex-col origin-top-right"
+              ref={dropdownRef}
+              variants={fadeVariants}
+              initial="hidden"
+              animate="visible"
+              className="w-72 rounded-2xl shadow-glass-lg"
+              style={{
+                top: pos.top,
+                right: pos.right,
+                position: "fixed",
+                zIndex: 999,
+                backdropFilter: "blur(20px)",
+                WebkitBackdropFilter: "blur(20px)",
+              }}
             >
-              {/* ── User info header ── */}
+              {/**
+               * LAYER 2 — scale + slide animation + overflow-hidden clipping.
+               * bg-card/80 keeps 20% transparency so blur is visible.
+               * staggerChildren propagates down to itemVariants.
+               */}
               <motion.div
-                variants={itemVariants}
-                className="flex items-center gap-3 p-4 border-b border-border bg-muted/40"
+                variants={panelVariants}
+                className="rounded-2xl overflow-hidden border border-border bg-card flex flex-col origin-top-right"
               >
-                <div className="relative flex-shrink-0">
-                  <div className="h-11 w-11 rounded-full bg-gradient-brand flex items-center justify-center text-sm font-bold text-white shadow-glow-brand">
-                    {user?.initials ?? "??"}
+                {/* ── User info header ── */}
+                <motion.div
+                  variants={itemVariants}
+                  className="flex items-center gap-3 p-4 border-b border-border bg-muted/40"
+                >
+                  <div className="relative flex-shrink-0">
+                    <div className="h-11 w-11 rounded-full bg-gradient-brand flex items-center justify-center text-sm font-bold text-white shadow-glow-brand">
+                      {user?.initials ?? "??"}
+                    </div>
+                    <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-success border-2 border-card" />
                   </div>
-                  <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-success border-2 border-card" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-sm text-foreground truncate">
-                    {user?.name ?? "—"}
-                  </p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {user?.email ?? "—"}
-                  </p>
-                  <div className="mt-1 inline-flex items-center rounded-full bg-brand-500/10 px-2 py-0.5">
-                    <span className="text-[10px] font-semibold text-brand-400 uppercase tracking-wide">
-                      {user?.role ?? "User"}
-                    </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-sm text-foreground truncate">
+                      {user?.name ?? "—"}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {user?.email ?? "—"}
+                    </p>
+                    <div className="mt-1 inline-flex items-center rounded-full bg-brand-500/10 px-2 py-0.5">
+                      <span className="text-[10px] font-semibold text-brand-400 uppercase tracking-wide">
+                        {user?.role ?? "User"}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
+                </motion.div>
 
-              {/* ── Menu items ── */}
-              <div className="py-1.5">
-                {menuItems.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = activeItem === item.id;
-                  return (
-                    <motion.div key={item.id} variants={itemVariants}>
-                      <Link
-                        href={item.href}
-                        onClick={() => {
-                          setActiveItem(item.id);
-                          setIsOpen(false);
-                        }}
-                        className={cn(
-                          "group flex items-center gap-3 px-4 py-2.5 mx-1.5 rounded-md",
-                          "text-sm transition-all duration-150 cursor-pointer",
-                          isActive
-                            ? "bg-primary/10 text-primary"
-                            : "text-foreground hover:bg-muted/80",
-                        )}
-                      >
-                        <span
+                {/* ── Menu items ── */}
+                <div className="py-1.5">
+                  {menuItems.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = activeItem === item.id;
+                    return (
+                      <motion.div key={item.id} variants={itemVariants}>
+                        <Link
+                          href={item.href}
+                          onClick={() => {
+                            setActiveItem(item.id);
+                            setIsOpen(false);
+                          }}
                           className={cn(
-                            "flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-sm transition-colors duration-150",
+                            "group flex items-center gap-3 px-4 py-2.5 mx-1.5 rounded-md",
+                            "text-sm transition-all duration-150 cursor-pointer",
                             isActive
-                              ? "bg-primary/15 text-primary"
-                              : "bg-muted/80 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
+                              ? "bg-primary/10 text-primary"
+                              : "text-foreground hover:bg-muted/80",
                           )}
                         >
-                          <Icon className="h-3.5 w-3.5" />
-                        </span>
-                        <span className="font-medium">{item.label}</span>
-                      </Link>
-                    </motion.div>
-                  );
-                })}
-              </div>
+                          <span
+                            className={cn(
+                              "flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-sm transition-colors duration-150",
+                              isActive
+                                ? "bg-primary/15 text-primary"
+                                : "bg-muted/80 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
+                            )}
+                          >
+                            <Icon className="h-3.5 w-3.5" />
+                          </span>
+                          <span className="font-medium">{item.label}</span>
+                        </Link>
+                      </motion.div>
+                    );
+                  })}
+                </div>
 
-              {/* ── Logout ── */}
-              <motion.div
-                variants={itemVariants}
-                className="border-t border-border mt-1 p-2"
-              >
-                <button
-                  onClick={handleLogout}
-                  className={cn(
-                    "group flex w-full items-center gap-3 px-4 py-2.5 rounded-md",
-                    "text-sm font-medium text-error",
-                    "hover:bg-error/10 transition-all duration-150 cursor-pointer",
-                  )}
+                {/* ── Logout ── */}
+                <motion.div
+                  variants={itemVariants}
+                  className="border-t border-border mt-1 p-2"
                 >
-                  <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-sm bg-error/10 text-error group-hover:bg-error/20 transition-colors duration-150">
-                    <LogOut className="h-3.5 w-3.5" />
-                  </span>
-                  Logout
-                </button>
+                  <button
+                    onClick={handleLogout}
+                    className={cn(
+                      "group flex w-full items-center gap-3 px-4 py-2.5 rounded-md",
+                      "text-sm font-medium text-error",
+                      "hover:bg-error/10 transition-all duration-150 cursor-pointer",
+                    )}
+                  >
+                    <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-sm bg-error/10 text-error group-hover:bg-error/20 transition-colors duration-150">
+                      <LogOut className="h-3.5 w-3.5" />
+                    </span>
+                    Logout
+                  </button>
+                </motion.div>
               </motion.div>
             </motion.div>
-          </motion.div>
+          </>,
+          document.body,
         )}
-      </AnimatePresence>
-    </div>
+    </>
   );
 }

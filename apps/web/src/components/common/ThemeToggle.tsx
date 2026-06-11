@@ -1,42 +1,47 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
-import { Sun, Moon, Monitor, type LucideIcon } from "lucide-react";
+import { Sun, Moon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
-const THEMES: { value: string; icon: LucideIcon }[] = [
-  { value: "light", icon: Sun },
-  { value: "dark", icon: Moon },
-  { value: "system", icon: Monitor },
-];
-
-/** Shared light / dark / system theme switch — used in the Topbar and the CMS editor. */
+/** Shared light / dark theme switch — used in the Topbar and the CMS editor.
+ *  Single button: shows the current mode's icon and flips theme on click. */
 export function ThemeToggle({ className }: { className?: string }) {
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
+  // next-themes is undefined on the server — render only after mount to
+  // avoid a hydration mismatch on the icon.
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  const isDark = mounted && resolvedTheme === "dark";
 
   return (
-    <div
+    <button
+      type="button"
+      onClick={() => setTheme(isDark ? "light" : "dark")}
       className={cn(
-        "flex items-center rounded-lg border border-border bg-muted/50 p-0.5",
+        "flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-muted/50 text-muted-foreground hover:text-foreground transition-colors duration-200 cursor-pointer",
         className,
       )}
+      aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
     >
-      {THEMES.map(({ value, icon: Icon }) => (
-        <button
-          key={value}
-          onClick={() => setTheme(value)}
-          className={cn(
-            "flex h-7 w-7 items-center justify-center rounded-md transition-all duration-200 cursor-pointer",
-            theme === value
-              ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground",
-          )}
-          aria-label={`${value} mode`}
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.span
+          key={isDark ? "moon" : "sun"}
+          initial={{ rotate: -90, opacity: 0, scale: 0.6 }}
+          animate={{ rotate: 0, opacity: 1, scale: 1 }}
+          exit={{ rotate: 90, opacity: 0, scale: 0.6 }}
+          transition={{ duration: 0.25 }}
+          className="flex"
+          suppressHydrationWarning
         >
-          <Icon className="h-3.5 w-3.5" />
-        </button>
-      ))}
-    </div>
+          {isDark ? <Moon size={18} /> : <Sun size={18} />}
+        </motion.span>
+      </AnimatePresence>
+    </button>
   );
 }
 

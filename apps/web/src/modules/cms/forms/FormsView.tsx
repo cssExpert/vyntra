@@ -126,7 +126,10 @@ export function FormsView() {
   const panelFilteredForms = useMemo(() => {
     return forms.filter((form) => {
       if (activeTab !== "all" && form.status !== activeTab) return false;
-      if (activeFilters.status !== "all" && form.status !== activeFilters.status)
+      if (
+        activeFilters.status !== "all" &&
+        form.status !== activeFilters.status
+      )
         return false;
       if (activeFilters.dateFrom || activeFilters.dateTo) {
         const from = activeFilters.dateFrom
@@ -299,7 +302,7 @@ export function FormsView() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search forms…"
-                  className="pl-9 pr-8 py-2.5 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all w-48"
+                  className="pl-9 pr-8 py-2.5 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15 w-48"
                 />
                 {searchTerm && (
                   <button
@@ -314,7 +317,7 @@ export function FormsView() {
               {/* New form */}
               <button
                 onClick={() => router.push("/cms/forms/new")}
-                className="inline-flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-all active:scale-[0.98] group"
+                className="inline-flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary-600 transition-all active:scale-[0.98] group"
               >
                 <Plus
                   size={15}

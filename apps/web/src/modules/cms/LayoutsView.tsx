@@ -724,7 +724,7 @@ function LayoutCard({
       <div className="px-5 py-4 flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-foreground text-[15px] truncate">
+            <span className="font-bold text-foreground text-base md:text-lg truncate">
               {layout.name}
             </span>
             {layout.isDefault && (
@@ -733,7 +733,7 @@ function LayoutCard({
               </span>
             )}
           </div>
-          <div className="mt-2 space-y-1 text-xs text-muted-foreground">
+          <div className="mt-2 space-y-1 text-xs md:text-sm text-muted-foreground">
             <div className="flex items-center gap-1.5">
               <Monitor size={11} />
               <span>Header: {navMenu ? navMenu.name : <em>none</em>}</span>
