@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Globe,
   CheckCircle2,
@@ -532,7 +533,7 @@ function BrandingTab() {
               Enable theme switcher
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              A Sun / Moon toggle button will appear in your site&rsquo;s
+              A Sun / Moon toggle button will appear in your site&apos;s
               navigation bar.
             </p>
           </div>
@@ -758,6 +759,8 @@ const TABS = [
 type TabId = (typeof TABS)[number]["id"];
 
 export function CmsSettingsView() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("cms.cmssettings.tsx");
   const [activeTab, setActiveTab] = useState<TabId>("branding");
 
   return (

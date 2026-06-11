@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Globe,
   Copy,
@@ -52,6 +53,7 @@ export function DomainManagementModal({
   isOpen,
   onClose,
 }: Props) {
+  const t = useTranslations("admin.domainManagement");
   const [domain, setDomain] = useState<OrgDomain | null>(null);
   const [dns, setDns] = useState<DnsInfo | null>(null);
   const [loading, setLoading] = useState(false);
@@ -82,11 +84,11 @@ export function DomainManagementModal({
       setSubInput(d.subdomain ?? "");
       setCustomInput(d.customDomain ?? "");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load domain info");
+      setError(e instanceof Error ? e.message : t("failedtoloaddomaininfo"));
     } finally {
       setLoading(false);
     }
-  }, [orgId]);
+  }, [orgId, t]);
 
   useEffect(() => {
     if (isOpen) load();
@@ -108,9 +110,9 @@ export function DomainManagementModal({
       setDomain(updated);
       const dns2 = await admin.getDnsInfo(orgId);
       setDns(dns2);
-      flash("Subdomain saved.");
+      flash(t("subdomainsaved"));
     } catch (e) {
-      flash(e instanceof Error ? e.message : "Failed to save subdomain", true);
+      flash(e instanceof Error ? e.message : t("failedtosavesubdomain"), true);
     } finally {
       setSubBusy(false);
     }
@@ -124,9 +126,9 @@ export function DomainManagementModal({
       setSubInput("");
       const dns2 = await admin.getDnsInfo(orgId);
       setDns(dns2);
-      flash("Subdomain removed.");
+      flash(t("subdomainremoved"));
     } catch (e) {
-      flash(e instanceof Error ? e.message : "Failed to remove subdomain", true);
+      flash(e instanceof Error ? e.message : t("failedtoremovesubdomain"), true);
     } finally {
       setSubBusy(false);
     }
@@ -142,9 +144,9 @@ export function DomainManagementModal({
       setDomain(updated);
       const dns2 = await admin.getDnsInfo(orgId);
       setDns(dns2);
-      flash("Custom domain saved. Add the DNS records below, then verify.");
+      flash(t("customdomainsavedaddthednsrecordsbelowthenverify"));
     } catch (e) {
-      flash(e instanceof Error ? e.message : "Failed to save domain", true);
+      flash(e instanceof Error ? e.message : t("failedtosave domain"), true);
     } finally {
       setCustomBusy(false);
     }
@@ -158,9 +160,9 @@ export function DomainManagementModal({
       setCustomInput("");
       const dns2 = await admin.getDnsInfo(orgId);
       setDns(dns2);
-      flash("Custom domain removed.");
+      flash(t("customdomainremoved"));
     } catch (e) {
-      flash(e instanceof Error ? e.message : "Failed to remove domain", true);
+      flash(e instanceof Error ? e.message : t("failedtoremovedomain"), true);
     } finally {
       setCustomBusy(false);
     }
@@ -177,7 +179,7 @@ export function DomainManagementModal({
       }
       flash(result.message, !result.verified);
     } catch (e) {
-      flash(e instanceof Error ? e.message : "Verification failed", true);
+      flash(e instanceof Error ? e.message : t("verificationfailed"), true);
     } finally {
       setVerifyBusy(false);
     }
@@ -350,7 +352,7 @@ export function DomainManagementModal({
                     DNS Configuration
                   </h4>
                   <p className="text-xs text-muted-foreground mb-3">
-                    Add these records in your customer's DNS provider. Changes
+                    Add these records in your customer&apos;s DNS provider. Changes
                     can take up to 48 hours to propagate.
                   </p>
                   <div className="rounded-xl border border-border overflow-hidden">

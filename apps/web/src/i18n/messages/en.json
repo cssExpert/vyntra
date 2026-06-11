@@ -258,7 +258,7 @@
       "adminNote": "This user is created as the company's first <strong>ORG_ADMIN</strong> and can sign in immediately.",
       "generate": "Generate",
       "copy": "Copy",
-      "copySuccess": "",
+      "copySuccess": "Copied to clipboard",
       "passwordCopyNote": "Copy and share it securely — it won't be shown again.",
       "passwordStrengthWeak": "Weak",
       "passwordStrengthFair": "Fair",
@@ -279,7 +279,16 @@
       "logoUrl": "Logo URL",
       "statusActive": "Active",
       "statusSuspended": "Suspended",
-      "websiteField": "Website"
+      "websiteField": "Website",
+      "failedToLoad": "कंपनियां लोड करने में विफल",
+      "planUpdated": "योजना अपडेट की गई",
+      "failedChangePlan": "योजना परिवर्तन में विफल",
+      "deleteConfirm": "क्या आप कंपनी को हटाना चाहते हैं? यह कंपनी और इसके सभी डेटा को स्थायी रूप से हटा देगा।",
+      "deleted": "हटा दिया गया",
+      "failedDelete": "हटाने में विफल",
+      "suspended": "निलंबित",
+      "view": "देखें",
+      "updated": "अपडेट किया गया"
     },
     "dashboard": {
       "title": "Admin Dashboard",
@@ -488,7 +497,8 @@
       "passwordWarning": "The user will need to use this new password the next time they log in.",
       "deleteUser": "Delete User",
       "deleteWarning": "Are you sure you want to permanently delete",
-      "cannotUndo": "This action cannot be undone."
+      "cannotUndo": "This action cannot be undone.",
+      "promoteConfirm": "Promote"
     },
     "themes": {
       "title": "Themes",
@@ -509,7 +519,10 @@
       "colorPalette": "Color Palette",
       "cancel": "Cancel",
       "saving": "Saving…",
-      "saveTheme": "Save Theme"
+      "saveTheme": "Save Theme",
+      "loading": "लोड हो रहा है…",
+      "created": "Theme created.",
+      "updated": "Theme updated."
     },
     "crm": {
       "title": "CRM",
@@ -748,7 +761,11 @@
         "haiku": "claude-haiku-4-5-20251001",
         "connect": "Connect",
         "disconnect": "Disconnect"
-      }
+      },
+      "searchOrderPlaceholder": "ऑर्डर आईडी, ग्राहक द्वारा खोजें...",
+      "addCategory": "श्रेणी जोड़ें",
+      "status": "स्थिति",
+      "products": "Products"
     },
     "cms": {
       "title": "Title",
@@ -793,6 +810,16 @@
       "tags": "Tags",
       "featured": "Featured",
       "image": "Image"
+    },
+    "domainManagement": {
+      "failedtoloaddomaininfo": "Failed to load domain info",
+      "subdomainsaved": "Subdomain saved.",
+      "failedtosavesubdomain": "Failed to save subdomain",
+      "subdomainremoved": "Subdomain removed.",
+      "failedtoremovesubdomain": "Failed to remove subdomain",
+      "customdomainsavedaddthednsrecordsbelowthenverify": "Custom domain saved. Add the DNS records below, then verify.",
+      "customdomainremoved": "Custom domain removed.",
+      "verificationfailed": "Verification failed"
     }
   },
   "navigation": {
@@ -847,7 +874,10 @@
     "rewardPoints": "Reward Points",
     "automations": "Automations",
     "aiAssistant": "AI Assistant",
-    "storeSettings": "Store Settings"
+    "storeSettings": "Store Settings",
+    "cmsDashboard": "Dashboard",
+    "pages": "Pages",
+    "storeDashboard": "Dashboard"
   },
   "common": {
     "loading": "Loading...",
@@ -921,22 +951,42 @@
   },
   "errors": {
     "notFound": "Not found",
-    "unauthorized": "Unauthorized",
-    "forbidden": "Forbidden",
+    "unauthorized": "Unauthorized access",
+    "forbidden": "Access denied",
     "serverError": "Server error",
     "networkError": "Network error",
-    "tryAgain": "Try again",
-    "contactSupport": "Contact support",
+    "tryAgain": "Please try again",
+    "contactSupport": "Contact support if the problem persists",
     "somethingWentWrong": "Something went wrong",
     "pleaseRetry": "Please retry",
-    "validationError": "Validation error"
+    "validationError": "Validation error",
+    "loadFailed": "Failed to load",
+    "errorOccurred": "An error occurred",
+    "invalidInput": "Invalid input",
+    "fieldRequired": "This field is required",
+    "conflict": "Resource already exists",
+    "deleteFailed": "Failed to delete",
+    "updateFailed": "Failed to update",
+    "createFailed": "Failed to create",
+    "saveFailed": "Failed to save"
   },
   "validation": {
     "required": "This field is required",
     "email": "Please enter a valid email address",
     "minLength": "Must be at least {min} characters",
-    "maxLength": "Must be at most {max} characters",
-    "pattern": "Please match the required format"
+    "maxLength": "Must not exceed {max} characters",
+    "pattern": "Invalid format",
+    "invalidEmail": "Please enter a valid email address",
+    "invalidUrl": "Please enter a valid URL",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "passwordMismatch": "Passwords do not match",
+    "numberRequired": "Please enter a number",
+    "validNumber": "Please enter a valid number",
+    "positiveNumber": "Must be a positive number",
+    "minValue": "Must be at least {min}",
+    "maxValue": "Must not exceed {max}",
+    "selectRequired": "Please select an option",
+    "agreedRequired": "You must agree to continue"
   },
   "settings": {
     "profile": {
@@ -1049,6 +1099,19 @@
       "searchbynamecategory": "Search by name, category, or tag…",
       "themeshub": "Themes Hub",
       "deletethistheme": "Delete this theme?"
+    },
+    "layoutId": "Layout",
+    "choosefilters": "Choose Filters",
+    "deletepage": "Delete Page",
+    "gallerieshub": "Galleries Hub",
+    "colordetails": "Color Details",
+    "themeshub": "Themes Hub",
+    "deletethistheme": "Delete this theme",
+    "theme": {
+      "loadError": "Failed to load themes.",
+      "activateSuccess": "Theme activated successfully.",
+      "activateError": "Failed to activate theme.",
+      "deleteError": "Failed to delete theme."
     }
   },
   "store": {
@@ -1062,12 +1125,131 @@
       "runningworkflowsinyour": "Running workflows in your store"
     },
     "orders": {
-      "searchordercustomer": "Search order #, customer…"
+      "searchordercustomer": "Search order #, customer…",
+      "title": "Orders",
+      "exportCSV": "Export as CSV"
     },
     "categories": {
       "view": "View",
       "edit": "Edit",
-      "delete": "Delete"
+      "delete": "Delete",
+      "dragToReorder": "Drag to reorder",
+      "addCategory": "Add Category",
+      "title": "Categories"
+    },
+    "credits": {
+      "title": "Store Credits"
+    },
+    "products": {
+      "title": "Products",
+      "description": "Manage your product catalog"
+    },
+    "rewards": {
+      "title": "Reward Points"
+    },
+    "settings": {
+      "generalTab": "General",
+      "paymentTab": "Payment",
+      "shippingTab": "Shipping",
+      "taxTab": "Tax",
+      "notificationsTab": "Notifications",
+      "aiIntegrationsTab": "AI Integrations",
+      "storeDescription": "Store Settings",
+      "alert": "Alert",
+      "cancel": "Cancel",
+      "saveChanges": "Save Changes"
+    },
+    "title": "Store",
+    "description": "Manage your products, orders, inventory, and store settings.",
+    "refresh": "Refresh",
+    "addProduct": "Add Product",
+    "revenueoverview": "Revenue Overview",
+    "monthlyrevenuelast6": "Monthly revenue (last 6 months)",
+    "recentorders": "Recent Orders",
+    "lowstockalerts": "Low Stock Alerts",
+    "topproducts": "Top Products",
+    "bestsellingproductsthismonth": "Best-selling products this month",
+    "activeautomations": "Active Automations",
+    "runningworkflowsinyour": "Running workflows in your store",
+    "productsDescription": "Manage your product catalog",
+    "inventory": {
+      "title": "Inventory",
+      "description": "Manage stock levels and availability",
+      "outOfStockAlert": "Out of Stock Alerts",
+      "lowStockAlert": "Low Stock Alerts",
+      "searchPlaceholder": "Search products...",
+      "allStock": "All Stock",
+      "inStockTab": "In Stock",
+      "lowStockTab": "Low Stock",
+      "outOfStockTab": "Out of Stock",
+      "backorderTab": "Backorder",
+      "productSKUHeader": "Product SKU",
+      "typeHeader": "Type",
+      "stockHeader": "Stock",
+      "thresholdHeader": "Threshold",
+      "statusHeader": "Status",
+      "backorderHeader": "Backorder",
+      "lastUpdatedHeader": "Last Updated",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "editStock": "Edit Stock",
+      "show": "Show",
+      "entries": "entries",
+      "showing": "Showing",
+      "to": "to",
+      "of": "of",
+      "previous": "Previous",
+      "next": "Next"
     }
+  },
+  "messages": {
+    "createdSuccess": "Created successfully",
+    "updatedSuccess": "Updated successfully",
+    "deletedSuccess": "Deleted successfully",
+    "savedSuccess": "Saved successfully",
+    "copiedSuccess": "Copied to clipboard",
+    "loadedSuccess": "Loaded successfully",
+    "publishedSuccess": "Published successfully",
+    "unpublishedSuccess": "Unpublished successfully",
+    "uploadSuccess": "Uploaded successfully",
+    "downloadSuccess": "Downloaded successfully",
+    "actionPending": "Processing...",
+    "confirmDelete": "Are you sure you want to delete this?",
+    "confirmAction": "Are you sure?"
+  },
+  "enums": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "suspended": "Suspended",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "draft": "Draft",
+    "published": "Published",
+    "archived": "Archived",
+    "admin": "Admin",
+    "user": "User",
+    "moderator": "Moderator",
+    "viewer": "Viewer",
+    "guest": "Guest",
+    "yes": "Yes",
+    "no": "No",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "loading": "Loading",
+    "saving": "Saving",
+    "deleting": "Deleting",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "close": "Close",
+    "ok": "OK",
+    "back": "Back"
+  },
+  "lighthouse": {
+    "performanceReportSuccess": "Performance report successfully generated!",
+    "performanceReportGenerated": "Performance report successfully generated!"
   }
 }

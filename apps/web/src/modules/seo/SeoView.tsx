@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   TrendingUp,
@@ -28,6 +29,8 @@ const TABS: MotionTabItem<TabId>[] = [
 ];
 
 export function SeoView() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("seo");
   const [activeTab, setActiveTab] = useState<TabId>("dashboard");
   const [notification, setNotification] = useState<Notification | null>(null);
 

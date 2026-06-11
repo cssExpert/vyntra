@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, Wand2, CheckCircle2, AlertCircle } from "lucide-react";
@@ -102,6 +103,8 @@ function sleep(ms: number) {
 // Component
 // ---------------------------------------------------------------------------
 export function UploadView() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("cms.themes");
   const router = useRouter();
 
   const [step, setStep] = useState<UploadStep>("form");

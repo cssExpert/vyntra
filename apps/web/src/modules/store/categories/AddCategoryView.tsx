@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -82,6 +83,8 @@ export interface AddCategoryViewProps {
 }
 
 export function AddCategoryView({ mode = "add" }: AddCategoryViewProps) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("store.categories");
   const isLoaded = usePageLoad(600);
   const { user } = useAuth();
   const uploadCompanyId = user?.organizationId || "superadmin";

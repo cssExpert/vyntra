@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { Eye, Star, Upload, Check, Send } from "lucide-react";
 
@@ -126,6 +127,8 @@ interface FormPreviewModalProps {
 }
 
 export function FormPreviewModal({ form, onClose }: FormPreviewModalProps) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("cms.forms");
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {

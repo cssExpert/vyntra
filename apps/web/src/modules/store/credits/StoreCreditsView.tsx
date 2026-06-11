@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -28,6 +29,8 @@ function pageWindow(current: number, total: number): (number | "…")[] {
 }
 
 export function StoreCreditsView() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("store.credits");
   const isLoaded = usePageLoad(600);
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -58,6 +59,8 @@ function RevenueBar({ data }: { data: typeof STORE_REVENUE_DATA }) {
 }
 
 export function StoreReportsView() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("store.reports");
   const isLoaded  = usePageLoad(700);
   const [period, setPeriod] = useState<Period>("30D");
 

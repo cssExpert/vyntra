@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, Copy, ExternalLink } from "lucide-react";
 import type { AuthorProfile, BlogFormState } from "./types";
@@ -29,6 +30,8 @@ export function PublishSummaryModal({
   availableAuthors,
   onCopyLink,
 }: PublishSummaryModalProps) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("cms.blog-editor");
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 

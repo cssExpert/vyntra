@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   LayoutTemplate,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import SectionTitle from "@/components/common/SectionTitle";
 import { Modal } from "@/components/common/Modal";
 import { cmsLayouts, cmsMenus, type CmsLayout, type CmsMenu } from "@/lib/api";
@@ -802,6 +803,8 @@ const EMPTY_FORM: FormState = {
 };
 
 export function LayoutsView() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("cms.layouts.tsx");
   const [layouts, setLayouts] = useState<CmsLayout[]>([]);
   const [menus, setMenus] = useState<CmsMenu[]>([]);
   const [loading, setLoading] = useState(true);

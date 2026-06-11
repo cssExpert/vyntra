@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -46,6 +47,8 @@ const TRIGGER_LABELS: Partial<Record<AutomationTrigger, string>> = {
 };
 
 export function AutomationsView() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("store.automations");
   const isLoaded = usePageLoad(600);
   const [rules, setRules] = useState(SAMPLE_AUTOMATIONS);
 

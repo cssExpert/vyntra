@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -61,6 +62,8 @@ const DEFAULT_FILTERS: FormFilters = {
 };
 
 export function FormsView() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("cms.forms");
   const router = useRouter();
   const [forms, setForms] = useState<CmsForm[]>([]);
   const [searchTerm, setSearchTerm] = useState("");

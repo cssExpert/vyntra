@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Laptop,
   Tablet,
@@ -27,6 +28,8 @@ const DEVICES: {
 ];
 
 export function PreviewWebsiteView() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("cms.previewwebsite.tsx");
   const { previewUrl } = useSitePreviewUrl();
   const [device, setDevice] = useState<Device>("desktop");
   const [reloadKey, setReloadKey] = useState(0);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Star, Check, Image as ImageIcon, Calendar, Eye, X } from "lucide-react";
@@ -15,6 +16,8 @@ interface Toast {
 }
 
 export function GalleryDetailView({ galleryId }: { galleryId: string }) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("cms.gallery");
   const router = useRouter();
   const [gallery, setGallery] = useState<Gallery | null>(null);
   const [items, setItems] = useState<GalleryItem[]>([]);

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslations } from "next-intl";
 import {
   useReactTable,
   getCoreRowModel,
@@ -156,6 +157,8 @@ function CategoryForm({
 // ─── Main view ────────────────────────────────────────────────────────────────
 
 export function BlogCategoriesView() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("cms.blog-categories");
   const [categories, setCategories] = useState<CmsBlogCategory[]>([]);
   const [isFetching, setIsFetching] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");

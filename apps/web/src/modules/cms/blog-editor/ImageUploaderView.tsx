@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
 import { motion } from "framer-motion";
 import { FileImage, ArrowUpFromLine, X } from "lucide-react";
@@ -19,6 +20,8 @@ export function ImageUploaderView({
   getPos,
   deleteNode,
 }: NodeViewProps) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("cms.blog-editor");
   const [status, setStatus] = useState<"idle" | "uploading">("idle");
   const [progress, setProgress] = useState(0);
   const [fileName, setFileName] = useState("");

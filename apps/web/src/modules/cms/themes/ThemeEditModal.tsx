@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, Palette, Globe, Lock, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -25,6 +26,8 @@ export function ThemeEditModal({
   onClose,
   onSave,
 }: ThemeEditModalProps) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("cms.themes");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("Portfolio");

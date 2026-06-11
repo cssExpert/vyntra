@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -42,6 +43,8 @@ export function ImageNodeView({
   selected,
   deleteNode,
 }: NodeViewProps) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("cms.blog-editor");
   const { user } = useAuth();
   const uploadCompanyId = user?.organizationId || "superadmin";
   const { src, alt, title, align, width, caption } = node.attrs as {

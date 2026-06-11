@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import {
   Plus,
   Pencil,
@@ -901,6 +902,8 @@ function MenuCard({
 // ─── Main view ─────────────────────────────────────────────────────────────────
 
 export function MenusView() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("cms.menus.tsx");
   const [menus, setMenus] = useState<CmsMenu[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
