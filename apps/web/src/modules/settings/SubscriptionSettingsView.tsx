@@ -2,14 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
-import {
-  CreditCard,
-  Check,
-  Users,
-  Boxes,
-  Info,
-  Sparkles,
-} from "lucide-react";
+import { CreditCard, Check, Users, Boxes, Info, Sparkles } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -68,7 +61,9 @@ export function SubscriptionSettingsView() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <p className="text-muted-foreground">{t("loading", { defaultValue: "Loading subscription…" })}</p>
+        <p className="text-muted-foreground">
+          {t("loading", { defaultValue: "Loading subscription…" })}
+        </p>
       </div>
     );
   }
@@ -77,7 +72,7 @@ export function SubscriptionSettingsView() {
   const moduleName = (key: string) => org?.moduleNames?.[key] ?? key;
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="mx-auto max-w-7xl space-y-6">
       <PageHeader
         title="Subscription"
         description="Your current plan, usage, and what's available."
@@ -92,8 +87,8 @@ export function SubscriptionSettingsView() {
       {!org && !error && (
         <div className="rounded-2xl border border-border bg-card px-6 py-10 text-center">
           <p className="text-sm text-muted-foreground">
-            Subscriptions apply to organizations. Your account isn&apos;t tied to
-            one.
+            Subscriptions apply to organizations. Your account isn&apos;t tied
+            to one.
           </p>
         </div>
       )}
@@ -154,8 +149,8 @@ export function SubscriptionSettingsView() {
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
-              Your organization doesn&apos;t have an active subscription. Contact
-              your administrator to choose a plan.
+              Your organization doesn&apos;t have an active subscription.
+              Contact your administrator to choose a plan.
             </p>
           )}
         </SectionCard>
@@ -163,7 +158,7 @@ export function SubscriptionSettingsView() {
 
       {/* Available plans */}
       {packages.length > 0 && (
-        <div className="space-y-4">
+        <div className="@container space-y-4">
           <div className="flex items-center gap-2">
             <Sparkles size={18} className="text-primary" />
             <h3 className="text-base font-bold text-foreground">
@@ -171,7 +166,7 @@ export function SubscriptionSettingsView() {
             </h3>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 @md:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 @lg:grid-cols-2">
             {packages.map((pkg) => {
               const isCurrent = sub?.packageName === pkg.name;
               const { amount, per } = formatPrice(
@@ -190,7 +185,11 @@ export function SubscriptionSettingsView() {
                   <div className="flex items-center justify-between">
                     <h4 className="font-bold text-foreground">{pkg.name}</h4>
                     {isCurrent && (
-                      <StatusBadge variant="success" label="Current" size="sm" />
+                      <StatusBadge
+                        variant="success"
+                        label="Current"
+                        size="sm"
+                      />
                     )}
                   </div>
 
@@ -240,7 +239,7 @@ export function SubscriptionSettingsView() {
             })}
           </div>
 
-          <div className="flex items-start gap-2 rounded-lg border border-border bg-muted/30 px-4 py-3 text-xs text-muted-foreground">
+          <div className="flex items-start gap-2 rounded-lg border border-border bg-muted px-4 py-3 text-xs text-muted-foreground">
             <Info size={14} className="mt-0.5 shrink-0" />
             <span>
               Plan changes are managed by your administrator. Reach out to them
