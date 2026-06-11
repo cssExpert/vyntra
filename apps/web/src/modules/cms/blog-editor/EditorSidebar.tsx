@@ -60,7 +60,7 @@ export function EditorSidebar({
   return (
     <div className="space-y-6">
       {/* SEO meter */}
-      <EditorCard className="!p-5 space-y-4">
+      <EditorCard className="!p-5 space-y-2">
         <h3 className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground mb-1">
           SEO Optimizer Metric
         </h3>
@@ -103,8 +103,8 @@ export function EditorSidebar({
       </EditorCard>
 
       {/* Writing stats */}
-      <EditorCard className="!p-5 space-y-4">
-        <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+      <EditorCard className="!p-5 space-y-2">
+        <h3 className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
           Writing Quality Stats
         </h3>
         <div className="grid grid-cols-2 gap-3 text-center">
@@ -178,7 +178,7 @@ export function EditorSidebar({
       {/* Inspect card */}
       <div className="p-5 rounded-2xl bg-gradient-to-tr from-primary/20 to-accent/10 border border-primary/20 text-center space-y-3">
         <Sparkles className="w-6 h-6 mx-auto text-primary" />
-        <h4 className="text-xs font-bold text-foreground">
+        <h4 className="text-xs md:text-sm lg:text-base font-bold text-foreground">
           Inspect devices live?
         </h4>
         <p className="text-[10px] text-muted-foreground leading-relaxed">
@@ -187,7 +187,7 @@ export function EditorSidebar({
         <button
           type="button"
           onClick={onInspect}
-          className="w-full py-2 bg-primary hover:bg-primary-600 text-primary-foreground text-xs font-bold rounded-xl transition-all"
+          className="w-full py-2.5 bg-primary hover:bg-primary-600 text-primary-foreground text-xs md:text-sm font-bold rounded-xl transition-all"
         >
           Inspect Layout
         </button>

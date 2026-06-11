@@ -457,7 +457,8 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
         <BubbleMenu
           editor={editor}
           shouldShow={({ editor: e, state }) => {
-            if (e.isActive("image") || e.isActive("imageUploader")) return false;
+            if (e.isActive("image") || e.isActive("imageUploader"))
+              return false;
             const { from, to } = state.selection;
             return from !== to;
           }}
@@ -515,7 +516,7 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
         <EditorContent editor={editor} />
       </div>
 
-      <div className="flex justify-between text-[11px] text-muted-foreground font-mono">
+      <div className="flex justify-between text-xs md:text-sm text-muted-foreground font-mono">
         <span>Type &lsquo;/&rsquo; for commands · select text to format</span>
         <span>{charCount} characters</span>
       </div>

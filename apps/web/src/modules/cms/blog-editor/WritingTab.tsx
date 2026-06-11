@@ -114,7 +114,7 @@ export function WritingTab({
       />
 
       {/* Live writing stats */}
-      <div className="flex items-center gap-3 px-1 -mt-1 text-[10px] text-muted-foreground font-medium select-none">
+      <div className="flex items-center gap-3 px-1 -mt-1 text-xs md:text-sm text-muted-foreground font-medium select-none">
         <span>
           <span className="font-bold text-foreground">
             {wordCount.toLocaleString()}
@@ -143,7 +143,7 @@ export function WritingTab({
         <button
           type="button"
           onClick={onNext}
-          className="px-3 py-1.5 bg-muted text-xs font-semibold rounded-lg flex items-center gap-1 hover:bg-muted/70 transition-all"
+          className="px-4 py-2.5 bg-muted text-xs font-semibold rounded-lg flex items-center gap-1 hover:bg-muted/70 transition-all"
         >
           <span>Next: Metadata Tags</span>
           <MoveRight className="w-3.5 h-3.5" />

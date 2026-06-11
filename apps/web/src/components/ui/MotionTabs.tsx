@@ -48,8 +48,8 @@ export function MotionTabs<T extends string = string>({
   const activeTab = tabs.find((t) => t.id === active);
 
   return (
-    <div className={className}>
-      <div className="p-1 rounded-xl flex items-center gap-1 border border-border bg-card">
+    <div className={`@container ${className}`}>
+      <div className="p-1 rounded-xl flex items-center gap-1 border border-border bg-card flex-wrap @xxl:flex-nowrap">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = active === tab.id;
@@ -72,7 +72,9 @@ export function MotionTabs<T extends string = string>({
                 />
               )}
               {Icon && <Icon className="relative z-10 w-3.5 h-3.5 shrink-0" />}
-              <span className="relative z-10 hidden sm:inline">{tab.label}</span>
+              <span className="relative z-10 hidden sm:inline">
+                {tab.label}
+              </span>
               {tab.badge !== undefined && (
                 <span
                   className={cn(
