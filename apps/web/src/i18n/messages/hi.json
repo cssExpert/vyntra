@@ -497,7 +497,8 @@
       "passwordWarning": "The user will need to use this new password the next time they log in.",
       "deleteUser": "Delete User",
       "deleteWarning": "Are you sure you want to permanently delete",
-      "cannotUndo": "This action cannot be undone."
+      "cannotUndo": "This action cannot be undone.",
+      "promoteConfirm": "व्यवस्थापक में प्रचारित करें"
     },
     "themes": {
       "title": "थीम्स",
@@ -519,7 +520,9 @@
       "colorPalette": "Color Palette",
       "cancel": "रद्द करें",
       "saving": "सहेजा जा रहा है…",
-      "saveTheme": "Save Theme"
+      "saveTheme": "Save Theme",
+      "created": "थीम बनाया गया।",
+      "updated": "थीम अपडेट किया गया।"
     },
     "crm": {
       "title": "CRM",
@@ -761,7 +764,8 @@
         "haiku": "claude-haiku-4-5-20251001",
         "connect": "कनेक्ट करें",
         "disconnect": "डिस्कनेक्ट करें"
-      }
+      },
+      "products": "उत्पाद"
     },
     "cms": {
       "title": "शीर्षक",
@@ -1173,14 +1177,17 @@
       "runningworkflowsinyour": "Running workflows in your store (हिंदी)"
     },
     "orders": {
-      "searchordercustomer": "खोजें"
+      "searchordercustomer": "खोजें",
+      "title": "ऑर्डर",
+      "exportCSV": "CSV के रूप में निर्यात करें"
     },
     "categories": {
       "view": "देखें",
       "edit": "संपादित करें",
       "delete": "हटाएं",
       "dragToReorder": "क्रम बदलने के लिए खींचें",
-      "addCategory": "श्रेणी जोड़ें"
+      "addCategory": "श्रेणी जोड़ें",
+      "title": "श्रेणियां"
     },
     "ai-assistant": {
       "_file_store_ai-assistant_AIAssistantView": "[store/ai-assistant/AIAssistantView.tsx]"
@@ -1192,17 +1199,21 @@
       "_file_store_coupons_CouponsView": "[store/coupons/CouponsView.tsx]"
     },
     "credits": {
-      "_file_store_credits_StoreCreditsView": "[store/credits/StoreCreditsView.tsx]"
+      "_file_store_credits_StoreCreditsView": "[store/credits/StoreCreditsView.tsx]",
+      "title": "स्टोर क्रेडिट"
     },
     "products": {
       "_file_store_products_AddProductView": "[store/products/AddProductView.tsx]",
-      "_file_store_products_ProductsView": "[store/products/ProductsView.tsx]"
+      "_file_store_products_ProductsView": "[store/products/ProductsView.tsx]",
+      "title": "उत्पाद",
+      "description": "अपनी उत्पाद सूची प्रबंधित करें"
     },
     "reports": {
       "_file_store_reports_StoreReportsView": "[store/reports/StoreReportsView.tsx]"
     },
     "rewards": {
-      "_file_store_rewards_RewardPointsView": "[store/rewards/RewardPointsView.tsx]"
+      "_file_store_rewards_RewardPointsView": "[store/rewards/RewardPointsView.tsx]",
+      "title": "पुरस्कार अंक"
     },
     "settings": {
       "generalTab": "सामान्य",
@@ -1228,7 +1239,36 @@
     "bestsellingproductsthismonth": "इस महीने की बेस्टसेलर उत्पादें",
     "activeautomations": "सक्रिय स्वचालन",
     "runningworkflowsinyour": "आपके स्टोर में चल रहे वर्कफ़्लो",
-    "productsDescription": "अपनी उत्पाद सूची प्रबंधित करें"
+    "productsDescription": "अपनी उत्पाद सूची प्रबंधित करें",
+    "inventory": {
+      "title": "इन्वेंटरी",
+      "description": "स्टॉक स्तर और उपलब्धता प्रबंधित करें",
+      "outOfStockAlert": "स्टॉक समाप्त अलर्ट",
+      "lowStockAlert": "कम स्टॉक अलर्ट",
+      "searchPlaceholder": "उत्पाद खोजें...",
+      "allStock": "सभी स्टॉक",
+      "inStockTab": "स्टॉक में",
+      "lowStockTab": "कम स्टॉक",
+      "outOfStockTab": "स्टॉक समाप्त",
+      "backorderTab": "बैकऑर्डर",
+      "productSKUHeader": "उत्पाद SKU",
+      "typeHeader": "प्रकार",
+      "stockHeader": "स्टॉक",
+      "thresholdHeader": "थ्रेसहोल्ड",
+      "statusHeader": "स्थिति",
+      "backorderHeader": "बैकऑर्डर",
+      "lastUpdatedHeader": "अंतिम अपडेट",
+      "enabled": "सक्षम",
+      "disabled": "अक्षम",
+      "editStock": "स्टॉक संपादित करें",
+      "show": "दिखाएं",
+      "entries": "प्रविष्टियां",
+      "showing": "दिखा रहे हैं",
+      "to": "को",
+      "of": "का",
+      "previous": "पिछला",
+      "next": "अगला"
+    }
   },
   "messages": {
     "createdSuccess": "सफलतापूर्वक बनाया गया",
@@ -1291,7 +1331,8 @@
       "_file_lighthouse_LighthouseScanModal": "[lighthouse/LighthouseScanModal.tsx]",
       "_file_lighthouse_LighthouseView": "[lighthouse/LighthouseView.tsx]"
     },
-    "performanceReportSuccess": "प्रदर्शन रिपोर्ट सफलतापूर्वक उत्पन्न!"
+    "performanceReportSuccess": "प्रदर्शन रिपोर्ट सफलतापूर्वक उत्पन्न!",
+    "performanceReportGenerated": "प्रदर्शन रिपोर्ट सफलतापूर्वक उत्पन्न!"
   },
   "mail": {
     "mail": {

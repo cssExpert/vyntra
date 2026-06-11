@@ -497,7 +497,8 @@
       "passwordWarning": "The user will need to use this new password the next time they log in.",
       "deleteUser": "Delete User",
       "deleteWarning": "Are you sure you want to permanently delete",
-      "cannotUndo": "This action cannot be undone."
+      "cannotUndo": "This action cannot be undone.",
+      "promoteConfirm": "Promote to Admin"
     },
     "themes": {
       "title": "Themes",
@@ -519,7 +520,9 @@
       "cancel": "Cancel",
       "saving": "Saving…",
       "saveTheme": "Save Theme",
-      "loading": "लोड हो रहा है…"
+      "loading": "लोड हो रहा है…",
+      "created": "Theme created.",
+      "updated": "Theme updated."
     },
     "crm": {
       "title": "CRM",
@@ -761,7 +764,8 @@
       },
       "searchOrderPlaceholder": "ऑर्डर आईडी, ग्राहक द्वारा खोजें...",
       "addCategory": "श्रेणी जोड़ें",
-      "status": "स्थिति"
+      "status": "स्थिति",
+      "products": "Products"
     },
     "cms": {
       "title": "Title",
@@ -1173,14 +1177,17 @@
       "runningworkflowsinyour": "Running workflows in your store"
     },
     "orders": {
-      "searchordercustomer": "Search order #, customer…"
+      "searchordercustomer": "Search order #, customer…",
+      "title": "Orders",
+      "exportCSV": "Export as CSV"
     },
     "categories": {
       "view": "View",
       "edit": "Edit",
       "delete": "Delete",
       "dragToReorder": "Drag to reorder",
-      "addCategory": "Add Category"
+      "addCategory": "Add Category",
+      "title": "Categories"
     },
     "ai-assistant": {
       "_file_store_ai-assistant_AIAssistantView": "[store/ai-assistant/AIAssistantView.tsx]"
@@ -1192,17 +1199,21 @@
       "_file_store_coupons_CouponsView": "[store/coupons/CouponsView.tsx]"
     },
     "credits": {
-      "_file_store_credits_StoreCreditsView": "[store/credits/StoreCreditsView.tsx]"
+      "_file_store_credits_StoreCreditsView": "[store/credits/StoreCreditsView.tsx]",
+      "title": "Store Credits"
     },
     "products": {
       "_file_store_products_AddProductView": "[store/products/AddProductView.tsx]",
-      "_file_store_products_ProductsView": "[store/products/ProductsView.tsx]"
+      "_file_store_products_ProductsView": "[store/products/ProductsView.tsx]",
+      "title": "Products",
+      "description": "Manage your product catalog"
     },
     "reports": {
       "_file_store_reports_StoreReportsView": "[store/reports/StoreReportsView.tsx]"
     },
     "rewards": {
-      "_file_store_rewards_RewardPointsView": "[store/rewards/RewardPointsView.tsx]"
+      "_file_store_rewards_RewardPointsView": "[store/rewards/RewardPointsView.tsx]",
+      "title": "Reward Points"
     },
     "settings": {
       "generalTab": "General",
@@ -1228,7 +1239,36 @@
     "bestsellingproductsthismonth": "Best-selling products this month",
     "activeautomations": "Active Automations",
     "runningworkflowsinyour": "Running workflows in your store",
-    "productsDescription": "Manage your product catalog"
+    "productsDescription": "Manage your product catalog",
+    "inventory": {
+      "title": "Inventory",
+      "description": "Manage stock levels and availability",
+      "outOfStockAlert": "Out of Stock Alerts",
+      "lowStockAlert": "Low Stock Alerts",
+      "searchPlaceholder": "Search products...",
+      "allStock": "All Stock",
+      "inStockTab": "In Stock",
+      "lowStockTab": "Low Stock",
+      "outOfStockTab": "Out of Stock",
+      "backorderTab": "Backorder",
+      "productSKUHeader": "Product SKU",
+      "typeHeader": "Type",
+      "stockHeader": "Stock",
+      "thresholdHeader": "Threshold",
+      "statusHeader": "Status",
+      "backorderHeader": "Backorder",
+      "lastUpdatedHeader": "Last Updated",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "editStock": "Edit Stock",
+      "show": "Show",
+      "entries": "entries",
+      "showing": "Showing",
+      "to": "to",
+      "of": "of",
+      "previous": "Previous",
+      "next": "Next"
+    }
   },
   "messages": {
     "createdSuccess": "Created successfully",
@@ -1291,7 +1331,8 @@
       "_file_lighthouse_LighthouseScanModal": "[lighthouse/LighthouseScanModal.tsx]",
       "_file_lighthouse_LighthouseView": "[lighthouse/LighthouseView.tsx]"
     },
-    "performanceReportSuccess": "Performance report successfully generated!"
+    "performanceReportSuccess": "Performance report successfully generated!",
+    "performanceReportGenerated": "Performance report successfully generated!"
   },
   "mail": {
     "mail": {
