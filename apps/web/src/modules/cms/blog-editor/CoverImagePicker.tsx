@@ -17,6 +17,7 @@ import { storageService } from "@/lib/storage";
 import { mediaAssets, type MediaAsset } from "@/lib/api";
 import { useAuth } from "@/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
+import { MotionTabs } from "@/components/ui/MotionTabs";
 import { Modal } from "@/components/common/Modal";
 
 // ─── Subtype badge ────────────────────────────────────────────────────────────
@@ -198,26 +199,19 @@ function LibraryModal({
       bodyMaxHeight="none"
       headerActions={
         <>
-          {/* Subtype filter pills */}
-          <div className="hidden md:flex items-center gap-1 min-h-8 p-0.5 bg-muted rounded-lg border border-border">
-            {FILTERS.map((f) => (
-              <Button
-                key={f}
-                type="button"
-                variant="ghost"
-                size="xs"
-                radius="md"
-                active={filter === f}
-                onClick={() => setFilter(f)}
-                className={`h-7 px-3 text-[10px] font-bold capitalize ${
-                  filter === f
-                    ? ""
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1)}
-              </Button>
-            ))}
+          {/* Subtype filter tabs */}
+          <div className="hidden md:block">
+            <MotionTabs<FilterType>
+              tabs={FILTERS.map((f) => ({
+                id: f,
+                label:
+                  f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1),
+              }))}
+              active={filter}
+              onChange={setFilter}
+              layoutId="media-library-filter"
+              size="sm"
+            />
           </div>
 
           <div className="hidden md:flex items-center">
@@ -230,13 +224,13 @@ function LibraryModal({
               onChange={handleUpload}
             />
             <Button
+              size="md"
               type="button"
-              size="sm"
               radius="lg"
               onClick={() => fileInputRef.current?.click()}
               loading={isUploading}
               className="gap-1.5 px-3 font-bold"
-              startIcon={<UploadCloud className="w-3.5 h-3.5" />}
+              startIcon={<UploadCloud className="w-4 h-4" />}
             >
               Upload new
             </Button>
@@ -279,7 +273,6 @@ function LibraryModal({
             </div>
             <Button
               type="button"
-              size="sm"
               radius="lg"
               onClick={() => fileInputRef.current?.click()}
               className="gap-1.5 px-4 font-bold"
@@ -303,7 +296,7 @@ function LibraryModal({
                       if (e.key === "Enter" || e.key === " ")
                         onSelect(asset.url);
                     }}
-                    className={`group relative rounded-xl overflow-hidden border-2 transition-all duration-150 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                    className={`group relative rounded-xl overflow-hidden border-1 !border-black/10 transition-all duration-150 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                       selected
                         ? "border-primary shadow-lg shadow-primary/20 scale-[0.97]"
                         : "border-transparent hover:border-primary/40 hover:shadow-md"
