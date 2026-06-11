@@ -642,7 +642,7 @@ function LanguagesTab() {
         title="Available Languages"
         description="Select which languages visitors can switch between on your public site. English is always available and set as the baseline."
       >
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
           {SITE_LANGUAGES.map((lang) => {
             const isSelected = selectedLangs.includes(lang.code);
             const isRequired = lang.code === "en";
