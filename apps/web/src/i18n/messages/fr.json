@@ -1155,10 +1155,12 @@
     "colordetails": "Détails des couleurs",
     "themeshub": "Hub des thèmes",
     "deletethistheme": "Supprimer ce thème",
-    "theme.loadError": "Échec du chargement des thèmes.",
-    "theme.activateSuccess": "Thème activé avec succès.",
-    "theme.activateError": "Échec de l'activation du thème.",
-    "theme.deleteError": "Échec de la suppression du thème."
+    "theme": {
+      "loadError": "Échec du chargement des thèmes.",
+      "activateSuccess": "Thème activé avec succès.",
+      "activateError": "Échec de l'activation du thème.",
+      "deleteError": "Échec de la suppression du thème."
+    }
   },
   "store": {
     "store": {
@@ -1305,34 +1307,5 @@
     "users": {
       "_file_users_UsersView": "[users/UsersView.tsx]"
     }
-  },
-  "store.categories": {
-    "view": "Afficher",
-    "edit": "Modifier",
-    "delete": "Supprimer",
-    "dragToReorder": "Faire glisser pour réorganiser",
-    "addCategory": "Ajouter une catégorie"
-  },
-  "store.settings": {
-    "generalTab": "Général",
-    "paymentTab": "Paiement",
-    "shippingTab": "Expédition",
-    "taxTab": "Taxe",
-    "notificationsTab": "Notifications",
-    "aiIntegrationsTab": "Intégrations IA",
-    "storeDescription": "Paramètres de la boutique",
-    "alert": "Alerte",
-    "cancel": "Annuler",
-    "saveChanges": "Enregistrer les modifications"
-  },
-  "admin.domainManagement": {
-    "failedtoloaddomaininfo": "Impossible de charger les informations du domaine",
-    "subdomainsaved": "Sous-domaine enregistré.",
-    "failedtosavesubdomain": "Impossible d'enregistrer le sous-domaine",
-    "subdomainremoved": "Sous-domaine supprimé.",
-    "failedtoremovesubdomain": "Impossible de supprimer le sous-domaine",
-    "customdomainsavedaddthednsrecordsbelowthenverify": "Domaine personnalisé enregistré. Ajoutez les enregistrements DNS ci-dessous, puis vérifiez.",
-    "customdomainremoved": "Domaine personnalisé supprimé.",
-    "verificationfailed": "Vérification échouée"
   }
 }

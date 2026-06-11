@@ -1155,10 +1155,12 @@
     "colordetails": "Color Details",
     "themeshub": "Themes Hub",
     "deletethistheme": "Delete this theme",
-    "theme.loadError": "Failed to load themes.",
-    "theme.activateSuccess": "Theme activated successfully.",
-    "theme.activateError": "Failed to activate theme.",
-    "theme.deleteError": "Failed to delete theme."
+    "theme": {
+      "loadError": "Failed to load themes.",
+      "activateSuccess": "Theme activated successfully.",
+      "activateError": "Failed to activate theme.",
+      "deleteError": "Failed to delete theme."
+    }
   },
   "store": {
     "store": {
@@ -1305,34 +1307,5 @@
     "users": {
       "_file_users_UsersView": "[users/UsersView.tsx]"
     }
-  },
-  "store.categories": {
-    "view": "View",
-    "edit": "Edit",
-    "delete": "Delete",
-    "dragToReorder": "Drag to reorder",
-    "addCategory": "Add Category"
-  },
-  "store.settings": {
-    "generalTab": "General",
-    "paymentTab": "Payment",
-    "shippingTab": "Shipping",
-    "taxTab": "Tax",
-    "notificationsTab": "Notifications",
-    "aiIntegrationsTab": "AI Integrations",
-    "storeDescription": "Store Settings",
-    "alert": "Alert",
-    "cancel": "Cancel",
-    "saveChanges": "Save Changes"
-  },
-  "admin.domainManagement": {
-    "failedtoloaddomaininfo": "Failed to load domain info",
-    "subdomainsaved": "Subdomain saved.",
-    "failedtosavesubdomain": "Failed to save subdomain",
-    "subdomainremoved": "Subdomain removed.",
-    "failedtoremovesubdomain": "Failed to remove subdomain",
-    "customdomainsavedaddthednsrecordsbelowthenverify": "Custom domain saved. Add the DNS records below, then verify.",
-    "customdomainremoved": "Custom domain removed.",
-    "verificationfailed": "Verification failed"
   }
 }

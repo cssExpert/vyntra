@@ -1155,10 +1155,12 @@
     "colordetails": "रंग विवरण",
     "themeshub": "थीम हब",
     "deletethistheme": "यह थीम हटाएं",
-    "theme.loadError": "थीम लोड करने में विफल।",
-    "theme.activateSuccess": "थीम सफलतापूर्वक सक्रिय किया गया।",
-    "theme.activateError": "थीम सक्रिय करने में विफल।",
-    "theme.deleteError": "थीम हटाने में विफल।"
+    "theme": {
+      "loadError": "थीम लोड करने में विफल।",
+      "activateSuccess": "थीम सफलतापूर्वक सक्रिय किया गया।",
+      "activateError": "थीम सक्रिय करने में विफल।",
+      "deleteError": "थीम हटाने में विफल।"
+    }
   },
   "store": {
     "store": {
@@ -1305,34 +1307,5 @@
     "users": {
       "_file_users_UsersView": "[users/UsersView.tsx]"
     }
-  },
-  "store.categories": {
-    "view": "देखें",
-    "edit": "संपादित करें",
-    "delete": "हटाएं",
-    "dragToReorder": "क्रम बदलने के लिए खींचें",
-    "addCategory": "श्रेणी जोड़ें"
-  },
-  "store.settings": {
-    "generalTab": "सामान्य",
-    "paymentTab": "भुगतान",
-    "shippingTab": "शिपिंग",
-    "taxTab": "कर",
-    "notificationsTab": "अधिसूचनाएं",
-    "aiIntegrationsTab": "AI एकीकरण",
-    "storeDescription": "स्टोर सेटिंग्स",
-    "alert": "अलर्ट",
-    "cancel": "रद्द करें",
-    "saveChanges": "परिवर्तन सहेजें"
-  },
-  "admin.domainManagement": {
-    "failedtoloaddomaininfo": "डोमेन जानकारी लोड करने में विफल",
-    "subdomainsaved": "सबडोमेन सहेजा गया।",
-    "failedtosavesubdomain": "सबडोमेन सहेजने में विफल",
-    "subdomainremoved": "सबडोमेन हटाया गया।",
-    "failedtoremovesubdomain": "सबडोमेन निकालने में विफल",
-    "customdomainsavedaddthednsrecordsbelowthenverify": "कस्टम डोमेन सहेजा गया। नीचे DNS रिकॉर्ड जोड़ें, फिर सत्यापित करें।",
-    "customdomainremoved": "कस्टम डोमेन हटाया गया।",
-    "verificationfailed": "सत्यापन विफल"
   }
 }
