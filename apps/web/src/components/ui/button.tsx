@@ -41,8 +41,44 @@ const buttonVariants = cva(
         xl: "rounded-xl",
         full: "rounded-full",
       },
+      // ── Active / selected state (tabs, filter pills, toggles) ────────
+      active: {
+        true: "",
+        false: "",
+      },
     },
-    defaultVariants: { variant: "default", size: "default", radius: "md" },
+    // How each colour variant looks while active
+    compoundVariants: [
+      { variant: "default", active: true, className: "bg-primary-600" },
+      { variant: "secondary", active: true, className: "bg-secondary/80" },
+      {
+        variant: "muted",
+        active: true,
+        className:
+          "bg-primary text-primary-foreground hover:bg-primary-600 hover:text-primary-foreground shadow-sm",
+      },
+      {
+        variant: "outline",
+        active: true,
+        className:
+          "border-primary bg-primary text-primary-foreground hover:bg-primary-600 hover:text-primary-foreground",
+      },
+      {
+        variant: "ghost",
+        active: true,
+        className:
+          "bg-primary text-primary-foreground hover:bg-primary-600 hover:text-primary-foreground shadow-sm",
+      },
+      { variant: "link", active: true, className: "underline" },
+      { variant: "destructive", active: true, className: "bg-rose-700" },
+      { variant: "success", active: true, className: "bg-emerald-700" },
+    ],
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+      radius: "md",
+      active: false,
+    },
   },
 );
 
@@ -68,6 +104,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       variant,
       size,
       radius,
+      active = false,
       asChild = false,
       startIcon,
       endIcon,
@@ -79,13 +116,20 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref,
   ) => {
-    const classes = cn(buttonVariants({ variant, size, radius, className }));
+    const classes = cn(
+      buttonVariants({ variant, size, radius, active, className }),
+    );
 
     // Slot requires a single child — icon/loading decoration only applies
     // to the plain <button> form.
     if (asChild) {
       return (
-        <Slot ref={ref} className={classes} {...props}>
+        <Slot
+          ref={ref}
+          className={classes}
+          data-active={active || undefined}
+          {...props}
+        >
           {children}
         </Slot>
       );
@@ -97,6 +141,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         className={classes}
         disabled={disabled || loading}
         aria-busy={loading || undefined}
+        aria-pressed={active || undefined}
+        data-active={active || undefined}
         {...props}
       >
         {loading ? <Loader2 className="animate-spin" aria-hidden /> : startIcon}

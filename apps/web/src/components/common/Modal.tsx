@@ -20,6 +20,9 @@ export interface ModalProps {
   description?: React.ReactNode;
   icon?: React.ReactNode;
   iconVariant?: "default" | "danger";
+  /** Optional controls rendered in the header, between the title and the
+   *  close button (e.g. filter pills, an upload action). */
+  headerActions?: React.ReactNode;
   children?: React.ReactNode;
   footer?: React.ReactNode;
   maxWidth?: keyof typeof maxWidthMap;
@@ -34,6 +37,7 @@ export function Modal({
   description,
   icon,
   iconVariant = "default",
+  headerActions,
   children,
   footer,
   maxWidth = "lg",
@@ -92,13 +96,16 @@ export function Modal({
                   )}
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={onClose}
-                className="w-8 h-8 ml-4 shrink-0 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-              >
-                <X size={18} />
-              </button>
+              <div className="flex items-center gap-2 ml-4 shrink-0">
+                {headerActions}
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                >
+                  <X size={18} />
+                </button>
+              </div>
             </div>
 
             {/* Body */}
