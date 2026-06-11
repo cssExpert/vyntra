@@ -110,7 +110,7 @@ export function MetadataTab({
       {/* Title */}
       <IconTitle
         title="Categorize and Index Content"
-        titleClassName="text-sm md:text-base font-bold text-foreground"
+        titleClassName="text-sm md:text-base lg:text-lg font-bold text-foreground"
         icon={Tag}
       />
 
@@ -329,14 +329,20 @@ export function MetadataTab({
       </div>
 
       <div className="flex justify-between pt-2">
-        <Button variant="muted" radius="lg" className="h-auto px-4 py-2.5 gap-1 text-xs font-semibold"
+        <Button
+          variant="muted"
+          radius="lg"
+          className="h-auto px-4 py-2.5 gap-1 text-xs font-semibold"
           type="button"
           onClick={onBack}
         >
           <MoveLeft className="w-3.5 h-3.5" />
           <span>Back</span>
         </Button>
-        <Button variant="muted" radius="lg" className="h-auto px-4 py-2.5 gap-1 text-xs font-semibold"
+        <Button
+          variant="muted"
+          radius="lg"
+          className="h-auto px-4 py-2.5 gap-1 text-xs font-semibold"
           type="button"
           onClick={onNext}
         >

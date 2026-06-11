@@ -40,7 +40,7 @@ export function WritingTab({
       {/* Title */}
       <IconTitle
         title="Content Studio"
-        titleClassName="text-sm md:text-base font-bold text-foreground"
+        titleClassName="text-sm md:text-base lg:text-lg font-bold text-foreground"
         icon={BookOpenText}
         iconClassName="w-4 h-4 text-primary"
       />
@@ -140,7 +140,10 @@ export function WritingTab({
       </div>
 
       <div className="flex justify-end pt-2">
-        <Button variant="muted" radius="lg" className="h-auto px-4 py-2.5 gap-1 text-xs font-semibold"
+        <Button
+          variant="muted"
+          radius="lg"
+          className="h-auto px-4 py-2.5 gap-1 text-xs font-semibold"
           type="button"
           onClick={onNext}
         >

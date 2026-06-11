@@ -131,7 +131,7 @@ export function PublishTab({
       {/* Title */}
       <IconTitle
         title="Audience &amp; Launch Visibility"
-        titleClassName="text-sm md:text-base font-bold text-foreground"
+        titleClassName="text-sm md:text-base lg:text-lg font-bold text-foreground"
         icon={Settings}
       />
 

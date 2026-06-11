@@ -111,7 +111,9 @@ function CategoryForm({
         </div>
       )}
       <div>
-        <label className={labelCls}>Name *</label>
+        <label className={labelCls}>
+          Name <span className="text-destructive">*</span>
+        </label>
         <input
           type="text"
           value={value.name}
@@ -129,7 +131,9 @@ function CategoryForm({
         />
       </div>
       <div>
-        <label className={labelCls}>Slug *</label>
+        <label className={labelCls}>
+          Slug <span className="text-destructive">*</span>
+        </label>
         <input
           type="text"
           value={value.slug}
@@ -158,7 +162,7 @@ function CategoryForm({
 // ─── Main view ────────────────────────────────────────────────────────────────
 
 export function BlogCategoriesView() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("cms.blog-categories");
   const [categories, setCategories] = useState<CmsBlogCategory[]>([]);
   const [isFetching, setIsFetching] = useState(true);
@@ -338,7 +342,7 @@ export function BlogCategoriesView() {
         },
       }),
     ],
-     
+
     [],
   );
 
@@ -388,7 +392,10 @@ export function BlogCategoriesView() {
               className="!w-auto"
             />
             <div className="flex items-center gap-2">
-              <Button size="lg" radius="sm" className="px-4 active:scale-[0.98] group"
+              <Button
+                size="lg"
+                radius="sm"
+                className="px-4 active:scale-[0.98] group"
                 onClick={openCreate}
               >
                 <Plus
@@ -564,7 +571,10 @@ export function BlogCategoriesView() {
                   Showing {fromEntry} to {toEntry} of {filteredCount} entries
                 </span>
                 <div className="flex items-center gap-1">
-                  <Button variant="outline" radius="sm" className="h-8 px-3 text-muted-foreground"
+                  <Button
+                    variant="outline"
+                    radius="sm"
+                    className="h-8 px-3 text-muted-foreground"
                     onClick={() => table.previousPage()}
                     disabled={!table.getCanPreviousPage()}
                   >
@@ -584,7 +594,10 @@ export function BlogCategoriesView() {
                       {i + 1}
                     </Button>
                   ))}
-                  <Button variant="outline" radius="sm" className="h-8 px-3 text-muted-foreground"
+                  <Button
+                    variant="outline"
+                    radius="sm"
+                    className="h-8 px-3 text-muted-foreground"
                     onClick={() => table.nextPage()}
                     disabled={!table.getCanNextPage()}
                   >
@@ -604,7 +617,10 @@ export function BlogCategoriesView() {
             maxWidth="sm"
             footer={
               <>
-                <Button variant="ghost" radius="sm" className="font-semibold text-muted-foreground hover:text-foreground"
+                <Button
+                  variant="ghost"
+                  radius="sm"
+                  className="font-semibold text-muted-foreground hover:text-foreground"
                   type="button"
                   onClick={closeModal}
                 >
@@ -652,7 +668,10 @@ export function BlogCategoriesView() {
             maxWidth="md"
             footer={
               <>
-                <Button variant="ghost" radius="sm" className="font-semibold text-muted-foreground hover:text-foreground"
+                <Button
+                  variant="ghost"
+                  radius="sm"
+                  className="font-semibold text-muted-foreground hover:text-foreground"
                   type="button"
                   onClick={() => setDeletingCategory(null)}
                 >
