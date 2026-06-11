@@ -3,9 +3,9 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
-import { Globe, Check } from "lucide-react";
+import { Languages, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { localeLabels, type Locale, locales } from "@/i18n/config";
+import { localeFlags, localeLabels, type Locale, locales } from "@/i18n/config";
 
 /* Same dropdown motion as NotificationsDropdown / ProfileMenu */
 const dropdownVariants = {
@@ -107,7 +107,9 @@ export function LanguageSwitcher() {
         aria-label="Change language"
         title={localeLabels[currentLocale]}
       >
-        <Globe className="h-4 w-4" />
+        <span className="text-base leading-none" aria-hidden>
+          {localeFlags[currentLocale] ?? <Languages className="h-4 w-4" />}
+        </span>
       </button>
 
       {/*
@@ -149,7 +151,7 @@ export function LanguageSwitcher() {
               {/* ── Header ──────────────────────────────── */}
               <div className="flex items-center gap-2 px-4 py-3 border-b border-border/50">
                 <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
-                  <Globe className="h-3.5 w-3.5 text-primary" />
+                  <Languages className="h-3.5 w-3.5 text-primary" />
                 </span>
                 <span className="text-sm font-semibold text-foreground">
                   Language
@@ -171,14 +173,17 @@ export function LanguageSwitcher() {
                       variants={itemVariants}
                       onClick={() => handleChangeLocale(locale)}
                       className={cn(
-                        "flex w-full items-center justify-between px-4 py-2.5 text-sm text-left",
+                        "flex w-full items-center gap-2.5 px-4 py-2.5 text-sm text-left",
                         "hover:bg-muted/60 transition-colors duration-150 cursor-pointer",
                         active
                           ? "font-semibold text-primary"
                           : "text-foreground",
                       )}
                     >
-                      {localeLabels[locale]}
+                      <span className="text-base leading-none" aria-hidden>
+                        {localeFlags[locale]}
+                      </span>
+                      <span className="flex-1">{localeLabels[locale]}</span>
                       {active && <Check className="h-3.5 w-3.5 shrink-0" />}
                     </motion.button>
                   );

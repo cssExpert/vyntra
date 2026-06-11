@@ -166,7 +166,7 @@ export function SubscriptionSettingsView() {
             </h3>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 @md:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 @lg:grid-cols-2">
+          <div className="grid gap-4 grid-cols-1 @md:grid-cols-2 @3xl:grid-cols-3 @5xl:grid-cols-4">
             {packages.map((pkg) => {
               const isCurrent = sub?.packageName === pkg.name;
               const { amount, per } = formatPrice(
