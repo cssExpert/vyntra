@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { ArrowLeft, Calendar, Clock } from "lucide-react";
+import { MoveLeft, Calendar, Clock } from "lucide-react";
 
 interface Post {
   id: number;
@@ -197,7 +197,7 @@ export default function App() {
           onClick={() => setView("list")}
           className="flex items-center gap-2 text-slate-500 hover:text-slate-950 font-semibold mb-8 transition"
         >
-          <ArrowLeft size={20} /> Back to Blog
+          <MoveLeft size={20} /> Back to Blog
         </button>
 
         <article>

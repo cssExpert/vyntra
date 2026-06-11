@@ -3,7 +3,7 @@
 import React from "react";
 import {
   Settings,
-  ArrowLeft,
+  MoveLeft,
   Check,
   CheckCircle,
   FileText,
@@ -21,6 +21,7 @@ import {
   type BlogFormState,
   type BlogVisibility,
 } from "./types";
+import IconTitle from "@/components/common/IconTitle";
 
 export interface PublishTabProps {
   form: BlogFormState;
@@ -125,13 +126,15 @@ export function PublishTab({
   onPublish,
 }: PublishTabProps) {
   return (
-    <EditorCard className="space-y-6">
-      <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-        <Settings className="w-4 h-4 text-primary" />
-        <span>Audience &amp; Launch Visibility</span>
-      </h3>
+    <EditorCard className="@container space-y-6">
+      {/* Title */}
+      <IconTitle
+        title="Audience &amp; Launch Visibility"
+        titleClassName="text-sm md:text-base font-bold text-foreground"
+        icon={Settings}
+      />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 @lg:grid-cols-2 gap-6">
         {/* Left: schedule + visibility */}
         <div className="space-y-4">
           <div>
@@ -145,26 +148,26 @@ export function PublishTab({
                     key={st.id}
                     type="button"
                     onClick={() => patch({ status: st.id })}
-                    className={`w-full p-2.5 rounded-lg border text-left flex items-center gap-3 transition-all ${
+                    className={`w-full p-2.5 rounded-lg border text-left flex items-center gap-2 transition-all ${
                       active
                         ? st.activeClass
                         : "bg-background border-border hover:bg-muted text-foreground"
                     }`}
                   >
                     <span
-                      className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                        active ? "bg-white/30" : "bg-muted"
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                        active ? "bg-white/90" : "bg-muted"
                       }`}
                     >
-                      <Icon className="w-3.5 h-3.5" />
+                      <Icon className="w-4 h-4" />
                     </span>
                     <span className="flex-1 text-left">
-                      <span className="font-semibold block text-xs">
+                      <span className="font-semibold block text-xs md:text-sm">
                         {st.label}
                       </span>
                       <span className="text-[10px] opacity-70">{st.desc}</span>
                     </span>
-                    {active && <Check className="w-3.5 h-3.5 shrink-0" />}
+                    {active && <Check className="w-4 h-4 shrink-0" />}
                   </button>
                 );
               })}
@@ -223,17 +226,17 @@ export function PublishTab({
                     }`}
                   >
                     <span
-                      className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                         active
                           ? "bg-primary/20 text-primary"
                           : "bg-muted text-muted-foreground"
                       }`}
                     >
-                      <Icon className="w-3.5 h-3.5" />
+                      <Icon className="w-4 h-4" />
                     </span>
                     <span className="flex-1">
                       <span
-                        className={`font-semibold block text-xs ${active ? "text-primary" : "text-foreground"}`}
+                        className={`font-semibold block text-xs md:text-sm ${active ? "text-primary" : "text-foreground"}`}
                       >
                         {vis.title}
                       </span>
@@ -282,12 +285,12 @@ export function PublishTab({
                     >
                       <span className="flex items-center gap-2">
                         <span
-                          className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0 ${avatarColor(aut.id)}`}
+                          className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0 ${avatarColor(aut.id)}`}
                         >
                           {authorInitials(aut.name)}
                         </span>
                         <span className="text-left">
-                          <span className="font-semibold block text-foreground">
+                          <span className="text-xs md:text-sm font-semibold block text-foreground">
                             {aut.name}
                           </span>
                           <span className="text-[9px] text-muted-foreground">
@@ -295,9 +298,7 @@ export function PublishTab({
                           </span>
                         </span>
                       </span>
-                      {selected && (
-                        <Check className="w-3.5 h-3.5 text-primary" />
-                      )}
+                      {selected && <Check className="w-4 h-4 text-primary" />}
                     </button>
                   );
                 })}
@@ -329,15 +330,15 @@ export function PublishTab({
         <button
           type="button"
           onClick={onBack}
-          className="px-3 py-1.5 bg-muted text-xs font-semibold rounded-lg flex items-center gap-1 hover:bg-muted/70 transition-all"
+          className="px-3 py-2.5 bg-muted text-xs font-semibold rounded-lg flex items-center gap-1 hover:bg-muted/70 transition-all"
         >
-          <ArrowLeft className="w-3.5 h-3.5" />
+          <MoveLeft className="w-3.5 h-3.5" />
           <span>Back</span>
         </button>
         <button
           type="button"
           onClick={onPublish}
-          className="px-5 py-2 bg-primary hover:bg-primary-600 text-primary-foreground font-bold text-xs rounded-lg flex items-center gap-1.5 transition-all active:scale-95"
+          className="px-5 py-2.5 bg-primary hover:bg-primary-600 text-primary-foreground font-bold text-xs rounded-lg flex items-center gap-1.5 transition-all active:scale-95"
         >
           <CheckCircle className="w-3.5 h-3.5" />
           <span>

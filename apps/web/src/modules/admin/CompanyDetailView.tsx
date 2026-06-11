@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  ArrowLeft,
+  MoveLeft,
   Blocks,
   Building2,
   CalendarDays,
@@ -23,11 +23,7 @@ import {
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Toaster, useToaster } from "@/components/common/Toaster";
-import {
-  admin,
-  type AdminCompanyDetail,
-  type AdminPackage,
-} from "@/lib/api";
+import { admin, type AdminCompanyDetail, type AdminPackage } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { AdminGuard } from "./AdminGuard";
 import { EditCompanyModal } from "./EditCompanyModal";
@@ -78,7 +74,11 @@ function Inner({ companyId }: { companyId: string }) {
       setCompany(c);
       setPackages(p);
     } catch (e) {
-      setError(e instanceof Error ? e.message : t("loadError", { defaultValue: "Failed to load company" }));
+      setError(
+        e instanceof Error
+          ? e.message
+          : t("loadError", { defaultValue: "Failed to load company" }),
+      );
     } finally {
       setLoading(false);
     }
@@ -90,7 +90,9 @@ function Inner({ companyId }: { companyId: string }) {
 
   if (loading) {
     return (
-      <p className="py-24 text-center text-sm text-muted-foreground">{t("loading", { defaultValue: "Loading…" })}</p>
+      <p className="py-24 text-center text-sm text-muted-foreground">
+        {t("loading", { defaultValue: "Loading…" })}
+      </p>
     );
   }
 
@@ -101,7 +103,8 @@ function Inner({ companyId }: { companyId: string }) {
           onClick={() => router.push("/admin/companies")}
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition"
         >
-          <ArrowLeft className="h-4 w-4" /> {t("back", { defaultValue: "Back to Companies" })}
+          <MoveLeft className="h-4 w-4" />{" "}
+          {t("back", { defaultValue: "Back to Companies" })}
         </button>
         <p className="rounded-lg bg-error/10 border border-error/20 px-3 py-2 text-sm text-error">
           {error || t("notFound", { defaultValue: "Company not found" })}
@@ -116,7 +119,8 @@ function Inner({ companyId }: { companyId: string }) {
         onClick={() => router.push("/admin/companies")}
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition cursor-pointer"
       >
-        <ArrowLeft className="h-4 w-4" /> {t("back", { defaultValue: "Back to Companies" })}
+        <MoveLeft className="h-4 w-4" />{" "}
+        {t("back", { defaultValue: "Back to Companies" })}
       </button>
 
       <PageHeader
@@ -127,7 +131,8 @@ function Inner({ companyId }: { companyId: string }) {
           onClick={() => setEditing(true)}
           className="flex items-center gap-2 rounded-lg bg-foreground px-3 py-2 text-sm font-semibold text-background hover:opacity-90 transition cursor-pointer"
         >
-          <Pencil className="h-4 w-4" /> {t("edit", { defaultValue: "Edit Company" })}
+          <Pencil className="h-4 w-4" />{" "}
+          {t("edit", { defaultValue: "Edit Company" })}
         </button>
       </PageHeader>
 
@@ -161,7 +166,10 @@ function Inner({ companyId }: { companyId: string }) {
           </p>
         </div>
         <div className="ml-auto flex flex-wrap gap-6 text-sm">
-          <Stat label="Plan" value={company.subscription?.package.name ?? "—"} />
+          <Stat
+            label="Plan"
+            value={company.subscription?.package.name ?? "—"}
+          />
           <Stat
             label="Users"
             value={`${company._count.users} / ${company.maxUsers}`}
@@ -430,7 +438,10 @@ function BillingTab({ company }: { company: AdminCompanyDetail }) {
               <p className="text-xl font-bold text-foreground">
                 {formatPrice(sub.package.priceCents, sub.package.billingCycle)}
               </p>
-              <StatusBadge variant={statusVariant(sub.status)} label={sub.status} />
+              <StatusBadge
+                variant={statusVariant(sub.status)}
+                label={sub.status}
+              />
             </div>
           </div>
 
@@ -555,9 +566,7 @@ function ModulesTab({ company }: { company: AdminCompanyDetail }) {
             {m.enabled ? (
               <span className="text-success">Enabled</span>
             ) : (
-              <span className="text-muted-foreground">
-                Not in plan
-              </span>
+              <span className="text-muted-foreground">Not in plan</span>
             )}
           </p>
         </div>
@@ -669,13 +678,7 @@ function MiniStat({
   );
 }
 
-function EmptyCard({
-  icon,
-  text,
-}: {
-  icon: React.ReactNode;
-  text: string;
-}) {
+function EmptyCard({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (
     <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card py-16 text-center text-muted-foreground">
       <div className="mb-3 opacity-40">{icon}</div>

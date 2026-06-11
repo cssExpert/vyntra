@@ -4,7 +4,15 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Star, Check, Image as ImageIcon, Calendar, Eye, X } from "lucide-react";
+import {
+  MoveLeft,
+  Star,
+  Check,
+  Image as ImageIcon,
+  Calendar,
+  Eye,
+  X,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { loadGalleries, updateGalleryCover } from "./gallery.store";
 import { getGalleryItems, type GalleryItem } from "./gallery.items.data";
@@ -16,7 +24,7 @@ interface Toast {
 }
 
 export function GalleryDetailView({ galleryId }: { galleryId: string }) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("cms.gallery");
   const router = useRouter();
   const [gallery, setGallery] = useState<Gallery | null>(null);
@@ -32,13 +40,16 @@ export function GalleryDetailView({ galleryId }: { galleryId: string }) {
   const showToast = (message: string) => {
     const id = Date.now();
     setToasts((prev) => [...prev, { id, message }]);
-    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 3500);
+    setTimeout(
+      () => setToasts((prev) => prev.filter((t) => t.id !== id)),
+      3500,
+    );
   };
 
   const handleSetCover = (item: GalleryItem) => {
     if (!gallery) return;
     updateGalleryCover(gallery.id, item.url);
-    setGallery((prev) => prev ? { ...prev, coverUrl: item.url } : prev);
+    setGallery((prev) => (prev ? { ...prev, coverUrl: item.url } : prev));
     showToast(`"${item.label}" set as cover photo`);
   };
 
@@ -47,7 +58,10 @@ export function GalleryDetailView({ galleryId }: { galleryId: string }) {
       <div className="flex flex-col items-center justify-center py-24 text-center gap-3">
         <ImageIcon className="w-12 h-12 text-muted-foreground/40" />
         <p className="font-semibold text-foreground">Gallery not found</p>
-        <button onClick={() => router.push("/cms/gallery")} className="text-sm text-primary hover:text-primary/80 underline">
+        <button
+          onClick={() => router.push("/cms/gallery")}
+          className="text-sm text-primary hover:text-primary/80 underline"
+        >
           Back to galleries
         </button>
       </div>
@@ -73,7 +87,10 @@ export function GalleryDetailView({ galleryId }: { galleryId: string }) {
                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
                 <p>{t.message}</p>
               </div>
-              <button onClick={() => setToasts((p) => p.filter((x) => x.id !== t.id))} className="text-muted-foreground hover:text-foreground transition-colors ml-4">
+              <button
+                onClick={() => setToasts((p) => p.filter((x) => x.id !== t.id))}
+                className="text-muted-foreground hover:text-foreground transition-colors ml-4"
+              >
                 <X size={15} />
               </button>
             </motion.div>
@@ -87,14 +104,19 @@ export function GalleryDetailView({ galleryId }: { galleryId: string }) {
           onClick={() => router.push("/cms/gallery")}
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6 group"
         >
-          <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
+          <MoveLeft
+            size={16}
+            className="group-hover:-translate-x-0.5 transition-transform"
+          />
           Back to Galleries
         </button>
 
         <div className="flex flex-col md:flex-row md:items-start gap-6">
           {/* Current cover preview */}
           <div className="w-full md:w-64 shrink-0">
-            <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Current Cover</p>
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
+              Current Cover
+            </p>
             <div className="aspect-[4/3] rounded-xl overflow-hidden border border-border bg-muted">
               <img
                 src={gallery.coverUrl}
@@ -107,12 +129,14 @@ export function GalleryDetailView({ galleryId }: { galleryId: string }) {
           {/* Gallery info */}
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <span className={cn(
-                "text-[10px] font-bold px-2.5 py-1 rounded-full border uppercase tracking-wider",
-                gallery.status === "published"
-                  ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
-                  : "bg-amber-500/10 text-amber-500 border-amber-500/20",
-              )}>
+              <span
+                className={cn(
+                  "text-[10px] font-bold px-2.5 py-1 rounded-full border uppercase tracking-wider",
+                  gallery.status === "published"
+                    ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                    : "bg-amber-500/10 text-amber-500 border-amber-500/20",
+                )}
+              >
                 {gallery.status}
               </span>
               <span className="text-[10px] font-bold px-2.5 py-1 rounded-full border bg-muted text-muted-foreground border-border uppercase tracking-wider">
@@ -128,9 +152,18 @@ export function GalleryDetailView({ galleryId }: { galleryId: string }) {
             </p>
 
             <div className="flex flex-wrap items-center gap-4 mt-4 text-xs text-muted-foreground font-mono">
-              <span className="flex items-center gap-1.5"><ImageIcon size={13} />{items.length} items</span>
-              <span className="flex items-center gap-1.5"><Eye size={13} />{gallery.views.toLocaleString()} views</span>
-              <span className="flex items-center gap-1.5"><Calendar size={13} />{gallery.createdAt}</span>
+              <span className="flex items-center gap-1.5">
+                <ImageIcon size={13} />
+                {items.length} items
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Eye size={13} />
+                {gallery.views.toLocaleString()} views
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Calendar size={13} />
+                {gallery.createdAt}
+              </span>
             </div>
           </div>
         </div>
@@ -140,9 +173,13 @@ export function GalleryDetailView({ galleryId }: { galleryId: string }) {
       <div>
         <div className="flex items-center justify-between mb-5 pb-4 border-b border-border">
           <div>
-            <h2 className="text-base font-extrabold text-foreground">Gallery Items</h2>
+            <h2 className="text-base font-extrabold text-foreground">
+              Gallery Items
+            </h2>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Hover an image and click <span className="font-semibold text-primary">Set as Cover</span> to update the gallery thumbnail
+              Hover an image and click{" "}
+              <span className="font-semibold text-primary">Set as Cover</span>{" "}
+              to update the gallery thumbnail
             </p>
           </div>
           <span className="text-xs px-2.5 py-1 rounded-md bg-muted text-muted-foreground font-bold border border-border">
@@ -154,7 +191,9 @@ export function GalleryDetailView({ galleryId }: { galleryId: string }) {
           <div className="text-center py-16 border-2 border-dashed border-border rounded-2xl">
             <ImageIcon className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
             <p className="font-semibold text-foreground">No items yet</p>
-            <p className="text-sm text-muted-foreground mt-1">Upload images to populate this gallery.</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Upload images to populate this gallery.
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -195,7 +234,9 @@ export function GalleryDetailView({ galleryId }: { galleryId: string }) {
                         <Star size={13} /> Set as Cover
                       </button>
                     )}
-                    <p className="text-white text-[11px] font-medium">{item.label}</p>
+                    <p className="text-white text-[11px] font-medium">
+                      {item.label}
+                    </p>
                   </div>
                 </motion.div>
               );

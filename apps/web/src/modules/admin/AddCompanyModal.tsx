@@ -53,16 +53,19 @@ function handlePhoneKeyDown(
 ) {
   // Allow normal navigation keys
   if (
-    ["Backspace", "Delete", "Tab", "ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)
+    [
+      "Backspace",
+      "Delete",
+      "Tab",
+      "MoveLeft",
+      "MoveRight",
+      "Home",
+      "End",
+    ].includes(e.key)
   )
     return;
   // Block anything that isn't a digit, +, or clipboard shortcut
-  if (
-    !/[\d+]/.test(e.key) &&
-    !e.ctrlKey &&
-    !e.metaKey &&
-    e.key.length === 1
-  ) {
+  if (!/[\d+]/.test(e.key) && !e.ctrlKey && !e.metaKey && e.key.length === 1) {
     e.preventDefault();
   }
 }
@@ -114,47 +117,72 @@ const isUrl = (v: string) => {
 };
 const isPhone = (v: string) => /^[+\d][\d\s\-().]{6,19}$/.test(v.trim());
 
-function validate(form: FormState, t: TranslationFunction): Partial<Record<keyof FormState, string>> {
+function validate(
+  form: FormState,
+  t: TranslationFunction,
+): Partial<Record<keyof FormState, string>> {
   const e: Partial<Record<keyof FormState, string>> = {};
 
   if (!form.name.trim()) {
     e.name = t("nameRequired", { defaultValue: "Company name is required." });
   } else if (form.name.trim().length < 2) {
-    e.name = t("nameTooShort", { defaultValue: "Must be at least 2 characters." });
+    e.name = t("nameTooShort", {
+      defaultValue: "Must be at least 2 characters.",
+    });
   }
 
   if (!form.email.trim()) {
-    e.email = t("emailRequired", { defaultValue: "Contact email is required." });
+    e.email = t("emailRequired", {
+      defaultValue: "Contact email is required.",
+    });
   } else if (!isEmail(form.email)) {
-    e.email = t("emailInvalid", { defaultValue: "Enter a valid email address." });
+    e.email = t("emailInvalid", {
+      defaultValue: "Enter a valid email address.",
+    });
   }
 
   if (form.website.trim() && !isUrl(form.website)) {
-    e.website = t("websiteInvalid", { defaultValue: "Enter a valid URL (e.g. https://acme.com)." });
+    e.website = t("websiteInvalid", {
+      defaultValue: "Enter a valid URL (e.g. https://acme.com).",
+    });
   }
 
   if (form.phone.trim() && !isPhone(form.phone)) {
-    e.phone = t("phoneInvalid", { defaultValue: "Enter a valid phone number." });
+    e.phone = t("phoneInvalid", {
+      defaultValue: "Enter a valid phone number.",
+    });
   }
 
   if (!form.packageSlug) {
-    e.packageSlug = t("packageRequired", { defaultValue: "Please select a plan." });
+    e.packageSlug = t("packageRequired", {
+      defaultValue: "Please select a plan.",
+    });
   }
 
   if (!form.adminFirstName.trim()) {
-    e.adminFirstName = t("adminFirstNameRequired", { defaultValue: "First name is required." });
+    e.adminFirstName = t("adminFirstNameRequired", {
+      defaultValue: "First name is required.",
+    });
   }
 
   if (!form.adminEmail.trim()) {
-    e.adminEmail = t("adminEmailRequired", { defaultValue: "Admin email is required." });
+    e.adminEmail = t("adminEmailRequired", {
+      defaultValue: "Admin email is required.",
+    });
   } else if (!isEmail(form.adminEmail)) {
-    e.adminEmail = t("adminEmailInvalid", { defaultValue: "Enter a valid email address." });
+    e.adminEmail = t("adminEmailInvalid", {
+      defaultValue: "Enter a valid email address.",
+    });
   }
 
   if (!form.adminPassword) {
-    e.adminPassword = t("passwordRequired", { defaultValue: "Password is required." });
+    e.adminPassword = t("passwordRequired", {
+      defaultValue: "Password is required.",
+    });
   } else if (form.adminPassword.length < 8) {
-    e.adminPassword = t("passwordMinLength", { defaultValue: "Password must be at least 8 characters." });
+    e.adminPassword = t("passwordMinLength", {
+      defaultValue: "Password must be at least 8 characters.",
+    });
   }
 
   return e;
@@ -164,13 +192,16 @@ function validate(form: FormState, t: TranslationFunction): Partial<Record<keyof
 const STEP_FIELDS: Record<number, (keyof FormState)[]> = {
   1: ["name", "email", "website", "phone"],
   2: ["packageSlug"],
-  3: [],           // branding is fully optional
+  3: [], // branding is fully optional
   4: ["adminFirstName", "adminEmail", "adminPassword"],
 };
 
 // ── Password strength ─────────────────────────────────────────────────────────
 
-function passwordStrength(pw: string): { score: 0 | 1 | 2 | 3 | 4; label: string } {
+function passwordStrength(pw: string): {
+  score: 0 | 1 | 2 | 3 | 4;
+  label: string;
+} {
   if (!pw) return { score: 0, label: "" };
   let score = 0;
   if (pw.length >= 8) score++;
@@ -179,11 +210,26 @@ function passwordStrength(pw: string): { score: 0 | 1 | 2 | 3 | 4; label: string
   if (/\d/.test(pw)) score++;
   if (/[^A-Za-z0-9]/.test(pw)) score++;
   const capped = Math.min(score, 4) as 0 | 1 | 2 | 3 | 4;
-  return { score: capped, label: ["", "Weak", "Fair", "Good", "Strong"][capped] };
+  return {
+    score: capped,
+    label: ["", "Weak", "Fair", "Good", "Strong"][capped],
+  };
 }
 
-const strengthColors = ["", "bg-error", "bg-warning", "bg-info", "bg-success"] as const;
-const strengthTextColors = ["", "text-error", "text-warning", "text-info", "text-success"] as const;
+const strengthColors = [
+  "",
+  "bg-error",
+  "bg-warning",
+  "bg-info",
+  "bg-success",
+] as const;
+const strengthTextColors = [
+  "",
+  "text-error",
+  "text-warning",
+  "text-info",
+  "text-success",
+] as const;
 
 // ── Stepper config ────────────────────────────────────────────────────────────
 
@@ -195,11 +241,20 @@ const STEPS = [
 ] as const;
 
 const EMPTY_FORM: FormState = {
-  name: "", legalName: "", industry: "", website: "",
-  address: "", email: "", phone: "",
-  logoUrl: "", primaryColor: "#3b82f6",
+  name: "",
+  legalName: "",
+  industry: "",
+  website: "",
+  address: "",
+  email: "",
+  phone: "",
+  logoUrl: "",
+  primaryColor: "#3b82f6",
   packageSlug: "",
-  adminFirstName: "", adminLastName: "", adminEmail: "", adminPassword: "",
+  adminFirstName: "",
+  adminLastName: "",
+  adminEmail: "",
+  adminPassword: "",
 };
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -226,7 +281,7 @@ export function AddCompanyModal({
 
   const visibleError = useCallback(
     (field: keyof FormState) =>
-      (touched[field] || forceShow[field]) ? allErrors[field] : undefined,
+      touched[field] || forceShow[field] ? allErrors[field] : undefined,
     [touched, forceShow, allErrors],
   );
 
@@ -235,7 +290,8 @@ export function AddCompanyModal({
     [step, allErrors],
   );
 
-  const set = (patch: Partial<FormState>) => setForm((f) => ({ ...f, ...patch }));
+  const set = (patch: Partial<FormState>) =>
+    setForm((f) => ({ ...f, ...patch }));
   const touch = (field: keyof FormState) =>
     setTouched((t) => ({ ...t, [field]: true }));
 
@@ -277,7 +333,9 @@ export function AddCompanyModal({
       await navigator.clipboard.writeText(form.adminPassword);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch { /* clipboard unavailable */ }
+    } catch {
+      /* clipboard unavailable */
+    }
   };
 
   const submit = async () => {
@@ -362,30 +420,45 @@ export function AddCompanyModal({
             const active = step === s.id;
             const done = step > s.id;
             return (
-              <li key={s.id} className="flex flex-1 items-center last:flex-none">
+              <li
+                key={s.id}
+                className="flex flex-1 items-center last:flex-none"
+              >
                 <div className="flex items-center gap-1.5">
-                  <span className={cn(
-                    "flex h-7 w-7 items-center justify-center rounded-full border text-sm transition-colors",
-                    done
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : active
-                        ? "border-primary text-primary"
-                        : "border-border text-muted-foreground",
-                  )}>
-                    {done ? <Check className="h-3.5 w-3.5" /> : <Icon className="h-3.5 w-3.5" />}
+                  <span
+                    className={cn(
+                      "flex h-7 w-7 items-center justify-center rounded-full border text-sm transition-colors",
+                      done
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : active
+                          ? "border-primary text-primary"
+                          : "border-border text-muted-foreground",
+                    )}
+                  >
+                    {done ? (
+                      <Check className="h-3.5 w-3.5" />
+                    ) : (
+                      <Icon className="h-3.5 w-3.5" />
+                    )}
                   </span>
-                  <span className={cn(
-                    "text-xs font-medium",
-                    active || done ? "text-foreground" : "text-muted-foreground",
-                  )}>
+                  <span
+                    className={cn(
+                      "text-xs font-medium",
+                      active || done
+                        ? "text-foreground"
+                        : "text-muted-foreground",
+                    )}
+                  >
                     {s.label}
                   </span>
                 </div>
                 {i < STEPS.length - 1 && (
-                  <span className={cn(
-                    "mx-2 h-px flex-1 transition-colors",
-                    step > s.id ? "bg-primary" : "bg-border",
-                  )} />
+                  <span
+                    className={cn(
+                      "mx-2 h-px flex-1 transition-colors",
+                      step > s.id ? "bg-primary" : "bg-border",
+                    )}
+                  />
                 )}
               </li>
             );
@@ -505,13 +578,17 @@ export function AddCompanyModal({
                     />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="font-semibold text-foreground">{p.name}</p>
+                        <p className="font-semibold text-foreground">
+                          {p.name}
+                        </p>
                         <span className="text-sm font-semibold text-foreground">
                           {formatPrice(p.priceCents, p.billingCycle)}
                         </span>
                       </div>
                       {p.description && (
-                        <p className="mt-0.5 text-xs text-muted-foreground">{p.description}</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          {p.description}
+                        </p>
                       )}
                       <p className="mt-2 text-xs text-muted-foreground">
                         Up to {p.maxUsers} users ·{" "}
@@ -529,7 +606,8 @@ export function AddCompanyModal({
         {step === 3 && (
           <div className="space-y-6">
             <div className="rounded-lg border border-border bg-muted/20 px-4 py-3 text-xs text-muted-foreground">
-              Branding is optional — you can update it anytime from the company&apos;s edit page.
+              Branding is optional — you can update it anytime from the
+              company&apos;s edit page.
             </div>
 
             <div>
@@ -569,7 +647,8 @@ export function AddCompanyModal({
                 />
               </div>
               <p className="mt-1.5 text-xs text-muted-foreground">
-                Used as the platform accent colour for this company&apos;s workspace.
+                Used as the platform accent colour for this company&apos;s
+                workspace.
               </p>
             </div>
           </div>
@@ -586,7 +665,11 @@ export function AddCompanyModal({
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Field label="First Name" required error={visibleError("adminFirstName")}>
+              <Field
+                label="First Name"
+                required
+                error={visibleError("adminFirstName")}
+              >
                 <Input
                   value={form.adminFirstName}
                   placeholder="Jane"
@@ -605,7 +688,12 @@ export function AddCompanyModal({
                 />
               </Field>
 
-              <Field label="Admin Email" required full error={visibleError("adminEmail")}>
+              <Field
+                label="Admin Email"
+                required
+                full
+                error={visibleError("adminEmail")}
+              >
                 <Input
                   type="email"
                   value={form.adminEmail}
@@ -616,7 +704,12 @@ export function AddCompanyModal({
                 />
               </Field>
 
-              <Field label="Password" required full error={visibleError("adminPassword")}>
+              <Field
+                label="Password"
+                required
+                full
+                error={visibleError("adminPassword")}
+              >
                 <div className="flex gap-2">
                   <input
                     className={cn(
@@ -670,7 +763,12 @@ export function AddCompanyModal({
                       ))}
                     </div>
                     {pwStrength.label && (
-                      <p className={cn("text-xs font-medium", strengthTextColors[pwStrength.score])}>
+                      <p
+                        className={cn(
+                          "text-xs font-medium",
+                          strengthTextColors[pwStrength.score],
+                        )}
+                      >
                         {pwStrength.label}
                       </p>
                     )}

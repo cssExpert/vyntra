@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
-import { ArrowLeft, Eye, Save, Plus, Sparkles, Check } from "lucide-react";
+import { MoveLeft, Eye, Save, Plus, Sparkles, Check } from "lucide-react";
 
 import { FieldPalette } from "./FieldPalette";
 import { FieldCard } from "./FieldCard";
@@ -43,7 +43,7 @@ interface FormBuilderViewProps {
 }
 
 export function FormBuilderView({ formId }: FormBuilderViewProps) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("cms.forms");
   const router = useRouter();
   const [form, setForm] = useState<CmsForm | null>(null);
@@ -125,7 +125,7 @@ export function FormBuilderView({ formId }: FormBuilderViewProps) {
             className="inline-flex items-center justify-center w-9 h-9 rounded-sm border border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
             aria-label="Back to forms"
           >
-            <ArrowLeft size={15} />
+            <MoveLeft size={15} />
           </button>
           <div className="min-w-0">
             <h1 className="text-base font-bold text-foreground truncate">

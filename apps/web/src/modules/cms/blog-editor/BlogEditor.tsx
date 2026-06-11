@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Eye, Check } from "lucide-react";
+import { MoveLeft, Eye, Check } from "lucide-react";
 import type { CmsBlogDetail, CmsBlogSaveDto, OrgMember } from "@/lib/api";
 import {
   apiGetOrgMembers,
@@ -283,16 +283,16 @@ export function BlogEditor({ blog }: BlogEditorProps) {
   const goBack = () => router.push("/cms/blogs");
 
   return (
-    <div className="pb-16">
+    <div className="w-full -mt-4 md:-mt-6 pb-16">
       {/* ── Header ─────────────────────────────────────────────────────── */}
-      <div className="sticky top-0 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3.5 mb-6 bg-background/90 backdrop-blur-md border-b border-border flex items-center justify-between gap-4">
+      <div className="sticky top-0 z-10 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3.5 mb-6 bg-background/90 backdrop-blur-md border-b border-border flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 min-w-0">
           <button
             onClick={goBack}
             className="w-9 h-9 shrink-0 rounded-lg border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
             title="Back to blog list"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <MoveLeft className="w-4 h-4" />
           </button>
           <div className="min-w-0">
             <h1 className="text-base font-bold tracking-tight text-foreground truncate">
@@ -315,7 +315,7 @@ export function BlogEditor({ blog }: BlogEditorProps) {
           <button
             type="button"
             onClick={() => setIsPreviewOpen(true)}
-            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg border border-border bg-card hover:bg-muted text-foreground transition-all"
+            className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold rounded-lg border border-border bg-card hover:bg-muted text-foreground transition-all"
           >
             <Eye className="w-4 h-4 text-primary" />
             <span className="hidden sm:inline">Preview</span>
@@ -324,7 +324,7 @@ export function BlogEditor({ blog }: BlogEditorProps) {
           <button
             onClick={handlePublish}
             disabled={saving}
-            className="px-4 py-2 bg-primary hover:bg-primary-600 active:scale-[0.98] text-primary-foreground font-bold text-xs rounded-lg flex items-center gap-1.5 transition-all disabled:opacity-60"
+            className="px-4 py-2.5 bg-primary hover:bg-primary-600 active:scale-[0.98] text-primary-foreground font-bold text-xs rounded-lg flex items-center gap-1.5 transition-all disabled:opacity-60"
           >
             <Check className="w-4 h-4" />
             <span>{saving ? "Saving…" : "Save & Publish"}</span>

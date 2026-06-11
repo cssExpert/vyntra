@@ -6,19 +6,12 @@ import { useTranslations } from "next-intl";
 import {
   Settings,
   Save,
-  Building2,
   Palette,
   ToggleLeft,
   Users,
   CheckCircle2,
   AlertCircle,
   ChevronDown,
-  Trash2,
-  ShieldAlert,
-  Mail,
-  MessageSquare,
-  Key,
-  Smartphone,
   Globe,
 } from "lucide-react";
 import { Sketch } from "@uiw/react-color";
@@ -286,7 +279,7 @@ function Inner() {
   }
 
   return (
-    <div className="space-y-6 pb-10">
+    <div className="space-y-6 pb-0">
       <PageHeader title={t("title")} description={t("description")} />
 
       {/* Banners */}
@@ -624,7 +617,7 @@ function Inner() {
       </div>
 
       {/* ── Sticky save bar ─────────────────────────────────────────────────── */}
-      <div className="sticky bottom-0 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-4 bg-background/80 backdrop-blur-md border-t border-border/60 flex items-center justify-between gap-4 z-10">
+      <div className="sticky bottom-0 mx-auto px-4 md:px-6 py-4 bg-background/70 backdrop-blur-md rounded-2xl rounded-b-none border border-border flex items-center justify-between gap-4 z-10">
         <p className="text-xs text-muted-foreground">
           {success ? (
             <span className="flex items-center gap-1.5 text-success">

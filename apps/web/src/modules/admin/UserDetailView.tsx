@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import {
-  ArrowLeft,
+  MoveLeft,
   Clock,
   Mail,
   Phone,
@@ -246,7 +246,7 @@ function UserDetailInner({ userId }: { userId: string }) {
             onClick={() => router.back()}
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition"
           >
-            <ArrowLeft size={20} />
+            <MoveLeft size={20} />
             Back
           </button>
           <div>
@@ -296,7 +296,7 @@ function UserDetailInner({ userId }: { userId: string }) {
             onClick={() => router.push("/admin/users")}
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition"
           >
-            <ArrowLeft size={16} />
+            <MoveLeft size={16} />
             Back to List
           </button>
         </div>

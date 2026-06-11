@@ -5,10 +5,10 @@ import React from "react";
 // Shared field primitives — themed once, reused across every editor tab.
 
 export const inputClass =
-  "w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all";
+  "w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15";
 
 export const labelClass =
-  "block text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2";
+  "block text-[11px] font-bold uppercase tracking-wide text-muted-foreground mb-1";
 
 export function FieldLabel({
   children,

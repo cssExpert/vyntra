@@ -15,7 +15,7 @@ import {
   Settings,
   CheckCircle2,
   AlertCircle,
-  ArrowRight,
+  MoveRight,
   Activity,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -81,7 +81,7 @@ function SectionCard({
             className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer"
           >
             {action.label}
-            <ArrowRight className="h-3 w-3" />
+            <MoveRight className="h-3 w-3" />
           </a>
         )}
       </div>
@@ -121,7 +121,7 @@ function ConfigStatus({
           {configured ? "Configured" : "Not configured"}
         </p>
       </div>
-      <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
+      <MoveRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
     </a>
   );
 }
@@ -346,7 +346,7 @@ export function SuperAdminDashboardView() {
                   >
                     <Building2 className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
                     <span>Manage Companies</span>
-                    <ArrowRight className="h-3 w-3 ml-auto text-muted-foreground" />
+                    <MoveRight className="h-3 w-3 ml-auto text-muted-foreground" />
                   </Link>
                   <Link
                     href="/admin/users"
@@ -354,7 +354,7 @@ export function SuperAdminDashboardView() {
                   >
                     <Users className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
                     <span>Manage Users</span>
-                    <ArrowRight className="h-3 w-3 ml-auto text-muted-foreground" />
+                    <MoveRight className="h-3 w-3 ml-auto text-muted-foreground" />
                   </Link>
                   <a
                     href="/admin/packages"
@@ -362,7 +362,7 @@ export function SuperAdminDashboardView() {
                   >
                     <Package className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
                     <span>Manage Packages</span>
-                    <ArrowRight className="h-3 w-3 ml-auto text-muted-foreground" />
+                    <MoveRight className="h-3 w-3 ml-auto text-muted-foreground" />
                   </a>
                   <a
                     href="/admin/modules"
@@ -370,7 +370,7 @@ export function SuperAdminDashboardView() {
                   >
                     <Activity className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
                     <span>Manage Modules</span>
-                    <ArrowRight className="h-3 w-3 ml-auto text-muted-foreground" />
+                    <MoveRight className="h-3 w-3 ml-auto text-muted-foreground" />
                   </a>
                 </div>
               </SectionCard>

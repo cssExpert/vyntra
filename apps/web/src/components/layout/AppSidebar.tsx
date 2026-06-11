@@ -477,8 +477,10 @@ export function AppSidebar({
 
   return (
     <>
-      {/* Desktop sidebar */}
-      <div className="hidden lg:flex h-screen sticky top-0 flex-shrink-0">
+      {/* Desktop sidebar — z-20 so the edge toggle stays above page-level
+          sticky bars (e.g. the blog editor's z-10 toolbar) that stretch to
+          the content edge. */}
+      <div className="hidden lg:flex h-screen sticky top-0 flex-shrink-0 z-20">
         {sidebarContent}
         <button
           onClick={onToggle}

@@ -25,7 +25,7 @@ import {
   BarChart3,
   UserCog,
   Settings2,
-  ArrowRight,
+  MoveRight,
   Hash,
   X,
 } from "lucide-react";
@@ -313,7 +313,7 @@ function Palette({ onClose }: { onClose: () => void }) {
                         className="text-primary transition-opacity duration-100"
                         style={{ opacity: isActive ? 1 : 0 }}
                       >
-                        <ArrowRight className="h-3.5 w-3.5" />
+                        <MoveRight className="h-3.5 w-3.5" />
                       </span>
                     </button>
                   );

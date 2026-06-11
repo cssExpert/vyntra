@@ -1,11 +1,12 @@
 "use client";
 
 import React from "react";
-import { ArrowRight } from "lucide-react";
+import { BookOpenText, MoveRight } from "lucide-react";
 import { EditorCard, FieldLabel, inputClass } from "./fields";
 import { CoverImagePicker } from "./CoverImagePicker";
 import { RichTextEditor } from "./RichTextEditor";
 import { stripHtml, type BlogFormState } from "./types";
+import IconTitle from "@/components/common/IconTitle";
 
 export interface WritingTabProps {
   form: BlogFormState;
@@ -35,6 +36,12 @@ export function WritingTab({
   return (
     <EditorCard className="space-y-5">
       {/* Title */}
+      <IconTitle
+        title="Content Studio"
+        titleClassName="text-sm md:text-base font-bold text-foreground"
+        icon={BookOpenText}
+        iconClassName="w-4 h-4 text-primary"
+      />
       <div>
         <FieldLabel>Blog Post Title</FieldLabel>
         <input
@@ -43,7 +50,7 @@ export function WritingTab({
           value={form.title}
           onChange={(e) => patch({ title: e.target.value })}
           placeholder="e.g. 10 Online Shopping Tips for Smart Buyers…"
-          className={`${inputClass} !py-3 font-bold !text-base`}
+          className={`${inputClass} !py-3 font-medium !text-md`}
         />
       </div>
 
@@ -109,17 +116,24 @@ export function WritingTab({
       {/* Live writing stats */}
       <div className="flex items-center gap-3 px-1 -mt-1 text-[10px] text-muted-foreground font-medium select-none">
         <span>
-          <span className="font-bold text-foreground">{wordCount.toLocaleString()}</span> words
+          <span className="font-bold text-foreground">
+            {wordCount.toLocaleString()}
+          </span>{" "}
+          words
         </span>
         <span className="text-border">·</span>
         <span>
-          <span className="font-bold text-foreground">{form.readTime}</span> min read
+          <span className="font-bold text-foreground">{form.readTime}</span> min
+          read
         </span>
         {wordCount > 0 && (
           <>
             <span className="text-border">·</span>
             <span>
-              <span className="font-bold text-foreground">{Math.round(wordCount * 5.1).toLocaleString()}</span> chars
+              <span className="font-bold text-foreground">
+                {Math.round(wordCount * 5.1).toLocaleString()}
+              </span>{" "}
+              chars
             </span>
           </>
         )}
@@ -132,7 +146,7 @@ export function WritingTab({
           className="px-3 py-1.5 bg-muted text-xs font-semibold rounded-lg flex items-center gap-1 hover:bg-muted/70 transition-all"
         >
           <span>Next: Metadata Tags</span>
-          <ArrowRight className="w-3.5 h-3.5" />
+          <MoveRight className="w-3.5 h-3.5" />
         </button>
       </div>
     </EditorCard>

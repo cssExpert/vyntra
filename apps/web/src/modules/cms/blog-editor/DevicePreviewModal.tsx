@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { Laptop, Tablet, Smartphone, type LucideIcon } from "lucide-react";
+import { useSitePreviewUrl } from "@/hooks/useSitePreviewUrl";
 import type { BlogFormState } from "./types";
 
 type Device = "desktop" | "tablet" | "mobile";
@@ -42,6 +43,11 @@ export function DevicePreviewModal({
   const [device, setDevice] = useState<Device>("desktop");
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
+  // Site base URL from the org's configured domain (CMS Settings → Domain),
+  // shown protocol-less in the fake browser address bar.
+  const { previewUrl } = useSitePreviewUrl();
+  const siteHost = (previewUrl() ?? "vyntra.io").replace(/^https?:\/\//, "");
 
   const articleHtml = wrapTables(
     form.content ||
@@ -121,7 +127,7 @@ export function DevicePreviewModal({
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
                   </div>
                   <span className="truncate text-center flex-1 pr-6">
-                    vyntra.io/blog/{form.slug || "untitled-post"}
+                    {siteHost}/blog/{form.slug || "untitled-post"}
                   </span>
                 </div>
 

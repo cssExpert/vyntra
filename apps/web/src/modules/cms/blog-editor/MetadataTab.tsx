@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Tag, ArrowLeft, ArrowRight, Plus, X, Search } from "lucide-react";
+import { Tag, MoveLeft, MoveRight, Plus, X, Search } from "lucide-react";
 import { EditorCard, FieldLabel, inputClass } from "./fields";
 import type { BlogFormState } from "./types";
+import IconTitle from "@/components/common/IconTitle";
 
 export interface MetadataTabProps {
   form: BlogFormState;
@@ -105,10 +106,12 @@ export function MetadataTab({
 
   return (
     <EditorCard className="space-y-6">
-      <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-        <Tag className="w-4 h-4 text-primary" />
-        <span>Categorize and Index Content</span>
-      </h3>
+      {/* Title */}
+      <IconTitle
+        title="Categorize and Index Content"
+        titleClassName="text-sm md:text-base font-bold text-foreground"
+        icon={Tag}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Category */}
@@ -127,7 +130,10 @@ export function MetadataTab({
           {availableCategories.length === 0 ? (
             <p className="text-xs text-muted-foreground py-3">
               No categories yet.{" "}
-              <a href="/cms/blog-categories" className="text-primary underline underline-offset-2">
+              <a
+                href="/cms/blog-categories"
+                className="text-primary underline underline-offset-2"
+              >
                 Create categories
               </a>{" "}
               to start tagging posts.
@@ -155,12 +161,20 @@ export function MetadataTab({
                   >
                     <span
                       className={`w-3 h-3 rounded-sm border flex items-center justify-center shrink-0 transition-colors ${
-                        selected ? "bg-primary border-primary" : "border-muted-foreground/40"
+                        selected
+                          ? "bg-primary border-primary"
+                          : "border-muted-foreground/40"
                       }`}
                     >
                       {selected && (
                         <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
-                          <path d="M1.5 4L3 5.5L6.5 2" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          <path
+                            d="M1.5 4L3 5.5L6.5 2"
+                            stroke="white"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
                         </svg>
                       )}
                     </span>
@@ -317,18 +331,18 @@ export function MetadataTab({
         <button
           type="button"
           onClick={onBack}
-          className="px-3 py-1.5 bg-muted text-xs font-semibold rounded-lg flex items-center gap-1 hover:bg-muted/70 transition-all"
+          className="px-4 py-2.5 bg-muted text-xs font-semibold rounded-lg flex items-center gap-1 hover:bg-muted/70 transition-all"
         >
-          <ArrowLeft className="w-3.5 h-3.5" />
+          <MoveLeft className="w-3.5 h-3.5" />
           <span>Back</span>
         </button>
         <button
           type="button"
           onClick={onNext}
-          className="px-3 py-1.5 bg-muted text-xs font-semibold rounded-lg flex items-center gap-1 hover:bg-muted/70 transition-all"
+          className="px-4 py-2.5 bg-muted text-xs font-semibold rounded-lg flex items-center gap-1 hover:bg-muted/70 transition-all"
         >
           <span>Next: SEO Config</span>
-          <ArrowRight className="w-3.5 h-3.5" />
+          <MoveRight className="w-3.5 h-3.5" />
         </button>
       </div>
     </EditorCard>

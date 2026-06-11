@@ -7,6 +7,7 @@ import Lottie from "react-lottie";
 import LoaderAnimation from "@/assets/ERVFlowLoader.json";
 import { useAuth } from "@/providers/AuthProvider";
 import { useSettings } from "@/providers/SettingsProvider";
+import { useAdminSettings } from "@/providers/AdminSettingsProvider";
 import { useSidebar } from "@/hooks/useSidebar";
 import { SIDEBAR_WIDTH, SIDEBAR_COLLAPSED_WIDTH } from "@/constants/navigation";
 
@@ -61,10 +62,14 @@ export function NavigationProgress() {
   const pathname = usePathname();
   const { isAuthenticated } = useAuth();
   const { settings } = useSettings();
+  const { settings: adminSettings } = useAdminSettings();
   const { isCollapsed, isMobile } = useSidebar();
 
-  // Repaint the loader with the org's primary color whenever it changes.
-  const primaryColor = settings?.primaryColor || "#F76235";
+  // Repaint the loader with the brand primary color. Org settings apply for
+  // tenant users; super admins have no org context, so fall back to the
+  // platform-level admin branding before the hardcoded default.
+  const primaryColor =
+    settings?.primaryColor || adminSettings?.primaryColor || "#F76235";
   const animationData = useMemo(
     () => tintLottie(LoaderAnimation, primaryColor),
     [primaryColor],

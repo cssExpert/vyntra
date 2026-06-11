@@ -336,14 +336,11 @@ function Inner() {
         testConfig.vercelBlobConfig = vercelBlobConfig;
       }
 
-      const response = await fetch(
-        `${API_BASE}/admin/settings/storage/test`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(testConfig),
-        },
-      );
+      const response = await fetch(`${API_BASE}/admin/settings/storage/test`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(testConfig),
+      });
 
       if (!response.ok) {
         const data = await response.json();
@@ -406,9 +403,7 @@ function Inner() {
       const report = await apiMigrateStorageToCloud();
       setMigrationReport(report);
     } catch (e) {
-      setMigrationError(
-        e instanceof Error ? e.message : "Migration failed",
-      );
+      setMigrationError(e instanceof Error ? e.message : "Migration failed");
     } finally {
       setMigrating(false);
     }
@@ -429,7 +424,10 @@ function Inner() {
     <div className="space-y-6 pb-10">
       <PageHeader
         title={t("title", { defaultValue: "Storage Settings" })}
-        description={t("description", { defaultValue: "Configure where files and media are stored for your application." })}
+        description={t("description", {
+          defaultValue:
+            "Configure where files and media are stored for your application.",
+        })}
       />
 
       {/* Banners */}
@@ -451,7 +449,9 @@ function Inner() {
         <SectionCard
           icon={HardDrive}
           title={t("provider", { defaultValue: "Storage Provider" })}
-          description={t("providerDesc", { defaultValue: "Choose where you want to store files and media" })}
+          description={t("providerDesc", {
+            defaultValue: "Choose where you want to store files and media",
+          })}
         >
           <div className="grid gap-4 md:grid-cols-2">
             {STORAGE_OPTIONS.map((option) => (
@@ -823,7 +823,9 @@ function Inner() {
                     </li>
                     <li>
                       Every image currently served from{" "}
-                      <code className="bg-blue-100 px-1 rounded">/uploads/</code>{" "}
+                      <code className="bg-blue-100 px-1 rounded">
+                        /uploads/
+                      </code>{" "}
                       will be re-uploaded to {provider}.
                     </li>
                     <li>
@@ -916,14 +918,18 @@ function Inner() {
       </div>
 
       {/* ── Sticky save bar ─────────────────────────────────────────────── */}
-      <div className="sticky bottom-0 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-4 bg-background/80 backdrop-blur-md border-t border-border/60 flex items-center justify-between gap-4 z-10">
+      <div className="sticky bottom-0 mx-auto px-4 md:px-6 py-4 bg-background/70 backdrop-blur-md rounded-2xl rounded-b-none border border-border flex items-center justify-between gap-4 z-10">
         <p className="text-xs text-muted-foreground">
           {success ? (
             <span className="flex items-center gap-1.5 text-success">
-              <CheckCircle2 className="h-3.5 w-3.5" /> {t("saved", { defaultValue: "Saved" })}
+              <CheckCircle2 className="h-3.5 w-3.5" />{" "}
+              {t("saved", { defaultValue: "Saved" })}
             </span>
           ) : (
-            t("unsavedChanges", { defaultValue: "Unsaved changes will be lost if you navigate away." })
+            t("unsavedChanges", {
+              defaultValue:
+                "Unsaved changes will be lost if you navigate away.",
+            })
           )}
         </p>
         <button
@@ -936,7 +942,9 @@ function Inner() {
           ) : (
             <Save className="h-4 w-4" />
           )}
-          {busy ? t("saving", { defaultValue: "Saving…" }) : t("saveSettings", { defaultValue: "Save Settings" })}
+          {busy
+            ? t("saving", { defaultValue: "Saving…" })
+            : t("saveSettings", { defaultValue: "Save Settings" })}
         </button>
       </div>
     </div>

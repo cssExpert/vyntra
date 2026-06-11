@@ -1,7 +1,13 @@
 "use client";
 
 import React, { useCallback, useRef, useState } from "react";
-import { ArrowUpFromLine, X, FileImage, AlertCircle, Loader2 } from "lucide-react";
+import {
+  ArrowUpFromLine,
+  X,
+  FileImage,
+  AlertCircle,
+  Loader2,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUpload } from "@/lib/storage";
 
@@ -36,7 +42,6 @@ export function ImageUploadWithStorage({
   accept = "image/*",
   maxSizeMB = 2,
   previewShape = "rounded",
-  label,
   hint,
   className,
   disabled = false,
@@ -50,21 +55,21 @@ export function ImageUploadWithStorage({
 
   const defaultHint = hint ?? `Maximum 1 file, ${formatBytes(maxSizeMB)}.`;
 
-  const validate = (file: File): string | null => {
-    if (accept !== "image/*") {
-      const allowed = accept.split(",").map((t) => t.trim());
-      if (!allowed.includes(file.type))
-        return `Unsupported format. Allowed: ${parseAccept(accept)}`;
-    } else if (!file.type.startsWith("image/")) {
-      return "Please upload an image file.";
-    }
-    if (file.size > maxSizeMB * 1024 * 1024)
-      return `File too large. Maximum size is ${formatBytes(maxSizeMB)}.`;
-    return null;
-  };
-
   const processFile = useCallback(
     async (file: File) => {
+      const validate = (file: File): string | null => {
+        if (accept !== "image/*") {
+          const allowed = accept.split(",").map((t) => t.trim());
+          if (!allowed.includes(file.type))
+            return `Unsupported format. Allowed: ${parseAccept(accept)}`;
+        } else if (!file.type.startsWith("image/")) {
+          return "Please upload an image file.";
+        }
+        if (file.size > maxSizeMB * 1024 * 1024)
+          return `File too large. Maximum size is ${formatBytes(maxSizeMB)}.`;
+        return null;
+      };
+
       const err = validate(file);
       if (err) {
         setError(err);
@@ -78,7 +83,7 @@ export function ImageUploadWithStorage({
         onChange(result.url);
       }
     },
-    [upload, onChange, companyId, module],
+    [upload, onChange, companyId, module, accept, maxSizeMB],
   );
 
   const handleFiles = (files: FileList | null) => {
@@ -129,8 +134,9 @@ export function ImageUploadWithStorage({
             )}
             onError={(e) => {
               // If image fails to load, show a placeholder
-              e.currentTarget.style.display = 'none';
-              e.currentTarget.parentElement!.innerHTML = '<div class="text-center text-muted-foreground text-sm">✓ File uploaded</div>';
+              e.currentTarget.style.display = "none";
+              e.currentTarget.parentElement!.innerHTML =
+                '<div class="text-center text-muted-foreground text-sm">✓ File uploaded</div>';
             }}
           />
           {/* Hover overlay */}

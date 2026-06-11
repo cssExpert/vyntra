@@ -7,7 +7,7 @@ import { DashboardPageSkeleton } from "@/components/common/DashboardSkeleton";
 import {
   RefreshCw,
   Plus,
-  ArrowRight,
+  MoveRight,
   Activity,
   Zap,
   CheckCircle2,
@@ -76,7 +76,7 @@ function SectionCard({
             className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer"
           >
             {action.label}
-            <ArrowRight className="h-3 w-3" />
+            <MoveRight className="h-3 w-3" />
           </a>
         )}
       </div>

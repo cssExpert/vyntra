@@ -61,7 +61,7 @@ export function EditorSidebar({
     <div className="space-y-6">
       {/* SEO meter */}
       <EditorCard className="!p-5 space-y-4">
-        <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+        <h3 className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground mb-1">
           SEO Optimizer Metric
         </h3>
         <div className="flex items-center gap-4">
@@ -92,7 +92,7 @@ export function EditorSidebar({
             </span>
           </div>
           <div>
-            <h4 className="text-xs font-bold text-foreground">
+            <h4 className="text-xs md:text-sm font-bold text-foreground">
               {seoScore >= 80 ? "Perfect SEO Grade" : "Optimization Required"}
             </h4>
             <p className="text-[10px] text-muted-foreground mt-0.5">
