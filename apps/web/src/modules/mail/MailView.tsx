@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { AnimatePresence, motion, LayoutGroup } from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { Email, MailFolder, ComposeData } from "./mail.types";
@@ -11,6 +12,8 @@ import { MailDetail } from "./MailDetail";
 import { MailCompose } from "./MailCompose";
 
 export function MailView() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("mail");
   const [emails, setEmails] = useState<Email[]>(INITIAL_EMAILS);
   const [activeFolder, setActiveFolder] = useState<MailFolder>("inbox");
   const [activeLabel, setActiveLabel] = useState<string | null>(null);

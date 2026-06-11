@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Globe, CheckCircle2, AlertCircle, Key, Palette, Sun, Moon, Image as ImageIcon, Languages } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
@@ -468,7 +469,7 @@ function BrandingTab() {
           <div>
             <p className="text-sm font-medium text-foreground">Enable theme switcher</p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              A Sun / Moon toggle button will appear in your site's navigation bar.
+              A Sun / Moon toggle button will appear in your site&apos;s navigation bar.
             </p>
           </div>
           <Toggle enabled={themeSwitcherEnabled} onToggle={() => setThemeSwitcherEnabled((v) => !v)} />
@@ -663,6 +664,8 @@ const TABS = [
 type TabId = (typeof TABS)[number]["id"];
 
 export function CmsSettingsView() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("cms.cmssettings.tsx");
   const [activeTab, setActiveTab] = useState<TabId>("branding");
 
   return (

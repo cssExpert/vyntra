@@ -806,6 +806,59 @@
       "tags": "Tags",
       "featured": "En vedette",
       "image": "Image"
+    },
+    "companiesadmin": {
+      "_file_admin_CompaniesAdminView": "[admin/CompaniesAdminView.tsx]"
+    },
+    "domainmanagement": {
+      "_file_admin_DomainManagementModal": "[admin/DomainManagementModal.tsx]"
+    },
+    "packagesadmin": {
+      "_file_admin_PackagesAdminView": "[admin/PackagesAdminView.tsx]"
+    },
+    "paymentsettings": {
+      "_file_admin_PaymentSettingsView": "[admin/PaymentSettingsView.tsx]"
+    },
+    "domainManagement": {
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "edit": "Modifier",
+      "add": "Ajouter",
+      "copy": "Copier",
+      "loading": "Chargement…",
+      "viewhistory": "Voir l'historique",
+      "category": "Catégorie",
+      "categories": "Catégories",
+      "status": "Statut",
+      "active": "Actif",
+      "draft": "Brouillon",
+      "published": "Publié",
+      "all": "Tous",
+      "created": "Créé",
+      "updatedon": "Mis à jour",
+      "name": "Nom",
+      "type": "Type",
+      "value": "Valeur",
+      "description": "Description",
+      "verify": "Vérifier",
+      "removesubdomain": "Supprimer le sous-domaine",
+      "verifydomainviadns": "Vérifier le domaine via DNS",
+      "removecustomdomain": "Supprimer le domaine personnalisé",
+      "subdomainsaved": "Sous-domaine enregistré.",
+      "subdomainremoved": "Sous-domaine supprimé.",
+      "customdomainsavedaddthednsrecordsbelowthenverify": "Domaine personnalisé enregistré. Ajoutez les enregistrements DNS ci-dessous, puis vérifiez.",
+      "customdomainremoved": "Domaine personnalisé supprimé.",
+      "failedtoloaddomaininfo": "Impossible de charger les informations du domaine",
+      "failedtosavesubdomain": "Impossible d'enregistrer le sous-domaine",
+      "failedtoremovesubdomain": "Impossible de supprimer le sous-domaine",
+      "failedtosavedomain": "Impossible d'enregistrer le domaine",
+      "failedtoremovedomain": "Impossible de supprimer le domaine",
+      "verificationfailed": "Vérification échouée",
+      "platformsubdomain": "Sous-domaine de plate-forme",
+      "customdomain": "Domaine personnalisé",
+      "verified": "Vérifié",
+      "unverified": "Non vérifié"
     }
   },
   "navigation": {
@@ -1029,6 +1082,12 @@
       "cancel": "Annuler",
       "saved": "Enregistré avec succès",
       "loading": "Loading subscription…"
+    },
+    "settings": {
+      "_file_settings_SettingsView": "[settings/SettingsView.tsx]"
+    },
+    "systemlogs": {
+      "_file_settings_SystemLogsView": "[settings/SystemLogsView.tsx]"
     }
   },
   "cms": {
@@ -1071,7 +1130,9 @@
       "delete": "Supprimer",
       "save": "Enregistrer",
       "cancel": "Annuler",
-      "gallerieshub": "Galleries Hub"
+      "gallerieshub": "Galleries Hub",
+      "_file_cms_gallery_GalleryCreateModal": "[cms/gallery/GalleryCreateModal.tsx]",
+      "_file_cms_gallery_GalleryDetailView": "[cms/gallery/GalleryDetailView.tsx]"
     },
     "themes": {
       "title": "Themes",
@@ -1084,7 +1145,39 @@
       "colordetails": "Color details",
       "searchbynamecategory": "Rechercher",
       "themeshub": "Themes Hub",
-      "deletethistheme": "Supprimer"
+      "deletethistheme": "Supprimer",
+      "_file_cms_themes_ThemeCreateModal": "[cms/themes/ThemeCreateModal.tsx]",
+      "_file_cms_themes_ThemeEditModal": "[cms/themes/ThemeEditModal.tsx]",
+      "_file_cms_themes_upload_UploadView": "[cms/themes/upload/UploadView.tsx]"
+    },
+    "cmssettings": {
+      "_file_cms_CmsSettingsView": "[cms/CmsSettingsView.tsx]"
+    },
+    "editor": {
+      "_file_cms_EditorView": "[cms/EditorView.tsx]"
+    },
+    "layouts": {
+      "_file_cms_LayoutsView": "[cms/LayoutsView.tsx]"
+    },
+    "menus": {
+      "_file_cms_MenusView": "[cms/MenusView.tsx]"
+    },
+    "previewwebsite": {
+      "_file_cms_PreviewWebsiteView": "[cms/PreviewWebsiteView.tsx]"
+    },
+    "blog-categories": {
+      "_file_cms_blog-categories_BlogCategoriesView": "[cms/blog-categories/BlogCategoriesView.tsx]"
+    },
+    "blog-editor": {
+      "_file_cms_blog-editor_DevicePreviewModal": "[cms/blog-editor/DevicePreviewModal.tsx]",
+      "_file_cms_blog-editor_ImageNodeView": "[cms/blog-editor/ImageNodeView.tsx]",
+      "_file_cms_blog-editor_ImageUploaderView": "[cms/blog-editor/ImageUploaderView.tsx]",
+      "_file_cms_blog-editor_PublishSummaryModal": "[cms/blog-editor/PublishSummaryModal.tsx]"
+    },
+    "forms": {
+      "_file_cms_forms_FormsView": "[cms/forms/FormsView.tsx]",
+      "_file_cms_forms_builder_FormBuilderView": "[cms/forms/builder/FormBuilderView.tsx]",
+      "_file_cms_forms_builder_FormPreviewModal": "[cms/forms/builder/FormPreviewModal.tsx]"
     }
   },
   "store": {
@@ -1103,7 +1196,33 @@
     "categories": {
       "view": "View",
       "edit": "Modifier",
-      "delete": "Supprimer"
+      "delete": "Supprimer",
+      "_file_store_categories_AddCategoryView": "[store/categories/AddCategoryView.tsx]"
+    },
+    "ai-assistant": {
+      "_file_store_ai-assistant_AIAssistantView": "[store/ai-assistant/AIAssistantView.tsx]"
+    },
+    "automations": {
+      "_file_store_automations_AutomationsView": "[store/automations/AutomationsView.tsx]"
+    },
+    "coupons": {
+      "_file_store_coupons_CouponsView": "[store/coupons/CouponsView.tsx]"
+    },
+    "credits": {
+      "_file_store_credits_StoreCreditsView": "[store/credits/StoreCreditsView.tsx]"
+    },
+    "products": {
+      "_file_store_products_AddProductView": "[store/products/AddProductView.tsx]",
+      "_file_store_products_ProductsView": "[store/products/ProductsView.tsx]"
+    },
+    "reports": {
+      "_file_store_reports_StoreReportsView": "[store/reports/StoreReportsView.tsx]"
+    },
+    "rewards": {
+      "_file_store_rewards_RewardPointsView": "[store/rewards/RewardPointsView.tsx]"
+    },
+    "settings": {
+      "_file_store_settings_StoreSettingsView": "[store/settings/StoreSettingsView.tsx]"
     }
   },
   "messages": {
@@ -1151,5 +1270,36 @@
     "close": "Fermer",
     "ok": "OK",
     "back": "Retour"
+  },
+  "crm": {
+    "crm": {
+      "_file_crm_CRMView": "[crm/CRMView.tsx]"
+    }
+  },
+  "email": {
+    "email": {
+      "_file_email_EmailView": "[email/EmailView.tsx]"
+    }
+  },
+  "lighthouse": {
+    "lighthouse": {
+      "_file_lighthouse_LighthouseScanModal": "[lighthouse/LighthouseScanModal.tsx]",
+      "_file_lighthouse_LighthouseView": "[lighthouse/LighthouseView.tsx]"
+    }
+  },
+  "mail": {
+    "mail": {
+      "_file_mail_MailView": "[mail/MailView.tsx]"
+    }
+  },
+  "seo": {
+    "seo": {
+      "_file_seo_SeoView": "[seo/SeoView.tsx]"
+    }
+  },
+  "users": {
+    "users": {
+      "_file_users_UsersView": "[users/UsersView.tsx]"
+    }
   }
 }

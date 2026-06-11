@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { ScrollText, RefreshCw } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -25,6 +26,8 @@ function formatWhen(iso: string) {
 }
 
 export function SystemLogsView() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("settings.systemlogs.tsx");
   const [logs, setLogs] = useState<ApiActivityLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

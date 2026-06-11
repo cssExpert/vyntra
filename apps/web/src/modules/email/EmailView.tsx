@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { EmailPageSkeleton } from "@/components/common/DashboardSkeleton";
@@ -58,6 +59,8 @@ const tabVariants = {
 };
 
 export function EmailView() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("email");
   const [activeTab, setActiveTab] = useState<TabId>("builder");
 
   const { toasts: notifications, addToast: notify, dismiss: dismissNotification } = useToaster();

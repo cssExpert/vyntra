@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { Laptop, Tablet, Smartphone, type LucideIcon } from "lucide-react";
 import type { BlogFormState } from "./types";
@@ -36,6 +37,8 @@ export function DevicePreviewModal({
   onClose,
   form,
 }: DevicePreviewModalProps) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("cms.blog-editor");
   const [device, setDevice] = useState<Device>("desktop");
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);

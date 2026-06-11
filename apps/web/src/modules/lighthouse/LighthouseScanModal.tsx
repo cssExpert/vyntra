@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { Terminal } from "lucide-react";
 import { CONSOLE_LOGS } from "./lighthouse.utils";
 
@@ -14,6 +15,8 @@ interface LighthouseScanModalProps {
 export function LighthouseScanModal({
   isScanning, url, scanStep, networkThrottling,
 }: LighthouseScanModalProps) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("lighthouse");
   return (
     <AnimatePresence>
       {isScanning && (

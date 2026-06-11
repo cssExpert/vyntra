@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -75,6 +76,8 @@ function getResponse(prompt: string): string {
 }
 
 export function AIAssistantView() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("store.ai-assistant");
   const isLoaded = usePageLoad(500);
   const [messages, setMessages] = useState<Message[]>([
     {

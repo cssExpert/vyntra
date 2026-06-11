@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslations } from "next-intl";
 import {
   Plus,
   Search,
@@ -295,6 +296,8 @@ function parseMDY(s: string): Date | null {
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export function EditorView() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("cms.editor.tsx");
   const [pages, setPages] = useState<CmsPage[]>(INITIAL_PAGES);
   const [searchTerm, setSearchTerm] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);

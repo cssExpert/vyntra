@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -202,6 +203,8 @@ function ColorPickerField({
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function SettingsView() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("settings.settings.tsx");
   const {
     settings: savedSettings,
     loading: contextLoading,

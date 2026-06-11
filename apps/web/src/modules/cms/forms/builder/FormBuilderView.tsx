@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
 import { ArrowLeft, Eye, Save, Plus, Sparkles, Check } from "lucide-react";
@@ -42,6 +43,8 @@ interface FormBuilderViewProps {
 }
 
 export function FormBuilderView({ formId }: FormBuilderViewProps) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("cms.forms");
   const router = useRouter();
   const [form, setForm] = useState<CmsForm | null>(null);
   const [activeFieldId, setActiveFieldId] = useState<string | null>(null);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -14,6 +15,8 @@ import { LighthouseDashboard } from "./LighthouseDashboard";
 import { LighthouseAIOptimizer } from "./LighthouseAIOptimizer";
 
 export function LighthouseView() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const t = useTranslations("lighthouse");
   // Audit state
   const [device, setDevice] = useState<DeviceType>("desktop");
   const [url, setUrl] = useState("https://example.com");
