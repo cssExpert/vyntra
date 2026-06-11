@@ -17,6 +17,7 @@ import { PRESET_COVERS } from "./types";
 import { storageService } from "@/lib/storage";
 import { mediaAssets, type MediaAsset } from "@/lib/api";
 import { useAuth } from "@/providers/AuthProvider";
+import { Button } from "@/components/ui/button";
 
 // ─── Subtype badge ────────────────────────────────────────────────────────────
 
@@ -208,7 +209,7 @@ function LibraryModal({
             {/* Subtype filter pills */}
             <div className="flex items-center gap-1 p-0.5 bg-muted rounded-lg border border-border">
               {FILTERS.map((f) => (
-                <button
+                <Button
                   key={f}
                   type="button"
                   onClick={() => setFilter(f)}
@@ -219,7 +220,7 @@ function LibraryModal({
                   }`}
                 >
                   {f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1)}
-                </button>
+                </Button>
               ))}
             </div>
 
@@ -482,14 +483,15 @@ export function CoverImagePicker({
               { id: "upload", label: "Upload" },
             ]}
           />
-          <button
+          <Button
+            size="sm"
             type="button"
             onClick={() => setLibraryOpen(true)}
             className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-md border border-border bg-background hover:bg-muted text-muted-foreground hover:text-foreground transition-all"
           >
             <ImageIcon className="w-3 h-3" />
             Library
-          </button>
+          </Button>
         </div>
       </div>
 

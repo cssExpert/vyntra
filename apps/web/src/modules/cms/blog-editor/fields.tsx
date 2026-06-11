@@ -51,7 +51,7 @@ export function SegmentedControl<T extends string>({
   onChange: (v: T) => void;
 }) {
   return (
-    <div className="flex bg-muted rounded-lg p-0.5 border border-border">
+    <div className="flex bg-muted rounded-lg p-0.5 min-h-8 border border-border">
       {options.map((opt) => (
         <button
           key={opt.id}

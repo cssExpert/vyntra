@@ -387,6 +387,10 @@
     @apply bg-gradient-brand bg-clip-text text-transparent;
   }
 
+  .z-11 {
+    z-index: 11;
+  }
+
   .bg-mesh {
     background-color: rgba(255, 255, 255, 1);
     /* background-image:

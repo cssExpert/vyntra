@@ -286,7 +286,7 @@ export function BlogEditor({ blog }: BlogEditorProps) {
   return (
     <div className="w-full -mt-4 md:-mt-6 pb-16">
       {/* ── Header ─────────────────────────────────────────────────────── */}
-      <div className="sticky top-0 z-10 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3.5 mb-6 bg-background/90 backdrop-blur-md border-b border-border flex items-center justify-between gap-4">
+      <div className="sticky top-0 z-11 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3.5 mb-6 bg-background/90 backdrop-blur-md border-b border-border flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 min-w-0">
           <button
             onClick={goBack}
