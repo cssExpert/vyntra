@@ -1210,7 +1210,9 @@
     },
     "settings": {
       "_file_store_settings_StoreSettingsView": "[store/settings/StoreSettingsView.tsx]"
-    }
+    },
+    "title": "Store",
+    "description": "Manage your products, orders, inventory, and store settings."
   },
   "messages": {
     "createdSuccess": "Created successfully",
