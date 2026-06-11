@@ -230,7 +230,7 @@ export function SeoMetaTags({ showNotification, handleCopy }: ViewProps) {
             {previewMode === "code" && (
               <div className="space-y-3 select-text">
                 <div className="text-[11px] text-muted-foreground font-semibold">
-                  Copy and paste inside your website's &lt;head&gt; tags:
+                  Copy and paste inside your website&apos;s &lt;head&gt; tags:
                 </div>
                 <pre className="p-4 bg-neutral-950 border border-border rounded-xl overflow-x-auto text-[11px] leading-relaxed text-primary font-mono">
                   {getHtmlCode()}
