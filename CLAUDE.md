@@ -33,7 +33,7 @@
 - [Rule 4 - Always follow the Font Sizes used in modules, keep the heading in ascending order like h1, h2 etc ]
 - [Rule 5 - Always Use the @tanstack/react-table when asked for table ]
 - [Rule 6 - Always Use the Modal from the common Component ]
-- [Rule 6 - Always Use the font size classes like text-xs or text-sm md: lg: don't add text-[12px] ]
+- [Rule 7 - Always Use the font size classes like text-xs or text-sm md: lg: don't add text-[12px] ]
 
 ## Rules - Core
 - ALWAYS run tests after changes
