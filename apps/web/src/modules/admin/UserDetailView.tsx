@@ -27,6 +27,7 @@ import { admin, type AdminUser } from "@/lib/api";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Modal } from "@/components/common/Modal";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
+import { Button } from "@/components/ui/button";
 
 interface UserWithActivity extends AdminUser {
   lastLoginAt?: string;
@@ -565,12 +566,11 @@ function UserDetailInner({ userId }: { userId: string }) {
         maxWidth="md"
         footer={
           <>
-            <button
+            <Button variant="ghost" radius="lg" className="text-muted-foreground hover:text-foreground"
               onClick={() => setIsPasswordModalOpen(false)}
-              className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg text-sm font-medium transition"
             >
               Cancel
-            </button>
+            </Button>
             <button
               onClick={handleChangePassword}
               disabled={passwordSaving}
@@ -645,12 +645,11 @@ function UserDetailInner({ userId }: { userId: string }) {
         maxWidth="md"
         footer={
           <>
-            <button
+            <Button variant="ghost" radius="lg" className="text-muted-foreground hover:text-foreground"
               onClick={() => setIsDeleteConfirmOpen(false)}
-              className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg text-sm font-medium transition"
             >
               Cancel
-            </button>
+            </Button>
             <button
               onClick={handleDelete}
               className="px-4 py-2 bg-error hover:bg-error/90 text-white rounded-lg text-sm font-medium transition"

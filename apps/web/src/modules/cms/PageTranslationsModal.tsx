@@ -5,6 +5,7 @@ import { Globe, Trash2, Plus, Loader2, Wand2, Check } from "lucide-react";
 import { Modal } from "@/components/common/Modal";
 import { cmsPages, type PageTranslation } from "@/lib/api";
 import { SITE_LANGUAGES } from "@/lib/site-languages";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   page: { id: string; title: string; metaDesc: string | null; metaKeywords: string | null } | null;
@@ -135,30 +136,30 @@ export function PageTranslationsModal({ page, onClose }: Props) {
       footer={
         showForm ? (
           <>
-            <button
+            <Button variant="ghost" radius="sm" className="font-semibold text-muted-foreground hover:text-foreground"
               type="button"
               onClick={() => { setEditingLang(null); setSelectedLang(""); setForm(EMPTY_FORM); }}
-              className="px-4 py-2.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm text-sm font-semibold transition-all"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
+              size="lg"
+              radius="sm"
               onClick={handleSave}
               disabled={saving || !form.title.trim()}
-              className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-primary hover:bg-primary-600 text-primary-foreground rounded-sm text-sm font-semibold transition-all disabled:opacity-50 active:scale-95"
+              className="gap-1.5 px-5 font-semibold active:scale-95"
             >
               {saving ? <Loader2 size={14} className="animate-spin" /> : saved ? <Check size={14} /> : null}
               {saving ? "Saving…" : saved ? "Saved!" : "Save Translation"}
-            </button>
+            </Button>
           </>
         ) : (
-          <button
+          <Button variant="ghost" radius="sm" className="font-semibold text-muted-foreground hover:text-foreground"
             type="button"
             onClick={onClose}
-            className="px-4 py-2.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm text-sm font-semibold transition-all"
           >
             Close
-          </button>
+          </Button>
         )
       }
     >
@@ -183,19 +184,22 @@ export function PageTranslationsModal({ page, onClose }: Props) {
                           <p className="text-sm font-semibold text-foreground truncate">{t.title}</p>
                           <p className="text-xs text-muted-foreground">{meta?.name} ({t.lang})</p>
                         </div>
-                        <button
+                        <Button
+                          variant="link"
                           onClick={() => startEdit(t)}
-                          className="text-xs font-semibold text-primary hover:underline shrink-0"
+                          className="h-auto p-0 text-xs font-semibold shrink-0"
                         >
                           Edit
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => handleDelete(t.lang)}
-                          className="text-muted-foreground hover:text-rose-500 transition-colors shrink-0"
+                          className="h-7 w-7 shrink-0 text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10"
                           title="Delete translation"
                         >
                           <Trash2 size={14} />
-                        </button>
+                        </Button>
                       </div>
                     );
                   })}
@@ -204,14 +208,17 @@ export function PageTranslationsModal({ page, onClose }: Props) {
             )}
 
             {!showForm && (
-              <button
+              <Button
+                variant="outline"
+                size="lg"
+                radius="lg"
                 onClick={startNew}
                 disabled={availableLangs.length === 0}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-dashed border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 transition-all disabled:opacity-40 disabled:cursor-not-allowed w-full justify-center"
+                className="w-full border-dashed px-4 text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5"
               >
                 <Plus size={15} />
                 {availableLangs.length === 0 ? "All languages added" : "Add Translation"}
-              </button>
+              </Button>
             )}
 
             {showForm && (
@@ -238,11 +245,13 @@ export function PageTranslationsModal({ page, onClose }: Props) {
                   )}
                 </div>
 
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  radius="lg"
                   onClick={handleAutoTranslate}
                   disabled={translating || !selectedLang}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-background text-sm font-medium text-foreground hover:bg-muted transition-all disabled:opacity-50 w-full justify-center"
+                  className="w-full px-4"
                 >
                   {translating ? (
                     <Loader2 size={14} className="animate-spin" />
@@ -250,7 +259,7 @@ export function PageTranslationsModal({ page, onClose }: Props) {
                     <Wand2 size={14} className="text-primary" />
                   )}
                   {translating ? "Translating…" : "Auto-translate from English (Free)"}
-                </button>
+                </Button>
 
                 <div className="space-y-1.5">
                   <label className="block text-sm font-medium text-foreground">

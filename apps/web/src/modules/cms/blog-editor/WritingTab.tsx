@@ -8,6 +8,7 @@ import { RichTextEditor } from "./RichTextEditor";
 import { stripHtml, type BlogFormState } from "./types";
 import IconTitle from "@/components/common/IconTitle";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export interface WritingTabProps {
   form: BlogFormState;
@@ -68,13 +69,14 @@ export function WritingTab({
           <FieldLabel
             right={
               slugManuallyEdited ? (
-                <button
+                <Button
                   type="button"
+                  variant="link"
                   onClick={() => setSlugManuallyEdited(false)}
-                  className="text-primary text-[9px] font-bold hover:underline"
+                  className="h-auto p-0 text-[9px] font-bold"
                 >
                   Auto Sync
-                </button>
+                </Button>
               ) : undefined
             }
           >
@@ -138,14 +140,13 @@ export function WritingTab({
       </div>
 
       <div className="flex justify-end pt-2">
-        <button
+        <Button variant="muted" radius="lg" className="h-auto px-4 py-2.5 gap-1 text-xs font-semibold"
           type="button"
           onClick={onNext}
-          className="px-4 py-2.5 bg-muted text-xs font-semibold rounded-lg flex items-center gap-1 hover:bg-muted/70 transition-all"
         >
           <span>Next: Metadata Tags</span>
           <MoveRight className="w-3.5 h-3.5" />
-        </button>
+        </Button>
       </div>
     </EditorCard>
   );

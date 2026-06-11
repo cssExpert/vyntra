@@ -92,10 +92,10 @@ export function EditorSidebar({
             </span>
           </div>
           <div>
-            <h4 className="text-xs md:text-sm font-bold text-foreground">
+            <h4 className="text-xs md:text-sm lg:text-base font-bold text-foreground">
               {seoScore >= 80 ? "Perfect SEO Grade" : "Optimization Required"}
             </h4>
-            <p className="text-[10px] text-muted-foreground mt-0.5">
+            <p className="text-[10px] md:text-xs text-muted-foreground mt-0.5">
               Fulfilling {seoScore / 20} of 5 keyword &amp; length parameters.
             </p>
           </div>

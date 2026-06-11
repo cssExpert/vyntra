@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Eye, Star, Upload, Check, Send } from "lucide-react";
 
 import { Modal } from "@/components/common/Modal";
+import { Button } from "@/components/ui/button";
 import type { CmsForm, FormField } from "../forms.types";
 
 const inputCls =
@@ -148,30 +149,31 @@ export function FormPreviewModal({ form, onClose }: FormPreviewModalProps) {
       footer={
         submitted ? (
           <>
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              radius="sm"
               onClick={() => setSubmitted(false)}
-              className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm text-sm font-semibold transition-all"
+              className="font-semibold text-muted-foreground hover:text-foreground"
             >
               Fill again
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
+              radius="sm"
               onClick={onClose}
-              className="px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-sm text-sm font-semibold transition-all active:scale-95"
+              className="px-5 font-semibold active:scale-95"
             >
               Close
-            </button>
+            </Button>
           </>
         ) : form && form.fields.length > 0 ? (
-          <button
-            type="button"
+          <Button
+            radius="sm"
             onClick={() => setSubmitted(true)}
-            className="inline-flex items-center gap-2 px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-sm text-sm font-semibold transition-all active:scale-95"
+            className="px-5 font-semibold active:scale-95"
+            startIcon={<Send size={14} />}
           >
-            <Send size={14} />
             Submit
-          </button>
+          </Button>
         ) : undefined
       }
     >

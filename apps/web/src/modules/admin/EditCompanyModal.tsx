@@ -12,6 +12,7 @@ import {
 } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { adminInput } from "./AdminGuard";
+import { Button } from "@/components/ui/button";
 
 interface EditCompanyModalProps {
   company: AdminCompany | null;
@@ -94,20 +95,18 @@ export function EditCompanyModal({
       description={t("editDesc", { defaultValue: "Update company details, plan, and operational status." })}
       footer={
         <div className="flex justify-end gap-2">
-          <button
+          <Button variant="outline" radius="lg" className="px-3 font-normal"
             onClick={onClose}
             disabled={busy}
-            className="rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted transition cursor-pointer disabled:opacity-50"
           >
             {t("cancel", { defaultValue: "Cancel" })}
-          </button>
-          <button
+          </Button>
+          <Button radius="lg" className="bg-foreground px-4 font-semibold text-background hover:bg-foreground hover:opacity-90"
             onClick={save}
             disabled={busy || !form.name?.trim()}
-            className="rounded-lg bg-foreground px-4 py-2 text-sm font-semibold text-background hover:opacity-90 transition cursor-pointer disabled:opacity-50"
           >
             {busy ? t("saving", { defaultValue: "Saving…" }) : t("saveChanges", { defaultValue: "Save Changes" })}
-          </button>
+          </Button>
         </div>
       }
     >

@@ -25,6 +25,7 @@ import {
   getVisibleNodeCount,
 } from "@nosferatu500/react-sortable-tree";
 import type { TreeItem } from "@nosferatu500/react-sortable-tree";
+import { Button } from "@/components/ui/button";
 
 const SortableTree = dynamic(
   () =>
@@ -361,13 +362,12 @@ export function CategoriesView() {
               { label: t("title", { defaultValue: "Categories" }) },
             ]}
           >
-            <button
+            <Button size="lg" radius="sm" className="px-5"
               onClick={() => router.push("/store/categories/add")}
-              className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer"
             >
               <Plus size={18} className="stroke-[3]" />
               {t("addCategory", { defaultValue: "Add Category" })}
-            </button>
+            </Button>
           </PageHeader>
 
           <div className="bg-card rounded-xl border border-border shadow-sm p-2.5 md:p-5 overflow-hidden mb-5">

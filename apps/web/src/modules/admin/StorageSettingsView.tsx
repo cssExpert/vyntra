@@ -26,6 +26,7 @@ import {
   type StorageMigrationReport,
   API_BASE,
 } from "@/lib/api";
+import { Button } from "@/components/ui/button";
 
 type StorageProvider = "local" | "s3" | "uploadthing" | "vercel-blob";
 
@@ -573,10 +574,9 @@ function Inner() {
                   }))
                 }
               />
-              <button
+              <Button variant="outline" size="lg" radius="lg" className="border-primary/30 bg-primary/5 px-4 text-primary hover:bg-primary/10 hover:text-primary"
                 onClick={testStorage}
                 disabled={testingStorage}
-                className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 py-2.5 text-sm font-medium text-primary hover:bg-primary/10 transition disabled:opacity-50"
               >
                 {testingStorage ? (
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -584,7 +584,7 @@ function Inner() {
                   <Zap className="h-4 w-4" />
                 )}
                 {testingStorage ? "Testing…" : "Test Connection"}
-              </button>
+              </Button>
             </div>
           </SectionCard>
         )}
@@ -662,10 +662,9 @@ function Inner() {
                   }))
                 }
               />
-              <button
+              <Button variant="outline" size="lg" radius="lg" className="border-primary/30 bg-primary/5 px-4 text-primary hover:bg-primary/10 hover:text-primary"
                 onClick={testStorage}
                 disabled={testingStorage}
-                className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 py-2.5 text-sm font-medium text-primary hover:bg-primary/10 transition disabled:opacity-50"
               >
                 {testingStorage ? (
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -673,7 +672,7 @@ function Inner() {
                   <Zap className="h-4 w-4" />
                 )}
                 {testingStorage ? "Testing…" : "Test Connection"}
-              </button>
+              </Button>
             </div>
           </SectionCard>
         )}
@@ -737,10 +736,9 @@ function Inner() {
                   }))
                 }
               />
-              <button
+              <Button variant="outline" size="lg" radius="lg" className="border-primary/30 bg-primary/5 px-4 text-primary hover:bg-primary/10 hover:text-primary"
                 onClick={testStorage}
                 disabled={testingStorage}
-                className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 py-2.5 text-sm font-medium text-primary hover:bg-primary/10 transition disabled:opacity-50"
               >
                 {testingStorage ? (
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -748,7 +746,7 @@ function Inner() {
                   <Zap className="h-4 w-4" />
                 )}
                 {testingStorage ? "Testing…" : "Test Connection"}
-              </button>
+              </Button>
             </div>
           </SectionCard>
         )}
@@ -788,10 +786,9 @@ function Inner() {
                   </ul>
                 </div>
               </div>
-              <button
+              <Button variant="outline" size="lg" radius="lg" className="border-primary/30 bg-primary/5 px-4 text-primary hover:bg-primary/10 hover:text-primary"
                 onClick={testStorage}
                 disabled={testingStorage}
-                className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 py-2.5 text-sm font-medium text-primary hover:bg-primary/10 transition disabled:opacity-50"
               >
                 {testingStorage ? (
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -799,7 +796,7 @@ function Inner() {
                   <Zap className="h-4 w-4" />
                 )}
                 {testingStorage ? "Testing…" : "Test Connection"}
-              </button>
+              </Button>
             </div>
           </SectionCard>
         )}

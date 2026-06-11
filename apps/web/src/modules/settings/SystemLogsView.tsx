@@ -25,6 +25,7 @@ import {
 } from "@tanstack/react-table";
 
 import { PageHeader } from "@/components/ui/PageHeader";
+import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import {
   TableSkeleton,
@@ -243,14 +244,18 @@ export function SystemLogsView() {
             )}
           </div>
 
-          <button
+          <Button
+            variant="outline"
+            size="lg"
+            radius="sm"
             onClick={load}
-            disabled={loading}
-            className="inline-flex items-center gap-2 rounded-sm border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted transition-all disabled:opacity-50 active:scale-[0.98]"
+            loading={loading}
+            loadingText="Refreshing…"
+            className="px-4 active:scale-[0.98]"
+            startIcon={<RefreshCw size={15} />}
           >
-            <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
             Refresh
-          </button>
+          </Button>
         </div>
       </PageHeader>
 
@@ -404,13 +409,15 @@ export function SystemLogsView() {
               </span>
 
               <div className="flex items-center gap-1">
-                <button
+                <Button
+                  variant="outline"
+                  radius="sm"
                   onClick={() => table.previousPage()}
                   disabled={!table.getCanPreviousPage()}
-                  className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                  className="h-8 px-3 text-muted-foreground"
                 >
                   ← Previous
-                </button>
+                </Button>
 
                 {pageWindow(pageIndex, pageCount).map((p, idx) =>
                   p === "…" ? (
@@ -421,27 +428,30 @@ export function SystemLogsView() {
                       …
                     </span>
                   ) : (
-                    <button
+                    <Button
                       key={p}
+                      variant={pageIndex === p ? "default" : "outline"}
+                      size="icon"
+                      radius="sm"
                       onClick={() => table.setPageIndex(p)}
-                      className={`w-8 h-8 text-sm font-semibold rounded-sm transition-all ${
-                        pageIndex === p
-                          ? "bg-primary text-primary-foreground"
-                          : "border border-border text-muted-foreground hover:bg-muted hover:text-foreground"
+                      className={`w-8 h-8 text-sm font-semibold ${
+                        pageIndex === p ? "" : "text-muted-foreground"
                       }`}
                     >
                       {p + 1}
-                    </button>
+                    </Button>
                   ),
                 )}
 
-                <button
+                <Button
+                  variant="outline"
+                  radius="sm"
                   onClick={() => table.nextPage()}
                   disabled={!table.getCanNextPage()}
-                  className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                  className="h-8 px-3 text-muted-foreground"
                 >
                   Next →
-                </button>
+                </Button>
               </div>
             </div>
           </div>

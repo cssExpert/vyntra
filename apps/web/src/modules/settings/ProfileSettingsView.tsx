@@ -16,6 +16,7 @@ import { SectionCard } from "@/components/ui/SectionCard";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { apiUpdateProfile } from "@/lib/api";
 import { useAuth } from "@/providers/AuthProvider";
+import { Button } from "@/components/ui/button";
 
 const inputCls =
   "w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15";
@@ -82,14 +83,13 @@ export function ProfileSettingsView() {
           defaultValue: "Manage your personal account details.",
         })}
       >
-        <button
+        <Button size="lg" radius="lg" className="px-4"
           onClick={handleSave}
           disabled={!canSave}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Save size={16} />
           {saving ? "Saving…" : "Save Changes"}
-        </button>
+        </Button>
       </PageHeader>
 
       {feedback && (

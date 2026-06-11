@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, Copy, ExternalLink } from "lucide-react";
 import type { AuthorProfile, BlogFormState } from "./types";
+import { Button } from "@/components/ui/button";
 
 export interface PublishSummaryModalProps {
   isOpen: boolean;
@@ -119,14 +120,13 @@ export function PublishSummaryModal({
 
             {/* Actions */}
             <div className="grid grid-cols-2 gap-2">
-              <button
+              <Button variant="muted" radius="lg" className="h-auto py-2 gap-1.5 text-xs font-semibold"
                 type="button"
                 onClick={onCopyLink}
-                className="py-2 bg-muted hover:bg-muted/70 text-xs font-semibold rounded-lg text-foreground transition-colors flex items-center justify-center gap-1.5"
               >
                 <Copy className="w-3.5 h-3.5" />
                 Copy Link
-              </button>
+              </Button>
               {form.status === "published" && form.slug && (
                 <a
                   href={`/blog/${form.slug}`}
@@ -138,15 +138,16 @@ export function PublishSummaryModal({
                   View Post
                 </a>
               )}
-              <button
+              <Button
                 type="button"
+                radius="lg"
                 onClick={onClose}
-                className={`py-2 bg-primary hover:bg-primary-600 text-xs font-semibold rounded-lg text-primary-foreground transition-colors ${
+                className={`h-auto py-2 text-xs font-semibold ${
                   form.status !== "published" || !form.slug ? "col-span-2" : ""
                 }`}
               >
                 Done
-              </button>
+              </Button>
             </div>
           </motion.div>
         </motion.div>

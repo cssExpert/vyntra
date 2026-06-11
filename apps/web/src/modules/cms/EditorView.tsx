@@ -43,6 +43,7 @@ import {
   type TableSkeletonColumn,
 } from "@/components/common/TableSkeleton";
 import { usePageLoad } from "@/hooks/usePageLoad";
+import { Button } from "@/components/ui/button";
 
 // Skeleton column layout mirrors the real table columns below.
 const SKELETON_COLUMNS: TableSkeletonColumn[] = [
@@ -614,10 +615,10 @@ export function EditorView() {
                 />
                 Add Page
               </button>
-              <button className="inline-flex items-center gap-2 rounded-sm border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted transition-all cursor-pointer active:scale-[0.98]">
+              <Button variant="outline" size="lg" radius="sm" className="px-4 active:scale-[0.98]">
                 <Download size={15} />
                 Export
-              </button>
+              </Button>
 
               {/* Apply Filters */}
               <FilterPanel
@@ -629,10 +630,10 @@ export function EditorView() {
                   setActiveFilters(DEFAULT_FILTERS);
                 }}
                 trigger={
-                  <button className="inline-flex items-center gap-2 rounded-sm bg-secondary px-4 py-2.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/90 transition-all cursor-pointer active:scale-[0.98]">
+                  <Button variant="secondary" size="lg" radius="sm" className="px-4 active:scale-[0.98]">
                     <ListFilterPlus size={15} />
                     Apply Filters
-                  </button>
+                  </Button>
                 }
               >
                 {/* Duration */}
@@ -883,13 +884,12 @@ export function EditorView() {
                 </span>
 
                 <div className="flex items-center gap-1">
-                  <button
+                  <Button variant="outline" radius="sm" className="h-8 px-3 text-muted-foreground"
                     onClick={() => table.previousPage()}
                     disabled={!table.getCanPreviousPage()}
-                    className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                   >
                     ← Previous
-                  </button>
+                  </Button>
 
                   {pageWindow(pageIndex, pageCount).map((p, idx) =>
                     p === "…" ? (
@@ -914,13 +914,12 @@ export function EditorView() {
                     ),
                   )}
 
-                  <button
+                  <Button variant="outline" radius="sm" className="h-8 px-3 text-muted-foreground"
                     onClick={() => table.nextPage()}
                     disabled={!table.getCanNextPage()}
-                    className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                   >
                     Next →
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -949,16 +948,15 @@ export function EditorView() {
             maxWidth="xxxl"
             footer={
               <>
-                <button
+                <Button variant="ghost" radius="sm" className="font-semibold text-muted-foreground hover:text-foreground"
                   type="button"
                   onClick={() => {
                     setIsModalOpen(false);
                     setEditingPage(null);
                   }}
-                  className="px-4 py-2.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm text-sm font-semibold transition-all"
                 >
                   Cancel
-                </button>
+                </Button>
                 <button
                   type="submit"
                   form="page-edit-form"
@@ -993,20 +991,18 @@ export function EditorView() {
             maxWidth="md"
             footer={
               <>
-                <button
+                <Button variant="ghost" radius="sm" className="font-semibold text-muted-foreground hover:text-foreground"
                   type="button"
                   onClick={() => setDeletingPage(null)}
-                  className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm text-sm font-semibold transition-all"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button variant="destructive" radius="sm" className="px-5 font-semibold active:scale-95"
                   type="button"
                   onClick={handleConfirmDelete}
-                  className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-sm text-sm font-semibold transition-all active:scale-95"
                 >
                   Yes, Delete
-                </button>
+                </Button>
               </>
             }
           />

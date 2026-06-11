@@ -22,6 +22,7 @@ import {
   type BlogVisibility,
 } from "./types";
 import IconTitle from "@/components/common/IconTitle";
+import { Button } from "@/components/ui/button";
 
 export interface PublishTabProps {
   form: BlogFormState;
@@ -148,7 +149,7 @@ export function PublishTab({
                     key={st.id}
                     type="button"
                     onClick={() => patch({ status: st.id })}
-                    className={`w-full p-2.5 rounded-lg border text-left flex items-center gap-2 transition-all ${
+                    className={`w-full p-2 rounded-lg border text-left flex items-center gap-2 transition-all ${
                       active
                         ? st.activeClass
                         : "bg-background border-border hover:bg-muted text-foreground"
@@ -219,7 +220,7 @@ export function PublishTab({
                     key={vis.id}
                     type="button"
                     onClick={() => patch({ visibility: vis.id })}
-                    className={`w-full p-2.5 rounded-lg border text-left flex items-center gap-3 transition-all ${
+                    className={`w-full p-2 rounded-lg border text-left flex items-center gap-2 transition-all ${
                       active
                         ? "bg-primary/10 border-primary"
                         : "bg-background border-border hover:bg-muted"
@@ -277,19 +278,19 @@ export function PublishTab({
                       key={aut.id}
                       type="button"
                       onClick={() => patch({ author: aut.id })}
-                      className={`w-full p-2 rounded-lg border flex items-center justify-between text-xs transition-all ${
+                      className={`w-full p-2 rounded-lg border text-left flex items-center gap-2 transition-all ${
                         selected
                           ? "border-primary bg-primary/5"
                           : "border-border hover:bg-muted"
                       }`}
                     >
-                      <span className="flex items-center gap-2">
+                      <span className="flex-1 flex items-center gap-2">
                         <span
                           className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0 ${avatarColor(aut.id)}`}
                         >
                           {authorInitials(aut.name)}
                         </span>
-                        <span className="text-left">
+                        <span className="flex-1 text-left">
                           <span className="text-xs md:text-sm font-semibold block text-foreground">
                             {aut.name}
                           </span>
@@ -327,18 +328,21 @@ export function PublishTab({
       </div>
 
       <div className="flex justify-between pt-2 border-t border-border">
-        <button
+        <Button
+          variant="muted"
+          radius="lg"
+          className="h-auto px-3 py-2.5 gap-1 text-xs font-semibold"
           type="button"
           onClick={onBack}
-          className="px-3 py-2.5 bg-muted text-xs font-semibold rounded-lg flex items-center gap-1 hover:bg-muted/70 transition-all"
         >
           <MoveLeft className="w-3.5 h-3.5" />
           <span>Back</span>
-        </button>
-        <button
+        </Button>
+        <Button
+          radius="lg"
+          className="h-auto px-5 py-2.5 gap-1.5 text-xs font-bold active:scale-95"
           type="button"
           onClick={onPublish}
-          className="px-5 py-2.5 bg-primary hover:bg-primary-600 text-primary-foreground font-bold text-xs rounded-lg flex items-center gap-1.5 transition-all active:scale-95"
         >
           <CheckCircle className="w-3.5 h-3.5" />
           <span>
@@ -348,7 +352,7 @@ export function PublishTab({
                 ? "Confirm & Schedule"
                 : "Save as Draft"}
           </span>
-        </button>
+        </Button>
       </div>
     </EditorCard>
   );

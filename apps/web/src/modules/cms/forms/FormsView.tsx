@@ -27,6 +27,7 @@ import {
 } from "@tanstack/react-table";
 
 import SectionTitle from "@/components/common/SectionTitle";
+import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/common/Modal";
 import { FilterPanel } from "@/components/common/FilterPanel";
 import { FilterSelect } from "@/components/common/FilterSelect";
@@ -237,10 +238,15 @@ export function FormsView() {
                   setActiveFilters(DEFAULT_FILTERS);
                 }}
                 trigger={
-                  <button className="inline-flex items-center gap-2 rounded-sm bg-secondary px-4 py-2.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/90 transition-all cursor-pointer active:scale-[0.98]">
-                    <ListFilterPlus size={15} />
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    radius="sm"
+                    className="px-4 active:scale-[0.98]"
+                    startIcon={<ListFilterPlus size={15} />}
+                  >
                     Filters
-                  </button>
+                  </Button>
                 }
               >
                 <div>
@@ -315,16 +321,17 @@ export function FormsView() {
               </div>
 
               {/* New form */}
-              <button
+              <Button
                 onClick={() => router.push("/cms/forms/new")}
-                className="inline-flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary-600 transition-all active:scale-[0.98] group"
+                size="lg"
+                radius="sm"
+                className="px-4 font-semibold active:scale-[0.98] group"
+                startIcon={
+                  <Plus className="stroke-[3] group-hover:rotate-90 transition-transform duration-200" />
+                }
               >
-                <Plus
-                  size={15}
-                  className="stroke-[3] group-hover:rotate-90 transition-transform duration-200"
-                />
                 New Form
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -373,20 +380,22 @@ export function FormsView() {
             maxWidth="md"
             footer={
               <>
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  radius="sm"
                   onClick={() => setDeletingForm(null)}
-                  className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm text-sm font-semibold transition-all"
+                  className="font-semibold text-muted-foreground hover:text-foreground"
                 >
                   Cancel
-                </button>
-                <button
-                  type="button"
+                </Button>
+                <Button
+                  variant="destructive"
+                  radius="sm"
                   onClick={handleConfirmDelete}
-                  className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-sm text-sm font-semibold transition-all active:scale-95"
+                  className="px-5 font-semibold active:scale-95"
                 >
                   Yes, Delete
-                </button>
+                </Button>
               </>
             }
           />

@@ -10,6 +10,7 @@ import { TableActionMenu } from "@/components/common/TableActionMenu";
 import { Plus, Search, Tag, Eye, Pencil, Trash2, Copy } from "lucide-react";
 import { SAMPLE_COUPONS } from "../store.data";
 import type { StoreCoupon } from "../store.types";
+import { Button } from "@/components/ui/button";
 
 function formatDiscount(c: StoreCoupon) {
   if (c.freeShipping && c.value === 0) return "Free Shipping";
@@ -98,13 +99,13 @@ export function CouponsView() {
               { label: "Coupons" },
             ]}
           >
-            <button className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer">
+            <Button size="lg" radius="sm" className="px-5">
               <Plus
                 size={18}
                 className="stroke-[3] transition-transform group-hover:rotate-90 duration-300"
               />
               Add Coupon
-            </button>
+            </Button>
           </PageHeader>
 
           {/* Quick stats */}
@@ -300,13 +301,12 @@ export function CouponsView() {
                   Showing {fromEntry} to {toEntry} of {filteredCount} entries
                 </span>
                 <div className="flex items-center gap-1">
-                  <button
+                  <Button variant="outline" radius="sm" className="h-8 px-3 text-muted-foreground"
                     onClick={() => setPageIndex((p) => Math.max(0, p - 1))}
                     disabled={pageIndex === 0}
-                    className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
                   >
                     ← Previous
-                  </button>
+                  </Button>
                   {pageWindow(pageIndex, pageCount).map((p, idx) =>
                     p === "…" ? (
                       <span
@@ -325,15 +325,14 @@ export function CouponsView() {
                       </button>
                     ),
                   )}
-                  <button
+                  <Button variant="outline" radius="sm" className="h-8 px-3 text-muted-foreground"
                     onClick={() =>
                       setPageIndex((p) => Math.min(pageCount - 1, p + 1))
                     }
                     disabled={pageIndex >= pageCount - 1}
-                    className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
                   >
                     Next →
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

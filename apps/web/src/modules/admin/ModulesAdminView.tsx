@@ -36,6 +36,7 @@ import { Modal } from "@/components/common/Modal";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
 import { admin, type AdminModule } from "@/lib/api";
 import { AdminGuard, adminInput } from "./AdminGuard";
+import { Button } from "@/components/ui/button";
 
 interface ModuleDetail extends AdminModule {
   companies?: Array<{ id: string; name: string; slug: string }>;
@@ -330,12 +331,11 @@ function Inner() {
         description={t("viewDetails", { defaultValue: "View module details and usage." })}
         maxWidth="lg"
         footer={
-          <button
+          <Button radius="lg" className="bg-foreground px-3 font-semibold text-background hover:bg-foreground hover:opacity-90"
             onClick={() => selectedModule && openEdit(selectedModule)}
-            className="flex items-center gap-2 rounded-lg bg-foreground px-3 py-2 text-sm font-semibold text-background hover:opacity-90 transition cursor-pointer"
           >
             <Pencil className="h-4 w-4" /> {t("edit", { defaultValue: "Edit" })}
-          </button>
+          </Button>
         }
       >
         <div className="px-6 py-5 space-y-6">

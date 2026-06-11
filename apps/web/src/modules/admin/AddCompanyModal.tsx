@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { adminInput } from "./AdminGuard";
 import { formatPrice, generateSecurePassword } from "./companyUtils";
 import { LogoUploader } from "./LogoUploader";
+import { Button } from "@/components/ui/button";
 
 // ── Phone masking ─────────────────────────────────────────────────────────────
 // Normalises input to a readable phone string as the user types.
@@ -386,13 +387,12 @@ export function AddCompanyModal({
       description="Onboard a new company, assign a plan, and provision its first administrator."
       footer={
         <div className="flex w-full items-center justify-between">
-          <button
+          <Button variant="outline" radius="lg" className="px-3 font-normal"
             onClick={() => (step === 1 ? close() : setStep((s) => s - 1))}
             disabled={busy}
-            className="rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted transition cursor-pointer disabled:opacity-50"
           >
             {step === 1 ? "Cancel" : "Back"}
-          </button>
+          </Button>
           {step < 4 ? (
             <button
               onClick={handleContinue}
@@ -401,13 +401,12 @@ export function AddCompanyModal({
               {step === 3 ? "Continue" : "Continue"}
             </button>
           ) : (
-            <button
+            <Button radius="lg" className="bg-foreground px-4 font-semibold text-background hover:bg-foreground hover:opacity-90"
               onClick={submit}
               disabled={busy}
-              className="rounded-lg bg-foreground px-4 py-2 text-sm font-semibold text-background hover:opacity-90 transition cursor-pointer disabled:opacity-50"
             >
               {busy ? "Creating…" : "Create Company"}
-            </button>
+            </Button>
           )}
         </div>
       }

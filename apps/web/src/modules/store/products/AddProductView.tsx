@@ -12,6 +12,7 @@ import { Save, Send } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ProductType, ProductStatus, StockStatus } from "../store.types";
 import { ProductDescriptionEditor } from "./components/ProductDescriptionEditor";
+import { Button } from "@/components/ui/button";
 
 const inp =
   "w-full rounded-sm border border-border bg-background px-3 py-2.5 text-[14px] text-foreground placeholder:text-muted-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15";
@@ -219,10 +220,10 @@ export function AddProductView() {
             <Save size={14} />
             Save Draft
           </button>
-          <button className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer">
+          <Button size="lg" radius="sm" className="px-5">
             <Send size={14} />
             Publish
-          </button>
+          </Button>
         </PageHeader>
 
         <motion.div

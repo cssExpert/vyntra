@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertTriangle, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface ConfirmDialogProps {
@@ -66,13 +67,16 @@ export function ConfirmDialog({
             className="relative z-10 w-full max-w-sm bg-card border border-border rounded-2xl shadow-2xl overflow-hidden"
           >
             {/* Close button */}
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
+              radius="lg"
               onClick={onCancel}
-              className="absolute top-4 right-4 p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              className="absolute top-4 right-4 h-7 w-7 text-muted-foreground hover:text-foreground"
               aria-label="Close"
             >
               <X className="w-4 h-4" />
-            </button>
+            </Button>
 
             {/* Body */}
             <div className="px-6 pt-7 pb-6 flex flex-col items-center text-center gap-4">
@@ -104,23 +108,26 @@ export function ConfirmDialog({
 
             {/* Footer */}
             <div className="px-6 pb-6 flex gap-3">
-              <button
-                type="button"
+              <Button
+                variant="outline"
+                size="lg"
+                radius="xl"
                 onClick={onCancel}
-                className="flex-1 py-2.5 rounded-xl border border-border text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+                className="flex-1 font-semibold text-muted-foreground hover:text-foreground"
               >
                 {cancelLabel}
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                size="lg"
+                radius="xl"
                 onClick={onConfirm}
                 className={cn(
-                  "flex-1 py-2.5 rounded-xl text-sm font-bold text-white transition-all shadow-md focus:outline-none focus-visible:ring-2",
+                  "flex-1 font-bold text-white shadow-md focus-visible:ring-2",
                   btnCls,
                 )}
               >
                 {confirmLabel}
-              </button>
+              </Button>
             </div>
           </motion.div>
         </div>

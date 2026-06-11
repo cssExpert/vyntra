@@ -16,6 +16,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { Gallery, GalleryStatus } from "./gallery.types";
 import { PRESET_COVERS, CATEGORIES } from "./gallery.data";
+import { Button } from "@/components/ui/button";
 
 interface GalleryCreateModalProps {
   isOpen: boolean;
@@ -363,13 +364,12 @@ export function GalleryCreateModal({
 
             {/* Footer */}
             <div className="px-6 py-4 border-t border-border bg-muted/60 flex justify-end gap-3">
-              <button
+              <Button variant="ghost" radius="sm" className="h-auto py-3 font-semibold text-muted-foreground hover:text-foreground"
                 type="button"
                 onClick={onClose}
-                className="px-4 py-3 text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm text-sm font-semibold transition-all"
               >
                 Cancel
-              </button>
+              </Button>
               <button
                 type="button"
                 onClick={handleSubmit}

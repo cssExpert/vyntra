@@ -20,6 +20,7 @@ import { AdminGuard } from "./AdminGuard";
 import { AddCompanyModal } from "./AddCompanyModal";
 import { EditCompanyModal } from "./EditCompanyModal";
 import { DomainManagementModal } from "./DomainManagementModal";
+import { Button } from "@/components/ui/button";
 
 function Inner() {
   const t = useTranslations("admin.companies");
@@ -103,12 +104,11 @@ function Inner() {
         title={t("title")}
         description={t("description")}
       >
-        <button
+        <Button radius="lg" className="bg-foreground px-3 font-semibold text-background hover:bg-foreground hover:opacity-90"
           onClick={() => setAddOpen(true)}
-          className="flex items-center gap-2 rounded-lg bg-foreground px-3 py-2 text-sm font-semibold text-background hover:opacity-90 transition cursor-pointer"
         >
           <Plus className="h-4 w-4" /> {t("add")}
-        </button>
+        </Button>
       </PageHeader>
 
       {error && (

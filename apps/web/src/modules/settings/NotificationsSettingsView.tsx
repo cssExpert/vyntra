@@ -14,6 +14,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { Switch } from "@/components/ui/switch";
 import { apiGetOrgSettings, apiUpdateOrgSettings } from "@/lib/api";
+import { Button } from "@/components/ui/button";
 
 interface ToggleRowProps {
   icon: React.ElementType;
@@ -113,14 +114,13 @@ export function NotificationsSettingsView() {
         title="Manage Notifications"
         description="Choose how your organization receives updates."
       >
-        <button
+        <Button size="lg" radius="lg" className="px-4"
           onClick={handleSave}
           disabled={saving}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Save size={16} />
           {saving ? "Saving…" : "Save Changes"}
-        </button>
+        </Button>
       </PageHeader>
 
       {feedback && (

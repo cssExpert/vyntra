@@ -5,6 +5,7 @@ import { Tag, MoveLeft, MoveRight, Plus, X, Search } from "lucide-react";
 import { EditorCard, FieldLabel, inputClass } from "./fields";
 import type { BlogFormState } from "./types";
 import IconTitle from "@/components/common/IconTitle";
+import { Button } from "@/components/ui/button";
 
 export interface MetadataTabProps {
   form: BlogFormState;
@@ -328,22 +329,20 @@ export function MetadataTab({
       </div>
 
       <div className="flex justify-between pt-2">
-        <button
+        <Button variant="muted" radius="lg" className="h-auto px-4 py-2.5 gap-1 text-xs font-semibold"
           type="button"
           onClick={onBack}
-          className="px-4 py-2.5 bg-muted text-xs font-semibold rounded-lg flex items-center gap-1 hover:bg-muted/70 transition-all"
         >
           <MoveLeft className="w-3.5 h-3.5" />
           <span>Back</span>
-        </button>
-        <button
+        </Button>
+        <Button variant="muted" radius="lg" className="h-auto px-4 py-2.5 gap-1 text-xs font-semibold"
           type="button"
           onClick={onNext}
-          className="px-4 py-2.5 bg-muted text-xs font-semibold rounded-lg flex items-center gap-1 hover:bg-muted/70 transition-all"
         >
           <span>Next: SEO Config</span>
           <MoveRight className="w-3.5 h-3.5" />
-        </button>
+        </Button>
       </div>
     </EditorCard>
   );

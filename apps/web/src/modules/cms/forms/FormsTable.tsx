@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronUp, ChevronDown, ChevronsUpDown, ClipboardList } from "lucide-react";
 import { flexRender, type Table } from "@tanstack/react-table";
 
+import { Button } from "@/components/ui/button";
 import { pageWindow } from "./forms-table-config";
 import type { CmsForm } from "./forms.types";
 
@@ -144,12 +145,14 @@ export function FormsTable({
                         </p>
                       </div>
                       {!hasFiltersApplied && (
-                        <button
+                        <Button
                           onClick={onCreateFirst}
-                          className="px-4 py-2 bg-primary text-primary-foreground text-xs font-bold rounded-lg active:scale-95 transition-transform"
+                          size="sm"
+                          radius="lg"
+                          className="font-bold active:scale-95"
                         >
                           Build first form
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </td>
@@ -184,13 +187,15 @@ export function FormsTable({
           </span>
 
           <div className="flex items-center gap-1">
-            <button
+            <Button
+              variant="outline"
+              radius="sm"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
-              className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              className="h-8 px-3 text-muted-foreground"
             >
               ← Previous
-            </button>
+            </Button>
 
             {pageWindow(pageIndex, pageCount).map((p, idx) =>
               p === "…" ? (
@@ -201,27 +206,30 @@ export function FormsTable({
                   …
                 </span>
               ) : (
-                <button
+                <Button
                   key={p}
+                  variant={pageIndex === p ? "default" : "outline"}
+                  size="icon"
+                  radius="sm"
                   onClick={() => table.setPageIndex(p)}
-                  className={`w-8 h-8 text-sm font-semibold rounded-sm transition-all ${
-                    pageIndex === p
-                      ? "bg-primary text-primary-foreground"
-                      : "border border-border text-muted-foreground hover:bg-muted hover:text-foreground"
+                  className={`w-8 h-8 text-sm font-semibold ${
+                    pageIndex === p ? "" : "text-muted-foreground"
                   }`}
                 >
                   {p + 1}
-                </button>
+                </Button>
               ),
             )}
 
-            <button
+            <Button
+              variant="outline"
+              radius="sm"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
-              className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              className="h-8 px-3 text-muted-foreground"
             >
               Next →
-            </button>
+            </Button>
           </div>
         </div>
       </div>

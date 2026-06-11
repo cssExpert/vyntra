@@ -8,6 +8,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Modal } from "@/components/common/Modal";
 import { admin, type AdminModule, type AdminPackage } from "@/lib/api";
 import { AdminGuard, adminInput } from "./AdminGuard";
+import { Button } from "@/components/ui/button";
 
 interface FormState {
   id: string | null;
@@ -126,12 +127,11 @@ function Inner() {
         title={t("title")}
         description={t("description")}
       >
-        <button
+        <Button radius="lg" className="bg-foreground px-3 font-semibold text-background hover:bg-foreground hover:opacity-90"
           onClick={openCreate}
-          className="flex items-center gap-2 rounded-lg bg-foreground px-3 py-2 text-sm font-semibold text-background hover:opacity-90 transition cursor-pointer"
         >
           <Plus className="h-4 w-4" /> {t("add")}
-        </button>
+        </Button>
       </PageHeader>
 
       {error && (

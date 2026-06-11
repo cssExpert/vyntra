@@ -24,6 +24,7 @@ import {
 import { SAMPLE_AUTOMATIONS } from "../store.data";
 import type { AutomationRule, AutomationTrigger } from "../store.types";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 const TRIGGER_ICONS: Partial<Record<AutomationTrigger, React.ReactNode>> = {
   customer_registered: <UserPlus size={14} />,
@@ -91,13 +92,13 @@ export function AutomationsView() {
               { label: "Automations" },
             ]}
           >
-            <button className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer">
+            <Button size="lg" radius="sm" className="px-5">
               <Plus
                 size={18}
                 className="stroke-[3] transition-transform group-hover:rotate-90 duration-300"
               />
               New Automation
-            </button>
+            </Button>
           </PageHeader>
 
           {/* Quick stat */}

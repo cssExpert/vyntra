@@ -36,6 +36,7 @@ import { admin, type AdminUser } from "@/lib/api";
 import { AdminGuard } from "./AdminGuard";
 import { Modal } from "@/components/common/Modal";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
+import { Button } from "@/components/ui/button";
 
 interface UserWithActivity extends AdminUser {
   lastLoginAt?: string;
@@ -706,12 +707,11 @@ function Inner() {
         maxWidth="lg"
         footer={
           <>
-            <button
+            <Button variant="ghost" radius="lg" className="text-muted-foreground hover:text-foreground"
               onClick={() => setIsAddModalOpen(false)}
-              className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg text-sm font-medium transition"
             >
               {t("cancel", { defaultValue: "Cancel" })}
-            </button>
+            </Button>
             <button
               onClick={handleAddUser}
               className="px-4 py-2 bg-primary hover:bg-primary-600 text-primary-foreground rounded-lg text-sm font-medium transition"
@@ -944,12 +944,11 @@ function Inner() {
         maxWidth="lg"
         footer={
           <>
-            <button
+            <Button variant="ghost" radius="lg" className="text-muted-foreground hover:text-foreground"
               onClick={() => setIsEditModalOpen(false)}
-              className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg text-sm font-medium transition"
             >
               {t("cancel", { defaultValue: "Cancel" })}
-            </button>
+            </Button>
             <button
               onClick={handleEditUser}
               className="px-4 py-2 bg-primary hover:bg-primary-600 text-primary-foreground rounded-lg text-sm font-medium transition"
@@ -1188,12 +1187,11 @@ function Inner() {
         maxWidth="md"
         footer={
           <>
-            <button
+            <Button variant="ghost" radius="lg" className="text-muted-foreground hover:text-foreground"
               onClick={() => setIsPasswordModalOpen(false)}
-              className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg text-sm font-medium transition"
             >
               {t("cancel", { defaultValue: "Cancel" })}
-            </button>
+            </Button>
             <button
               onClick={handleChangePassword}
               disabled={passwordSaving}
@@ -1283,12 +1281,11 @@ function Inner() {
         maxWidth="md"
         footer={
           <>
-            <button
+            <Button variant="ghost" radius="lg" className="text-muted-foreground hover:text-foreground"
               onClick={() => setIsDeleteConfirmOpen(false)}
-              className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg text-sm font-medium transition"
             >
               {t("cancel", { defaultValue: "Cancel" })}
-            </button>
+            </Button>
             <button
               onClick={handleDeleteUser}
               className="px-4 py-2 bg-error hover:bg-error/90 text-white rounded-lg text-sm font-medium transition"

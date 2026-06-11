@@ -28,6 +28,7 @@ import { cn } from "@/lib/utils";
 import { AdminGuard } from "./AdminGuard";
 import { EditCompanyModal } from "./EditCompanyModal";
 import { cycleLabel, formatDate, formatPrice } from "./companyUtils";
+import { Button } from "@/components/ui/button";
 
 type TabId = "overview" | "users" | "billing" | "modules";
 
@@ -127,13 +128,12 @@ function Inner({ companyId }: { companyId: string }) {
         title={company.name}
         description={company.legalName ?? company.slug}
       >
-        <button
+        <Button radius="lg" className="bg-foreground px-3 font-semibold text-background hover:bg-foreground hover:opacity-90"
           onClick={() => setEditing(true)}
-          className="flex items-center gap-2 rounded-lg bg-foreground px-3 py-2 text-sm font-semibold text-background hover:opacity-90 transition cursor-pointer"
         >
           <Pencil className="h-4 w-4" />{" "}
           {t("edit", { defaultValue: "Edit Company" })}
-        </button>
+        </Button>
       </PageHeader>
 
       {/* Identity card */}

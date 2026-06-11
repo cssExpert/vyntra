@@ -9,6 +9,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
 import { Search, Package, Pencil, AlertTriangle } from "lucide-react";
 import { SAMPLE_INVENTORY } from "../store.data";
+import { Button } from "@/components/ui/button";
 
 function pageWindow(current: number, total: number): (number | "…")[] {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i);
@@ -195,13 +196,13 @@ export function InventoryView() {
               <div className="flex items-center gap-3">
                 <span className="text-muted-foreground">{t("showing", { defaultValue: "Showing" })} {fromEntry} {t("to", { defaultValue: "to" })} {toEntry} {t("of", { defaultValue: "of" })} {filteredCount} {t("entries", { defaultValue: "entries" })}</span>
                 <div className="flex items-center gap-1">
-                  <button onClick={() => setPageIndex((p) => Math.max(0, p - 1))} disabled={pageIndex === 0} className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer">← {t("previous", { defaultValue: "Previous" })}</button>
+                  <Button variant="outline" radius="sm" className="h-8 px-3 text-muted-foreground" onClick={() => setPageIndex((p) => Math.max(0, p - 1))} disabled={pageIndex === 0}>← {t("previous", { defaultValue: "Previous" })}</Button>
                   {pageWindow(pageIndex, pageCount).map((p, idx) =>
                     p === "…" ? <span key={`e-${idx}`} className="w-8 text-center text-muted-foreground">…</span> : (
                       <button key={p} onClick={() => setPageIndex(p as number)} className={`w-8 h-8 text-sm font-semibold rounded-sm transition-all cursor-pointer ${pageIndex === p ? "bg-primary text-primary-foreground" : "border border-border text-muted-foreground hover:bg-muted hover:text-foreground"}`}>{(p as number) + 1}</button>
                     )
                   )}
-                  <button onClick={() => setPageIndex((p) => Math.min(pageCount - 1, p + 1))} disabled={pageIndex >= pageCount - 1} className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer">{t("next", { defaultValue: "Next" })} →</button>
+                  <Button variant="outline" radius="sm" className="h-8 px-3 text-muted-foreground" onClick={() => setPageIndex((p) => Math.min(pageCount - 1, p + 1))} disabled={pageIndex >= pageCount - 1}>{t("next", { defaultValue: "Next" })} →</Button>
                 </div>
               </div>
             </div>

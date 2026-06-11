@@ -39,6 +39,7 @@ import {
 } from "@tanstack/react-table";
 
 import SectionTitle from "@/components/common/SectionTitle";
+import { Button } from "@/components/ui/button";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
 import { Modal } from "@/components/common/Modal";
 import { FilterPanel } from "@/components/common/FilterPanel";
@@ -634,20 +635,26 @@ export function PagesView() {
             />
 
             <div className="flex items-center gap-2">
-              <button
+              <Button
+                size="lg"
+                radius="sm"
                 onClick={handleAddPageClick}
-                className="inline-flex items-center gap-2 rounded-sm bg-brand-500 px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-brand-600 transition-all cursor-pointer group active:scale-[0.98]"
+                className="px-4 active:scale-[0.98] group"
+                startIcon={
+                  <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300" />
+                }
               >
-                <Plus
-                  size={16}
-                  className="stroke-[3] transition-transform group-hover:rotate-90 duration-300"
-                />
                 Add Page
-              </button>
-              <button className="inline-flex items-center gap-2 rounded-sm border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted transition-all cursor-pointer active:scale-[0.98]">
-                <Download size={15} />
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                radius="sm"
+                className="px-4 active:scale-[0.98]"
+                startIcon={<Download size={15} />}
+              >
                 Export
-              </button>
+              </Button>
 
               {/* Apply Filters */}
               <FilterPanel
@@ -659,10 +666,15 @@ export function PagesView() {
                   setActiveFilters(DEFAULT_FILTERS);
                 }}
                 trigger={
-                  <button className="inline-flex items-center gap-2 rounded-sm bg-secondary px-4 py-2.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/90 transition-all cursor-pointer active:scale-[0.98]">
-                    <ListFilterPlus size={15} />
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    radius="sm"
+                    className="px-4 active:scale-[0.98]"
+                    startIcon={<ListFilterPlus size={15} />}
+                  >
                     Apply Filters
-                  </button>
+                  </Button>
                 }
               >
                 {/* Duration */}
@@ -789,24 +801,30 @@ export function PagesView() {
                   </select>
                 </div>
 
-                <button
+                <Button
+                  size="sm"
+                  radius="md"
                   onClick={handleBulkApplyLayout}
-                  disabled={bulkApplying}
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-md bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary-600 disabled:opacity-50 transition-all active:scale-95 shrink-0"
+                  loading={bulkApplying}
+                  loadingText="Applying…"
+                  className="px-4 text-sm font-semibold active:scale-95 shrink-0"
+                  startIcon={<CheckCheck size={14} />}
                 >
-                  <CheckCheck size={14} />
-                  {bulkApplying ? "Applying…" : "Apply"}
-                </button>
+                  Apply
+                </Button>
 
-                <button
+                <Button
+                  variant="link"
+                  size="sm"
                   onClick={() => {
                     setRowSelection({});
                     setBulkLayoutId("");
                   }}
-                  className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                  className="gap-1 px-0 text-sm text-muted-foreground hover:text-foreground hover:no-underline shrink-0"
+                  startIcon={<X size={13} />}
                 >
-                  <X size={13} /> Deselect
-                </button>
+                  Deselect
+                </Button>
               </motion.div>
             )}
           </AnimatePresence>
@@ -970,13 +988,15 @@ export function PagesView() {
                 </span>
 
                 <div className="flex items-center gap-1">
-                  <button
+                  <Button
+                    variant="outline"
+                    radius="sm"
                     onClick={() => table.previousPage()}
                     disabled={!table.getCanPreviousPage()}
-                    className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                    className="h-8 px-3 text-muted-foreground"
                   >
                     ← Previous
-                  </button>
+                  </Button>
 
                   {pageWindow(pageIndex, pageCount).map((p, idx) =>
                     p === "…" ? (
@@ -987,27 +1007,30 @@ export function PagesView() {
                         …
                       </span>
                     ) : (
-                      <button
+                      <Button
                         key={p}
+                        variant={pageIndex === p ? "default" : "outline"}
+                        size="icon"
+                        radius="sm"
                         onClick={() => table.setPageIndex(p)}
-                        className={`w-8 h-8 text-sm font-semibold rounded-sm transition-all ${
-                          pageIndex === p
-                            ? "bg-primary text-primary-foreground"
-                            : "border border-border text-muted-foreground hover:bg-muted hover:text-foreground"
+                        className={`w-8 h-8 text-sm font-semibold ${
+                          pageIndex === p ? "" : "text-muted-foreground"
                         }`}
                       >
                         {p + 1}
-                      </button>
+                      </Button>
                     ),
                   )}
 
-                  <button
+                  <Button
+                    variant="outline"
+                    radius="sm"
                     onClick={() => table.nextPage()}
                     disabled={!table.getCanNextPage()}
-                    className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                    className="h-8 px-3 text-muted-foreground"
                   >
                     Next →
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -1036,23 +1059,25 @@ export function PagesView() {
             maxWidth="md"
             footer={
               <>
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  radius="sm"
                   onClick={() => {
                     setIsModalOpen(false);
                     setEditingPage(null);
                   }}
-                  className="px-4 py-2.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm text-sm font-semibold transition-all"
+                  className="font-semibold text-muted-foreground hover:text-foreground"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
                   form="page-form"
-                  className="px-5 py-2.5 bg-primary hover:bg-primary-600 text-primary-foreground rounded-sm text-sm font-semibold transition-all shadow-sm active:scale-95"
+                  radius="sm"
+                  className="px-5 font-semibold shadow-sm active:scale-95"
                 >
                   {editingPage ? "Save Changes" : "Open in Editor →"}
-                </button>
+                </Button>
               </>
             }
           >
@@ -1204,20 +1229,22 @@ export function PagesView() {
             maxWidth="md"
             footer={
               <>
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  radius="sm"
                   onClick={() => setDeletingPage(null)}
-                  className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm text-sm font-semibold transition-all"
+                  className="font-semibold text-muted-foreground hover:text-foreground"
                 >
                   Cancel
-                </button>
-                <button
-                  type="button"
+                </Button>
+                <Button
+                  variant="destructive"
+                  radius="sm"
                   onClick={handleConfirmDelete}
-                  className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-sm text-sm font-semibold transition-all active:scale-95"
+                  className="px-5 font-semibold active:scale-95"
                 >
                   Yes, Delete
-                </button>
+                </Button>
               </>
             }
           />

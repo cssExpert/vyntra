@@ -7,6 +7,7 @@ import { X, Palette, Globe, Lock, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Gallery, GalleryStatus } from "../gallery/gallery.types";
 import { THEME_CATEGORIES } from "./themes.data";
+import { Button } from "@/components/ui/button";
 
 interface ThemeEditModalProps {
   theme: Gallery | null;
@@ -262,13 +263,12 @@ export function ThemeEditModal({
 
             {/* Footer */}
             <div className="px-6 py-4 border-t border-border bg-muted/60 flex justify-end gap-3 shrink-0">
-              <button
+              <Button variant="ghost" radius="sm" className="font-semibold text-muted-foreground hover:text-foreground"
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm text-sm font-semibold transition-all"
               >
                 Cancel
-              </button>
+              </Button>
               <button
                 type="button"
                 onClick={handleSave}

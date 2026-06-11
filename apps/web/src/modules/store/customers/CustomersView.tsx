@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { SAMPLE_CUSTOMERS } from "../store.data";
 import type { StoreCustomer } from "../store.types";
+import { Button } from "@/components/ui/button";
 
 const columnHelper = createColumnHelper<StoreCustomer>();
 
@@ -363,13 +364,13 @@ function Inner() {
               <div className="flex items-center gap-3">
                 <span className="text-muted-foreground">{t("showing", { defaultValue: "Showing" })} {fromEntry} {t("to", { defaultValue: "to" })} {toEntry} {t("of", { defaultValue: "of" })} {filteredCount} {t("entries", { defaultValue: "entries" })}</span>
                 <div className="flex items-center gap-1">
-                  <button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()} className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer">← {t("previous", { defaultValue: "Previous" })}</button>
+                  <Button variant="outline" radius="sm" className="h-8 px-3 text-muted-foreground" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>← {t("previous", { defaultValue: "Previous" })}</Button>
                   {pageWindow(pageIndex, pageCount).map((p, idx) =>
                     p === "…" ? <span key={`e-${idx}`} className="w-8 text-center text-muted-foreground">…</span> : (
                       <button key={p} onClick={() => table.setPageIndex(p)} className={`w-8 h-8 text-sm font-semibold rounded-sm transition-all cursor-pointer ${pageIndex === p ? "bg-primary text-primary-foreground" : "border border-border text-muted-foreground hover:bg-muted hover:text-foreground"}`}>{(p as number) + 1}</button>
                     )
                   )}
-                  <button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()} className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer">{t("next", { defaultValue: "Next" })} →</button>
+                  <Button variant="outline" radius="sm" className="h-8 px-3 text-muted-foreground" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>{t("next", { defaultValue: "Next" })} →</Button>
                 </div>
               </div>
             </div>

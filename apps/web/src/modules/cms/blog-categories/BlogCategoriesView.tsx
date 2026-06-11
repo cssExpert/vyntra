@@ -35,6 +35,7 @@ import {
 } from "@/components/common/TableSkeleton";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { cmsBlogCategories, type CmsBlogCategory } from "@/lib/api";
+import { Button } from "@/components/ui/button";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -387,16 +388,15 @@ export function BlogCategoriesView() {
               className="!w-auto"
             />
             <div className="flex items-center gap-2">
-              <button
+              <Button size="lg" radius="sm" className="px-4 active:scale-[0.98] group"
                 onClick={openCreate}
-                className="inline-flex items-center gap-2 rounded-sm bg-brand-500 px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-brand-600 transition-all cursor-pointer group active:scale-[0.98]"
               >
                 <Plus
                   size={16}
                   className="stroke-[3] transition-transform group-hover:rotate-90 duration-300"
                 />
                 Add Category
-              </button>
+              </Button>
               {/* Search */}
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
@@ -564,33 +564,32 @@ export function BlogCategoriesView() {
                   Showing {fromEntry} to {toEntry} of {filteredCount} entries
                 </span>
                 <div className="flex items-center gap-1">
-                  <button
+                  <Button variant="outline" radius="sm" className="h-8 px-3 text-muted-foreground"
                     onClick={() => table.previousPage()}
                     disabled={!table.getCanPreviousPage()}
-                    className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                   >
                     ← Previous
-                  </button>
+                  </Button>
                   {Array.from({ length: pageCount }, (_, i) => (
-                    <button
+                    <Button
                       key={i}
+                      variant={pageIndex === i ? "default" : "outline"}
+                      size="icon"
+                      radius="sm"
                       onClick={() => table.setPageIndex(i)}
-                      className={`w-8 h-8 text-sm font-semibold rounded-sm transition-all ${
-                        pageIndex === i
-                          ? "bg-primary text-primary-foreground"
-                          : "border border-border text-muted-foreground hover:bg-muted hover:text-foreground"
+                      className={`w-8 h-8 text-sm font-semibold ${
+                        pageIndex === i ? "" : "text-muted-foreground"
                       }`}
                     >
                       {i + 1}
-                    </button>
+                    </Button>
                   ))}
-                  <button
+                  <Button variant="outline" radius="sm" className="h-8 px-3 text-muted-foreground"
                     onClick={() => table.nextPage()}
                     disabled={!table.getCanNextPage()}
-                    className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                   >
                     Next →
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -605,25 +604,22 @@ export function BlogCategoriesView() {
             maxWidth="sm"
             footer={
               <>
-                <button
+                <Button variant="ghost" radius="sm" className="font-semibold text-muted-foreground hover:text-foreground"
                   type="button"
                   onClick={closeModal}
-                  className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm text-sm font-semibold transition-all"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  radius="sm"
                   onClick={handleSave}
-                  disabled={saving}
-                  className="px-5 py-2 bg-primary hover:bg-primary-600 text-primary-foreground rounded-sm text-sm font-semibold transition-all active:scale-95 disabled:opacity-60"
+                  loading={saving}
+                  loadingText="Saving…"
+                  className="px-5 font-semibold active:scale-95"
                 >
-                  {saving
-                    ? "Saving…"
-                    : modalMode === "create"
-                      ? "Create"
-                      : "Save Changes"}
-                </button>
+                  {modalMode === "create" ? "Create" : "Save Changes"}
+                </Button>
               </>
             }
           >
@@ -656,21 +652,23 @@ export function BlogCategoriesView() {
             maxWidth="md"
             footer={
               <>
-                <button
+                <Button variant="ghost" radius="sm" className="font-semibold text-muted-foreground hover:text-foreground"
                   type="button"
                   onClick={() => setDeletingCategory(null)}
-                  className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm text-sm font-semibold transition-all"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  variant="destructive"
+                  radius="sm"
                   onClick={handleDelete}
-                  disabled={deleting}
-                  className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-sm text-sm font-semibold transition-all active:scale-95 disabled:opacity-60"
+                  loading={deleting}
+                  loadingText="Deleting…"
+                  className="px-5 font-semibold active:scale-95"
                 >
-                  {deleting ? "Deleting…" : "Yes, Delete"}
-                </button>
+                  Yes, Delete
+                </Button>
               </>
             }
           />

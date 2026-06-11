@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
 import { MoveLeft, Eye, Save, Plus, Sparkles, Check } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { FieldPalette } from "./FieldPalette";
 import { FieldCard } from "./FieldCard";
 import { FormPreviewModal } from "./FormPreviewModal";
@@ -120,13 +121,16 @@ export function FormBuilderView({ formId }: FormBuilderViewProps) {
       {/* ── Toolbar ──────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-3 min-w-0">
-          <button
+          <Button
+            variant="outline"
+            size="icon"
+            radius="sm"
             onClick={() => router.push("/cms/forms")}
-            className="inline-flex items-center justify-center w-9 h-9 rounded-sm border border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
+            className="text-muted-foreground hover:text-foreground"
             aria-label="Back to forms"
           >
             <MoveLeft size={15} />
-          </button>
+          </Button>
           <div className="min-w-0">
             <h1 className="text-base font-bold text-foreground truncate">
               {formId ? "Edit Form" : "New Form"}
@@ -149,17 +153,22 @@ export function FormBuilderView({ formId }: FormBuilderViewProps) {
             <option value="Published">Published</option>
             <option value="Closed">Closed</option>
           </select>
-          <button
+          <Button
+            variant="outline"
+            size="lg"
+            radius="sm"
             onClick={() => setPreviewOpen(true)}
-            className="inline-flex items-center gap-2 rounded-sm border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted transition-all active:scale-[0.98]"
+            className="px-4 active:scale-[0.98]"
+            startIcon={<Eye size={15} />}
           >
-            <Eye size={15} />
             Preview
-          </button>
-          <button
+          </Button>
+          <Button
+            size="lg"
+            radius="sm"
             onClick={handleSave}
             disabled={justSaved}
-            className="inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary-600 transition-all active:scale-[0.98] disabled:opacity-80"
+            className="px-5 font-semibold active:scale-[0.98] disabled:opacity-80"
           >
             <AnimatePresence mode="wait" initial={false}>
               {justSaved ? (
@@ -184,7 +193,7 @@ export function FormBuilderView({ formId }: FormBuilderViewProps) {
                 </motion.span>
               )}
             </AnimatePresence>
-          </button>
+          </Button>
         </div>
       </div>
 

@@ -38,6 +38,7 @@ import {
 } from "@tanstack/react-table";
 
 import SectionTitle from "@/components/common/SectionTitle";
+import { Button } from "@/components/ui/button";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
 import { Modal } from "@/components/common/Modal";
 import { FilterPanel } from "@/components/common/FilterPanel";
@@ -583,13 +584,16 @@ export function BlogView() {
 
             <div className="flex items-center gap-2 flex-wrap justify-end">
               {/* Refresh */}
-              <button
+              <Button
+                variant="outline"
+                size="icon"
+                radius="sm"
                 onClick={fetchBlogs}
-                className="inline-flex items-center justify-center w-9 h-9 rounded-sm border border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
+                className="text-muted-foreground hover:text-foreground"
                 title="Refresh"
               >
                 <RefreshCw size={14} />
-              </button>
+              </Button>
 
               {/* Filters */}
               <FilterPanel
@@ -603,10 +607,15 @@ export function BlogView() {
                   setActiveFilters(DEFAULT_FILTERS);
                 }}
                 trigger={
-                  <button className="inline-flex items-center gap-2 rounded-sm bg-secondary px-4 py-2.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/90 transition-all cursor-pointer active:scale-[0.98]">
-                    <ListFilterPlus size={15} />
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    radius="sm"
+                    className="px-4 active:scale-[0.98]"
+                    startIcon={<ListFilterPlus size={15} />}
+                  >
                     Filters
-                  </button>
+                  </Button>
                 }
               >
                 <div>
@@ -690,16 +699,17 @@ export function BlogView() {
               </div>
 
               {/* New post */}
-              <button
+              <Button
+                size="lg"
+                radius="sm"
                 onClick={() => router.push("/cms/blogs/new")}
-                className="inline-flex items-center gap-2 rounded-sm bg-brand-500 px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-brand-600 transition-all active:scale-[0.98] group"
+                className="px-4 font-semibold active:scale-[0.98] group"
+                startIcon={
+                  <Plus className="stroke-[3] group-hover:rotate-90 transition-transform duration-200" />
+                }
               >
-                <Plus
-                  size={15}
-                  className="stroke-[3] group-hover:rotate-90 transition-transform duration-200"
-                />
                 New Post
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -847,12 +857,14 @@ export function BlogView() {
                             {!searchTerm &&
                               !hasActiveFilters &&
                               activeTab === "all" && (
-                                <button
+                                <Button
+                                  size="lg"
+                                  radius="sm"
                                   onClick={() => router.push("/cms/blogs/new")}
-                                  className="inline-flex items-center gap-2 rounded-sm bg-brand-500 px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-brand-600 transition-all active:scale-[0.98] group"
+                                  className="px-4 font-semibold active:scale-[0.98]"
                                 >
                                   Write first post
-                                </button>
+                                </Button>
                               )}
                           </div>
                         </td>
@@ -885,13 +897,15 @@ export function BlogView() {
                   {fromEntry}–{toEntry} of {filteredCount}
                 </span>
                 <div className="flex items-center gap-1">
-                  <button
+                  <Button
+                    variant="outline"
+                    radius="sm"
                     onClick={() => table.previousPage()}
                     disabled={!table.getCanPreviousPage()}
-                    className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                    className="h-8 px-3 text-muted-foreground"
                   >
                     ← Prev
-                  </button>
+                  </Button>
                   {pageWindow(pageIndex, pageCount).map((p, idx) =>
                     p === "…" ? (
                       <span
@@ -901,26 +915,29 @@ export function BlogView() {
                         …
                       </span>
                     ) : (
-                      <button
+                      <Button
                         key={p}
+                        variant={pageIndex === p ? "default" : "outline"}
+                        size="icon"
+                        radius="sm"
                         onClick={() => table.setPageIndex(p)}
-                        className={`w-8 h-8 text-sm font-semibold rounded-sm transition-all ${
-                          pageIndex === p
-                            ? "bg-primary text-primary-foreground"
-                            : "border border-border text-muted-foreground hover:bg-muted hover:text-foreground"
+                        className={`w-8 h-8 text-sm font-semibold ${
+                          pageIndex === p ? "" : "text-muted-foreground"
                         }`}
                       >
                         {(p as number) + 1}
-                      </button>
+                      </Button>
                     ),
                   )}
-                  <button
+                  <Button
+                    variant="outline"
+                    radius="sm"
                     onClick={() => table.nextPage()}
                     disabled={!table.getCanNextPage()}
-                    className="px-3 py-1.5 text-sm font-medium rounded-sm border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                    className="h-8 px-3 text-muted-foreground"
                   >
                     Next →
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -947,20 +964,22 @@ export function BlogView() {
             maxWidth="md"
             footer={
               <>
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  radius="sm"
                   onClick={() => setDeletingBlog(null)}
-                  className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm text-sm font-semibold transition-all"
+                  className="font-semibold text-muted-foreground hover:text-foreground"
                 >
                   Cancel
-                </button>
-                <button
-                  type="button"
+                </Button>
+                <Button
+                  variant="destructive"
+                  radius="sm"
                   onClick={handleConfirmDelete}
-                  className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-sm text-sm font-semibold transition-all active:scale-95"
+                  className="px-5 font-semibold active:scale-95"
                 >
                   Yes, Delete
-                </button>
+                </Button>
               </>
             }
           />

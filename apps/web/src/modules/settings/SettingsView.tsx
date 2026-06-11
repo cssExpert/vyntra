@@ -31,6 +31,7 @@ import { apiUpdateOrgSettings } from "@/lib/api";
 import { useSettings } from "@/providers/SettingsProvider";
 import { useAuth } from "@/providers/AuthProvider";
 import { MotionTabs, type MotionTabItem } from "@/components/ui/MotionTabs";
+import { Button } from "@/components/ui/button";
 
 interface SettingsState {
   organizationName: string;
@@ -688,10 +689,14 @@ export function SettingsView() {
                         members, and billing.
                       </p>
                     </div>
-                    <button className="shrink-0 flex items-center gap-2 rounded-xl border border-error/30 bg-error/10 text-error px-4 py-2 text-sm font-medium hover:bg-error/20 transition cursor-pointer">
-                      <Trash2 className="h-4 w-4" />
+                    <Button
+                      variant="outline"
+                      radius="xl"
+                      className="shrink-0 border-error/30 bg-error/10 text-error hover:bg-error/20 hover:text-error"
+                      startIcon={<Trash2 className="h-4 w-4" />}
+                    >
                       Delete
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -711,18 +716,17 @@ export function SettingsView() {
             "Unsaved changes will be lost if you navigate away."
           )}
         </p>
-        <button
+        <Button
+          size="lg"
+          radius="xl"
           onClick={handleSave}
-          disabled={loading}
-          className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition disabled:opacity-50 cursor-pointer shadow-md shadow-primary/20"
+          loading={loading}
+          loadingText="Saving…"
+          startIcon={<Save className="h-4 w-4" />}
+          className="px-5 font-semibold shadow-md shadow-primary/20"
         >
-          {loading ? (
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-          ) : (
-            <Save className="h-4 w-4" />
-          )}
-          {loading ? "Saving…" : "Save Changes"}
-        </button>
+          Save Changes
+        </Button>
       </div>
     </div>
   );

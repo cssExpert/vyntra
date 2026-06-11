@@ -39,6 +39,7 @@ import {
 import SectionTitle from "@/components/common/SectionTitle";
 import { Modal } from "@/components/common/Modal";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
+import { Button } from "@/components/ui/button";
 
 // Type definitions for robust Next.js TypeScript support
 export type UserRole = "USER" | "MANAGER" | "ADMIN" | "SUPPORT";
@@ -892,13 +893,12 @@ export function UsersView() {
               maxWidth="lg"
               footer={
                 <>
-                  <button
+                  <Button variant="ghost" radius="sm" className="h-auto py-3 font-semibold text-muted-foreground hover:text-foreground"
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="px-4 py-3 text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm text-sm font-semibold transition-all"
                   >
                     Cancel
-                  </button>
+                  </Button>
                   <button
                     type="submit"
                     form="user-add-edit-form"
@@ -1149,20 +1149,18 @@ export function UsersView() {
               maxWidth="md"
               footer={
                 <>
-                  <button
+                  <Button variant="ghost" radius="sm" className="font-semibold text-muted-foreground hover:text-foreground"
                     type="button"
                     onClick={() => setDeletingUser(null)}
-                    className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm text-sm font-semibold transition-all"
                   >
                     Keep Account
-                  </button>
-                  <button
+                  </Button>
+                  <Button variant="destructive" radius="sm" className="px-5 font-semibold active:scale-95"
                     type="button"
                     onClick={handleConfirmDelete}
-                    className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-sm text-sm font-semibold transition-all active:scale-95"
                   >
                     Yes, Delete User
-                  </button>
+                  </Button>
                 </>
               }
             />
