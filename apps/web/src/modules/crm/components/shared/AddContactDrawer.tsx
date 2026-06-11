@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -44,7 +45,7 @@ export interface ContactFormData {
   tags: string;
 }
 
-// ── Options ────────────────────────────────────────────────────────────────────
+// ── Options (labels stay data-driven — will come from the backend) ─────────────
 
 const STAGE_OPTIONS: SelectOption<ContactStage>[] = [
   { value: "subscriber", label: "Subscriber" },
@@ -240,6 +241,7 @@ export function AddContactDrawer({
   onClose,
   onSave,
 }: AddContactDrawerProps) {
+  const t = useTranslations("crm");
   const [form, setForm] = useState<ContactFormData>(EMPTY);
   const [errors, setErrors] = useState<Partial<ContactFormData>>({});
 
@@ -250,8 +252,8 @@ export function AddContactDrawer({
 
   const validate = () => {
     const e: Partial<ContactFormData> = {};
-    if (!form.firstName.trim()) e.firstName = "Required";
-    if (!form.email.trim()) e.email = "Required";
+    if (!form.firstName.trim()) e.firstName = t("drawer.required");
+    if (!form.email.trim()) e.email = t("drawer.required");
     return e;
   };
 
@@ -293,10 +295,10 @@ export function AddContactDrawer({
             <div className="flex items-center justify-between border-b border-border px-6 py-4">
               <div>
                 <h2 className="text-base font-semibold font-display text-foreground">
-                  Add contact
+                  {t("addContact")}
                 </h2>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Fill in the contact details below
+                  {t("drawer.subtitle")}
                 </p>
               </div>
               <button
@@ -314,7 +316,7 @@ export function AddContactDrawer({
             >
               {/* Name row */}
               <div className="grid grid-cols-2 gap-3">
-                <FormField label="First name" icon={User} required>
+                <FormField label={t("drawer.firstName")} icon={User} required>
                   <input
                     value={form.firstName}
                     onChange={setField("firstName")}
@@ -331,7 +333,7 @@ export function AddContactDrawer({
                     </p>
                   )}
                 </FormField>
-                <FormField label="Last name" icon={User}>
+                <FormField label={t("drawer.lastName")} icon={User}>
                   <input
                     value={form.lastName}
                     onChange={setField("lastName")}
@@ -341,7 +343,7 @@ export function AddContactDrawer({
                 </FormField>
               </div>
 
-              <FormField label="Email address" icon={Mail} required>
+              <FormField label={t("drawer.emailAddress")} icon={Mail} required>
                 <input
                   type="email"
                   value={form.email}
@@ -358,7 +360,7 @@ export function AddContactDrawer({
                 )}
               </FormField>
 
-              <FormField label="Phone number" icon={Phone}>
+              <FormField label={t("drawer.phoneNumber")} icon={Phone}>
                 <input
                   value={form.phone}
                   onChange={setField("phone")}
@@ -367,27 +369,27 @@ export function AddContactDrawer({
                 />
               </FormField>
 
-              <FormField label="Company" icon={Building2}>
+              <FormField label={t("drawer.company")} icon={Building2}>
                 <input
                   value={form.company}
                   onChange={setField("company")}
-                  placeholder="Company name"
+                  placeholder={t("drawer.companyPlaceholder")}
                   className={inputCls}
                 />
               </FormField>
 
-              <FormField label="Job title" icon={Briefcase}>
+              <FormField label={t("drawer.jobTitle")} icon={Briefcase}>
                 <input
                   value={form.jobTitle}
                   onChange={setField("jobTitle")}
-                  placeholder="e.g. Marketing Manager"
+                  placeholder={t("drawer.jobTitlePlaceholder")}
                   className={inputCls}
                 />
               </FormField>
 
               {/* ── React Select fields ── */}
 
-              <FormField label="Lead status" icon={TrendingUp}>
+              <FormField label={t("filterStatus")} icon={TrendingUp}>
                 <Select<SelectOption<ContactStage>, false>
                   classNamePrefix="rs"
                   options={STAGE_OPTIONS}
@@ -397,7 +399,7 @@ export function AddContactDrawer({
                   onChange={(opt) =>
                     setForm((p) => ({ ...p, stage: opt?.value ?? "lead" }))
                   }
-                  placeholder="Select status..."
+                  placeholder={t("drawer.selectStatus")}
                   isSearchable
                   isClearable={false}
                   formatOptionLabel={(opt, { context, inputValue }) =>
@@ -411,7 +413,7 @@ export function AddContactDrawer({
                 />
               </FormField>
 
-              <FormField label="Contact owner" icon={UserCheck}>
+              <FormField label={t("filterOwner")} icon={UserCheck}>
                 <Select<SelectOption, false>
                   classNamePrefix="rs"
                   options={OWNER_OPTIONS}
@@ -421,7 +423,7 @@ export function AddContactDrawer({
                   onChange={(opt) =>
                     setForm((p) => ({ ...p, owner: opt?.value ?? "" }))
                   }
-                  placeholder="Unassigned"
+                  placeholder={t("ownerOptions.unassigned")}
                   isSearchable
                   isClearable
                   formatOptionLabel={(opt, { context, inputValue }) =>
@@ -435,7 +437,7 @@ export function AddContactDrawer({
                 />
               </FormField>
 
-              <FormField label="Source" icon={Layers}>
+              <FormField label={t("drawer.source")} icon={Layers}>
                 <Select<SelectOption, false>
                   classNamePrefix="rs"
                   options={SOURCE_OPTIONS}
@@ -448,7 +450,7 @@ export function AddContactDrawer({
                       source: (opt?.value as ContactSource) ?? "",
                     }))
                   }
-                  placeholder="Select source..."
+                  placeholder={t("drawer.selectSource")}
                   isSearchable
                   isClearable
                   formatOptionLabel={(opt, { context, inputValue }) =>
@@ -462,7 +464,7 @@ export function AddContactDrawer({
                 />
               </FormField>
 
-              <FormField label="Tags" icon={Tag}>
+              <FormField label={t("drawer.tags")} icon={Tag}>
                 <input
                   value={form.tags}
                   onChange={setField("tags")}
@@ -470,7 +472,7 @@ export function AddContactDrawer({
                   className={inputCls}
                 />
                 <p className="mt-1 text-[11px] text-muted-foreground">
-                  Comma-separated tags
+                  {t("drawer.tagsHint")}
                 </p>
               </FormField>
             </form>
@@ -482,13 +484,13 @@ export function AddContactDrawer({
                 onClick={onClose}
                 className="rounded-xl border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
               >
-                Cancel
+                {t("drawer.cancel")}
               </button>
               <button
                 onClick={handleSubmit}
                 className="rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary-600 transition-colors cursor-pointer shadow-glow-brand"
               >
-                Save contact
+                {t("drawer.saveContact")}
               </button>
             </div>
           </motion.div>

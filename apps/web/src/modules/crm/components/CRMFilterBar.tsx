@@ -1,55 +1,8 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Plus, Pencil, SlidersHorizontal } from "lucide-react";
 import { FilterPopover, type FilterOption } from "./shared/FilterPopover";
-
-// ─── Filter option definitions ──────────────────────────
-const OWNER_OPTIONS: FilterOption[] = [
-  {
-    id: "me",
-    label: "Me",
-    subtitle: "Dynamically applied to the current user",
-    isDynamic: true,
-  },
-  {
-    id: "deactivated",
-    label: "All deactivated and removed owners",
-    isDynamic: true,
-  },
-  { id: "ravi", label: "Ravi Gupta" },
-  { id: "alex", label: "Alex Smith" },
-  { id: "emma", label: "Emma Davis" },
-  { id: "unassigned", label: "Unassigned" },
-];
-
-const DATE_OPTIONS: FilterOption[] = [
-  { id: "today", label: "Today" },
-  { id: "7d", label: "Last 7 days" },
-  { id: "30d", label: "Last 30 days" },
-  { id: "90d", label: "Last 90 days" },
-  { id: "this_month", label: "This month" },
-  { id: "last_month", label: "Last month" },
-  { id: "this_year", label: "This year" },
-];
-
-const ACTIVITY_OPTIONS: FilterOption[] = [
-  { id: "1d", label: "Last 24 hours" },
-  { id: "3d", label: "Last 3 days" },
-  { id: "7d", label: "Last 7 days" },
-  { id: "30d", label: "Last 30 days" },
-  { id: "email", label: "Email sent" },
-  { id: "call", label: "Call made" },
-  { id: "none", label: "No activity" },
-];
-
-const STATUS_OPTIONS: FilterOption[] = [
-  { id: "subscriber", label: "Subscriber" },
-  { id: "lead", label: "Lead" },
-  { id: "mql", label: "Marketing Qualified Lead" },
-  { id: "sql", label: "Sales Qualified Lead" },
-  { id: "opportunity", label: "Opportunity" },
-  { id: "customer", label: "Customer" },
-];
 
 interface CRMFilterBarProps {
   owners: string[];
@@ -72,17 +25,68 @@ export function CRMFilterBar({
   onActivitiesChange,
   onStatusesChange,
 }: CRMFilterBarProps) {
+  const t = useTranslations("crm");
+
+  // ─── Filter option definitions (translated) ──────────────
+  const OWNER_OPTIONS: FilterOption[] = [
+    {
+      id: "me",
+      label: t("ownerOptions.me"),
+      subtitle: t("ownerOptions.meSubtitle"),
+      isDynamic: true,
+    },
+    {
+      id: "deactivated",
+      label: t("ownerOptions.deactivated"),
+      isDynamic: true,
+    },
+    { id: "ravi", label: "Ravi Gupta" },
+    { id: "alex", label: "Alex Smith" },
+    { id: "emma", label: "Emma Davis" },
+    { id: "unassigned", label: t("ownerOptions.unassigned") },
+  ];
+
+  const DATE_OPTIONS: FilterOption[] = [
+    { id: "today", label: t("dateOptions.today") },
+    { id: "7d", label: t("dateOptions.last7") },
+    { id: "30d", label: t("dateOptions.last30") },
+    { id: "90d", label: t("dateOptions.last90") },
+    { id: "this_month", label: t("dateOptions.thisMonth") },
+    { id: "last_month", label: t("dateOptions.lastMonth") },
+    { id: "this_year", label: t("dateOptions.thisYear") },
+  ];
+
+  const ACTIVITY_OPTIONS: FilterOption[] = [
+    { id: "1d", label: t("activityOptions.last24h") },
+    { id: "3d", label: t("activityOptions.last3d") },
+    { id: "7d", label: t("activityOptions.last7d") },
+    { id: "30d", label: t("activityOptions.last30d") },
+    { id: "email", label: t("activityOptions.emailSent") },
+    { id: "call", label: t("activityOptions.callMade") },
+    { id: "none", label: t("activityOptions.noActivity") },
+  ];
+
+  // Stage labels stay data-driven — they will come from the backend pipeline
+  const STATUS_OPTIONS: FilterOption[] = [
+    { id: "subscriber", label: "Subscriber" },
+    { id: "lead", label: "Lead" },
+    { id: "mql", label: "Marketing Qualified Lead" },
+    { id: "sql", label: "Sales Qualified Lead" },
+    { id: "opportunity", label: "Opportunity" },
+    { id: "customer", label: "Customer" },
+  ];
+
   return (
     <div className="flex items-center gap-2 mb-4 flex-wrap">
       <FilterPopover
-        label="Contact owner"
+        label={t("filterOwner")}
         options={OWNER_OPTIONS}
         selected={owners}
         onChange={onOwnersChange}
         width={380}
       />
       <FilterPopover
-        label="Create date"
+        label={t("filterCreateDate")}
         options={DATE_OPTIONS}
         selected={dates}
         onChange={onDatesChange}
@@ -90,7 +94,7 @@ export function CRMFilterBar({
         width={240}
       />
       <FilterPopover
-        label="Last activity date"
+        label={t("filterActivity")}
         options={ACTIVITY_OPTIONS}
         selected={activities}
         onChange={onActivitiesChange}
@@ -98,7 +102,7 @@ export function CRMFilterBar({
         width={240}
       />
       <FilterPopover
-        label="Lead status"
+        label={t("filterStatus")}
         options={STATUS_OPTIONS}
         selected={statuses}
         onChange={onStatusesChange}
@@ -119,7 +123,7 @@ export function CRMFilterBar({
 
       <button className="flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer">
         <SlidersHorizontal className="h-3.5 w-3.5" />
-        Advanced filters
+        {t("advancedFilters")}
       </button>
     </div>
   );

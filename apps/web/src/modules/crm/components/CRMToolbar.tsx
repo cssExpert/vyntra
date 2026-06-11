@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   Search,
   LayoutGrid,
@@ -32,6 +33,7 @@ export function CRMToolbar({
   activeSort,
   onSortChange,
 }: CRMToolbarProps) {
+  const t = useTranslations("crm");
   return (
     <div className="flex items-center gap-2 mb-3 flex-wrap">
       {/* Search */}
@@ -39,7 +41,7 @@ export function CRMToolbar({
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
         <input
           type="text"
-          placeholder="Search contacts..."
+          placeholder={t("searchPlaceholder")}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           className={cn(
@@ -79,7 +81,9 @@ export function CRMToolbar({
               ) : (
                 <List className="h-3.5 w-3.5" />
               )}
-              <span className="hidden sm:inline capitalize">{mode}</span>
+              <span className="hidden sm:inline capitalize">
+                {t(mode === "board" ? "board" : "list")}
+              </span>
             </button>
           );
         })}
@@ -93,7 +97,7 @@ export function CRMToolbar({
 
       <button className="flex items-center gap-1.5 rounded-xl border border-primary bg-primary/10 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/15 transition-colors cursor-pointer">
         <SlidersHorizontal className="h-3.5 w-3.5" />
-        Filters
+        {t("filters")}
       </button>
 
       {/* Sort — real dropdown */}
@@ -107,7 +111,7 @@ export function CRMToolbar({
       </button>
       <button className="hidden lg:flex h-9 items-center justify-center rounded-xl border border-border px-3 text-sm font-medium text-muted-foreground bg-white dark:bg-muted hover:text-foreground hover:bg-muted transition-colors cursor-pointer gap-1.5">
         <Save className="h-3.5 w-3.5" />
-        Save
+        {t("save")}
       </button>
     </div>
   );

@@ -1,38 +1,39 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { Download, FileText, FileSpreadsheet, FileJson } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const EXPORT_OPTIONS = [
-  {
-    id: "csv",
-    label: "Export as CSV",
-    icon: FileSpreadsheet,
-    desc: "Comma-separated values",
-  },
-  {
-    id: "xlsx",
-    label: "Export as Excel",
-    icon: FileSpreadsheet,
-    desc: "Microsoft Excel format",
-  },
-  {
-    id: "pdf",
-    label: "Export as PDF",
-    icon: FileText,
-    desc: "Printable document",
-  },
-  {
-    id: "json",
-    label: "Export as JSON",
-    icon: FileJson,
-    desc: "Raw data format",
-  },
-];
-
 export function ExportDropdown() {
+  const t = useTranslations("crm");
+  const EXPORT_OPTIONS = [
+    {
+      id: "csv",
+      label: t("export.csv"),
+      icon: FileSpreadsheet,
+      desc: t("export.csvDesc"),
+    },
+    {
+      id: "xlsx",
+      label: t("export.excel"),
+      icon: FileSpreadsheet,
+      desc: t("export.excelDesc"),
+    },
+    {
+      id: "pdf",
+      label: t("export.pdf"),
+      icon: FileText,
+      desc: t("export.pdfDesc"),
+    },
+    {
+      id: "json",
+      label: t("export.json"),
+      icon: FileJson,
+      desc: t("export.jsonDesc"),
+    },
+  ];
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -59,7 +60,7 @@ export function ExportDropdown() {
         )}
       >
         <Download className="h-3.5 w-3.5" />
-        Export
+        {t("export.label")}
       </button>
 
       <AnimatePresence>
@@ -85,7 +86,7 @@ export function ExportDropdown() {
             }}
           >
             <p className="px-4 pt-3 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-              Export contacts
+              {t("export.title")}
             </p>
             {EXPORT_OPTIONS.map(({ id, label, icon: Icon, desc }) => (
               <button

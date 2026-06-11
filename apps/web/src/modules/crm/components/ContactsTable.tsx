@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   useReactTable,
@@ -56,9 +57,11 @@ const STAGE_COLORS: Record<string, { bg: string; text: string }> = {
   customer: { bg: "bg-success/10", text: "text-success" },
 };
 
-const COLUMNS = [
+type Translator = (key: never) => string;
+
+const buildColumns = (t: Translator) => [
   columnHelper.accessor("name", {
-    header: "Name",
+    header: t("table.name" as never),
     size: 220,
     cell: ({ getValue }) => {
       const name = getValue();
@@ -73,21 +76,21 @@ const COLUMNS = [
     },
   }),
   columnHelper.accessor("email", {
-    header: "Email",
+    header: t("table.email" as never),
     size: 220,
     cell: ({ getValue }) => (
       <span className="text-muted-foreground truncate">{getValue()}</span>
     ),
   }),
   columnHelper.accessor("company", {
-    header: "Company",
+    header: t("table.company" as never),
     size: 170,
     cell: ({ getValue }) => (
       <span className="text-foreground truncate">{getValue() ?? "—"}</span>
     ),
   }),
   columnHelper.accessor("stage", {
-    header: "Stage",
+    header: t("table.stage" as never),
     size: 170,
     cell: ({ getValue }) => {
       const stage = getValue();
@@ -106,13 +109,15 @@ const COLUMNS = [
     },
   }),
   columnHelper.accessor("owner", {
-    header: "Owner",
+    header: t("table.owner" as never),
     size: 150,
     cell: ({ getValue }) => {
       const owner = getValue();
       if (!owner)
         return (
-          <span className="text-muted-foreground/40 text-xs">Unassigned</span>
+          <span className="text-muted-foreground/40 text-xs">
+            {t("ownerOptions.unassigned" as never)}
+          </span>
         );
       return (
         <div className="flex items-center gap-2">
@@ -125,7 +130,7 @@ const COLUMNS = [
     },
   }),
   columnHelper.accessor("value", {
-    header: "Value",
+    header: t("table.value" as never),
     size: 110,
     cell: ({ getValue }) => (
       <span className="font-semibold text-success tabular-nums">
@@ -134,7 +139,7 @@ const COLUMNS = [
     ),
   }),
   columnHelper.accessor("lastActivity", {
-    header: "Last Activity",
+    header: t("table.lastActivity" as never),
     size: 200,
     enableSorting: false,
     cell: ({ getValue }) => (
@@ -144,7 +149,7 @@ const COLUMNS = [
     ),
   }),
   columnHelper.accessor("createdAt", {
-    header: "Created",
+    header: t("table.created" as never),
     size: 120,
     cell: ({ getValue }) => (
       <span className="text-muted-foreground tabular-nums text-xs">
@@ -163,21 +168,29 @@ const COLUMNS = [
         <TableActionMenu
           key={c.id}
           items={[
-            { label: "View", icon: <Eye size={14} />, onClick: () => {} },
             {
-              label: "Send email",
+              label: t("table.view" as never),
+              icon: <Eye size={14} />,
+              onClick: () => {},
+            },
+            {
+              label: t("table.sendEmail" as never),
               icon: <Mail size={14} />,
               onClick: () => {},
             },
-            { label: "Edit", icon: <Pencil size={14} />, onClick: () => {} },
             {
-              label: "Open link",
+              label: t("table.edit" as never),
+              icon: <Pencil size={14} />,
+              onClick: () => {},
+            },
+            {
+              label: t("table.openLink" as never),
               icon: <ExternalLink size={14} />,
               onClick: () => {},
               separator: true,
             },
             {
-              label: "Delete",
+              label: t("table.delete" as never),
               icon: <Trash2 size={14} />,
               onClick: () => {},
               variant: "danger",
@@ -195,6 +208,8 @@ interface Props {
 }
 
 export function ContactsTable({ contacts }: Props) {
+  const t = useTranslations("crm");
+  const COLUMNS = useMemo(() => buildColumns(t as unknown as Translator), [t]);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnPinning] = useState<ColumnPinningState>({
     left: ["name"],
@@ -389,11 +404,9 @@ export function ContactsTable({ contacts }: Props) {
                           size={32}
                         />
                         <p className="font-semibold text-foreground">
-                          No contacts found
+                          {t("table.noContactsFound")}
                         </p>
-                        <p className="text-xs">
-                          Try adjusting your search or filters.
-                        </p>
+                        <p className="text-xs">{t("table.adjustFilters")}</p>
                       </div>
                     </td>
                   </tr>
@@ -404,8 +417,10 @@ export function ContactsTable({ contacts }: Props) {
         </div>
       ) : (
         <div className="py-20 text-center text-muted-foreground">
-          <p className="font-semibold text-foreground mb-1">No contacts yet</p>
-          <p className="text-sm">Add your first contact to get started.</p>
+          <p className="font-semibold text-foreground mb-1">
+            {t("table.noContactsYet")}
+          </p>
+          <p className="text-sm">{t("table.addFirstContact")}</p>
         </div>
       )}
     </div>

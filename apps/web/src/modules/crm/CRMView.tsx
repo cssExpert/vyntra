@@ -16,7 +16,7 @@ import { SAMPLE_CONTACTS } from "./data/contacts";
 import type { ContactListTab, CRMContact, CRMViewMode } from "./types";
 
 export function CRMView() {
-  const t = useTranslations("admin.crm");
+  const t = useTranslations("crm");
   // ── View state ──────────────────────────────────────────
   const [activeTab,   setActiveTab]   = useState<ContactListTab>("all");
   const [viewMode,    setViewMode]    = useState<CRMViewMode>("board");
@@ -177,13 +177,13 @@ export function CRMView() {
           >
             {selectedOwners.map((o) => (
               <span key={o} className="flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
-                Owner: {o}
+                {t("ownerChip")}: {o}
                 <button onClick={() => setSelectedOwners((p) => p.filter((x) => x !== o))} className="cursor-pointer opacity-60 hover:opacity-100">×</button>
               </span>
             ))}
             {selectedStatuses.map((s) => (
               <span key={s} className="flex items-center gap-1 rounded-full bg-purple-500/10 px-2.5 py-1 text-xs font-medium text-purple-400">
-                Status: {s}
+                {t("statusChip")}: {s}
                 <button onClick={() => setSelectedStatuses((p) => p.filter((x) => x !== s))} className="cursor-pointer opacity-60 hover:opacity-100">×</button>
               </span>
             ))}
@@ -191,7 +191,7 @@ export function CRMView() {
               onClick={() => { setSelectedOwners([]); setSelectedDates([]); setSelectedActivities([]); setSelectedStatuses([]); }}
               className="text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer px-1"
             >
-              Clear all
+              {t("clearAll")}
             </button>
           </motion.div>
         )}

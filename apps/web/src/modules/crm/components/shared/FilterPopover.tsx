@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Check, Zap, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -102,6 +103,7 @@ export function FilterPopover({
   searchable = true,
   width = 360,
 }: FilterPopoverProps) {
+  const t = useTranslations("crm");
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -200,7 +202,7 @@ export function FilterPopover({
                   ref={searchRef}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search"
+                  placeholder={t("searchShort")}
                   className={cn(
                     "w-full rounded-xl border border-border bg-background pl-9 pr-3 py-2.5",
                     "text-sm text-foreground placeholder:text-muted-foreground",

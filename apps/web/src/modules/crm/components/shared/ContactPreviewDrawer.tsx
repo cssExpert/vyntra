@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
   ExternalLink,
-  Copy,
   FileEdit,
   Mail,
   Phone,
@@ -22,13 +22,12 @@ import {
   Tag,
   Clock,
   User,
-  ChevronRight,
 } from "lucide-react";
 import { cn, formatCurrency, getInitials } from "@/lib/utils";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import type { CRMContact } from "../../types";
 
-/* ─── Stage label map ───────────────────────────────────────── */
+/* ─── Stage/source label maps (data-driven — will come from the backend) ── */
 const STAGE_LABELS: Record<
   string,
   {
@@ -109,6 +108,7 @@ export function ContactPreviewDrawer({
   isOpen,
   onClose,
 }: ContactPreviewDrawerProps) {
+  const t = useTranslations("crm");
   const [summaryOpen, setSummaryOpen] = useState(true);
   const [copied, setCopied] = useState(false);
 
@@ -118,9 +118,13 @@ export function ContactPreviewDrawer({
     variant: "muted" as const,
   };
 
+  const sourceLabel = contact.source
+    ? (SOURCE_LABELS[contact.source] ?? contact.source)
+    : "";
+
   const aiSummary = contact.lastActivity
-    ? `The most recent activity for this contact was ${contact.lastActivity.toLowerCase()}. ${contact.source ? `They were acquired through ${SOURCE_LABELS[contact.source] ?? contact.source}.` : ""} ${contact.value && contact.value > 0 ? `Current deal value is ${formatCurrency(contact.value)}.` : ""}`
-    : `No recent activity recorded for this contact. ${contact.source ? `Originally acquired via ${SOURCE_LABELS[contact.source] ?? contact.source}.` : ""}`;
+    ? `${t("preview.aiActivity", { activity: contact.lastActivity.toLowerCase() })} ${contact.source ? t("preview.aiAcquired", { source: sourceLabel }) : ""} ${contact.value && contact.value > 0 ? t("preview.aiDealValue", { value: formatCurrency(contact.value) }) : ""}`
+    : `${t("preview.aiNoActivity")} ${contact.source ? t("preview.aiOriginallyAcquired", { source: sourceLabel }) : ""}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(contact.email);
@@ -129,12 +133,12 @@ export function ContactPreviewDrawer({
   };
 
   const QUICK_ACTIONS = [
-    { icon: FileEdit, label: "Note" },
-    { icon: Mail, label: "Email" },
-    { icon: Phone, label: "Call" },
-    { icon: CheckSquare, label: "Task" },
-    { icon: Calendar, label: "Meeting" },
-    { icon: MoreHorizontal, label: "More" },
+    { icon: FileEdit, label: t("preview.note") },
+    { icon: Mail, label: t("preview.email") },
+    { icon: Phone, label: t("preview.call") },
+    { icon: CheckSquare, label: t("preview.task") },
+    { icon: Calendar, label: t("preview.meeting") },
+    { icon: MoreHorizontal, label: t("preview.more") },
   ];
 
   return (
@@ -240,7 +244,9 @@ export function ContactPreviewDrawer({
                       <button
                         onClick={handleCopy}
                         className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
-                        title={copied ? "Copied!" : "Copy email"}
+                        title={
+                          copied ? t("preview.copied") : t("preview.copyEmail")
+                        }
                       >
                         {copied ? (
                           <CheckSquare className="h-3.5 w-3.5 text-success" />
@@ -261,15 +267,15 @@ export function ContactPreviewDrawer({
                     <InfoRow icon={Phone}>{contact.phone}</InfoRow>
                   )}
                   {contact.owner && (
-                    <InfoRow icon={User}>Owner: {contact.owner}</InfoRow>
+                    <InfoRow icon={User}>
+                      {t("ownerChip")}: {contact.owner}
+                    </InfoRow>
                   )}
                   {contact.lastActivity && (
                     <InfoRow icon={Clock}>{contact.lastActivity}</InfoRow>
                   )}
                   {contact.source && (
-                    <InfoRow icon={Tag}>
-                      {SOURCE_LABELS[contact.source] ?? contact.source}
-                    </InfoRow>
+                    <InfoRow icon={Tag}>{sourceLabel}</InfoRow>
                   )}
                   {contact.value && contact.value > 0 ? (
                     <div className="flex items-center gap-2 mt-2">
@@ -323,7 +329,7 @@ export function ContactPreviewDrawer({
                       <ChevronDown className="h-4 w-4" />
                     </motion.span>
                     <span className="text-sm font-semibold text-foreground">
-                      Record summary
+                      {t("preview.recordSummary")}
                     </span>
                   </div>
                   <span
@@ -356,11 +362,12 @@ export function ContactPreviewDrawer({
                         {/* Timestamp */}
                         <div className="flex items-center gap-2 mb-3">
                           <p className="text-[11px] text-muted-foreground">
-                            Generated{" "}
-                            {new Date().toLocaleDateString("en-US", {
-                              month: "long",
-                              day: "numeric",
-                              year: "numeric",
+                            {t("preview.generated", {
+                              date: new Date().toLocaleDateString(undefined, {
+                                month: "long",
+                                day: "numeric",
+                                year: "numeric",
+                              }),
                             })}
                           </p>
                           <button className="text-muted-foreground hover:text-foreground transition-colors">
@@ -377,7 +384,9 @@ export function ContactPreviewDrawer({
                         <div className="flex items-center gap-3">
                           <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                             <Mail className="h-3 w-3" />
-                            {contact.source ? `1 Source` : "0 Sources"}
+                            {t("preview.sourcesCount", {
+                              count: contact.source ? 1 : 0,
+                            })}
                           </span>
                           <div className="flex items-center gap-1 ml-auto">
                             {[ThumbsUp, ThumbsDown, Clipboard].map(
@@ -402,7 +411,7 @@ export function ContactPreviewDrawer({
                           )}
                         >
                           <Sparkles className="h-3 w-3" />
-                          Ask a question
+                          {t("preview.askQuestion")}
                         </button>
                       </div>
                     </motion.div>

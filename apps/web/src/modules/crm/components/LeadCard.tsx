@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutGrid,
@@ -95,6 +96,7 @@ interface LeadCardProps {
 }
 
 export function LeadCard({ contact, index = 0 }: LeadCardProps) {
+  const t = useTranslations("crm");
   const [previewOpen, setPreviewOpen] = useState(false);
   const initials = getInitials(contact.name);
   const hasValue = contact.value && contact.value > 0;
@@ -184,7 +186,7 @@ export function LeadCard({ contact, index = 0 }: LeadCardProps) {
         >
           <ActionButton
             icon={LayoutGrid}
-            label="Preview contact"
+            label={t("card.previewContact")}
             active={previewOpen}
             onClick={(e) => {
               e.stopPropagation();
@@ -193,17 +195,17 @@ export function LeadCard({ contact, index = 0 }: LeadCardProps) {
           />
           <ActionButton
             icon={Plus}
-            label="Add task"
+            label={t("card.addTask")}
             onClick={(e) => e.stopPropagation()}
           />
           <ActionButton
             icon={Mail}
-            label="Send email"
+            label={t("table.sendEmail")}
             onClick={(e) => e.stopPropagation()}
           />
           <ActionButton
             icon={Pencil}
-            label="Edit contact"
+            label={t("card.editContact")}
             onClick={(e) => e.stopPropagation()}
           />
         </div>

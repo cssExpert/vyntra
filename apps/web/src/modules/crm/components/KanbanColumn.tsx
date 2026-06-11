@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,7 @@ export function KanbanColumn({
   contacts,
   onAddContact,
 }: KanbanColumnProps) {
+  const t = useTranslations("crm");
   const [isCollapsed, setIsCollapsed] = useState(false);
   const count = contacts.length;
 
@@ -45,7 +47,7 @@ export function KanbanColumn({
             <button
               onClick={() => setIsCollapsed(false)}
               className="flex h-6 w-6 items-center justify-center rounded-md hover:bg-muted transition-colors cursor-pointer"
-              title="Expand"
+              title={t("expand")}
             >
               <ChevronLeft className="h-3.5 w-3.5 text-muted-foreground rotate-180" />
             </button>
@@ -89,7 +91,7 @@ export function KanbanColumn({
             <button
               onClick={() => setIsCollapsed(true)}
               className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md hover:bg-muted transition-colors cursor-pointer"
-              title="Collapse"
+              title={t("collapse")}
             >
               <ChevronLeft className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
@@ -111,7 +113,9 @@ export function KanbanColumn({
                 <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center mb-2">
                   <Plus className="h-4 w-4 text-muted-foreground/50" />
                 </div>
-                <p className="text-xs text-muted-foreground/60">No contacts</p>
+                <p className="text-xs text-muted-foreground/60">
+                  {t("noContacts")}
+                </p>
               </div>
             ) : (
               contacts.map((contact, i) => (
@@ -126,7 +130,7 @@ export function KanbanColumn({
                 className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg border border-dashed border-border/60 text-xs text-muted-foreground hover:text-foreground hover:border-border hover:bg-muted/50 transition-all duration-150 cursor-pointer"
               >
                 <Plus className="h-3.5 w-3.5" />
-                Add contact
+                {t("addContact")}
               </button>
             )}
           </motion.div>

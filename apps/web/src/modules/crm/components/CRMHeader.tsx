@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { ChevronDown, Plus, MoreHorizontal, X, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -12,11 +13,11 @@ interface CRMHeaderProps {
   onAddContact: () => void;
 }
 
-const TABS: ContactListTabDef[] = [
-  { id: "all", label: "All contacts" },
-  { id: "newsletter", label: "Newsletter subscribers" },
-  { id: "unsubscribed", label: "Unsubscribed" },
-  { id: "customers", label: "All customers" },
+const TAB_IDS: ContactListTabDef["id"][] = [
+  "all",
+  "newsletter",
+  "unsubscribed",
+  "customers",
 ];
 
 export function CRMHeader({
@@ -25,12 +26,17 @@ export function CRMHeader({
   totalContacts,
   onAddContact,
 }: CRMHeaderProps) {
+  const t = useTranslations("crm");
+  const TABS: ContactListTabDef[] = TAB_IDS.map((id) => ({
+    id,
+    label: t(`tabs.${id}` as never),
+  }));
   return (
     <div className="flex items-center gap-3 mb-4">
       {/* Contacts dropdown */}
       <button className="flex items-center min-h-10 max-h-10 gap-1.5 rounded-lg border border-border bg-muted/50 px-3 py-2.5 text-sm font-medium text-foreground hover:bg-muted transition-colors cursor-pointer flex-shrink-0">
         <Users className="h-3.5 w-3.5 text-muted-foreground" />
-        Contacts
+        {t("contacts")}
         <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
       </button>
 
@@ -73,7 +79,7 @@ export function CRMHeader({
         {/* Add view */}
         <button
           className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-          title="Add view"
+          title={t("addView")}
         >
           <Plus className="h-3.5 w-3.5" />
         </button>
@@ -89,7 +95,7 @@ export function CRMHeader({
           className="flex items-center gap-2 h-10 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-600 transition-colors cursor-pointer shadow-glow-brand"
         >
           <Plus className="h-3.5 w-3.5" />
-          Add contact
+          {t("addContact")}
           <ChevronDown className="h-3.5 w-3.5 opacity-70" />
         </button>
       </div>

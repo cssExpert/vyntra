@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpDown, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -12,47 +13,57 @@ export interface SortOption {
   order: "asc" | "desc";
 }
 
-const SORT_OPTIONS: SortOption[] = [
-  {
-    id: "created_desc",
-    label: "Create date (Newest first)",
-    field: "createdAt",
-    order: "desc",
-  },
-  {
-    id: "created_asc",
-    label: "Create date (Oldest first)",
-    field: "createdAt",
-    order: "asc",
-  },
-  { id: "name_asc", label: "Name (A → Z)", field: "name", order: "asc" },
-  { id: "name_desc", label: "Name (Z → A)", field: "name", order: "desc" },
-  {
-    id: "value_desc",
-    label: "Value (High → Low)",
-    field: "value",
-    order: "desc",
-  },
-  {
-    id: "value_asc",
-    label: "Value (Low → High)",
-    field: "value",
-    order: "asc",
-  },
-  {
-    id: "activity_desc",
-    label: "Last activity (Recent)",
-    field: "lastActivity",
-    order: "desc",
-  },
-];
-
 interface SortDropdownProps {
   activeSort: string;
   onSortChange: (option: SortOption) => void;
 }
 
 export function SortDropdown({ activeSort, onSortChange }: SortDropdownProps) {
+  const t = useTranslations("crm");
+  const SORT_OPTIONS: SortOption[] = [
+    {
+      id: "created_desc",
+      label: t("sortOptions.createdDesc"),
+      field: "createdAt",
+      order: "desc",
+    },
+    {
+      id: "created_asc",
+      label: t("sortOptions.createdAsc"),
+      field: "createdAt",
+      order: "asc",
+    },
+    {
+      id: "name_asc",
+      label: t("sortOptions.nameAsc"),
+      field: "name",
+      order: "asc",
+    },
+    {
+      id: "name_desc",
+      label: t("sortOptions.nameDesc"),
+      field: "name",
+      order: "desc",
+    },
+    {
+      id: "value_desc",
+      label: t("sortOptions.valueDesc"),
+      field: "value",
+      order: "desc",
+    },
+    {
+      id: "value_asc",
+      label: t("sortOptions.valueAsc"),
+      field: "value",
+      order: "asc",
+    },
+    {
+      id: "activity_desc",
+      label: t("sortOptions.activityDesc"),
+      field: "lastActivity",
+      order: "desc",
+    },
+  ];
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -79,7 +90,7 @@ export function SortDropdown({ activeSort, onSortChange }: SortDropdownProps) {
         )}
       >
         <ArrowUpDown className="h-3.5 w-3.5" />
-        Sort
+        {t("sort")}
       </button>
 
       <AnimatePresence>
@@ -105,7 +116,7 @@ export function SortDropdown({ activeSort, onSortChange }: SortDropdownProps) {
             }}
           >
             <p className="px-4 pt-3 pb-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-              Sort by
+              {t("sortBy")}
             </p>
             {SORT_OPTIONS.map((opt) => (
               <button
