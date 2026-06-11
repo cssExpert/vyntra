@@ -1,21 +1,74 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Lottie from "react-lottie";
 import LoaderAnimation from "@/assets/ERVFlowLoader.json";
 import { useAuth } from "@/providers/AuthProvider";
+import { useSettings } from "@/providers/SettingsProvider";
 import { useSidebar } from "@/hooks/useSidebar";
 import { SIDEBAR_WIDTH, SIDEBAR_COLLAPSED_WIDTH } from "@/constants/navigation";
 
 const AUTH_PATHS = ["/login", "/signup", "/forgot-password"];
 const TOPBAR_HEIGHT = 64; // Topbar is h-16
 
+// ── Runtime Lottie tinting ───────────────────────────────────────────────────
+// The loader JSON ships with the default brand orange baked into its fill
+// shapes (assets[*].layers[*].shapes[*].it[*] where ty === "fl"). Instead of
+// editing the file per brand, we repaint every fill/stroke with the
+// organization's primary color from Settings.
+
+/** "#F76235" → Lottie color [0.969, 0.384, 0.208, 1] (0–1 RGBA). */
+function hexToLottieColor(
+  hex: string,
+): [number, number, number, number] | null {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return null;
+  const n = parseInt(m[1], 16);
+  return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255, 1];
+}
+
+/** Deep-clones the animation and repaints every fill ("fl") / stroke ("st"). */
+function tintLottie(data: object, hex: string): object {
+  const color = hexToLottieColor(hex);
+  if (!color) return data;
+  const clone = JSON.parse(JSON.stringify(data)) as object;
+  const walk = (node: unknown): void => {
+    if (Array.isArray(node)) {
+      node.forEach(walk);
+      return;
+    }
+    if (node && typeof node === "object") {
+      const obj = node as Record<string, unknown>;
+      if (
+        (obj.ty === "fl" || obj.ty === "st") &&
+        obj.c &&
+        typeof obj.c === "object"
+      ) {
+        const c = obj.c as Record<string, unknown>;
+        c.a = 0; // static (non-keyframed) color
+        c.k = color;
+      }
+      Object.values(obj).forEach(walk);
+    }
+  };
+  walk(clone);
+  return clone;
+}
+
 export function NavigationProgress() {
   const pathname = usePathname();
   const { isAuthenticated } = useAuth();
+  const { settings } = useSettings();
   const { isCollapsed, isMobile } = useSidebar();
+
+  // Repaint the loader with the org's primary color whenever it changes.
+  const primaryColor = settings?.primaryColor || "#F76235";
+  const animationData = useMemo(
+    () => tintLottie(LoaderAnimation, primaryColor),
+    [primaryColor],
+  );
   const [loading, setLoading] = useState(false);
   const prevPathname = useRef(pathname);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -102,10 +155,11 @@ export function NavigationProgress() {
             {/* Lottie spinner + logo */}
             <div className="relative flex items-center justify-center">
               <Lottie
+                key={primaryColor}
                 options={{
                   loop: true,
                   autoplay: true,
-                  animationData: LoaderAnimation,
+                  animationData,
                   rendererSettings: { preserveAspectRatio: "xMidYMid slice" },
                 }}
                 height={250}

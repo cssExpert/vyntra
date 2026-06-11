@@ -287,10 +287,7 @@ function Inner() {
 
   return (
     <div className="space-y-6 pb-10">
-      <PageHeader
-        title={t("title")}
-        description={t("description")}
-      />
+      <PageHeader title={t("title")} description={t("description")} />
 
       {/* Banners */}
       {error && (
@@ -316,7 +313,7 @@ function Inner() {
           <div className="grid gap-8 sm:grid-cols-2">
             <div className="space-y-3">
               <div>
-                <h4 className="text-sm md:text-base font-bold text-foreground">
+                <h4 className="text-sm md:text-base lg:text-lg font-bold text-foreground">
                   {t("logo", { defaultValue: "Logo" })}
                 </h4>
               </div>
@@ -331,13 +328,16 @@ function Inner() {
                 module="branding"
               />
               <p className="text-xs text-muted-foreground mt-0.5">
-                {t("logoHelp", { defaultValue: "Shown in the sidebar and emails. Landscape format works best." })}
+                {t("logoHelp", {
+                  defaultValue:
+                    "Shown in the sidebar and emails. Landscape format works best.",
+                })}
               </p>
             </div>
 
             <div className="space-y-3">
               <div>
-                <h4 className="text-sm md:text-base font-bold text-foreground">
+                <h4 className="text-sm md:text-base lg:text-lg font-bold text-foreground">
                   {t("favicon", { defaultValue: "Favicon / App Icon" })}
                 </h4>
               </div>
@@ -352,7 +352,10 @@ function Inner() {
                 module="branding"
               />
               <p className="text-xs text-muted-foreground mt-0.5">
-                {t("faviconHelp", { defaultValue: "Shown in browser tabs and app launchers. Square 64x64 recommended." })}
+                {t("faviconHelp", {
+                  defaultValue:
+                    "Shown in browser tabs and app launchers. Square 64x64 recommended.",
+                })}
               </p>
             </div>
           </div>
@@ -367,19 +370,25 @@ function Inner() {
           <div className="space-y-3">
             <ColorPickerField
               label={t("primaryColor", { defaultValue: "Primary" })}
-              description={t("primaryColorDesc", { defaultValue: "Main CTA color — buttons, active states, links" })}
+              description={t("primaryColorDesc", {
+                defaultValue: "Main CTA color — buttons, active states, links",
+              })}
               value={settings.primaryColor ?? "#d14c23"}
               onChange={(hex) => handleChange("primaryColor", hex)}
             />
             <ColorPickerField
               label={t("secondaryColor", { defaultValue: "Secondary" })}
-              description={t("secondaryColorDesc", { defaultValue: "Supporting color — badges, secondary actions" })}
+              description={t("secondaryColorDesc", {
+                defaultValue: "Supporting color — badges, secondary actions",
+              })}
               value={settings.secondaryColor ?? "#8b5cf6"}
               onChange={(hex) => handleChange("secondaryColor", hex)}
             />
             <ColorPickerField
               label={t("accentColor", { defaultValue: "Accent" })}
-              description={t("accentColorDesc", { defaultValue: "Highlight color — tags, decorative elements" })}
+              description={t("accentColorDesc", {
+                defaultValue: "Highlight color — tags, decorative elements",
+              })}
               value={settings.accentColor ?? "#ec4899"}
               onChange={(hex) => handleChange("accentColor", hex)}
             />
@@ -424,7 +433,9 @@ function Inner() {
         >
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium">{t("siteName")}</label>
+              <label className="block text-sm font-medium">
+                {t("siteName")}
+              </label>
               <input
                 className={adminInput}
                 value={settings.siteName ?? ""}
@@ -433,7 +444,9 @@ function Inner() {
               />
             </div>
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium">{t("supportEmail")}</label>
+              <label className="block text-sm font-medium">
+                {t("supportEmail")}
+              </label>
               <input
                 type="email"
                 className={adminInput}
@@ -453,7 +466,9 @@ function Inner() {
         >
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium">{t("timezone")}</label>
+              <label className="block text-sm font-medium">
+                {t("timezone")}
+              </label>
               <select
                 className={adminInput}
                 value={(settings as any).timezone ?? "UTC"}
@@ -523,24 +538,40 @@ function Inner() {
         <SectionCard
           icon={ToggleLeft}
           title={t("featureToggles", { defaultValue: "Feature Toggles" })}
-          description={t("featureTogglesDesc", { defaultValue: "Enable or disable platform-wide features." })}
+          description={t("featureTogglesDesc", {
+            defaultValue: "Enable or disable platform-wide features.",
+          })}
         >
           <div className="space-y-1">
             {[
               {
                 field: "enableRegistration",
-                label: t("enableRegistration", { defaultValue: "User Registration" }),
-                desc: t("registrationHelp", { defaultValue: "Allow new users to sign up on the platform." }),
+                label: t("enableRegistration", {
+                  defaultValue: "User Registration",
+                }),
+                desc: t("registrationHelp", {
+                  defaultValue: "Allow new users to sign up on the platform.",
+                }),
               },
               {
                 field: "enableSocialAuth",
-                label: t("enableSocialAuth", { defaultValue: "Social Authentication" }),
-                desc: t("socialAuthHelp", { defaultValue: "Allow login via Google, GitHub, and other providers." }),
+                label: t("enableSocialAuth", {
+                  defaultValue: "Social Authentication",
+                }),
+                desc: t("socialAuthHelp", {
+                  defaultValue:
+                    "Allow login via Google, GitHub, and other providers.",
+                }),
               },
               {
                 field: "maintenanceMode",
-                label: t("maintenanceMode", { defaultValue: "Maintenance Mode" }),
-                desc: t("maintenanceModeHelp", { defaultValue: "Take the platform offline for all non-admin users." }),
+                label: t("maintenanceMode", {
+                  defaultValue: "Maintenance Mode",
+                }),
+                desc: t("maintenanceModeHelp", {
+                  defaultValue:
+                    "Take the platform offline for all non-admin users.",
+                }),
               },
             ].map(({ field, label, desc }) => {
               const checked = Boolean(settings[field as keyof typeof settings]);
@@ -597,10 +628,14 @@ function Inner() {
         <p className="text-xs text-muted-foreground">
           {success ? (
             <span className="flex items-center gap-1.5 text-success">
-              <CheckCircle2 className="h-3.5 w-3.5" /> {t("saved", { defaultValue: "Saved" })}
+              <CheckCircle2 className="h-3.5 w-3.5" />{" "}
+              {t("saved", { defaultValue: "Saved" })}
             </span>
           ) : (
-            t("unsavedChanges", { defaultValue: "Unsaved changes will be lost if you navigate away." })
+            t("unsavedChanges", {
+              defaultValue:
+                "Unsaved changes will be lost if you navigate away.",
+            })
           )}
         </p>
         <button
@@ -613,7 +648,9 @@ function Inner() {
           ) : (
             <Save className="h-4 w-4" />
           )}
-          {busy ? t("saving", { defaultValue: "Saving…" }) : t("saveSettings", { defaultValue: "Save Settings" })}
+          {busy
+            ? t("saving", { defaultValue: "Saving…" })
+            : t("saveSettings", { defaultValue: "Save Settings" })}
         </button>
       </div>
     </div>
