@@ -13,8 +13,8 @@ import {
   PencilLine,
   Trash2,
   X,
-  Feather,
 } from "lucide-react";
+import Icon from "@/components/common/Icon";
 import {
   Tooltip,
   TooltipContent,
@@ -340,7 +340,7 @@ const AddressBar = () => {
             </Button>
 
             <div className="shrink-0 rounded-sm w-5 h-5 flex items-center justify-center bg-primary text-white dark:bg-primary dark:text-primary-foreground">
-              <Feather className="w-3 h-3" />
+              <Icon name="Logo" size="14" className="h-3.5 w-3.5 text-white" />
             </div>
 
             <div className="flex h-full flex-1 cursor-text items-center pl-2 min-w-0">
@@ -401,7 +401,8 @@ const AddressBar = () => {
                               if (e.key === "Escape") setEditingPageId(null);
                             }}
                             onBlur={() => handleEditSave(page.id)}
-                            size="sm" className="flex-1 text-xs border border-primary dark:border-primary rounded px-2 bg-card text-foreground dark:text-foreground outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200"
+                            size="sm"
+                            className="flex-1 text-xs border border-primary dark:border-primary rounded px-2 bg-card text-foreground dark:text-foreground outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200"
                           />
                           <button
                             onPointerDown={stopProp}
