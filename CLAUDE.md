@@ -28,10 +28,12 @@
 
 ## Code Style
 - [Rule 1 — be specific]
-- [Rule 2 - make change what is prompted for ]
-- [Rule 3 - always follow the folder/file structure and use the already available components ]
-- [Rule 4 - always follow the Font Sizes used in modules, keep the heading in ascending order like h1, h2 etc ]
-- [Rule 5 - Use the @tanstack/react-table when asked for table ]
+- [Rule 2 - Make change what is prompted for ]
+- [Rule 3 - Always follow the folder/file structure and use the already available components ]
+- [Rule 4 - Always follow the Font Sizes used in modules, keep the heading in ascending order like h1, h2 etc ]
+- [Rule 5 - Always Use the @tanstack/react-table when asked for table ]
+- [Rule 6 - Always Use the Modal from the common Component ]
+- [Rule 6 - Always Use the font size classes like text-xs or text-sm md: lg: don't add text-[12px] ]
 
 ## Rules - Core
 - ALWAYS run tests after changes
