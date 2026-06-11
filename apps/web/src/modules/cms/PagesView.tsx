@@ -22,6 +22,7 @@ import {
   StarOff,
   LayoutTemplate,
   CheckCheck,
+  Globe,
 } from "lucide-react";
 import {
   useReactTable,
@@ -50,6 +51,7 @@ import {
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { useSitePreviewUrl } from "@/hooks/useSitePreviewUrl";
 import { cmsPages, cmsLayouts, type CmsLayout } from "@/lib/api";
+import { PageTranslationsModal } from "./PageTranslationsModal";
 
 // Skeleton column layout mirrors the real table columns below.
 const SKELETON_COLUMNS: TableSkeletonColumn[] = [
@@ -229,6 +231,7 @@ export function PagesView() {
   const [availableLayouts, setAvailableLayouts] = useState<CmsLayout[]>([]);
   const [bulkLayoutId, setBulkLayoutId] = useState<string>("");
   const [bulkApplying, setBulkApplying] = useState(false);
+  const [translatingPage, setTranslatingPage] = useState<{ id: string; title: string; metaDesc: string | null; metaKeywords: string | null } | null>(null);
   const isLoaded = usePageLoad(700);
   const { previewUrl } = useSitePreviewUrl();
   // Ref so the memoized columns closure always reads the latest previewUrl
@@ -500,6 +503,19 @@ export function PagesView() {
                           updatedAt: today,
                         },
                       ]);
+                    },
+                  },
+                  {
+                    label: "Translations",
+                    icon: <Globe size={13} />,
+                    onClick: async () => {
+                      const detail = await cmsPages.load(page.slug).catch(() => null);
+                      setTranslatingPage({
+                        id: page.id,
+                        title: page.title,
+                        metaDesc: detail?.metaDesc ?? null,
+                        metaKeywords: detail?.metaKeywords ?? null,
+                      });
                     },
                   },
                   page.isLandingPage
@@ -1162,6 +1178,12 @@ export function PagesView() {
               </form>
             )}
           </Modal>
+
+          {/* ── Translations modal ─────────────────────────────────────────── */}
+          <PageTranslationsModal
+            page={translatingPage}
+            onClose={() => setTranslatingPage(null)}
+          />
 
           {/* ── Delete confirmation modal ───────────────────────────────────── */}
           <Modal

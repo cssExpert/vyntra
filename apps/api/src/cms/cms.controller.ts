@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { CurrentOrg } from '../common/decorators/current-org.decorator';
@@ -165,6 +166,31 @@ export class CmsController {
     @Body() body: { pageIds: string[]; layoutId: string | null },
   ) {
     return this.cmsService.bulkUpdatePageLayout(requireOrg(orgId), body.pageIds, body.layoutId ?? null);
+  }
+
+  // ── Page Translations ────────────────────────────────────────────────────
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Get('pages/:id/translations')
+  listPageTranslations(@CurrentOrg() orgId: string | null, @Param('id') id: string) {
+    return this.cmsService.listPageTranslations(requireOrg(orgId), id);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Put('pages/:id/translations/:lang')
+  upsertPageTranslation(
+    @CurrentOrg() orgId: string | null,
+    @Param('id') id: string,
+    @Param('lang') lang: string,
+    @Body() body: { title: string; content?: string | null; metaDesc?: string | null; metaKeywords?: string | null },
+  ) {
+    return this.cmsService.upsertPageTranslation(requireOrg(orgId), id, lang, body);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Delete('pages/:id/translations/:lang')
+  deletePageTranslation(@CurrentOrg() orgId: string | null, @Param('id') id: string, @Param('lang') lang: string) {
+    return this.cmsService.deletePageTranslation(requireOrg(orgId), id, lang);
   }
 
   // ── Layouts ───────────────────────────────────────────────────────────────

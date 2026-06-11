@@ -314,13 +314,30 @@ model Page {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  layout       Layout?      @relation(fields: [layoutId], references: [id], onDelete: SetNull)
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  layout       Layout?           @relation(fields: [layoutId], references: [id], onDelete: SetNull)
   comments     Comment[]
+  translations PageTranslation[]
 
   @@unique([organizationId, slug])
   @@index([organizationId])
   @@map("pages")
+}
+
+model PageTranslation {
+  id           String  @id @default(cuid())
+  pageId       String
+  lang         String
+  title        String
+  content      String?
+  metaDesc     String?
+  metaKeywords String?
+
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@unique([pageId, lang])
+  @@index([pageId])
+  @@map("page_translations")
 }
 
 model Blog {

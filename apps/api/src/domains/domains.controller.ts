@@ -134,20 +134,20 @@ export class DomainsController {
 
   @Public()
   @Get('public/sites/:orgId/landing-page')
-  getLandingPage(@Param('orgId') orgId: string) {
-    return this.domainsService.getLandingPage(orgId);
+  getLandingPage(@Param('orgId') orgId: string, @Query('lang') lang?: string) {
+    return this.domainsService.getLandingPage(orgId, lang);
   }
 
   @Public()
   @Get('public/sites/:orgId/pages')
-  getPages(@Param('orgId') orgId: string) {
-    return this.domainsService.getPublishedPages(orgId);
+  getPages(@Param('orgId') orgId: string, @Query('lang') lang?: string) {
+    return this.domainsService.getPublishedPages(orgId, lang);
   }
 
   @Public()
   @Get('public/sites/:orgId/pages/:slug')
-  getPage(@Param('orgId') orgId: string, @Param('slug') slug: string) {
-    return this.domainsService.getPublishedPage(orgId, slug);
+  getPage(@Param('orgId') orgId: string, @Param('slug') slug: string, @Query('lang') lang?: string) {
+    return this.domainsService.getPublishedPage(orgId, slug, lang);
   }
 
   @Public()

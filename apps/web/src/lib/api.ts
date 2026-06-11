@@ -640,6 +640,16 @@ export interface CmsBlogSaveDto {
   pinToTop?: boolean;
 }
 
+export interface PageTranslation {
+  id: string;
+  pageId: string;
+  lang: string;
+  title: string;
+  content: string | null;
+  metaDesc: string | null;
+  metaKeywords: string | null;
+}
+
 export const cmsPages = {
   list: () => apiFetch<CmsPageListItem[]>("/cms/pages"),
   load: (slug: string) => apiFetch<CmsPageData>(`/cms/pages/${slug}`),
@@ -652,6 +662,21 @@ export const cmsPages = {
     apiFetch<{ ok: boolean; updated: number }>("/cms/pages/bulk-layout", {
       method: "PUT",
       body: JSON.stringify({ pageIds, layoutId }),
+    }),
+  listTranslations: (pageId: string) =>
+    apiFetch<PageTranslation[]>(`/cms/pages/${pageId}/translations`),
+  upsertTranslation: (
+    pageId: string,
+    lang: string,
+    body: { title: string; content?: string | null; metaDesc?: string | null; metaKeywords?: string | null },
+  ) =>
+    apiFetch<PageTranslation>(`/cms/pages/${pageId}/translations/${lang}`, {
+      method: "PUT",
+      body: JSON.stringify(body),
+    }),
+  deleteTranslation: (pageId: string, lang: string) =>
+    apiFetch<{ ok: boolean }>(`/cms/pages/${pageId}/translations/${lang}`, {
+      method: "DELETE",
     }),
 };
 

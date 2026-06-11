@@ -210,7 +210,7 @@ export class DomainsService {
     return this.assertCmsEnabled(org);
   }
 
-  async getLandingPage(orgId: string) {
+  async getLandingPage(orgId: string, lang?: string) {
     const page = await this.prisma.page.findFirst({
       where: { organizationId: orgId, isLandingPage: true, published: true },
       select: {
@@ -226,11 +226,11 @@ export class DomainsService {
       },
     });
     if (!page) throw new NotFoundException('No landing page configured');
-    return page;
+    return this.applyTranslation(page, lang);
   }
 
-  async getPublishedPages(orgId: string) {
-    return this.prisma.page.findMany({
+  async getPublishedPages(orgId: string, lang?: string) {
+    const pages = await this.prisma.page.findMany({
       where: { organizationId: orgId, published: true },
       select: {
         id: true,
@@ -242,9 +242,18 @@ export class DomainsService {
       },
       orderBy: { publishedAt: 'desc' },
     });
+    if (!lang || lang === 'en') return pages;
+    const translations = await this.prisma.pageTranslation.findMany({
+      where: { pageId: { in: pages.map((p) => p.id) }, lang },
+    });
+    const tMap = new Map(translations.map((t) => [t.pageId, t]));
+    return pages.map((p) => {
+      const t = tMap.get(p.id);
+      return t ? { ...p, title: t.title, metaDesc: t.metaDesc ?? p.metaDesc } : p;
+    });
   }
 
-  async getPublishedPage(orgId: string, slug: string) {
+  async getPublishedPage(orgId: string, slug: string, lang?: string) {
     const page = await this.prisma.page.findFirst({
       where: { organizationId: orgId, slug, published: true },
       select: {
@@ -260,7 +269,23 @@ export class DomainsService {
       },
     });
     if (!page) throw new NotFoundException('Page not found');
-    return page;
+    return this.applyTranslation(page, lang);
+  }
+
+  private async applyTranslation<T extends { id: string; title: string; content?: string | null; metaDesc?: string | null; metaKeywords?: string | null }>(
+    page: T,
+    lang?: string,
+  ): Promise<T> {
+    if (!lang || lang === 'en') return page;
+    const t = await this.prisma.pageTranslation.findUnique({ where: { pageId_lang: { pageId: page.id, lang } } });
+    if (!t) return page;
+    return {
+      ...page,
+      title: t.title,
+      content: t.content ?? page.content,
+      metaDesc: t.metaDesc ?? page.metaDesc,
+      metaKeywords: t.metaKeywords ?? page.metaKeywords,
+    };
   }
 
   async getPublicLayout(orgId: string, layoutId?: string) {

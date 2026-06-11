@@ -388,6 +388,36 @@ export class CmsService {
     return { ok: true, updated: pageIds.length };
   }
 
+  // ── Page Translations ─────────────────────────────────────────────────────────
+
+  async listPageTranslations(orgId: string, pageId: string) {
+    const page = await this.prisma.page.findFirst({ where: { id: pageId, organizationId: orgId }, select: { id: true } });
+    if (!page) throw new NotFoundException('Page not found');
+    return this.prisma.pageTranslation.findMany({ where: { pageId }, orderBy: { lang: 'asc' } });
+  }
+
+  async upsertPageTranslation(
+    orgId: string,
+    pageId: string,
+    lang: string,
+    dto: { title: string; content?: string | null; metaDesc?: string | null; metaKeywords?: string | null },
+  ) {
+    const page = await this.prisma.page.findFirst({ where: { id: pageId, organizationId: orgId }, select: { id: true } });
+    if (!page) throw new NotFoundException('Page not found');
+    return this.prisma.pageTranslation.upsert({
+      where: { pageId_lang: { pageId, lang } },
+      create: { pageId, lang, ...dto },
+      update: dto,
+    });
+  }
+
+  async deletePageTranslation(orgId: string, pageId: string, lang: string) {
+    const page = await this.prisma.page.findFirst({ where: { id: pageId, organizationId: orgId }, select: { id: true } });
+    if (!page) throw new NotFoundException('Page not found');
+    await this.prisma.pageTranslation.deleteMany({ where: { pageId, lang } });
+    return { ok: true };
+  }
+
   // ── Layouts ──────────────────────────────────────────────────────────────────
 
   async listLayouts(orgId: string) {
