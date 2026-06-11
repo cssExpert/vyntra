@@ -296,10 +296,10 @@ function LibraryModal({
                       if (e.key === "Enter" || e.key === " ")
                         onSelect(asset.url);
                     }}
-                    className={`group relative rounded-xl overflow-hidden border-1 !border-black/10 transition-all duration-150 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                    className={`group relative rounded-xl overflow-hidden border-2 transition-all duration-150 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                       selected
                         ? "border-primary shadow-lg shadow-primary/20 scale-[0.97]"
-                        : "border-transparent hover:border-primary/40 hover:shadow-md"
+                        : "border-primary-500/10 hover:border-primary/40 hover:shadow-md"
                     }`}
                   >
                     {/* Thumbnail */}
@@ -316,12 +316,12 @@ function LibraryModal({
                       />
 
                       {/* Hover overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2">
-                        <p className="text-[9px] text-white font-semibold truncate leading-tight">
-                          {asset.fileName}
-                        </p>
-                        <p className="text-[8px] text-white/70">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-2 space-y-1">
+                        <span className="w-fit px-1 py-0.5 rounded-[3px] inline-flex text-[8px] bg-white/20 text-white">
                           {formatBytes(asset.size)}
+                        </span>
+                        <p className="text-xs text-white font-medium truncate leading-tight font-mono">
+                          {asset.fileName}
                         </p>
                       </div>
 
@@ -344,11 +344,11 @@ function LibraryModal({
                     </div>
 
                     {/* Caption row */}
-                    <div className="px-2 py-1.5 bg-card flex items-center justify-between gap-1 border-t border-border/50">
-                      <p className="text-[9px] text-muted-foreground truncate flex-1 leading-tight">
+                    <div className="px-2 py-1.5 bg-card flex flex-col items-start gap-1 border-t border-border/50">
+                      <SubtypeBadge subtype={asset.subtype} />
+                      <p className="text-xs text-muted-foreground w-full truncate leading-tight font-mono">
                         {asset.fileName}
                       </p>
-                      <SubtypeBadge subtype={asset.subtype} />
                     </div>
                   </div>
                 );
@@ -366,7 +366,7 @@ function LibraryModal({
             )}
 
             {!hasMore && items.length > 0 && (
-              <p className="text-center text-[10px] text-muted-foreground py-4">
+              <p className="text-center text-xs md:text-sm text-muted-foreground py-4">
                 All {total} asset{total !== 1 ? "s" : ""} loaded
               </p>
             )}

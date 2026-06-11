@@ -34,6 +34,7 @@
 - [Rule 5 - Always Use the @tanstack/react-table when asked for table ]
 - [Rule 6 - Always Use the Modal from the common Component ]
 - [Rule 7 - Always Use the font size classes like text-xs or text-sm md: lg: don't add text-[12px] ]
+- [Rule 8 - Always Use MoverLeft/MoverRight icon for Next/Previous ]
 
 ## Rules - Core
 - ALWAYS run tests after changes
