@@ -6,6 +6,7 @@ import { EditorCard, FieldLabel, inputClass } from "./fields";
 import type { BlogFormState } from "./types";
 import IconTitle from "@/components/common/IconTitle";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export interface MetadataTabProps {
   form: BlogFormState;
@@ -226,7 +227,7 @@ export function MetadataTab({
           <div className="relative">
             <div className="relative flex items-center">
               <Search className="absolute left-3 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
-              <input
+              <Input
                 ref={inputRef}
                 type="text"
                 value={tagSearch}

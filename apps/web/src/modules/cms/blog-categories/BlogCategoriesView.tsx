@@ -36,6 +36,7 @@ import {
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { cmsBlogCategories, type CmsBlogCategory } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -114,7 +115,7 @@ function CategoryForm({
         <label className={labelCls}>
           Name <span className="text-destructive">*</span>
         </label>
-        <input
+        <Input
           type="text"
           value={value.name}
           onChange={(e) => {
@@ -134,7 +135,7 @@ function CategoryForm({
         <label className={labelCls}>
           Slug <span className="text-destructive">*</span>
         </label>
-        <input
+        <Input
           type="text"
           value={value.slug}
           onChange={(e) => {
@@ -409,12 +410,12 @@ export function BlogCategoriesView() {
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
                   <Search size={15} />
                 </span>
-                <input
+                <Input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search categories..."
-                  className="pl-9 pr-8 py-2.5 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15 w-52"
+                  size="xl" className="pl-9 pr-8 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15 w-52"
                 />
                 {searchTerm && (
                   <button

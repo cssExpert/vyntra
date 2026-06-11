@@ -26,6 +26,7 @@ import { Toaster, useToaster } from "@/components/common/Toaster";
 import { cn } from "@/lib/utils";
 import { admin, type DbTheme } from "@/lib/api";
 import { AdminGuard, adminInput } from "./AdminGuard";
+import { Input } from "@/components/ui/input";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -452,7 +453,7 @@ function ThemeFormModal({
             <label className="text-xs font-medium text-muted-foreground">
               Name <span className="text-destructive">*</span>
             </label>
-            <input
+            <Input
               className={adminInput}
               placeholder="e.g. Ocean Breeze"
               value={form.name}
@@ -493,7 +494,7 @@ function ThemeFormModal({
           <label className="text-xs font-medium text-muted-foreground">
             Thumbnail URL
           </label>
-          <input
+          <Input
             className={adminInput}
             placeholder="https://images.unsplash.com/…"
             value={form.thumbnail}
@@ -514,7 +515,7 @@ function ThemeFormModal({
           <label className="text-xs font-medium text-muted-foreground">
             Tags (comma separated)
           </label>
-          <input
+          <Input
             className={adminInput}
             placeholder="e.g. Dark, Bold, Minimal"
             value={form.tags}
@@ -567,7 +568,7 @@ function ThemeFormModal({
                 <label className="text-[10px] font-mono text-muted-foreground">
                   --radius
                 </label>
-                <input
+                <Input
                   className={cn(adminInput, "font-mono text-xs")}
                   placeholder="0.5rem"
                   value={form.variables["--radius"] || ""}
@@ -593,7 +594,7 @@ function ThemeFormModal({
                       <label className="text-[10px] font-mono text-muted-foreground">
                         {key}
                       </label>
-                      <input
+                      <Input
                         className={cn(adminInput, "font-mono text-xs")}
                         placeholder="'Inter', system-ui, sans-serif"
                         value={form.variables[key] || ""}
@@ -766,12 +767,12 @@ function Inner() {
             size={15}
             className="absolute inset-y-0 left-3 my-auto text-muted-foreground pointer-events-none"
           />
-          <input
+          <Input
             type="text"
             placeholder="Search themes…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-8 py-2.5 bg-background border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow]"
+            size="xl" className="w-full pl-9 pr-8 bg-background border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow]"
           />
           {search && (
             <button

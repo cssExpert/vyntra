@@ -1,10 +1,7 @@
 "use client";
 
 import React from "react";
-import Select, {
-  type StylesConfig,
-  type GroupBase,
-} from "react-select";
+import Select, { type StylesConfig, type GroupBase } from "react-select";
 
 export interface FilterSelectOption {
   value: string;
@@ -29,11 +26,9 @@ const selectStyles: StylesConfig<
 > = {
   control: (base, state) => ({
     ...base,
-    minHeight: "46px",
+    minHeight: "38px",
     backgroundColor: "hsl(var(--background))",
-    borderColor: state.isFocused
-      ? "hsl(var(--ring))"
-      : "hsl(var(--border))",
+    borderColor: state.isFocused ? "hsl(var(--ring))" : "hsl(var(--border))",
     borderRadius: "0.5rem",
     boxShadow: state.isFocused ? "0 0 0 2px hsl(var(--ring) / 0.2)" : "none",
     cursor: "pointer",
@@ -42,17 +37,17 @@ const selectStyles: StylesConfig<
       borderColor: "hsl(var(--ring))",
     },
   }),
-  valueContainer: (base) => ({ ...base, padding: "2px 12px" }),
+  valueContainer: (base) => ({ ...base, padding: "2px 8px" }),
   singleValue: (base) => ({
     ...base,
     color: "hsl(var(--foreground))",
-    fontWeight: 600,
-    fontSize: "0.875rem",
+    fontWeight: 500,
+    fontSize: "0.75rem",
   }),
   placeholder: (base) => ({
     ...base,
     color: "hsl(var(--muted-foreground))",
-    fontSize: "0.875rem",
+    fontSize: "0.75rem",
   }),
   input: (base) => ({ ...base, color: "hsl(var(--foreground))" }),
   indicatorSeparator: () => ({ display: "none" }),
@@ -70,7 +65,7 @@ const selectStyles: StylesConfig<
     ...base,
     backgroundColor: "hsl(var(--card))",
     border: "1px solid hsl(var(--border))",
-    borderRadius: "0.5rem",
+    borderRadius: "0.375rem",
     overflow: "hidden",
     boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
     zIndex: 10000,
@@ -78,7 +73,7 @@ const selectStyles: StylesConfig<
   menuPortal: (base) => ({ ...base, zIndex: 10000 }),
   option: (base, state) => ({
     ...base,
-    fontSize: "0.875rem",
+    fontSize: "0.75rem",
     fontWeight: 500,
     cursor: "pointer",
     color: state.isSelected
@@ -98,7 +93,7 @@ const selectStyles: StylesConfig<
   noOptionsMessage: (base) => ({
     ...base,
     color: "hsl(var(--muted-foreground))",
-    fontSize: "0.875rem",
+    fontSize: "0.75rem",
   }),
 };
 

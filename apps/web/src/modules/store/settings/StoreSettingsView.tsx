@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MotionTabs, type MotionTabItem } from "@/components/ui/MotionTabs";
+import { Input } from "@/components/ui/input";
 
 type TabId =
   | "general"
@@ -199,19 +200,19 @@ export function StoreSettingsView() {
                   <Section title="Store Identity">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <FieldGroup label="Store Name">
-                        <input
+                        <Input
                           className={inputCls}
                           defaultValue="ERVFlow Store"
                         />
                       </FieldGroup>
                       <FieldGroup label="Store URL">
-                        <input
+                        <Input
                           className={inputCls}
                           defaultValue="https://store.ervflow.com"
                         />
                       </FieldGroup>
                       <FieldGroup label="Support Email">
-                        <input
+                        <Input
                           className={inputCls}
                           defaultValue="support@ervflow.com"
                         />
@@ -310,7 +311,7 @@ export function StoreSettingsView() {
                 >
                   <Toggle label="Free shipping on orders over threshold" />
                   <FieldGroup label="Free Shipping Minimum ($)">
-                    <input
+                    <Input
                       className={inputCls}
                       type="number"
                       defaultValue="50"
@@ -318,7 +319,7 @@ export function StoreSettingsView() {
                   </FieldGroup>
                   <Toggle label="Flat rate shipping" defaultChecked />
                   <FieldGroup label="Flat Rate ($)">
-                    <input
+                    <Input
                       className={inputCls}
                       type="number"
                       defaultValue="4.99"
@@ -335,7 +336,7 @@ export function StoreSettingsView() {
                   <Toggle label="Prices include tax (display)" />
                   <Toggle label="Charge tax on shipping" />
                   <FieldGroup label="Default Tax Rate (%)">
-                    <input
+                    <Input
                       className={inputCls}
                       type="number"
                       defaultValue="9"
@@ -376,7 +377,7 @@ export function StoreSettingsView() {
                   description="Connect your AI provider to enable the Store AI Assistant."
                 >
                   <FieldGroup label="Anthropic API Key">
-                    <input
+                    <Input
                       className={inputCls}
                       type="password"
                       placeholder="sk-ant-…"

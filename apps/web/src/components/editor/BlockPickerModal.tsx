@@ -10,6 +10,7 @@ import {
 import { COMPONENT_BLOCKS, CATEGORIES } from "@/lib/componentBlocks";
 import type { ComponentBlock } from "@/types/editor";
 import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
 
 // ─── Mini block preview ───────────────────────────────────────────────────────
 
@@ -345,17 +346,12 @@ export default function BlockPickerModal({
                 )}
               </div>
 
-              <input
+              <Input
                 type="text"
                 placeholder="Search blocks…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 py-1.5 rounded-lg text-sm
-                  bg-muted dark:bg-card/10
-                  text-foreground dark:text-white
-                  placeholder:text-muted-foreground dark:placeholder:text-muted-foreground
-                  border border-transparent focus:border-primary dark:focus:border-primary/50
-                  focus:outline-none transition-colors"
+                className="w-full pl-9 rounded-lg text-sm bg-muted dark:bg-card/10 text-foreground dark:text-white placeholder:text-muted-foreground dark:placeholder:text-muted-foreground border border-transparent focus:border-primary dark:focus:border-primary/50 focus:outline-none transition-colors"
                 style={{ paddingRight: search ? "2rem" : "0.75rem" }}
               />
 

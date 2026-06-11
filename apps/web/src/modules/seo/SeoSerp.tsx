@@ -5,6 +5,7 @@ import { Sparkles, Sliders, RefreshCw, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ViewProps, AuditReport } from "./seo.types";
 import { callGemini } from "./seo.utils";
+import { Input } from "@/components/ui/input";
 
 export function SeoSerp({
   showNotification,
@@ -107,7 +108,7 @@ export function SeoSerp({
             <label className="text-xs text-muted-foreground font-semibold block mb-1">
               Target Website URL
             </label>
-            <input
+            <Input
               type="text"
               value={domain}
               onChange={(e) => setDomain(e.target.value)}
@@ -119,7 +120,7 @@ export function SeoSerp({
             <label className="text-xs text-muted-foreground font-semibold block mb-1">
               Target Keyword
             </label>
-            <input
+            <Input
               type="text"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}

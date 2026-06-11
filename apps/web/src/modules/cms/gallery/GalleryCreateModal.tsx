@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import type { Gallery, GalleryStatus } from "./gallery.types";
 import { PRESET_COVERS, CATEGORIES } from "./gallery.data";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface GalleryCreateModalProps {
   isOpen: boolean;
@@ -152,7 +153,7 @@ export function GalleryCreateModal({
                     <label className={labelCls}>
                       Gallery Title <span className="text-rose-500">*</span>
                     </label>
-                    <input
+                    <Input
                       type="text"
                       required
                       value={title}
@@ -229,7 +230,7 @@ export function GalleryCreateModal({
                   <div>
                     <label className={labelCls}>Add Tag Chips</label>
                     <div className="flex gap-2">
-                      <input
+                      <Input
                         type="text"
                         value={tagInput}
                         onChange={(e) => setTagInput(e.target.value)}
@@ -307,7 +308,7 @@ export function GalleryCreateModal({
                 {useCustomCover ? (
                   <div>
                     <label className={labelCls}>Direct Cover Image URL</label>
-                    <input
+                    <Input
                       type="url"
                       value={customCoverUrl}
                       onChange={(e) => setCustomCoverUrl(e.target.value)}

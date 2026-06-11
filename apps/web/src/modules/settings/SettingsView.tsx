@@ -32,6 +32,7 @@ import { useSettings } from "@/providers/SettingsProvider";
 import { useAuth } from "@/providers/AuthProvider";
 import { MotionTabs, type MotionTabItem } from "@/components/ui/MotionTabs";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface SettingsState {
   organizationName: string;
@@ -379,7 +380,7 @@ export function SettingsView() {
               >
                 <div className="grid gap-4 sm:grid-cols-2">
                   <FieldGroup label="Organization Name">
-                    <input
+                    <Input
                       type="text"
                       value={settings.organizationName}
                       onChange={(e) =>
@@ -391,7 +392,7 @@ export function SettingsView() {
                   </FieldGroup>
 
                   <FieldGroup label="Organization Email">
-                    <input
+                    <Input
                       type="email"
                       value={settings.organizationEmail}
                       onChange={(e) =>
@@ -408,7 +409,7 @@ export function SettingsView() {
                   >
                     <div className="relative">
                       <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                      <input
+                      <Input
                         type="text"
                         value={settings.organizationSlug}
                         onChange={(e) =>

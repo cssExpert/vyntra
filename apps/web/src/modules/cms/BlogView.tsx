@@ -52,6 +52,7 @@ import { usePageLoad } from "@/hooks/usePageLoad";
 import { MotionTabs, type MotionTabItem } from "@/components/ui/MotionTabs";
 import { cmsBlogs } from "@/lib/api";
 import { type BlogStatus, type CmsBlog } from "@/modules/cms/blog-data";
+import { Input } from "@/components/ui/input";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -681,12 +682,12 @@ export function BlogView() {
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
                   <Search size={14} />
                 </span>
-                <input
+                <Input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search posts…"
-                  className="pl-9 pr-8 py-2.5 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15 w-48"
+                  size="xl" className="pl-9 pr-8 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15 w-48"
                 />
                 {searchTerm && (
                   <button

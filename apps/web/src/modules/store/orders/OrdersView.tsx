@@ -11,6 +11,7 @@ import { SAMPLE_ORDERS } from "../store.data";
 import type { OrderStatus } from "../store.types";
 import { cn } from "@/lib/utils";
 import { MotionTabs, type MotionTabItem } from "@/components/ui/MotionTabs";
+import { Input } from "@/components/ui/input";
 
 const ORDER_TABS: MotionTabItem<"all" | OrderStatus>[] = [
   { id: "all", label: "all" },
@@ -106,11 +107,11 @@ export function OrdersView() {
               <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted-foreground">
                 <Search size={17} />
               </span>
-              <input
+              <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search order #, customer…"
-                className="w-full pl-10 pr-4 py-2.5 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm"
+                size="xl" className="w-full pl-10 pr-4 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm"
               />
               {search && (
                 <button

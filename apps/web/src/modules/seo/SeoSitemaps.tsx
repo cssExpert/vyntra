@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { ViewProps, SitemapPage } from "./seo.types";
 import { callGemini } from "./seo.utils";
+import { Input } from "@/components/ui/input";
 
 export function SeoSitemaps({ showNotification, handleCopy }: ViewProps) {
   const [domain, setDomain] = useState("https://mysite.com");
@@ -151,7 +152,7 @@ export function SeoSitemaps({ showNotification, handleCopy }: ViewProps) {
               <label className="text-xs text-muted-foreground font-semibold block mb-1">
                 Target Website Domain
               </label>
-              <input
+              <Input
                 type="text"
                 value={domain}
                 onChange={(e) => setDomain(e.target.value)}
@@ -202,7 +203,7 @@ export function SeoSitemaps({ showNotification, handleCopy }: ViewProps) {
                 <label className="text-xs text-muted-foreground font-semibold block mb-1">
                   Route Path
                 </label>
-                <input
+                <Input
                   type="text"
                   value={newPage.path}
                   onChange={(e) =>

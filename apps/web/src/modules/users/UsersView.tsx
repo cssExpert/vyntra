@@ -40,6 +40,7 @@ import SectionTitle from "@/components/common/SectionTitle";
 import { Modal } from "@/components/common/Modal";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 // Type definitions for robust Next.js TypeScript support
 export type UserRole = "USER" | "MANAGER" | "ADMIN" | "SUPPORT";
@@ -567,12 +568,12 @@ export function UsersView() {
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted-foreground">
                   <Search size={17} />
                 </span>
-                <input
+                <Input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search by name or email..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm"
+                  size="xl" className="w-full pl-10 pr-4 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm"
                 />
                 {searchTerm && (
                   <button
@@ -920,14 +921,14 @@ export function UsersView() {
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-muted-foreground pointer-events-none">
                         <UserIcon size={16} />
                       </span>
-                      <input
+                      <Input
                         type="text"
                         value={formData.name}
                         onChange={(e) =>
                           setFormData({ ...formData, name: e.target.value })
                         }
                         placeholder="e.g. Vasudev Sharma"
-                        className={`w-full pl-10 pr-4 py-2.5 bg-background text-foreground placeholder:text-muted-foreground border rounded-sm text-sm transition-all focus:outline-none focus:ring-2 focus:ring-ring/20 ${
+                        size="xl" className={`w-full pl-10 pr-4 py-2.5 bg-background text-foreground placeholder:text-muted-foreground border rounded-sm text-sm transition-all focus:outline-none focus:ring-2 focus:ring-ring/20 ${
                           errors.name
                             ? "border-rose-400 focus:border-rose-500"
                             : "border-border focus:border-ring"
@@ -950,14 +951,14 @@ export function UsersView() {
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-muted-foreground pointer-events-none">
                         <Mail size={16} />
                       </span>
-                      <input
+                      <Input
                         type="email"
                         value={formData.email}
                         onChange={(e) =>
                           setFormData({ ...formData, email: e.target.value })
                         }
                         placeholder="e.g. vasu14082@gmail.com"
-                        className={`w-full pl-10 pr-4 py-2.5 bg-background text-foreground placeholder:text-muted-foreground border rounded-sm text-sm transition-all focus:outline-none focus:ring-2 focus:ring-ring/20 ${
+                        size="xl" className={`w-full pl-10 pr-4 py-2.5 bg-background text-foreground placeholder:text-muted-foreground border rounded-sm text-sm transition-all focus:outline-none focus:ring-2 focus:ring-ring/20 ${
                           errors.email
                             ? "border-rose-400 focus:border-rose-500"
                             : "border-border focus:border-ring"
@@ -981,14 +982,14 @@ export function UsersView() {
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-muted-foreground pointer-events-none">
                           <PhoneIcon size={16} />
                         </span>
-                        <input
+                        <Input
                           type="tel"
                           value={formData.phone}
                           onChange={(e) =>
                             setFormData({ ...formData, phone: e.target.value })
                           }
                           placeholder="e.g. 8976352629"
-                          className={`w-full pl-10 pr-4 py-2.5 bg-background text-foreground placeholder:text-muted-foreground border rounded-sm text-sm transition-all focus:outline-none focus:ring-2 focus:ring-ring/20 ${
+                          size="xl" className={`w-full pl-10 pr-4 py-2.5 bg-background text-foreground placeholder:text-muted-foreground border rounded-sm text-sm transition-all focus:outline-none focus:ring-2 focus:ring-ring/20 ${
                             errors.phone
                               ? "border-rose-400 focus:border-rose-500"
                               : "border-border focus:border-ring"

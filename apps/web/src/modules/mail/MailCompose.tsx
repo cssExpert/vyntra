@@ -36,6 +36,7 @@ import TextAlign from "@tiptap/extension-text-align";
 import FontFamily from "@tiptap/extension-font-family";
 import { cn } from "@/lib/utils";
 import type { ComposeData, ComposeAttachment } from "./mail.types";
+import { Input } from "@/components/ui/input";
 
 interface MailComposeProps {
   isOpen: boolean;
@@ -323,7 +324,7 @@ export function MailCompose({
                       <span className="text-xs text-muted-foreground w-12 shrink-0">
                         To
                       </span>
-                      <input
+                      <Input
                         type="email"
                         value={to}
                         onChange={(e) => setTo(e.target.value)}
@@ -363,7 +364,7 @@ export function MailCompose({
                           <span className="text-xs text-muted-foreground w-12 shrink-0">
                             Cc
                           </span>
-                          <input
+                          <Input
                             type="email"
                             value={cc}
                             onChange={(e) => setCc(e.target.value)}
@@ -397,7 +398,7 @@ export function MailCompose({
                           <span className="text-xs text-muted-foreground w-12 shrink-0">
                             Bcc
                           </span>
-                          <input
+                          <Input
                             type="email"
                             value={bcc}
                             onChange={(e) => setBcc(e.target.value)}
@@ -423,7 +424,7 @@ export function MailCompose({
                       <span className="text-xs text-muted-foreground w-12 shrink-0">
                         Subject
                       </span>
-                      <input
+                      <Input
                         type="text"
                         value={subject}
                         onChange={(e) => setSubject(e.target.value)}

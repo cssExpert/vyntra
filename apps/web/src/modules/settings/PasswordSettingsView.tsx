@@ -14,6 +14,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { apiChangePassword } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const inputCls =
   "w-full rounded-xl border border-border bg-background px-3.5 py-2.5 pr-10 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15";
@@ -39,7 +40,7 @@ function PasswordField({
         {label}
       </label>
       <div className="relative">
-        <input
+        <Input
           type={show ? "text" : "password"}
           value={value}
           onChange={(e) => onChange(e.target.value)}

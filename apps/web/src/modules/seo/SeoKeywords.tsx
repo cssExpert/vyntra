@@ -13,6 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { ViewProps, Keyword, Cluster } from "./seo.types";
 import { callGemini, getMockKeywords } from "./seo.utils";
+import { Input } from "@/components/ui/input";
 
 export function SeoKeywords({ showNotification, handleCopy }: ViewProps) {
   const [keywordInput, setKeywordInput] = useState("");
@@ -124,7 +125,7 @@ Provide a JSON response:
         >
           <div className="relative flex-1">
             <Search className="absolute left-4 top-3.5 w-5 h-5 text-muted-foreground/60" />
-            <input
+            <Input
               type="text"
               value={keywordInput}
               onChange={(e) => setKeywordInput(e.target.value)}

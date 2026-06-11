@@ -18,6 +18,7 @@ import {
   Lightbulb,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
 
 interface Message {
   id: string;
@@ -260,12 +261,12 @@ export function AIAssistantView() {
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                 size={14}
               />
-              <input
+              <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask about your store, generate content, create automations…"
                 disabled={isTyping}
-                className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm disabled:opacity-50"
+                size="xl" className="w-full pl-9 pr-4 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm disabled:opacity-50"
               />
             </div>
             <button

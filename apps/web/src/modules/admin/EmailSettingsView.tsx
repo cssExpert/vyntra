@@ -16,6 +16,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { AdminGuard, adminInput } from "./AdminGuard";
 import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
 import {
   apiGetAdminSettings,
   apiUpdateAdminSettings,
@@ -538,7 +539,7 @@ function Inner() {
                       )}
                     </label>
                     <div className="relative">
-                      <input
+                      <Input
                         type={
                           field.type === "password" && !showPwd
                             ? "password"
@@ -635,7 +636,7 @@ function Inner() {
                   {t("sendTestTo", { defaultValue: "Send Test Email To" })}{" "}
                   <span className="text-error">*</span>
                 </label>
-                <input
+                <Input
                   type="email"
                   className={adminInput}
                   value={testEmail}

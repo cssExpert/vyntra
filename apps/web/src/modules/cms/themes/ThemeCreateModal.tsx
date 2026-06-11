@@ -18,6 +18,7 @@ import type { Gallery, GalleryStatus } from "../gallery/gallery.types";
 import { PRESET_COVERS } from "../gallery/gallery.data";
 import { THEME_CATEGORIES } from "./themes.data";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface ThemeCreateModalProps {
   isOpen: boolean;
@@ -156,7 +157,7 @@ export function ThemeCreateModal({
                     <label className={labelCls}>
                       Theme Name <span className="text-rose-500">*</span>
                     </label>
-                    <input
+                    <Input
                       type="text"
                       required
                       value={title}
@@ -232,7 +233,7 @@ export function ThemeCreateModal({
                   {/* Sections */}
                   <div>
                     <label className={labelCls}>No. of Sections</label>
-                    <input
+                    <Input
                       type="number"
                       min={1}
                       max={30}
@@ -246,7 +247,7 @@ export function ThemeCreateModal({
                   <div>
                     <label className={labelCls}>Tags</label>
                     <div className="flex gap-2">
-                      <input
+                      <Input
                         type="text"
                         value={tagInput}
                         onChange={(e) => setTagInput(e.target.value)}
@@ -324,7 +325,7 @@ export function ThemeCreateModal({
                 {useCustomCover ? (
                   <div>
                     <label className={labelCls}>Cover Image URL</label>
-                    <input
+                    <Input
                       type="url"
                       value={customCoverUrl}
                       onChange={(e) => setCustomCoverUrl(e.target.value)}

@@ -13,6 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import { adminInput } from "./AdminGuard";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface EditCompanyModalProps {
   company: AdminCompany | null;
@@ -113,56 +114,56 @@ export function EditCompanyModal({
       <div className="px-6 py-5">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label={t("companyName", { defaultValue: "Company Name" })}>
-            <input
+            <Input
               className={adminInput}
               value={form.name ?? ""}
               onChange={(e) => set({ name: e.target.value })}
             />
           </Field>
           <Field label={t("legalName", { defaultValue: "Legal / Business Name" })}>
-            <input
+            <Input
               className={adminInput}
               value={form.legalName ?? ""}
               onChange={(e) => set({ legalName: e.target.value })}
             />
           </Field>
           <Field label={t("industryDomain", { defaultValue: "Industry / Domain" })}>
-            <input
+            <Input
               className={adminInput}
               value={form.industry ?? ""}
               onChange={(e) => set({ industry: e.target.value })}
             />
           </Field>
           <Field label={t("websiteField", { defaultValue: "Website" })}>
-            <input
+            <Input
               className={adminInput}
               value={form.website ?? ""}
               onChange={(e) => set({ website: e.target.value })}
             />
           </Field>
           <Field label={t("logoUrl", { defaultValue: "Logo URL" })}>
-            <input
+            <Input
               className={adminInput}
               value={form.logoUrl ?? ""}
               onChange={(e) => set({ logoUrl: e.target.value })}
             />
           </Field>
           <Field label={t("contactEmail", { defaultValue: "Contact Email" })}>
-            <input
+            <Input
               className={adminInput}
               value={form.email ?? ""}
               onChange={(e) => set({ email: e.target.value })}
             />
           </Field>
           <Field label={t("phone", { defaultValue: "Phone" })}>
-            <input
+            <Input
               className={adminInput}
               value={form.phone ?? ""}
               onChange={(e) => set({ phone: e.target.value })}
             />
           </Field>
           <Field label={t("maxUsers", { defaultValue: "Max Users" })}>
-            <input
+            <Input
               type="number"
               min={1}
               className={adminInput}

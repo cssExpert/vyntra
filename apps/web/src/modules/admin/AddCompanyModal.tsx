@@ -19,6 +19,7 @@ import { adminInput } from "./AdminGuard";
 import { formatPrice, generateSecurePassword } from "./companyUtils";
 import { LogoUploader } from "./LogoUploader";
 import { Button } from "@/components/ui/button";
+import { Input as UIInput } from "@/components/ui/input";
 
 // ── Phone masking ─────────────────────────────────────────────────────────────
 // Normalises input to a readable phone string as the user types.
@@ -516,7 +517,7 @@ export function AddCompanyModal({
             </Field>
 
             <Field label="Phone" error={visibleError("phone")}>
-              <input
+              <UIInput
                 type="tel"
                 inputMode="tel"
                 className={cn(
@@ -630,7 +631,7 @@ export function AddCompanyModal({
                   onChange={(e) => set({ primaryColor: e.target.value })}
                   className="h-10 w-14 cursor-pointer rounded-lg border border-border bg-background p-1"
                 />
-                <input
+                <UIInput
                   className={cn(adminInput, "w-32 font-mono uppercase")}
                   value={form.primaryColor}
                   onChange={(e) => {
@@ -710,7 +711,7 @@ export function AddCompanyModal({
                 error={visibleError("adminPassword")}
               >
                 <div className="flex gap-2">
-                  <input
+                  <UIInput
                     className={cn(
                       adminInput,
                       "font-mono",
@@ -836,7 +837,7 @@ function Input({
   onBlur?: () => void;
 }) {
   return (
-    <input
+    <UIInput
       type={type}
       className={cn(
         adminInput,

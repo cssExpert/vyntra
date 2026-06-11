@@ -37,6 +37,7 @@ import { AdminGuard } from "./AdminGuard";
 import { Modal } from "@/components/common/Modal";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface UserWithActivity extends AdminUser {
   lastLoginAt?: string;
@@ -575,14 +576,14 @@ function Inner() {
         <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground pointer-events-none">
           <Search size={16} />
         </span>
-        <input
+        <Input
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder={t("search", {
             defaultValue: "Search by email or name...",
           })}
-          className="w-full pl-10 pr-10 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+          size="lg" className="w-full pl-10 pr-10 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
         {searchTerm && (
           <button
@@ -733,7 +734,7 @@ function Inner() {
                   {t("emailAddress", { defaultValue: "Email Address" })}{" "}
                   <span className="text-error">*</span>
                 </label>
-                <input
+                <Input
                   type="email"
                   value={formData.email}
                   onChange={(e) =>
@@ -742,7 +743,7 @@ function Inner() {
                   placeholder={t("userEmailPlaceholder", {
                     defaultValue: "user@example.com",
                   })}
-                  className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
                 {formErrors.email && (
                   <p className="text-xs text-error mt-1">{formErrors.email}</p>
@@ -754,7 +755,7 @@ function Inner() {
                   {t("fullName", { defaultValue: "Full Name" })}{" "}
                   <span className="text-error">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   value={formData.name}
                   onChange={(e) =>
@@ -763,7 +764,7 @@ function Inner() {
                   placeholder={t("fullNamePlaceholder", {
                     defaultValue: "John Doe",
                   })}
-                  className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
                 {formErrors.name && (
                   <p className="text-xs text-error mt-1">{formErrors.name}</p>
@@ -774,7 +775,7 @@ function Inner() {
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
                   {t("jobTitle", { defaultValue: "Job Title" })}
                 </label>
-                <input
+                <Input
                   type="text"
                   value={formData.jobTitle}
                   onChange={(e) =>
@@ -783,7 +784,7 @@ function Inner() {
                   placeholder={t("jobTitlePlaceholder", {
                     defaultValue: "e.g. Senior Manager",
                   })}
-                  className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
@@ -791,7 +792,7 @@ function Inner() {
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
                   {t("department", { defaultValue: "Department" })}
                 </label>
-                <input
+                <Input
                   type="text"
                   value={formData.department}
                   onChange={(e) =>
@@ -800,7 +801,7 @@ function Inner() {
                   placeholder={t("departmentPlaceholder", {
                     defaultValue: "e.g. Sales, Engineering",
                   })}
-                  className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
@@ -808,7 +809,7 @@ function Inner() {
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
                   {t("phoneNumber", { defaultValue: "Phone Number" })}
                 </label>
-                <input
+                <Input
                   type="tel"
                   value={formData.phone}
                   onChange={(e) =>
@@ -817,7 +818,7 @@ function Inner() {
                   placeholder={t("phoneNumberPlaceholder", {
                     defaultValue: "+1 (555) 000-0000",
                   })}
-                  className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
@@ -865,7 +866,7 @@ function Inner() {
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
                   {t("streetAddress", { defaultValue: "Street Address" })}
                 </label>
-                <input
+                <Input
                   type="text"
                   value={formData.address}
                   onChange={(e) =>
@@ -874,7 +875,7 @@ function Inner() {
                   placeholder={t("streetAddressPlaceholder", {
                     defaultValue: "123 Main Street",
                   })}
-                  className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
@@ -883,7 +884,7 @@ function Inner() {
                   <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
                     {t("city", { defaultValue: "City" })}
                   </label>
-                  <input
+                  <Input
                     type="text"
                     value={formData.city}
                     onChange={(e) =>
@@ -892,7 +893,7 @@ function Inner() {
                     placeholder={t("cityPlaceholder", {
                       defaultValue: "San Francisco",
                     })}
-                    className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
@@ -900,7 +901,7 @@ function Inner() {
                   <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
                     {t("stateProvince", { defaultValue: "State/Province" })}
                   </label>
-                  <input
+                  <Input
                     type="text"
                     value={formData.state}
                     onChange={(e) =>
@@ -909,7 +910,7 @@ function Inner() {
                     placeholder={t("stateProvincePlaceholder", {
                       defaultValue: "CA",
                     })}
-                    className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
@@ -917,7 +918,7 @@ function Inner() {
                   <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
                     {t("country", { defaultValue: "Country" })}
                   </label>
-                  <input
+                  <Input
                     type="text"
                     value={formData.country}
                     onChange={(e) =>
@@ -926,7 +927,7 @@ function Inner() {
                     placeholder={t("countryPlaceholder", {
                       defaultValue: "United States",
                     })}
-                    className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
               </div>
@@ -970,13 +971,13 @@ function Inner() {
                   {t("emailAddress", { defaultValue: "Email Address" })}{" "}
                   <span className="text-error">*</span>
                 </label>
-                <input
+                <Input
                   type="email"
                   value={formData.email}
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
                 {formErrors.email && (
                   <p className="text-xs text-error mt-1">{formErrors.email}</p>
@@ -988,13 +989,13 @@ function Inner() {
                   {t("fullName", { defaultValue: "Full Name" })}{" "}
                   <span className="text-error">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   value={formData.name}
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
                 {formErrors.name && (
                   <p className="text-xs text-error mt-1">{formErrors.name}</p>
@@ -1005,7 +1006,7 @@ function Inner() {
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
                   {t("jobTitle", { defaultValue: "Job Title" })}
                 </label>
-                <input
+                <Input
                   type="text"
                   value={formData.jobTitle}
                   onChange={(e) =>
@@ -1014,7 +1015,7 @@ function Inner() {
                   placeholder={t("jobTitlePlaceholder", {
                     defaultValue: "e.g. Senior Manager",
                   })}
-                  className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
@@ -1022,7 +1023,7 @@ function Inner() {
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
                   {t("department", { defaultValue: "Department" })}
                 </label>
-                <input
+                <Input
                   type="text"
                   value={formData.department}
                   onChange={(e) =>
@@ -1031,7 +1032,7 @@ function Inner() {
                   placeholder={t("departmentPlaceholder", {
                     defaultValue: "e.g. Sales, Engineering",
                   })}
-                  className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
@@ -1039,7 +1040,7 @@ function Inner() {
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
                   {t("phoneNumber", { defaultValue: "Phone Number" })}
                 </label>
-                <input
+                <Input
                   type="tel"
                   value={formData.phone}
                   onChange={(e) =>
@@ -1048,7 +1049,7 @@ function Inner() {
                   placeholder={t("phoneNumberPlaceholder", {
                     defaultValue: "+1 (555) 000-0000",
                   })}
-                  className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
@@ -1077,7 +1078,7 @@ function Inner() {
                 <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
                   {t("streetAddress", { defaultValue: "Street Address" })}
                 </label>
-                <input
+                <Input
                   type="text"
                   value={formData.address}
                   onChange={(e) =>
@@ -1086,7 +1087,7 @@ function Inner() {
                   placeholder={t("streetAddressPlaceholder", {
                     defaultValue: "123 Main Street",
                   })}
-                  className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
@@ -1095,7 +1096,7 @@ function Inner() {
                   <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
                     {t("city", { defaultValue: "City" })}
                   </label>
-                  <input
+                  <Input
                     type="text"
                     value={formData.city}
                     onChange={(e) =>
@@ -1104,7 +1105,7 @@ function Inner() {
                     placeholder={t("cityPlaceholder", {
                       defaultValue: "San Francisco",
                     })}
-                    className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
@@ -1112,7 +1113,7 @@ function Inner() {
                   <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
                     {t("stateProvince", { defaultValue: "State/Province" })}
                   </label>
-                  <input
+                  <Input
                     type="text"
                     value={formData.state}
                     onChange={(e) =>
@@ -1121,7 +1122,7 @@ function Inner() {
                     placeholder={t("stateProvincePlaceholder", {
                       defaultValue: "CA",
                     })}
-                    className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
@@ -1129,7 +1130,7 @@ function Inner() {
                   <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
                     {t("country", { defaultValue: "Country" })}
                   </label>
-                  <input
+                  <Input
                     type="text"
                     value={formData.country}
                     onChange={(e) =>
@@ -1138,7 +1139,7 @@ function Inner() {
                     placeholder={t("countryPlaceholder", {
                       defaultValue: "United States",
                     })}
-                    className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
               </div>
@@ -1211,7 +1212,7 @@ function Inner() {
               <span className="text-error">*</span>
             </label>
             <div className="relative">
-              <input
+              <Input
                 type={showPassword ? "text" : "password"}
                 value={passwordData.password}
                 onChange={(e) =>
@@ -1220,7 +1221,7 @@ function Inner() {
                 placeholder={t("passwordPlaceholder", {
                   defaultValue: "At least 8 characters",
                 })}
-                className="w-full px-3 py-2 pr-10 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                size="lg" className="w-full px-3 pr-10 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
               <button
                 type="button"
@@ -1242,7 +1243,7 @@ function Inner() {
               {t("confirmPassword", { defaultValue: "Confirm Password" })}{" "}
               <span className="text-error">*</span>
             </label>
-            <input
+            <Input
               type={showPassword ? "text" : "password"}
               value={passwordData.confirm}
               onChange={(e) =>
@@ -1251,7 +1252,7 @@ function Inner() {
               placeholder={t("confirmPasswordPlaceholder", {
                 defaultValue: "Re-enter the new password",
               })}
-              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+              size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           </div>
 

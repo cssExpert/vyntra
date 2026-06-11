@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { DeviceType } from "./lighthouse.types";
+import { Input } from "@/components/ui/input";
 
 interface LighthouseAuditBarProps {
   url: string;
@@ -58,13 +59,13 @@ export function LighthouseAuditBar({
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground/60">
               <Compass size={18} className="animate-spin-slow" />
             </div>
-            <input
+            <Input
               type="url"
               placeholder="e.g. https://my-portfolio-site.vercel.app"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               disabled={isScanning}
-              className="w-full pl-11 pr-32 py-3 rounded-xl bg-background border border-border outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200"
+              size="xl" className="w-full pl-11 pr-32 rounded-xl bg-background border border-border outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200"
             />
             {/* Device toggle inside input */}
             <div className="absolute inset-y-1.5 right-1.5 flex items-center gap-1 bg-card rounded-lg p-1 border border-border">

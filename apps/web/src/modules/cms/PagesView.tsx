@@ -53,6 +53,7 @@ import { usePageLoad } from "@/hooks/usePageLoad";
 import { useSitePreviewUrl } from "@/hooks/useSitePreviewUrl";
 import { cmsPages, cmsLayouts, type CmsLayout } from "@/lib/api";
 import { PageTranslationsModal } from "./PageTranslationsModal";
+import { Input } from "@/components/ui/input";
 
 // Skeleton column layout mirrors the real table columns below.
 const SKELETON_COLUMNS: TableSkeletonColumn[] = [
@@ -747,12 +748,12 @@ export function PagesView() {
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
                   <Search size={15} />
                 </span>
-                <input
+                <Input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search pages..."
-                  className="pl-9 pr-8 py-2.5 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15 w-52"
+                  size="xl" className="pl-9 pr-8 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15 w-52"
                 />
                 {searchTerm && (
                   <button
@@ -1088,7 +1089,7 @@ export function PagesView() {
                     <label className="block text-sm font-medium text-foreground">
                       Title
                     </label>
-                    <input
+                    <Input
                       required
                       value={editFormData.title}
                       onChange={(e) =>
@@ -1098,7 +1099,7 @@ export function PagesView() {
                         }))
                       }
                       placeholder="Page title"
-                      className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
+                      size="xl" className="w-full rounded-lg border border-border bg-background px-3.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -1129,7 +1130,7 @@ export function PagesView() {
                     <label className="block text-sm font-medium text-foreground">
                       Page Title
                     </label>
-                    <input
+                    <Input
                       required
                       autoFocus
                       value={addFormData.title}
@@ -1143,7 +1144,7 @@ export function PagesView() {
                         setAddFormData((prev) => ({ ...prev, title, slug }));
                       }}
                       placeholder="e.g. About Us"
-                      className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
+                      size="xl" className="w-full rounded-lg border border-border bg-background px-3.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
                     />
                   </div>
                   <div className="space-y-1.5">

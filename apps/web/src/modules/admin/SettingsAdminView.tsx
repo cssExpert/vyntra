@@ -21,6 +21,7 @@ import { ImageUploadWithStorage } from "@/components/common/ImageUploadWithStora
 import { AdminGuard, adminInput } from "./AdminGuard";
 import { cn } from "@/lib/utils";
 import { TIMEZONES } from "@/lib/timezones";
+import { Input } from "@/components/ui/input";
 import {
   apiGetAdminSettings,
   apiUpdateAdminSettings,
@@ -429,7 +430,7 @@ function Inner() {
               <label className="block text-sm font-medium">
                 {t("siteName")}
               </label>
-              <input
+              <Input
                 className={adminInput}
                 value={settings.siteName ?? ""}
                 onChange={(e) => handleChange("siteName", e.target.value)}
@@ -440,7 +441,7 @@ function Inner() {
               <label className="block text-sm font-medium">
                 {t("supportEmail")}
               </label>
-              <input
+              <Input
                 type="email"
                 className={adminInput}
                 value={settings.supportEmail ?? ""}
@@ -491,7 +492,7 @@ function Inner() {
               <label className="block text-sm font-medium">
                 Max Organizations
               </label>
-              <input
+              <Input
                 type="number"
                 className={adminInput}
                 value={settings.maxOrganizations ?? ""}
@@ -508,7 +509,7 @@ function Inner() {
               <label className="block text-sm font-medium">
                 Max Users Per Org
               </label>
-              <input
+              <Input
                 type="number"
                 className={adminInput}
                 value={settings.maxUsersPerOrganization ?? ""}

@@ -5,6 +5,7 @@ import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { Sparkles, Trash2, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { WorkflowStep, SimLog, Branch } from "../types";
+import { Input } from "@/components/ui/input";
 
 /* ─── Props ─────────────────────────────────────────────────── */
 export interface WorkflowBuilderProps {
@@ -170,13 +171,13 @@ function PropertiesPanel({
           <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-2">
             Display Name
           </label>
-          <input
+          <Input
             type="text"
             value={step.label}
             onChange={(e) =>
               handleUpdateStep(step.id, { label: e.target.value })
             }
-            className="w-full rounded-md bg-background border border-border px-4 py-2.5 text-sm font-semibold text-foreground shadow-sm outline-none transition-[border-color,box-shadow] placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/20 focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50"
+            size="xl" className="w-full rounded-md bg-background border border-border px-4 text-sm font-semibold text-foreground shadow-sm outline-none transition-[border-color,box-shadow] placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/20 focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50"
           />
         </div>
         <div>
@@ -199,7 +200,7 @@ function PropertiesPanel({
               <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-2">
                 Duration
               </label>
-              <input
+              <Input
                 type="number"
                 value={step.config.value ?? 1}
                 onChange={(e) =>
@@ -209,7 +210,7 @@ function PropertiesPanel({
                     parseInt(e.target.value),
                   )
                 }
-                className="w-full rounded-md bg-background border border-border px-4 py-2.5 text-foreground shadow-sm outline-none transition-[border-color,box-shadow] placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/20 focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50"
+                size="xl" className="w-full rounded-md bg-background border border-border px-4 text-foreground shadow-sm outline-none transition-[border-color,box-shadow] placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/20 focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>
             <div>
@@ -237,14 +238,14 @@ function PropertiesPanel({
               <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-2">
                 Subject Line
               </label>
-              <input
+              <Input
                 type="text"
                 value={step.config.subject ?? ""}
                 onChange={(e) =>
                   handleUpdateStepConfig(step.id, "subject", e.target.value)
                 }
                 placeholder="Subject Line"
-                className="w-full rounded-md bg-background border border-border px-4 py-2.5 text-sm font-semibold text-foreground shadow-sm outline-none transition-[border-color,box-shadow] placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/20 focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50"
+                size="xl" className="w-full rounded-md bg-background border border-border px-4 text-sm font-semibold text-foreground shadow-sm outline-none transition-[border-color,box-shadow] placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/20 focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>
 

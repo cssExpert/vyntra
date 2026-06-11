@@ -7,6 +7,7 @@ import { useSitePreviewUrl } from "@/hooks/useSitePreviewUrl";
 import type { BlogFormState } from "./types";
 import IconTitle from "@/components/common/IconTitle";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export interface SeoTabProps {
   form: BlogFormState;
@@ -48,7 +49,7 @@ export function SeoTab({
         <div className="space-y-4">
           <div>
             <FieldLabel>Meta Page Title</FieldLabel>
-            <input
+            <Input
               type="text"
               value={form.seoTitle}
               onChange={(e) => {
@@ -72,7 +73,7 @@ export function SeoTab({
           </div>
           <div>
             <FieldLabel>Target Search Keywords</FieldLabel>
-            <input
+            <Input
               type="text"
               value={form.keywords}
               onChange={(e) => patch({ keywords: e.target.value })}

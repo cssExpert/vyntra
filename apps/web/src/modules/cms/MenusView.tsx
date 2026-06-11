@@ -32,6 +32,7 @@ import {
 } from "@/lib/api";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Modal } from "@/components/common/Modal";
+import { Input } from "@/components/ui/input";
 
 // ─── Visibility ────────────────────────────────────────────────────────────────
 
@@ -395,7 +396,7 @@ function ItemRow({
           <p className="text-[10px] font-medium text-muted-foreground mb-1">
             Label
           </p>
-          <input
+          <Input
             className={iCls}
             placeholder="e.g. Home"
             value={item.label}
@@ -460,7 +461,7 @@ function ItemRow({
           <p className="text-[10px] font-medium text-muted-foreground mb-1">
             URL
           </p>
-          <input
+          <Input
             className={iCls}
             placeholder="e.g. /contact or https://example.com"
             value={item.url}
@@ -707,7 +708,7 @@ function MenuModal({
             <label className="block text-xs font-medium text-foreground mb-1.5">
               Menu Name <span className="text-rose-500">*</span>
             </label>
-            <input
+            <Input
               className={inputCls}
               placeholder="e.g. Main Navigation"
               value={form.name}
@@ -718,7 +719,7 @@ function MenuModal({
             <label className="block text-xs font-medium text-foreground mb-1.5">
               Slug <span className="text-rose-500">*</span>
             </label>
-            <input
+            <Input
               className={inputCls}
               placeholder="e.g. main-nav"
               value={form.slug}

@@ -26,6 +26,7 @@ import {
 import { ImageUploadWithStorage } from "@/components/common/ImageUploadWithStorage";
 import { useAuth } from "@/providers/AuthProvider";
 import { SITE_LANGUAGES } from "@/lib/site-languages";
+import { Input } from "@/components/ui/input";
 
 function FieldGroup({
   label,
@@ -218,7 +219,7 @@ function DomainTab() {
             hint="Enter your domain without https:// — e.g. example.com"
           >
             <div className="flex gap-2">
-              <input
+              <Input
                 type="text"
                 className={cn(inputCls, "flex-1")}
                 placeholder="example.com"

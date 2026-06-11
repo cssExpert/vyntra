@@ -21,6 +21,7 @@ import { AddCompanyModal } from "./AddCompanyModal";
 import { EditCompanyModal } from "./EditCompanyModal";
 import { DomainManagementModal } from "./DomainManagementModal";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 function Inner() {
   const t = useTranslations("admin.companies");
@@ -120,11 +121,11 @@ function Inner() {
       {/* Search */}
       <div className="relative max-w-sm">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <input
+        <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t("search")}
-          className="w-full rounded-lg border border-border bg-background py-2 pl-9 pr-3 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
+          size="lg" className="w-full rounded-lg border border-border bg-background pl-9 pr-3 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
         />
       </div>
 

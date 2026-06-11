@@ -18,6 +18,7 @@ import {
 import Select, { type StylesConfig, type GroupBase } from "react-select";
 import { cn } from "@/lib/utils";
 import type { ContactStage, ContactSource } from "../../types";
+import { Input } from "@/components/ui/input";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -317,7 +318,7 @@ export function AddContactDrawer({
               {/* Name row */}
               <div className="grid grid-cols-2 gap-3">
                 <FormField label={t("drawer.firstName")} icon={User} required>
-                  <input
+                  <Input
                     value={form.firstName}
                     onChange={setField("firstName")}
                     placeholder="Ravi"
@@ -334,7 +335,7 @@ export function AddContactDrawer({
                   )}
                 </FormField>
                 <FormField label={t("drawer.lastName")} icon={User}>
-                  <input
+                  <Input
                     value={form.lastName}
                     onChange={setField("lastName")}
                     placeholder="Gupta"
@@ -344,7 +345,7 @@ export function AddContactDrawer({
               </div>
 
               <FormField label={t("drawer.emailAddress")} icon={Mail} required>
-                <input
+                <Input
                   type="email"
                   value={form.email}
                   onChange={setField("email")}
@@ -361,7 +362,7 @@ export function AddContactDrawer({
               </FormField>
 
               <FormField label={t("drawer.phoneNumber")} icon={Phone}>
-                <input
+                <Input
                   value={form.phone}
                   onChange={setField("phone")}
                   placeholder="+1 (555) 000-0000"
@@ -370,7 +371,7 @@ export function AddContactDrawer({
               </FormField>
 
               <FormField label={t("drawer.company")} icon={Building2}>
-                <input
+                <Input
                   value={form.company}
                   onChange={setField("company")}
                   placeholder={t("drawer.companyPlaceholder")}
@@ -379,7 +380,7 @@ export function AddContactDrawer({
               </FormField>
 
               <FormField label={t("drawer.jobTitle")} icon={Briefcase}>
-                <input
+                <Input
                   value={form.jobTitle}
                   onChange={setField("jobTitle")}
                   placeholder={t("drawer.jobTitlePlaceholder")}
@@ -465,7 +466,7 @@ export function AddContactDrawer({
               </FormField>
 
               <FormField label={t("drawer.tags")} icon={Tag}>
-                <input
+                <Input
                   value={form.tags}
                   onChange={setField("tags")}
                   placeholder="enterprise, hot, priority"

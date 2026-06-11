@@ -15,6 +15,7 @@ import {
 import { Modal } from "@/components/common/Modal";
 import { admin, type DnsInfo, type OrgDomain } from "@/lib/api";
 import { adminInput } from "./AdminGuard";
+import { Input } from "@/components/ui/input";
 
 interface Props {
   orgId: string;
@@ -226,8 +227,8 @@ export function DomainManagementModal({
               </p>
               <div className="flex gap-2">
                 <div className="flex flex-1 items-center rounded-lg border border-border overflow-hidden">
-                  <input
-                    className="flex-1 bg-background px-3 py-2 text-sm outline-none"
+                  <Input
+                    size="lg" className="flex-1 bg-background px-3 text-sm outline-none"
                     placeholder="acme"
                     value={subInput}
                     onChange={(e) =>
@@ -302,7 +303,7 @@ export function DomainManagementModal({
                 The domain must have the A and TXT records configured before verification.
               </p>
               <div className="flex gap-2">
-                <input
+                <Input
                   className={`${adminInput} flex-1`}
                   placeholder="example.com"
                   value={customInput}

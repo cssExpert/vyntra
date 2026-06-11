@@ -18,6 +18,7 @@ import { useEditorStore } from "@/store/editorStore";
 import type { ComponentBlock, EditorNode } from "@/types/editor";
 import { cn } from "@/lib/utils";
 import Icon from "@/components/common/Icon";
+import { Input } from "@/components/ui/input";
 
 function DraggableBlock({ block }: { block: ComponentBlock }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
@@ -233,18 +234,14 @@ export default function LeftSidebar() {
             )}
           </div>
 
-          <input
+          <Input
             type="text"
             placeholder={
               activeTab === "blocks" ? "Search blocks…" : "Search layers…"
             }
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-8 py-1.5 rounded-md text-xs transition-colors
-              bg-muted dark:bg-muted
-              border border-border dark:border-border
-              text-foreground dark:text-foreground
-              focus:outline-none focus:border-primary dark:focus:border-primary"
+            className="w-full pl-8 rounded-md text-xs transition-colors bg-muted dark:bg-muted border border-border dark:border-border text-foreground dark:text-foreground focus:outline-none focus:border-primary dark:focus:border-primary"
             style={{ paddingRight: search ? "1.75rem" : "0.5rem" }}
           />
 

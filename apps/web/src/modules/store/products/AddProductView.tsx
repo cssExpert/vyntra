@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import type { ProductType, ProductStatus, StockStatus } from "../store.types";
 import { ProductDescriptionEditor } from "./components/ProductDescriptionEditor";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const inp =
   "w-full rounded-sm border border-border bg-background px-3 py-2.5 text-[14px] text-foreground placeholder:text-muted-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15";
@@ -147,7 +148,7 @@ export function AddProductView() {
       <span className="absolute inset-y-0 left-3 flex items-center text-muted-foreground text-[14px] pointer-events-none">
         $
       </span>
-      <input
+      <Input
         value={val}
         onChange={(e) => set(e.target.value)}
         type="number"
@@ -241,7 +242,7 @@ export function AddProductView() {
                   </>
                 }
               >
-                <input
+                <Input
                   value={name}
                   onChange={(e) => handleName(e.target.value)}
                   placeholder="e.g. Premium Wireless Headphones"
@@ -249,7 +250,7 @@ export function AddProductView() {
                 />
               </F>
               <F label="Slug">
-                <input
+                <Input
                   value={slug}
                   onChange={(e) => setSlug(e.target.value)}
                   placeholder="premium-wireless-headphones"
@@ -321,7 +322,7 @@ export function AddProductView() {
             <Card title="Inventory">
               <div className="grid grid-cols-2 gap-4">
                 <F label="SKU">
-                  <input
+                  <Input
                     value={sku}
                     onChange={(e) => setSku(e.target.value)}
                     placeholder="SKU-001"
@@ -329,7 +330,7 @@ export function AddProductView() {
                   />
                 </F>
                 <F label="Weight (kg)">
-                  <input
+                  <Input
                     value={weight}
                     onChange={(e) => setWeight(e.target.value)}
                     type="number"
@@ -354,7 +355,7 @@ export function AddProductView() {
                   </select>
                 </F>
                 <F label="Stock Quantity">
-                  <input
+                  <Input
                     value={stock}
                     onChange={(e) => setStock(e.target.value)}
                     type="number"
@@ -365,7 +366,7 @@ export function AddProductView() {
                   />
                 </F>
                 <F label="Low Stock Threshold">
-                  <input
+                  <Input
                     value={threshold}
                     onChange={(e) => setThreshold(e.target.value)}
                     type="number"
@@ -419,7 +420,7 @@ export function AddProductView() {
               </F>
               {status === "scheduled" && (
                 <F label="Publish Date">
-                  <input
+                  <Input
                     type="datetime-local"
                     value={publishedAt}
                     onChange={(e) => setPublishedAt(e.target.value)}
@@ -455,7 +456,7 @@ export function AddProductView() {
 
             <Card title="Organization">
               <F label="Brand">
-                <input
+                <Input
                   value={brand}
                   onChange={(e) => setBrand(e.target.value)}
                   placeholder="e.g. Apple, Nike…"
@@ -485,7 +486,7 @@ export function AddProductView() {
               </div>
               <div>
                 <label className={lbl}>Tags</label>
-                <input
+                <Input
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyDown={addTag}
@@ -517,7 +518,7 @@ export function AddProductView() {
 
             <Card title="SEO">
               <F label="SEO Title">
-                <input
+                <Input
                   value={seoTitle}
                   onChange={(e) => setSeoTitle(e.target.value)}
                   placeholder="Product SEO title…"

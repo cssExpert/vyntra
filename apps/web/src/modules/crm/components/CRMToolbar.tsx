@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { SortDropdown, type SortOption } from "./shared/SortDropdown";
 import { ExportDropdown } from "./shared/ExportDropdown";
 import type { CRMViewMode } from "../types";
+import { Input } from "@/components/ui/input";
 
 interface CRMToolbarProps {
   search: string;
@@ -39,12 +40,12 @@ export function CRMToolbar({
       {/* Search */}
       <div className="relative flex-1 min-w-48">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
-        <input
+        <Input
           type="text"
           placeholder={t("searchPlaceholder")}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className={cn(
+          size="xl" className={cn(
             "w-full rounded-xl border border-border bg-background pl-9 pr-9 py-2.5 text-sm",
             "text-foreground placeholder:text-muted-foreground/50",
             "outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20",

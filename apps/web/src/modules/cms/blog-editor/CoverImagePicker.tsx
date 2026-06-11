@@ -19,6 +19,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { MotionTabs } from "@/components/ui/MotionTabs";
 import { Modal } from "@/components/common/Modal";
+import { Input } from "@/components/ui/input";
 
 // ─── Subtype badge ────────────────────────────────────────────────────────────
 
@@ -224,12 +225,11 @@ function LibraryModal({
               onChange={handleUpload}
             />
             <Button
-              size="md"
               type="button"
               radius="lg"
               onClick={() => fileInputRef.current?.click()}
               loading={isUploading}
-              className="gap-1.5 px-3 font-bold"
+              className="gap-1.5 px-3 font-bold h-[34px] max-h-[34px]"
               startIcon={<UploadCloud className="w-4 h-4" />}
             >
               Upload new
@@ -511,7 +511,7 @@ export function CoverImagePicker({
             Prompt the AI to generate a custom cover banner.
           </p>
           <div className="flex gap-2">
-            <input
+            <Input
               type="text"
               value={aiPrompt}
               onChange={(e) => setAiPrompt(e.target.value)}

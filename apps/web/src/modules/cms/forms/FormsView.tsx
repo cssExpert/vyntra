@@ -45,6 +45,7 @@ import { FormsTable } from "./FormsTable";
 import { FormPreviewModal } from "./builder/FormPreviewModal";
 import { loadForms, deleteForm, duplicateForm } from "./forms.store";
 import type { CmsForm, FormStatus } from "./forms.types";
+import { Input } from "@/components/ui/input";
 
 type TabKey = "all" | FormStatus;
 
@@ -63,7 +64,7 @@ const DEFAULT_FILTERS: FormFilters = {
 };
 
 export function FormsView() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("cms.forms");
   const router = useRouter();
   const [forms, setForms] = useState<CmsForm[]>([]);
@@ -303,12 +304,13 @@ export function FormsView() {
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
                   <Search size={14} />
                 </span>
-                <input
+                <Input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search forms…"
-                  className="pl-9 pr-8 py-2.5 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15 w-48"
+                  size="lg"
+                  className="pl-9 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15 w-48"
                 />
                 {searchTerm && (
                   <button
@@ -323,8 +325,8 @@ export function FormsView() {
               {/* New form */}
               <Button
                 onClick={() => router.push("/cms/forms/new")}
-                size="lg"
                 radius="sm"
+                size="md"
                 className="px-4 font-semibold active:scale-[0.98] group"
                 startIcon={
                   <Plus className="stroke-[3] group-hover:rotate-90 transition-transform duration-200" />

@@ -16,6 +16,7 @@ import SectionTitle from "@/components/common/SectionTitle";
 import { Modal } from "@/components/common/Modal";
 import { cmsLayouts, cmsMenus, type CmsLayout, type CmsMenu } from "@/lib/api";
 import { MENU_TYPES } from "./MenusView";
+import { Input } from "@/components/ui/input";
 
 const HEADER_VARIANTS = [
   { value: "minimal", label: "Minimal", description: "Logo left · nav right" },
@@ -493,13 +494,13 @@ function LayoutForm({
         <label className="block text-sm font-medium text-foreground">
           Layout Name
         </label>
-        <input
+        <Input
           required
           autoFocus
           value={form.name}
           onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
           placeholder="e.g. Blog Layout, Marketing Dark"
-          className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
+          size="xl" className="w-full rounded-lg border border-border bg-background px-3.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
         />
       </div>
 
@@ -601,11 +602,11 @@ function LayoutForm({
 
         {form.footerColumns.map((col, i) => (
           <div key={i} className="flex items-center gap-2">
-            <input
+            <Input
               value={col.title}
               onChange={(e) => updateColumn(i, "title", e.target.value)}
               placeholder="Column heading"
-              className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary transition-all"
+              size="lg" className="flex-1 rounded-lg border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary transition-all"
             />
             <select
               value={col.menuId}

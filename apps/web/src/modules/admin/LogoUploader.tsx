@@ -5,6 +5,7 @@ import { ImagePlus, Link2, Trash2, UploadCloud } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { adminInput } from "./AdminGuard";
 import { storageService } from "@/lib/storage";
+import { Input } from "@/components/ui/input";
 
 interface LogoUploaderProps {
   value: string;           // current value — either a hosted url or a https:// url
@@ -151,7 +152,7 @@ export function LogoUploader({
 
       {/* URL input */}
       {mode === "url" && (
-        <input
+        <Input
           type="url"
           className={cn(
             adminInput,

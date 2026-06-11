@@ -17,6 +17,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { apiUpdateProfile } from "@/lib/api";
 import { useAuth } from "@/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const inputCls =
   "w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15";
@@ -133,7 +134,7 @@ export function ProfileSettingsView() {
             <label className="block text-sm font-medium text-foreground">
               Full Name
             </label>
-            <input
+            <Input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -150,7 +151,7 @@ export function ProfileSettingsView() {
               <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
                 <Mail size={16} />
               </span>
-              <input
+              <Input
                 type="email"
                 value={user.email}
                 disabled

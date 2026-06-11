@@ -5,6 +5,7 @@ import { Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { THEME_CATEGORIES } from "../themes.data";
 import type { ThemeFormData } from "../upload-types";
+import { Input } from "@/components/ui/input";
 
 interface ThemeDetailsFormProps {
   data: ThemeFormData;
@@ -48,7 +49,7 @@ export function ThemeDetailsForm({ data, onChange }: ThemeDetailsFormProps) {
         <label className={labelCls}>
           Theme Name <span className="text-rose-500">*</span>
         </label>
-        <input
+        <Input
           type="text"
           value={data.name}
           onChange={(e) => set("name", e.target.value)}
@@ -89,7 +90,7 @@ export function ThemeDetailsForm({ data, onChange }: ThemeDetailsFormProps) {
           <label className={labelCls}>
             Author Name <span className="text-rose-500">*</span>
           </label>
-          <input
+          <Input
             type="text"
             value={data.author}
             onChange={(e) => set("author", e.target.value)}
@@ -103,7 +104,7 @@ export function ThemeDetailsForm({ data, onChange }: ThemeDetailsFormProps) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className={labelCls}>Version</label>
-          <input
+          <Input
             type="text"
             value={data.version}
             onChange={(e) => set("version", e.target.value)}
@@ -118,7 +119,7 @@ export function ThemeDetailsForm({ data, onChange }: ThemeDetailsFormProps) {
               (optional)
             </span>
           </label>
-          <input
+          <Input
             type="url"
             value={data.thumbnailUrl}
             onChange={(e) => set("thumbnailUrl", e.target.value)}
@@ -132,7 +133,7 @@ export function ThemeDetailsForm({ data, onChange }: ThemeDetailsFormProps) {
       <div>
         <label className={labelCls}>Tags</label>
         <div className="flex gap-2">
-          <input
+          <Input
             type="text"
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}

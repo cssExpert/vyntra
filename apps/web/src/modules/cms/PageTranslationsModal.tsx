@@ -6,6 +6,7 @@ import { Modal } from "@/components/common/Modal";
 import { cmsPages, type PageTranslation } from "@/lib/api";
 import { SITE_LANGUAGES } from "@/lib/site-languages";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface Props {
   page: { id: string; title: string; metaDesc: string | null; metaKeywords: string | null } | null;
@@ -265,11 +266,11 @@ export function PageTranslationsModal({ page, onClose }: Props) {
                   <label className="block text-sm font-medium text-foreground">
                     Title <span className="text-rose-500">*</span>
                   </label>
-                  <input
+                  <Input
                     value={form.title}
                     onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
                     placeholder="Translated page title"
-                    className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
+                    size="xl" className="w-full rounded-lg border border-border bg-background px-3.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
                   />
                 </div>
 
@@ -286,11 +287,11 @@ export function PageTranslationsModal({ page, onClose }: Props) {
 
                 <div className="space-y-1.5">
                   <label className="block text-sm font-medium text-foreground">Keywords</label>
-                  <input
+                  <Input
                     value={form.metaKeywords}
                     onChange={(e) => setForm((f) => ({ ...f, metaKeywords: e.target.value }))}
                     placeholder="keyword1, keyword2"
-                    className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
+                    size="xl" className="w-full rounded-lg border border-border bg-background px-3.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
                   />
                 </div>
 

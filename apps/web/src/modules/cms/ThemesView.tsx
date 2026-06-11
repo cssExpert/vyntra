@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 import { cmsThemes, type DbTheme } from "@/lib/api";
 import { useSitePreviewUrl } from "@/hooks/useSitePreviewUrl";
 import type { ViewMode, SortKey } from "./gallery/gallery.types";
+import { Input } from "@/components/ui/input";
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -493,12 +494,12 @@ function ThemeControls({
             size={16}
             className="absolute inset-y-0 left-3 my-auto text-muted-foreground pointer-events-none"
           />
-          <input
+          <Input
             type="text"
             placeholder="Search by name, category, or tag…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-8 py-2.5 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow]"
+            size="xl" className="w-full pl-9 pr-8 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow]"
           />
           {searchQuery && (
             <button

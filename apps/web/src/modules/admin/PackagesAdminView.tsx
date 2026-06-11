@@ -9,6 +9,7 @@ import { Modal } from "@/components/common/Modal";
 import { admin, type AdminModule, type AdminPackage } from "@/lib/api";
 import { AdminGuard, adminInput } from "./AdminGuard";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface FormState {
   id: string | null;
@@ -238,7 +239,7 @@ function Inner() {
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
               <label className="mb-1.5 block text-sm font-medium">{t("name", { defaultValue: "Name" })}</label>
-              <input
+              <Input
                 className={adminInput}
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -249,7 +250,7 @@ function Inner() {
               <label className="mb-1.5 block text-sm font-medium">
                 {t("price", { defaultValue: "Price (USD)" })}
               </label>
-              <input
+              <Input
                 type="number"
                 min="0"
                 className={adminInput}
@@ -263,7 +264,7 @@ function Inner() {
               <label className="mb-1.5 block text-sm font-medium">
                 {t("maxUsers", { defaultValue: "Max users" })}
               </label>
-              <input
+              <Input
                 type="number"
                 min="1"
                 className={adminInput}
@@ -277,7 +278,7 @@ function Inner() {
             <label className="mb-1.5 block text-sm font-medium">
               {t("descriptionField", { defaultValue: "Description" })}
             </label>
-            <input
+            <Input
               className={adminInput}
               value={form.description}
               onChange={(e) =>

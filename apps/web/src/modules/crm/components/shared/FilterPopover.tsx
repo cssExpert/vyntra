@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Check, Zap, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
 
 export interface FilterOption {
   id: string;
@@ -198,12 +199,12 @@ export function FilterPopover({
             {searchable && (
               <div className="relative border-b border-border px-3 py-3">
                 <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input
+                <Input
                   ref={searchRef}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder={t("searchShort")}
-                  className={cn(
+                  size="xl" className={cn(
                     "w-full rounded-xl border border-border bg-background pl-9 pr-3 py-2.5",
                     "text-sm text-foreground placeholder:text-muted-foreground",
                     "outline-none focus:outline-none focus-visible:outline-none  focus-visible:ring-2 focus-visible:ring-ring/20 focus-visible:border-ring transition-[border-color,box-shadow] disabled:cursor-not-allowed disabled:opacity-50",

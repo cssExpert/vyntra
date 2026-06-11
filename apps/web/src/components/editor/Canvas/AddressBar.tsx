@@ -44,6 +44,7 @@ import OpenGraphs from "./OpenGraphs";
 import Styles from "./Styles";
 import Scripts from "./Scripts";
 import Favicon from "./Favicon";
+import { Input } from "@/components/ui/input";
 
 type MetaTag = { id: string; name: string; content: string };
 type Page = {
@@ -390,7 +391,7 @@ const AddressBar = () => {
                           onPointerDown={stopProp}
                         >
                           <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
-                          <input
+                          <Input
                             ref={editInputRef}
                             value={editingName}
                             onChange={(e) => setEditingName(e.target.value)}
@@ -400,7 +401,7 @@ const AddressBar = () => {
                               if (e.key === "Escape") setEditingPageId(null);
                             }}
                             onBlur={() => handleEditSave(page.id)}
-                            className="flex-1 text-xs border border-primary dark:border-primary rounded px-2 py-1 bg-card text-foreground dark:text-foreground outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200"
+                            size="sm" className="flex-1 text-xs border border-primary dark:border-primary rounded px-2 bg-card text-foreground dark:text-foreground outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200"
                           />
                           <button
                             onPointerDown={stopProp}
@@ -480,7 +481,7 @@ const AddressBar = () => {
                       className="px-2 py-1.5 flex items-center gap-2"
                       onPointerDown={stopProp}
                     >
-                      <input
+                      <Input
                         ref={addInputRef}
                         value={newPageName}
                         onChange={(e) => setNewPageName(e.target.value)}
@@ -490,7 +491,7 @@ const AddressBar = () => {
                           if (e.key === "Escape") setIsAdding(false);
                         }}
                         placeholder="Page name…"
-                        className="flex-1 text-xs rounded-sm border border-border dark:border-border bg-card text-foreground dark:text-foreground px-2 py-1.5 min-h-8 max-h-8 outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200"
+                        className="flex-1 text-xs rounded-sm border border-border dark:border-border bg-card text-foreground dark:text-foreground px-2 min-h-8 max-h-8 outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200"
                       />
                       <button
                         onPointerDown={stopProp}

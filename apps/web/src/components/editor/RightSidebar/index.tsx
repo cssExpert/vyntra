@@ -6,6 +6,7 @@ import { ChevronDown, ChevronRight, X, Plus, Code2, Palette, Layout, AlignCenter
 import { useEditorStore } from '@/store/editorStore'
 import { cn } from '@/lib/utils'
 import { cmsMenus, cmsLayouts, type CmsMenu, type CmsLayout } from '@/lib/api'
+import { Input } from "@/components/ui/input";
 
 const TYPOGRAPHY_SIZES = ['text-xs','text-sm','text-base','text-lg','text-xl','text-2xl','text-3xl','text-4xl','text-5xl','text-6xl','text-7xl','text-8xl','text-9xl']
 const FONT_WEIGHTS = ['font-thin','font-light','font-normal','font-medium','font-semibold','font-bold','font-extrabold','font-black']
@@ -57,9 +58,9 @@ function Section({ title, icon: Icon, children, defaultOpen = true }: {
 function InspectorInput({
   className: cls = '',
   ...props
-}: React.InputHTMLAttributes<HTMLInputElement>) {
+}: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'>) {
   return (
-    <input
+    <Input
       {...props}
       className={cn(inputCls, cls)}
     />

@@ -8,6 +8,7 @@ import { Eye, Star, Upload, Check, Send } from "lucide-react";
 import { Modal } from "@/components/common/Modal";
 import { Button } from "@/components/ui/button";
 import type { CmsForm, FormField } from "../forms.types";
+import { Input } from "@/components/ui/input";
 
 const inputCls =
   "w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all";
@@ -95,7 +96,7 @@ function PreviewField({ field }: { field: FormField }) {
       );
     case "email":
       return (
-        <input
+        <Input
           type="email"
           placeholder={field.placeholder || "name@example.com"}
           className={inputCls}
@@ -103,17 +104,17 @@ function PreviewField({ field }: { field: FormField }) {
       );
     case "number":
       return (
-        <input
+        <Input
           type="number"
           placeholder={field.placeholder || "0"}
           className={inputCls}
         />
       );
     case "date":
-      return <input type="date" className={inputCls} />;
+      return <Input type="date" className={inputCls} />;
     default:
       return (
-        <input
+        <Input
           type="text"
           placeholder={field.placeholder || "Your answer"}
           className={inputCls}

@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import type { Email, MailFolder } from "./mail.types";
 import { MailListItem } from "./MailListItem";
 import { FOLDER_LABELS } from "./mail.data";
+import { Input } from "@/components/ui/input";
 
 interface MailListProps {
   folder: MailFolder;
@@ -55,12 +56,12 @@ export function MailList({
             size={14}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 pointer-events-none"
           />
-          <input
+          <Input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search messages..."
-            className="w-full pl-9 pr-8 py-2.5 bg-background border border-border rounded-sm text-xs text-foreground placeholder:text-muted-foreground/40 outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200 shadow-sm"
+            size="xl" className="w-full pl-9 pr-8 bg-background border border-border rounded-sm text-xs text-foreground placeholder:text-muted-foreground/40 outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200 shadow-sm"
           />
           {search && (
             <button

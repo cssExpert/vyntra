@@ -5,6 +5,7 @@ import { Sparkles, FileCode, RefreshCw, Copy, Eye, Share2, Monitor, AlertCircle 
 import { cn } from "@/lib/utils";
 import type { ViewProps } from "./seo.types";
 import { callGemini } from "./seo.utils";
+import { Input } from "@/components/ui/input";
 
 export function SeoMetaTags({ showNotification, handleCopy }: ViewProps) {
   const [form, setForm] = useState({
@@ -95,7 +96,7 @@ export function SeoMetaTags({ showNotification, handleCopy }: ViewProps) {
           <div className="space-y-3.5">
             <div>
               <label className="text-xs text-muted-foreground font-semibold block mb-1">Target URL</label>
-              <input type="text" value={form.url} onChange={(e) => setForm((p) => ({ ...p, url: e.target.value }))} className={inputCls} />
+              <Input type="text" value={form.url} onChange={(e) => setForm((p) => ({ ...p, url: e.target.value }))} className={inputCls} />
             </div>
             <div>
               <div className="flex justify-between items-center text-xs text-muted-foreground mb-1">
@@ -104,7 +105,7 @@ export function SeoMetaTags({ showNotification, handleCopy }: ViewProps) {
                   {form.title.length} / 60
                 </span>
               </div>
-              <input type="text" value={form.title} onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))} className={inputCls} />
+              <Input type="text" value={form.title} onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))} className={inputCls} />
             </div>
             <div>
               <div className="flex justify-between items-center text-xs text-muted-foreground mb-1">
@@ -118,17 +119,17 @@ export function SeoMetaTags({ showNotification, handleCopy }: ViewProps) {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-xs text-muted-foreground font-semibold block mb-1">Primary Keywords</label>
-                <input type="text" value={form.keywords} onChange={(e) => setForm((p) => ({ ...p, keywords: e.target.value }))} className={inputCls} placeholder="Separated with commas" />
+                <Input type="text" value={form.keywords} onChange={(e) => setForm((p) => ({ ...p, keywords: e.target.value }))} className={inputCls} placeholder="Separated with commas" />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground font-semibold block mb-1">Author</label>
-                <input type="text" value={form.author} onChange={(e) => setForm((p) => ({ ...p, author: e.target.value }))} className={inputCls} />
+                <Input type="text" value={form.author} onChange={(e) => setForm((p) => ({ ...p, author: e.target.value }))} className={inputCls} />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-xs text-muted-foreground font-semibold block mb-1">OG Image URL</label>
-                <input type="text" value={form.ogImage} onChange={(e) => setForm((p) => ({ ...p, ogImage: e.target.value }))} className={inputCls} />
+                <Input type="text" value={form.ogImage} onChange={(e) => setForm((p) => ({ ...p, ogImage: e.target.value }))} className={inputCls} />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground font-semibold block mb-1">Robots</label>

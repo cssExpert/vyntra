@@ -5,6 +5,7 @@ import { Search, Grid, List, X, Sliders } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ViewMode, SortKey } from "../gallery/gallery.types";
 import { THEME_CATEGORIES } from "./themes.data";
+import { Input } from "@/components/ui/input";
 
 interface ThemeControlsProps {
   searchQuery: string;
@@ -35,12 +36,12 @@ export function ThemeControls({
           <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted-foreground">
             <Search size={17} />
           </span>
-          <input
+          <Input
             type="text"
             placeholder="Search by name, category, or tag..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-2 py-2.5 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200 shadow-sm"
+            size="xl" className="w-full pl-10 pr-2 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200 shadow-sm"
           />
           {searchQuery && (
             <button

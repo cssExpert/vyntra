@@ -27,6 +27,7 @@ import {
   API_BASE,
 } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 type StorageProvider = "local" | "s3" | "uploadthing" | "vercel-blob";
 
@@ -220,7 +221,7 @@ function ConfigField({
         {field.required && <span className="text-error ml-1">*</span>}
       </label>
       <div className="relative">
-        <input
+        <Input
           type={isPasswordField && !showPassword ? "password" : "text"}
           className={cn(adminInput, isPasswordField && "pr-10")}
           value={value}

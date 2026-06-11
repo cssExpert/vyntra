@@ -37,6 +37,7 @@ import { TableActionMenu } from "@/components/common/TableActionMenu";
 import { admin, type AdminModule } from "@/lib/api";
 import { AdminGuard, adminInput } from "./AdminGuard";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface ModuleDetail extends AdminModule {
   companies?: Array<{ id: string; name: string; slug: string }>;
@@ -237,12 +238,12 @@ function Inner() {
         <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground pointer-events-none">
           <Search size={16} />
         </span>
-        <input
+        <Input
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder={t("search", { defaultValue: "Search modules..." })}
-          className="w-full pl-10 pr-10 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+          size="lg" className="w-full pl-10 pr-10 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
         {searchTerm && (
           <button
@@ -402,7 +403,7 @@ function Inner() {
         <div className="px-6 py-5 space-y-4">
           <div>
             <label className="mb-1.5 block text-sm font-medium">{t("name", { defaultValue: "Name" })}</label>
-            <input
+            <Input
               className={adminInput}
               value={editForm.name}
               onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
@@ -411,7 +412,7 @@ function Inner() {
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium">{t("description", { defaultValue: "Description" })}</label>
-            <input
+            <Input
               className={adminInput}
               value={editForm.description}
               onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}

@@ -32,6 +32,7 @@ import {
   type TableSkeletonColumn,
 } from "@/components/common/TableSkeleton";
 import { apiGetActivity, type ApiActivityLog } from "@/lib/api";
+import { Input } from "@/components/ui/input";
 
 // Skeleton column layout mirrors the real table columns below.
 const SKELETON_COLUMNS: TableSkeletonColumn[] = [
@@ -227,12 +228,12 @@ export function SystemLogsView() {
             <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
               <Search size={14} />
             </span>
-            <input
+            <Input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search logs…"
-              className="pl-9 pr-8 py-2.5 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all w-48"
+              size="xl" className="pl-9 pr-8 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all w-48"
             />
             {searchTerm && (
               <button

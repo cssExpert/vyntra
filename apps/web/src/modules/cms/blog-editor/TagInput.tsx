@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { inputClass } from "./fields";
+import { Input } from "@/components/ui/input";
 
 export interface TagInputProps {
   tags: string[];
@@ -36,7 +37,7 @@ export function TagInput({ tags, onChange, max = 8, onLimit }: TagInputProps) {
   return (
     <div className="space-y-3">
       <div className="flex gap-2">
-        <input
+        <Input
           type="text"
           value={value}
           onChange={(e) => setValue(e.target.value)}

@@ -26,6 +26,7 @@ type AssetFile = {
   duration?: string;
   pages?: number;
 };
+import { Input } from "@/components/ui/input";
 import {
   Upload,
   Folder,
@@ -561,12 +562,12 @@ export default function AssetsManagement() {
           <div className="sticky flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between border-b pb-5 border-border dark:border-border">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <input
+              <Input
                 type="text"
                 placeholder="Search assets, tag files or dimensions..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-sm border py-2.5 pl-10 pr-4 min-h-10 max-h-10 text-sm focus:outline-none focus:border-primary! focus:ring-2 focus:ring-ring/20! dark:focus:border-primary! dark:focus-visible:ring-primary/25! transition border-border bg-muted text-foreground placeholder-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground dark:placeholder-muted-foreground"
+                size="xl" className="w-full rounded-sm border pl-10 pr-4 min-h-10 max-h-10 text-sm focus:outline-none focus:border-primary! focus:ring-2 focus:ring-ring/20! dark:focus:border-primary! dark:focus-visible:ring-primary/25! transition border-border bg-muted text-foreground placeholder-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground dark:placeholder-muted-foreground"
               />
               {searchQuery && (
                 <button
@@ -637,12 +638,12 @@ export default function AssetsManagement() {
                       <label className="block text-[11px] font-bold tracking-wider uppercase mb-1 text-muted-foreground dark:text-muted-foreground">
                         Create Folder in Current Location
                       </label>
-                      <input
+                      <Input
                         type="text"
                         placeholder="Enter folder name..."
                         value={newFolderName}
                         onChange={(e) => setNewFolderName(e.target.value)}
-                        className="w-full rounded-sm border px-3 py-1.5 text-xs focus:border-primary focus:outline-none border-border bg-card text-foreground dark:border-border dark:bg-card dark:text-muted-foreground"
+                        className="w-full rounded-sm border px-3 text-xs focus:border-primary focus:outline-none border-border bg-card text-foreground dark:border-border dark:bg-card dark:text-muted-foreground"
                         autoFocus
                       />
                     </div>

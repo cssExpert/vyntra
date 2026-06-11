@@ -28,6 +28,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Modal } from "@/components/common/Modal";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface UserWithActivity extends AdminUser {
   lastLoginAt?: string;
@@ -587,14 +588,14 @@ function UserDetailInner({ userId }: { userId: string }) {
               New Password <span className="text-error">*</span>
             </label>
             <div className="relative">
-              <input
+              <Input
                 type={showPassword ? "text" : "password"}
                 value={passwordData.password}
                 onChange={(e) =>
                   setPasswordData({ ...passwordData, password: e.target.value })
                 }
                 placeholder="At least 8 characters"
-                className="w-full px-3 py-2 pr-10 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                size="lg" className="w-full px-3 pr-10 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
               <button
                 type="button"
@@ -611,14 +612,14 @@ function UserDetailInner({ userId }: { userId: string }) {
             <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
               Confirm Password <span className="text-error">*</span>
             </label>
-            <input
+            <Input
               type={showPassword ? "text" : "password"}
               value={passwordData.confirm}
               onChange={(e) =>
                 setPasswordData({ ...passwordData, confirm: e.target.value })
               }
               placeholder="Re-enter the new password"
-              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+              size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           </div>
 

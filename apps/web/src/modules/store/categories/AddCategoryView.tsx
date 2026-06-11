@@ -11,6 +11,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { Save, Send } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const inp =
   "w-full rounded-sm border border-border bg-background px-3 py-2.5 text-[14px] text-foreground placeholder:text-muted-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15";
@@ -194,7 +195,7 @@ export function AddCategoryView({ mode = "add" }: AddCategoryViewProps) {
                   </>
                 }
               >
-                <input
+                <Input
                   value={name}
                   onChange={(e) => handleName(e.target.value)}
                   placeholder="e.g. Summer Collection"
@@ -202,7 +203,7 @@ export function AddCategoryView({ mode = "add" }: AddCategoryViewProps) {
                 />
               </F>
               <F label="Slug">
-                <input
+                <Input
                   value={slug}
                   onChange={(e) => setSlug(e.target.value)}
                   placeholder="summer-collection"
@@ -235,7 +236,7 @@ export function AddCategoryView({ mode = "add" }: AddCategoryViewProps) {
 
             <Card title="SEO">
               <F label="SEO Title">
-                <input
+                <Input
                   value={seoTitle}
                   onChange={(e) => setSeoTitle(e.target.value)}
                   placeholder="Category SEO title…"

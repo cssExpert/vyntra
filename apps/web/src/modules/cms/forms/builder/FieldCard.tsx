@@ -10,6 +10,7 @@ import { GripVertical, Plus, X, Copy, Trash2 } from "lucide-react";
 
 import { FIELD_TYPES, getFieldMeta, renderFieldIcon } from "./field-config";
 import { isChoiceField, type FieldType, type FormField } from "../forms.types";
+import { Input } from "@/components/ui/input";
 
 interface FieldCardProps {
   field: FormField;
@@ -101,11 +102,11 @@ export function FieldCard({
             <span className="inline-flex items-center justify-center w-9 h-9 rounded-md bg-primary/10 shrink-0">
               {renderFieldIcon(meta.icon, "w-5 h-5 text-primary")}
             </span>
-            <input
+            <Input
               value={field.label}
               onChange={(e) => onChange({ label: e.target.value })}
               placeholder={`Question ${index + 1}`}
-              className="flex-1 min-w-[160px] h-9 bg-muted/40 border border-border rounded-lg px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
+              className="flex-1 min-w-[160px] bg-muted/40 border border-border rounded-lg px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
             />
             <select
               value={field.type}
@@ -200,13 +201,13 @@ export function FieldCard({
                   ) : (
                     field.type !== "rating" &&
                     field.type !== "file" && (
-                      <input
+                      <Input
                         value={field.placeholder ?? ""}
                         onChange={(e) =>
                           onChange({ placeholder: e.target.value })
                         }
                         placeholder="Placeholder text (optional)"
-                        className="w-full bg-muted/40 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
+                        size="lg" className="w-full bg-muted/40 border border-border rounded-lg px-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
                       />
                     )
                   )}

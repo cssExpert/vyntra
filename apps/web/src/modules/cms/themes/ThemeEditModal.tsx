@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import type { Gallery, GalleryStatus } from "../gallery/gallery.types";
 import { THEME_CATEGORIES } from "./themes.data";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface ThemeEditModalProps {
   theme: Gallery | null;
@@ -127,7 +128,7 @@ export function ThemeEditModal({
                 <label className={labelCls}>
                   Theme Name <span className="text-rose-500">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
@@ -204,7 +205,7 @@ export function ThemeEditModal({
                     (leave blank to keep current)
                   </span>
                 </label>
-                <input
+                <Input
                   type="url"
                   value={thumbnailUrl}
                   onChange={(e) => setThumbnailUrl(e.target.value)}
@@ -217,7 +218,7 @@ export function ThemeEditModal({
               <div>
                 <label className={labelCls}>Tags</label>
                 <div className="flex gap-2">
-                  <input
+                  <Input
                     type="text"
                     value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)}
