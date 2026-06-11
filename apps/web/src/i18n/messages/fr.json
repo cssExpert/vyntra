@@ -820,45 +820,14 @@
       "_file_admin_PaymentSettingsView": "[admin/PaymentSettingsView.tsx]"
     },
     "domainManagement": {
-      "save": "Enregistrer",
-      "cancel": "Annuler",
-      "delete": "Supprimer",
-      "edit": "Modifier",
-      "add": "Ajouter",
-      "copy": "Copier",
-      "loading": "Chargement…",
-      "viewhistory": "Voir l'historique",
-      "category": "Catégorie",
-      "categories": "Catégories",
-      "status": "Statut",
-      "active": "Actif",
-      "draft": "Brouillon",
-      "published": "Publié",
-      "all": "Tous",
-      "created": "Créé",
-      "updatedon": "Mis à jour",
-      "name": "Nom",
-      "type": "Type",
-      "value": "Valeur",
-      "description": "Description",
-      "verify": "Vérifier",
-      "removesubdomain": "Supprimer le sous-domaine",
-      "verifydomainviadns": "Vérifier le domaine via DNS",
-      "removecustomdomain": "Supprimer le domaine personnalisé",
+      "failedtoloaddomaininfo": "Impossible de charger les informations du domaine",
       "subdomainsaved": "Sous-domaine enregistré.",
+      "failedtosavesubdomain": "Impossible d'enregistrer le sous-domaine",
       "subdomainremoved": "Sous-domaine supprimé.",
+      "failedtoremovesubdomain": "Impossible de supprimer le sous-domaine",
       "customdomainsavedaddthednsrecordsbelowthenverify": "Domaine personnalisé enregistré. Ajoutez les enregistrements DNS ci-dessous, puis vérifiez.",
       "customdomainremoved": "Domaine personnalisé supprimé.",
-      "failedtoloaddomaininfo": "Impossible de charger les informations du domaine",
-      "failedtosavesubdomain": "Impossible d'enregistrer le sous-domaine",
-      "failedtoremovesubdomain": "Impossible de supprimer le sous-domaine",
-      "failedtosavedomain": "Impossible d'enregistrer le domaine",
-      "failedtoremovedomain": "Impossible de supprimer le domaine",
-      "verificationfailed": "Vérification échouée",
-      "platformsubdomain": "Sous-domaine de plate-forme",
-      "customdomain": "Domaine personnalisé",
-      "verified": "Vérifié",
-      "unverified": "Non vérifié"
+      "verificationfailed": "Vérification échouée"
     }
   },
   "navigation": {
@@ -1178,7 +1147,18 @@
       "_file_cms_forms_FormsView": "[cms/forms/FormsView.tsx]",
       "_file_cms_forms_builder_FormBuilderView": "[cms/forms/builder/FormBuilderView.tsx]",
       "_file_cms_forms_builder_FormPreviewModal": "[cms/forms/builder/FormPreviewModal.tsx]"
-    }
+    },
+    "layoutId": "Mise en page",
+    "choosefilters": "Choisir les filtres",
+    "deletepage": "Supprimer la page",
+    "gallerieshub": "Hub des galeries",
+    "colordetails": "Détails des couleurs",
+    "themeshub": "Hub des thèmes",
+    "deletethistheme": "Supprimer ce thème",
+    "theme.loadError": "Échec du chargement des thèmes.",
+    "theme.activateSuccess": "Thème activé avec succès.",
+    "theme.activateError": "Échec de l'activation du thème.",
+    "theme.deleteError": "Échec de la suppression du thème."
   },
   "store": {
     "store": {
@@ -1194,10 +1174,11 @@
       "searchordercustomer": "Rechercher"
     },
     "categories": {
-      "view": "View",
+      "view": "Afficher",
       "edit": "Modifier",
       "delete": "Supprimer",
-      "_file_store_categories_AddCategoryView": "[store/categories/AddCategoryView.tsx]"
+      "dragToReorder": "Faire glisser pour réorganiser",
+      "addCategory": "Ajouter une catégorie"
     },
     "ai-assistant": {
       "_file_store_ai-assistant_AIAssistantView": "[store/ai-assistant/AIAssistantView.tsx]"
@@ -1222,10 +1203,30 @@
       "_file_store_rewards_RewardPointsView": "[store/rewards/RewardPointsView.tsx]"
     },
     "settings": {
-      "_file_store_settings_StoreSettingsView": "[store/settings/StoreSettingsView.tsx]"
+      "generalTab": "Général",
+      "paymentTab": "Paiement",
+      "shippingTab": "Expédition",
+      "taxTab": "Taxe",
+      "notificationsTab": "Notifications",
+      "aiIntegrationsTab": "Intégrations IA",
+      "storeDescription": "Paramètres de la boutique",
+      "alert": "Alerte",
+      "cancel": "Annuler",
+      "saveChanges": "Enregistrer les modifications"
     },
     "title": "Boutique",
-    "description": "Gérez vos produits, commandes, inventaire et paramètres de boutique."
+    "description": "Gérez vos produits, commandes, inventaire et paramètres de boutique.",
+    "refresh": "Rafraîchir",
+    "addProduct": "Ajouter un produit",
+    "revenueoverview": "Aperçu des revenus",
+    "monthlyrevenuelast6": "Chiffre d'affaires mensuel (6 derniers mois)",
+    "recentorders": "Commandes récentes",
+    "lowstockalerts": "Alertes de faible stock",
+    "topproducts": "Meilleurs produits",
+    "bestsellingproductsthismonth": "Produits les plus vendus ce mois-ci",
+    "activeautomations": "Automatisations actives",
+    "runningworkflowsinyour": "Workflows en cours dans votre boutique",
+    "productsDescription": "Gérez votre catalogue de produits"
   },
   "messages": {
     "createdSuccess": "Créé avec succès",
@@ -1287,7 +1288,8 @@
     "lighthouse": {
       "_file_lighthouse_LighthouseScanModal": "[lighthouse/LighthouseScanModal.tsx]",
       "_file_lighthouse_LighthouseView": "[lighthouse/LighthouseView.tsx]"
-    }
+    },
+    "performanceReportSuccess": "Rapport de performance généré avec succès!"
   },
   "mail": {
     "mail": {
@@ -1303,5 +1305,34 @@
     "users": {
       "_file_users_UsersView": "[users/UsersView.tsx]"
     }
+  },
+  "store.categories": {
+    "view": "Afficher",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "dragToReorder": "Faire glisser pour réorganiser",
+    "addCategory": "Ajouter une catégorie"
+  },
+  "store.settings": {
+    "generalTab": "Général",
+    "paymentTab": "Paiement",
+    "shippingTab": "Expédition",
+    "taxTab": "Taxe",
+    "notificationsTab": "Notifications",
+    "aiIntegrationsTab": "Intégrations IA",
+    "storeDescription": "Paramètres de la boutique",
+    "alert": "Alerte",
+    "cancel": "Annuler",
+    "saveChanges": "Enregistrer les modifications"
+  },
+  "admin.domainManagement": {
+    "failedtoloaddomaininfo": "Impossible de charger les informations du domaine",
+    "subdomainsaved": "Sous-domaine enregistré.",
+    "failedtosavesubdomain": "Impossible d'enregistrer le sous-domaine",
+    "subdomainremoved": "Sous-domaine supprimé.",
+    "failedtoremovesubdomain": "Impossible de supprimer le sous-domaine",
+    "customdomainsavedaddthednsrecordsbelowthenverify": "Domaine personnalisé enregistré. Ajoutez les enregistrements DNS ci-dessous, puis vérifiez.",
+    "customdomainremoved": "Domaine personnalisé supprimé.",
+    "verificationfailed": "Vérification échouée"
   }
 }

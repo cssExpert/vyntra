@@ -279,7 +279,16 @@
       "logoUrl": "Logo URL",
       "statusActive": "Active",
       "statusSuspended": "Suspended",
-      "websiteField": "Website"
+      "websiteField": "Website",
+      "failedToLoad": "कंपनियां लोड करने में विफल",
+      "planUpdated": "योजना अपडेट की गई",
+      "failedChangePlan": "योजना परिवर्तन में विफल",
+      "deleteConfirm": "क्या आप कंपनी को हटाना चाहते हैं? यह कंपनी और इसके सभी डेटा को स्थायी रूप से हटा देगा।",
+      "deleted": "हटा दिया गया",
+      "failedDelete": "हटाने में विफल",
+      "suspended": "निलंबित",
+      "view": "देखें",
+      "updated": "अपडेट किया गया"
     },
     "dashboard": {
       "title": "Admin Dashboard",
@@ -509,7 +518,8 @@
       "colorPalette": "Color Palette",
       "cancel": "Cancel",
       "saving": "Saving…",
-      "saveTheme": "Save Theme"
+      "saveTheme": "Save Theme",
+      "loading": "लोड हो रहा है…"
     },
     "crm": {
       "title": "CRM",
@@ -748,7 +758,10 @@
         "haiku": "claude-haiku-4-5-20251001",
         "connect": "Connect",
         "disconnect": "Disconnect"
-      }
+      },
+      "searchOrderPlaceholder": "ऑर्डर आईडी, ग्राहक द्वारा खोजें...",
+      "addCategory": "श्रेणी जोड़ें",
+      "status": "स्थिति"
     },
     "cms": {
       "title": "Title",
@@ -807,45 +820,14 @@
       "_file_admin_PaymentSettingsView": "[admin/PaymentSettingsView.tsx]"
     },
     "domainManagement": {
-      "save": "Save",
-      "cancel": "Cancel",
-      "delete": "Delete",
-      "edit": "Edit",
-      "add": "Add",
-      "copy": "Copy",
-      "loading": "Loading…",
-      "viewhistory": "View History",
-      "category": "Category",
-      "categories": "Categories",
-      "status": "Status",
-      "active": "Active",
-      "draft": "Draft",
-      "published": "Published",
-      "all": "All",
-      "created": "Created",
-      "updatedon": "Updated On",
-      "name": "Name",
-      "type": "Type",
-      "value": "Value",
-      "description": "Description",
-      "verify": "Verify",
-      "removesubdomain": "Remove subdomain",
-      "verifydomainviadns": "Verify domain via DNS",
-      "removecustomdomain": "Remove custom domain",
+      "failedtoloaddomaininfo": "Failed to load domain info",
       "subdomainsaved": "Subdomain saved.",
+      "failedtosavesubdomain": "Failed to save subdomain",
       "subdomainremoved": "Subdomain removed.",
+      "failedtoremovesubdomain": "Failed to remove subdomain",
       "customdomainsavedaddthednsrecordsbelowthenverify": "Custom domain saved. Add the DNS records below, then verify.",
       "customdomainremoved": "Custom domain removed.",
-      "failedtoloaddomaininfo": "Failed to load domain info",
-      "failedtosavesubdomain": "Failed to save subdomain",
-      "failedtoremovesubdomain": "Failed to remove subdomain",
-      "failedtosavedomain": "Failed to save domain",
-      "failedtoremovedomain": "Failed to remove domain",
-      "verificationfailed": "Verification failed",
-      "platformsubdomain": "Platform Subdomain",
-      "customdomain": "Custom Domain",
-      "verified": "Verified",
-      "unverified": "Unverified"
+      "verificationfailed": "Verification failed"
     }
   },
   "navigation": {
@@ -1165,7 +1147,18 @@
       "_file_cms_forms_FormsView": "[cms/forms/FormsView.tsx]",
       "_file_cms_forms_builder_FormBuilderView": "[cms/forms/builder/FormBuilderView.tsx]",
       "_file_cms_forms_builder_FormPreviewModal": "[cms/forms/builder/FormPreviewModal.tsx]"
-    }
+    },
+    "layoutId": "Layout",
+    "choosefilters": "Choose Filters",
+    "deletepage": "Delete Page",
+    "gallerieshub": "Galleries Hub",
+    "colordetails": "Color Details",
+    "themeshub": "Themes Hub",
+    "deletethistheme": "Delete this theme",
+    "theme.loadError": "Failed to load themes.",
+    "theme.activateSuccess": "Theme activated successfully.",
+    "theme.activateError": "Failed to activate theme.",
+    "theme.deleteError": "Failed to delete theme."
   },
   "store": {
     "store": {
@@ -1184,7 +1177,8 @@
       "view": "View",
       "edit": "Edit",
       "delete": "Delete",
-      "_file_store_categories_AddCategoryView": "[store/categories/AddCategoryView.tsx]"
+      "dragToReorder": "Drag to reorder",
+      "addCategory": "Add Category"
     },
     "ai-assistant": {
       "_file_store_ai-assistant_AIAssistantView": "[store/ai-assistant/AIAssistantView.tsx]"
@@ -1209,10 +1203,30 @@
       "_file_store_rewards_RewardPointsView": "[store/rewards/RewardPointsView.tsx]"
     },
     "settings": {
-      "_file_store_settings_StoreSettingsView": "[store/settings/StoreSettingsView.tsx]"
+      "generalTab": "General",
+      "paymentTab": "Payment",
+      "shippingTab": "Shipping",
+      "taxTab": "Tax",
+      "notificationsTab": "Notifications",
+      "aiIntegrationsTab": "AI Integrations",
+      "storeDescription": "Store Settings",
+      "alert": "Alert",
+      "cancel": "Cancel",
+      "saveChanges": "Save Changes"
     },
     "title": "Store",
-    "description": "Manage your products, orders, inventory, and store settings."
+    "description": "Manage your products, orders, inventory, and store settings.",
+    "refresh": "Refresh",
+    "addProduct": "Add Product",
+    "revenueoverview": "Revenue Overview",
+    "monthlyrevenuelast6": "Monthly revenue (last 6 months)",
+    "recentorders": "Recent Orders",
+    "lowstockalerts": "Low Stock Alerts",
+    "topproducts": "Top Products",
+    "bestsellingproductsthismonth": "Best-selling products this month",
+    "activeautomations": "Active Automations",
+    "runningworkflowsinyour": "Running workflows in your store",
+    "productsDescription": "Manage your product catalog"
   },
   "messages": {
     "createdSuccess": "Created successfully",
@@ -1274,7 +1288,8 @@
     "lighthouse": {
       "_file_lighthouse_LighthouseScanModal": "[lighthouse/LighthouseScanModal.tsx]",
       "_file_lighthouse_LighthouseView": "[lighthouse/LighthouseView.tsx]"
-    }
+    },
+    "performanceReportSuccess": "Performance report successfully generated!"
   },
   "mail": {
     "mail": {
@@ -1290,5 +1305,34 @@
     "users": {
       "_file_users_UsersView": "[users/UsersView.tsx]"
     }
+  },
+  "store.categories": {
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete",
+    "dragToReorder": "Drag to reorder",
+    "addCategory": "Add Category"
+  },
+  "store.settings": {
+    "generalTab": "General",
+    "paymentTab": "Payment",
+    "shippingTab": "Shipping",
+    "taxTab": "Tax",
+    "notificationsTab": "Notifications",
+    "aiIntegrationsTab": "AI Integrations",
+    "storeDescription": "Store Settings",
+    "alert": "Alert",
+    "cancel": "Cancel",
+    "saveChanges": "Save Changes"
+  },
+  "admin.domainManagement": {
+    "failedtoloaddomaininfo": "Failed to load domain info",
+    "subdomainsaved": "Subdomain saved.",
+    "failedtosavesubdomain": "Failed to save subdomain",
+    "subdomainremoved": "Subdomain removed.",
+    "failedtoremovesubdomain": "Failed to remove subdomain",
+    "customdomainsavedaddthednsrecordsbelowthenverify": "Custom domain saved. Add the DNS records below, then verify.",
+    "customdomainremoved": "Custom domain removed.",
+    "verificationfailed": "Verification failed"
   }
 }
