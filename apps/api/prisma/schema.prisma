@@ -265,12 +265,13 @@ model Theme {
   name        String
   description String?
   thumbnail   String?
-  variables   Json     @default("{}")
+  identifier  String   @default("shopingo")
   isGlobal    Boolean  @default(false)
   orgId       String?
 
   organization  Organization?  @relation("OrgCustomThemes", fields: [orgId], references: [id], onDelete: Cascade)
   activeForOrgs Organization[] @relation("OrgActiveTheme")
+  pages         Page[]         @relation("PageTheme")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -287,8 +288,6 @@ model Layout {
   isDefault      Boolean  @default(false)
   navMenuId      String?
   footerColumns  Json     @default("[]")
-  headerVariant  String   @default("minimal")
-  footerVariant  String   @default("columns")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -311,16 +310,19 @@ model Page {
   isLandingPage  Boolean   @default(false)
   organizationId String
   layoutId       String?
+  themeId        String?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
   organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   layout       Layout?           @relation(fields: [layoutId], references: [id], onDelete: SetNull)
+  theme        Theme?            @relation("PageTheme", fields: [themeId], references: [id], onDelete: SetNull)
   comments     Comment[]
   translations PageTranslation[]
 
   @@unique([organizationId, slug])
   @@index([organizationId])
+  @@index([themeId])
   @@map("pages")
 }
 

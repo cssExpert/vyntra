@@ -113,8 +113,6 @@ async function main() {
       where: { id: existing.id },
       data: {
         navMenuId: navMenu!.id,
-        headerVariant: "shopingo",
-        footerVariant: "shopingo",
         footerColumns: footerColumns as object,
       },
     });
@@ -125,8 +123,6 @@ async function main() {
         name: "Shopingo",
         isDefault: false,
         navMenuId: navMenu!.id,
-        headerVariant: "shopingo",
-        footerVariant: "shopingo",
         footerColumns: footerColumns as object,
         organizationId: ORG_ID,
       },

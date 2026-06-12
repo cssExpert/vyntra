@@ -552,9 +552,9 @@ export const admin = {
 
   // Global Themes
   listThemes: () => apiFetch<DbTheme[]>("/admin/themes"),
-  createTheme: (body: { name: string; description?: string; thumbnail?: string; variables?: Record<string, unknown> }) =>
+  createTheme: (body: { name: string; description?: string; thumbnail?: string; identifier: string }) =>
     apiFetch<DbTheme>("/admin/themes", { method: "POST", body: JSON.stringify(body) }),
-  updateTheme: (id: string, body: Partial<{ name: string; description: string; thumbnail: string; variables: Record<string, unknown> }>) =>
+  updateTheme: (id: string, body: Partial<{ name: string; description: string; thumbnail: string; identifier: string }>) =>
     apiFetch<DbTheme>(`/admin/themes/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
   deleteTheme: (id: string) =>
     apiFetch<{ ok: boolean }>(`/admin/themes/${id}`, { method: "DELETE" }),
@@ -572,6 +572,8 @@ export interface CmsPageData {
   publishedAt: string | null;
   isLandingPage: boolean;
   layoutId: string | null;
+  themeId: string | null;
+  themeIdentifier: string | null;
 }
 
 export interface CmsPageListItem {
@@ -653,7 +655,7 @@ export interface PageTranslation {
 export const cmsPages = {
   list: () => apiFetch<CmsPageListItem[]>("/cms/pages"),
   load: (slug: string) => apiFetch<CmsPageData>(`/cms/pages/${slug}`),
-  save: (slug: string, body: { content: string; publish?: boolean; layoutId?: string | null }) =>
+  save: (slug: string, body: { content: string; publish?: boolean; layoutId?: string | null; themeId?: string | null }) =>
     apiFetch<CmsPageData>(`/cms/pages/${slug}`, {
       method: "PATCH",
       body: JSON.stringify(body),
@@ -850,8 +852,6 @@ export interface CmsLayout {
   isDefault: boolean;
   navMenuId: string | null;
   footerColumns: { title: string; menuId: string }[];
-  headerVariant: string;
-  footerVariant: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -860,13 +860,11 @@ export interface PublicLayoutData {
   id: string | null;
   navMenuId: string | null;
   footerColumns: { title: string; menuId: string }[];
-  headerVariant: string;
-  footerVariant: string;
 }
 
 export const cmsLayouts = {
   list: () => apiFetch<CmsLayout[]>("/cms/layouts"),
-  create: (body: { name: string; isDefault?: boolean; navMenuId?: string | null; footerColumns?: { title: string; menuId: string }[]; headerVariant?: string; footerVariant?: string }) =>
+  create: (body: { name: string; isDefault?: boolean; navMenuId?: string | null; footerColumns?: { title: string; menuId: string }[] }) =>
     apiFetch<CmsLayout>("/cms/layouts", { method: "POST", body: JSON.stringify(body) }),
   get: (id: string) => apiFetch<CmsLayout>(`/cms/layouts/${id}`),
   update: (id: string, body: Partial<Omit<CmsLayout, "id" | "createdAt" | "updatedAt">>) =>
@@ -879,7 +877,7 @@ export interface DbTheme {
   name: string;
   description: string | null;
   thumbnail: string | null;
-  variables: Record<string, unknown>;
+  identifier: string;
   isGlobal: boolean;
   orgId: string | null;
   createdAt: string;
@@ -889,18 +887,12 @@ export interface DbTheme {
 export interface ThemeListResponse {
   activeThemeId: string | null;
   global: DbTheme[];
-  custom: DbTheme[];
 }
 
 export const cmsThemes = {
   list: () => apiFetch<ThemeListResponse>("/cms/themes"),
   activate: (id: string) => apiFetch<{ ok: boolean; activeThemeId: string }>(`/cms/themes/${id}/activate`, { method: "POST" }),
   deactivate: () => apiFetch<{ ok: boolean; activeThemeId: null }>("/cms/themes/active/clear", { method: "DELETE" }),
-  createCustom: (body: { name: string; description?: string; thumbnail?: string; variables?: Record<string, string> }) =>
-    apiFetch<DbTheme>("/cms/themes", { method: "POST", body: JSON.stringify(body) }),
-  updateCustom: (id: string, body: Partial<{ name: string; description: string; thumbnail: string; variables: Record<string, unknown> }>) =>
-    apiFetch<DbTheme>(`/cms/themes/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
-  deleteCustom: (id: string) => apiFetch<{ ok: boolean }>(`/cms/themes/${id}`, { method: "DELETE" }),
 };
 
 export const cmsMenus = {

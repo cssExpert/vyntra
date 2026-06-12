@@ -1,6 +1,7 @@
 import type React from "react";
 import { NodeRenderer } from "./NodeRenderer";
 import { SiteNavbar, SiteFooter } from "./SiteLayout";
+import { BlockRenderer, parseTypedBlocks } from "./BlockRenderer";
 
 export interface OrgInfo {
   id: string;
@@ -24,6 +25,7 @@ export interface CmsPage {
   publishedAt: string | null;
   updatedAt: string;
   layoutId?: string | null;
+  themeIdentifier?: string | null;
 }
 
 export interface PageListItem {
@@ -37,17 +39,17 @@ export interface PageListItem {
 export interface SiteLayoutData {
   navMenuId: string | null;
   footerColumns: { title: string; menuId: string }[];
-  headerVariant: string;
-  footerVariant: string;
 }
 
-function parseNodes(content: string | null) {
+function parseLegacyNodes(content: string | null) {
   if (!content) return null;
+  // Typed blocks (new format) are handled by BlockRenderer — skip them here
+  if (parseTypedBlocks(content)) return null;
   try {
     const parsed = JSON.parse(content);
     if (Array.isArray(parsed) && parsed.length > 0) return parsed;
   } catch {
-    // legacy HTML content — handled separately
+    // plain HTML content
   }
   return null;
 }
@@ -56,14 +58,17 @@ export async function PageView({
   org,
   page,
   layout,
+  themeIdentifier = "shopingo",
   isLanding = false,
 }: {
   org: OrgInfo;
   page: CmsPage;
   layout: SiteLayoutData;
+  themeIdentifier?: string;
   isLanding?: boolean;
 }) {
-  const nodes = parseNodes(page.content);
+  const typedBlocks = parseTypedBlocks(page.content);
+  const nodes = parseLegacyNodes(page.content);
   const hasLayout = !!layout.navMenuId || layout.footerColumns.length > 0;
 
   const pageStyle = {
@@ -71,12 +76,24 @@ export async function PageView({
     color: "var(--foreground, #111827)",
   };
 
+  // New typed-block pages: full-width layout driven by blocks
+  if (typedBlocks) {
+    return (
+      <div className="min-h-screen" style={pageStyle}>
+        <SiteNavbar org={org} layout={layout} themeIdentifier={themeIdentifier} />
+        <BlockRenderer blocks={typedBlocks} themeIdentifier={themeIdentifier} />
+        <SiteFooter org={org} layout={layout} themeIdentifier={themeIdentifier} />
+      </div>
+    );
+  }
+
+  // Legacy EditorNode pages
   if (nodes) {
     return (
       <div className="min-h-screen" style={pageStyle}>
-        {hasLayout && <SiteNavbar org={org} layout={layout} />}
+        {hasLayout && <SiteNavbar org={org} layout={layout} themeIdentifier={themeIdentifier} />}
         <NodeRenderer nodes={nodes} orgId={org.id} />
-        {hasLayout && <SiteFooter org={org} layout={layout} />}
+        {hasLayout && <SiteFooter org={org} layout={layout} themeIdentifier={themeIdentifier} />}
       </div>
     );
   }
@@ -84,7 +101,7 @@ export async function PageView({
   return (
     <div className="min-h-screen font-sans" style={pageStyle}>
       {hasLayout ? (
-        <SiteNavbar org={org} layout={layout} />
+        <SiteNavbar org={org} layout={layout} themeIdentifier={themeIdentifier} />
       ) : (
         <nav
           className="backdrop-blur-sm sticky top-0 z-50"
@@ -148,7 +165,7 @@ export async function PageView({
       </main>
 
       {hasLayout ? (
-        <SiteFooter org={org} layout={layout} />
+        <SiteFooter org={org} layout={layout} themeIdentifier={themeIdentifier} />
       ) : (
         <footer
           className="mt-24 py-10 text-center text-sm"
@@ -168,10 +185,12 @@ export async function SiteHome({
   org,
   pages,
   layout,
+  themeIdentifier = "shopingo",
 }: {
   org: OrgInfo;
   pages: PageListItem[];
   layout: SiteLayoutData;
+  themeIdentifier?: string;
 }) {
   const hasLayout = !!layout.navMenuId || layout.footerColumns.length > 0;
   const pageStyle = {
@@ -182,7 +201,7 @@ export async function SiteHome({
   return (
     <div className="min-h-screen font-sans" style={pageStyle}>
       {hasLayout ? (
-        <SiteNavbar org={org} layout={layout} />
+        <SiteNavbar org={org} layout={layout} themeIdentifier={themeIdentifier} />
       ) : (
         <nav
           className="backdrop-blur-sm sticky top-0 z-50"
@@ -241,7 +260,7 @@ export async function SiteHome({
       </main>
 
       {hasLayout ? (
-        <SiteFooter org={org} layout={layout} />
+        <SiteFooter org={org} layout={layout} themeIdentifier={themeIdentifier} />
       ) : (
         <footer
           className="mt-24 py-10 text-center text-sm"

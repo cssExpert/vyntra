@@ -73,70 +73,25 @@ async function fetchSiteLayout(orgId: string, layoutId?: string | null): Promise
       ? `${API}/public/sites/${orgId}/layout?layoutId=${encodeURIComponent(layoutId)}`
       : `${API}/public/sites/${orgId}/layout`;
     const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) return { navMenuId: null, footerColumns: [], headerVariant: "minimal", footerVariant: "columns" };
+    if (!res.ok) return { navMenuId: null, footerColumns: [] };
     return res.json();
   } catch {
-    return { navMenuId: null, footerColumns: [], headerVariant: "minimal", footerVariant: "columns" };
+    return { navMenuId: null, footerColumns: [] };
   }
 }
 
-async function fetchActiveTheme(orgId: string, previewId?: string): Promise<Record<string, string>> {
+async function fetchActiveTheme(orgId: string, previewId?: string): Promise<string> {
   try {
     const url = previewId
       ? `${API}/public/sites/${orgId}/theme?previewId=${encodeURIComponent(previewId)}`
       : `${API}/public/sites/${orgId}/theme`;
     const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) return {};
+    if (!res.ok) return "shopingo";
     const data = await res.json();
-    const vars = data?.variables ?? {};
-    // Only keep actual CSS custom properties (keys starting with --)
-    return Object.fromEntries(
-      Object.entries(vars).filter(([k]) => k.startsWith("--"))
-    ) as Record<string, string>;
+    return (data?.identifier as string) || "shopingo";
   } catch {
-    return {};
+    return "shopingo";
   }
-}
-
-function buildThemeCss(vars: Record<string, string>): string {
-  const entries = Object.entries(vars).filter(([, v]) => typeof v === "string" && v.trim());
-  if (!entries.length) return "";
-  return `:root { ${entries.map(([k, v]) => `${k}: ${v};`).join(" ")} }`;
-}
-
-// Injected when themeSwitcherEnabled — makes `.dark` class on <html> actually change colours.
-// Brand colours (primary/secondary/accent) are inherited from the light theme as-is.
-const DARK_MODE_CSS = `.dark {
-  color-scheme: dark;
-  --background: #0f172a;
-  --foreground: #e2e8f0;
-  --card: #1e293b;
-  --card-foreground: #e2e8f0;
-  --muted: #1e293b;
-  --muted-foreground: #94a3b8;
-  --border: #334155;
-  --input: #334155;
-  --ring: #475569;
-}`;
-
-const SYSTEM_FONTS = new Set([
-  "system-ui", "sans-serif", "serif", "monospace", "cursive", "fantasy",
-  "-apple-system", "BlinkMacSystemFont", "ui-sans-serif", "ui-serif",
-]);
-
-function buildGoogleFontsUrl(vars: Record<string, string>): string | null {
-  const vals = [vars["--font-heading"], vars["--font-body"]].filter(Boolean);
-  const names = new Set<string>();
-  for (const val of vals) {
-    for (const [, name] of val.matchAll(/['"]([^'"]+)['"]/g)) {
-      if (!SYSTEM_FONTS.has(name)) names.add(name);
-    }
-  }
-  if (!names.size) return null;
-  const families = [...names]
-    .map((n) => `family=${encodeURIComponent(n)}:wght@300;400;500;600;700`)
-    .join("&");
-  return `https://fonts.googleapis.com/css2?${families}&display=swap`;
 }
 
 // ─── Metadata ────────────────────────────────────────────────────────────────
@@ -196,50 +151,34 @@ export default async function PublicSitePage({
     ? rawLang
     : (org.defaultSiteLanguage ?? "en");
 
-  const [themeVars] = await Promise.all([
-    fetchActiveTheme(org.id, previewTheme),
-  ]);
-  const themeCss = buildThemeCss(themeVars);
-  const fontUrl = buildGoogleFontsUrl(themeVars);
+  const orgThemeIdentifier = await fetchActiveTheme(org.id, previewTheme);
 
   const Head = () => (
-    <>
-      {/* Set correct lang attribute for browser auto-translate + accessibility */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `document.documentElement.lang = ${JSON.stringify(activeLang)};`,
-        }}
-      />
-      {fontUrl && (
-        <>
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-          <link rel="stylesheet" href={fontUrl} />
-        </>
-      )}
-      {themeCss && <style dangerouslySetInnerHTML={{ __html: themeCss }} />}
-      {org.themeSwitcherEnabled && (
-        <style dangerouslySetInnerHTML={{ __html: DARK_MODE_CSS }} />
-      )}
-    </>
+    <script
+      dangerouslySetInnerHTML={{
+        __html: `document.documentElement.lang = ${JSON.stringify(activeLang)};`,
+      }}
+    />
   );
 
   if (!slug || slug.length === 0) {
     const landing = await fetchLandingPage(org.id, activeLang);
     if (landing) {
+      const themeIdentifier = landing.themeIdentifier ?? orgThemeIdentifier;
       const layout = await fetchSiteLayout(org.id, landing.layoutId);
-      return <><Head /><PageView org={org} page={landing} layout={layout} isLanding /></>;
+      return <><Head /><PageView org={org} page={landing} layout={layout} themeIdentifier={themeIdentifier} isLanding /></>;
     }
     const [pages, layout] = await Promise.all([
       listPages(org.id, activeLang),
       fetchSiteLayout(org.id),
     ]);
-    return <><Head /><SiteHome org={org} pages={pages} layout={layout} /></>;
+    return <><Head /><SiteHome org={org} pages={pages} layout={layout} themeIdentifier={orgThemeIdentifier} /></>;
   }
 
   const pageSlug = slug.join("/");
   const page = await fetchPage(org.id, pageSlug, activeLang);
   if (!page) notFound();
+  const themeIdentifier = page.themeIdentifier ?? orgThemeIdentifier;
   const layout = await fetchSiteLayout(org.id, page.layoutId);
-  return <><Head /><PageView org={org} page={page} layout={layout} /></>;
+  return <><Head /><PageView org={org} page={page} layout={layout} themeIdentifier={themeIdentifier} /></>;
 }

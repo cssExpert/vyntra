@@ -23,6 +23,7 @@ import {
   LayoutTemplate,
   CheckCheck,
   Globe,
+  Blocks,
 } from "lucide-react";
 import {
   useReactTable,
@@ -506,6 +507,11 @@ export function PagesView() {
                         },
                       ]);
                     },
+                  },
+                  {
+                    label: "Theme Builder",
+                    icon: <Blocks size={13} />,
+                    onClick: () => router.push(`/cms/theme-builder?page=${encodeURIComponent(page.slug)}`),
                   },
                   {
                     label: "Translations",

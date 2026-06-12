@@ -1,11 +1,9 @@
 import {
   BadRequestException,
-  Body,
   Controller,
   Delete,
   Get,
   Param,
-  Patch,
   Post,
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
@@ -22,7 +20,7 @@ function requireOrg(orgId: string | null): string {
 export class ThemesController {
   constructor(private readonly themesService: ThemesService) {}
 
-  // GET /cms/themes — global themes + org custom themes + activeThemeId
+  // GET /cms/themes — list global themes + activeThemeId
   @Roles(Role.ORG_ADMIN, Role.EDITOR)
   @Get()
   list(@CurrentOrg() orgId: string | null) {
@@ -34,46 +32,6 @@ export class ThemesController {
   @Get('active')
   getActive(@CurrentOrg() orgId: string | null) {
     return this.themesService.getActiveTheme(requireOrg(orgId));
-  }
-
-  // POST /cms/themes — create a custom theme for this org
-  @Roles(Role.ORG_ADMIN)
-  @Post()
-  create(
-    @CurrentOrg() orgId: string | null,
-    @Body()
-    body: {
-      name: string;
-      description?: string;
-      thumbnail?: string;
-      variables?: Record<string, string>;
-    },
-  ) {
-    return this.themesService.createCustom(requireOrg(orgId), body);
-  }
-
-  // PATCH /cms/themes/:id — update org's own custom theme
-  @Roles(Role.ORG_ADMIN)
-  @Patch(':id')
-  update(
-    @CurrentOrg() orgId: string | null,
-    @Param('id') id: string,
-    @Body()
-    body: {
-      name?: string;
-      description?: string;
-      thumbnail?: string;
-      variables?: Record<string, string>;
-    },
-  ) {
-    return this.themesService.updateCustom(requireOrg(orgId), id, body);
-  }
-
-  // DELETE /cms/themes/:id — delete org's own custom theme
-  @Roles(Role.ORG_ADMIN)
-  @Delete(':id')
-  delete(@CurrentOrg() orgId: string | null, @Param('id') id: string) {
-    return this.themesService.deleteCustom(requireOrg(orgId), id);
   }
 
   // POST /cms/themes/:id/activate — set active theme for this org

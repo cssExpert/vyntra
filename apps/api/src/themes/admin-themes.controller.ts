@@ -13,7 +13,7 @@ export class AdminThemesController {
     return this.themesService.listGlobal();
   }
 
-  // POST /admin/themes — create a global theme
+  // POST /admin/themes — register a new global theme
   @SuperAdminOnly()
   @Post()
   create(
@@ -22,13 +22,13 @@ export class AdminThemesController {
       name: string;
       description?: string;
       thumbnail?: string;
-      variables?: Record<string, string>;
+      identifier: string;
     },
   ) {
     return this.themesService.createGlobal(body);
   }
 
-  // PATCH /admin/themes/:id — update a global theme
+  // PATCH /admin/themes/:id — update a global theme's metadata
   @SuperAdminOnly()
   @Patch(':id')
   update(
@@ -38,13 +38,13 @@ export class AdminThemesController {
       name?: string;
       description?: string;
       thumbnail?: string;
-      variables?: Record<string, string>;
+      identifier?: string;
     },
   ) {
     return this.themesService.updateGlobal(id, body);
   }
 
-  // DELETE /admin/themes/:id — delete a global theme
+  // DELETE /admin/themes/:id — remove a global theme
   @SuperAdminOnly()
   @Delete(':id')
   delete(@Param('id') id: string) {

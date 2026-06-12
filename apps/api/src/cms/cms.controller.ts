@@ -154,7 +154,7 @@ export class CmsController {
   save(
     @CurrentOrg() orgId: string | null,
     @Param('slug') slug: string,
-    @Body() body: { content: string; publish?: boolean; layoutId?: string | null },
+    @Body() body: { content: string; publish?: boolean; layoutId?: string | null; themeId?: string | null },
   ) {
     return this.cmsService.savePage(requireOrg(orgId), slug, body);
   }

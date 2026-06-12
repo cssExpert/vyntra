@@ -5,7 +5,7 @@ interface ThemeDto {
   name?: string;
   description?: string;
   thumbnail?: string;
-  variables?: Record<string, string>;
+  identifier?: string;
 }
 
 @Injectable()
@@ -27,7 +27,7 @@ export class ThemesService {
         name: dto.name ?? 'Untitled Theme',
         description: dto.description,
         thumbnail: dto.thumbnail,
-        variables: (dto.variables ?? {}) as object,
+        identifier: dto.identifier ?? 'shopingo',
         isGlobal: true,
         orgId: null,
       },
@@ -43,7 +43,7 @@ export class ThemesService {
         ...(dto.name !== undefined && { name: dto.name }),
         ...(dto.description !== undefined && { description: dto.description }),
         ...(dto.thumbnail !== undefined && { thumbnail: dto.thumbnail }),
-        ...(dto.variables !== undefined && { variables: dto.variables as object }),
+        ...(dto.identifier !== undefined && { identifier: dto.identifier }),
       },
     });
   }
@@ -55,18 +55,16 @@ export class ThemesService {
     return { ok: true };
   }
 
-  // ── Org themes (org admin) ───────────────────────────────────────────────────
+  // ── Org themes (org admin — list + activate only) ────────────────────────────
 
   async listForOrg(orgId: string) {
-    const [global, custom, org] = await Promise.all([
+    const [global, org] = await Promise.all([
       this.prisma.theme.findMany({ where: { isGlobal: true }, orderBy: { createdAt: 'asc' } }),
-      this.prisma.theme.findMany({ where: { orgId, isGlobal: false }, orderBy: { createdAt: 'asc' } }),
       this.prisma.organization.findUnique({ where: { id: orgId }, select: { activeThemeId: true } }),
     ]);
     return {
       activeThemeId: org?.activeThemeId ?? null,
       global,
-      custom,
     };
   }
 
@@ -78,44 +76,9 @@ export class ThemesService {
     return org?.activeTheme ?? null;
   }
 
-  async createCustom(orgId: string, dto: ThemeDto) {
-    return this.prisma.theme.create({
-      data: {
-        name: dto.name ?? 'Custom Theme',
-        description: dto.description,
-        thumbnail: dto.thumbnail,
-        variables: (dto.variables ?? {}) as object,
-        isGlobal: false,
-        orgId,
-      },
-    });
-  }
-
-  async updateCustom(orgId: string, id: string, dto: ThemeDto) {
-    const theme = await this.prisma.theme.findFirst({ where: { id, orgId, isGlobal: false } });
-    if (!theme) throw new NotFoundException('Custom theme not found');
-    return this.prisma.theme.update({
-      where: { id },
-      data: {
-        ...(dto.name !== undefined && { name: dto.name }),
-        ...(dto.description !== undefined && { description: dto.description }),
-        ...(dto.thumbnail !== undefined && { thumbnail: dto.thumbnail }),
-        ...(dto.variables !== undefined && { variables: dto.variables as object }),
-      },
-    });
-  }
-
-  async deleteCustom(orgId: string, id: string) {
-    const theme = await this.prisma.theme.findFirst({ where: { id, orgId, isGlobal: false } });
-    if (!theme) throw new NotFoundException('Custom theme not found');
-    await this.prisma.theme.delete({ where: { id } });
-    return { ok: true };
-  }
-
   async activateTheme(orgId: string, id: string) {
-    // Theme must be global OR belong to this org
     const theme = await this.prisma.theme.findFirst({
-      where: { id, OR: [{ isGlobal: true }, { orgId }] },
+      where: { id, isGlobal: true },
     });
     if (!theme) throw new ForbiddenException('Theme not accessible');
     await this.prisma.organization.update({

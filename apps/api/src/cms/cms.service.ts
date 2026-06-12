@@ -39,8 +39,6 @@ interface LayoutDto {
   isDefault?: boolean;
   navMenuId?: string | null;
   footerColumns?: FooterColumn[];
-  headerVariant?: string;
-  footerVariant?: string;
 }
 
 @Injectable()
@@ -342,16 +340,18 @@ export class CmsService {
         publishedAt: true,
         isLandingPage: true,
         layoutId: true,
+        themeId: true,
+        theme: { select: { identifier: true } },
       },
     });
     if (!page) throw new NotFoundException('Page not found');
-    return page;
+    return { ...page, themeIdentifier: page.theme?.identifier ?? null };
   }
 
   async savePage(
     orgId: string,
     slug: string,
-    dto: { content: string; publish?: boolean; layoutId?: string | null },
+    dto: { content: string; publish?: boolean; layoutId?: string | null; themeId?: string | null },
   ) {
     const existing = await this.prisma.page.findFirst({
       where: { organizationId: orgId, slug },
@@ -362,6 +362,7 @@ export class CmsService {
       content: dto.content,
       ...(dto.publish ? { published: true, publishedAt: new Date() } : {}),
       ...('layoutId' in dto ? { layoutId: dto.layoutId ?? null } : {}),
+      ...('themeId' in dto ? { themeId: dto.themeId ?? null } : {}),
     };
 
     if (existing) {
@@ -440,8 +441,6 @@ export class CmsService {
         isDefault: dto.isDefault ?? false,
         navMenuId: dto.navMenuId ?? null,
         footerColumns: (dto.footerColumns ?? []) as object,
-        headerVariant: dto.headerVariant ?? 'minimal',
-        footerVariant: dto.footerVariant ?? 'columns',
         organizationId: orgId,
       },
     });
@@ -477,8 +476,6 @@ export class CmsService {
         ...(dto.footerColumns !== undefined && {
           footerColumns: dto.footerColumns as object,
         }),
-        ...(dto.headerVariant !== undefined && { headerVariant: dto.headerVariant }),
-        ...(dto.footerVariant !== undefined && { footerVariant: dto.footerVariant }),
       },
     });
   }

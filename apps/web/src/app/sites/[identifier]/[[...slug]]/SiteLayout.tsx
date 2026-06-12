@@ -29,8 +29,6 @@ interface OrgInfo {
 interface SiteLayoutData {
   navMenuId: string | null;
   footerColumns: { title: string; menuId: string }[];
-  headerVariant: string;
-  footerVariant: string;
 }
 
 async function fetchMenu(orgId: string, menuId: string): Promise<MenuItem[]> {
@@ -513,95 +511,126 @@ async function FooterDark({
   );
 }
 
-/** Shopingo-style: dark utility top bar + white main nav + cart icon */
+/** Shopingo-style: dark utility bar + white main navbar + category nav strip */
 async function NavbarShopingo({ org, items, activeLang }: { org: OrgInfo; items: MenuItem[]; activeLang: string }) {
   return (
-    <header className="sticky top-0 z-50">
-      {/* Top utility bar */}
-      {/*
-      <div style={{ backgroundColor: "var(--foreground, #212529)" }}>
-        <div className="max-w-6xl mx-auto px-6 h-9 flex items-center justify-between">
-          <span className="text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>
-            Free shipping on orders over $99
-          </span>
+    <header className="sticky top-0 z-50 shadow-sm">
+      {/* ── Utility bar ─────────────────────────────── */}
+      <div style={{ backgroundColor: "#212529" }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-9 flex items-center justify-between gap-4">
           <div className="flex items-center gap-5 text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>
-            <a href="/account" className="hover:text-white transition-colors" style={{ color: "inherit" }}>My Account</a>
-            <a href="/wishlist" className="hover:text-white transition-colors" style={{ color: "inherit" }}>Wishlist</a>
+            <span className="hidden sm:flex items-center gap-1.5">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.7 13.7a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l.81-.81a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
+              1800-000-0000
+            </span>
+            <span className="flex items-center gap-1.5">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
+              Free shipping on orders over $99
+            </span>
+          </div>
+          <div className="flex items-center gap-4 text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>
+            {/* Social icons */}
+            {[
+              { label: "Facebook", path: "M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" },
+              { label: "Twitter/X", path: "M22 4s-.7 2.1-2 3.4c1.6 17.1-8.6 26.9-18 26.9-4.3 0-8-.3-10.5-1.6 0 0 4.2 1.3 8.7-1.5-3.6-.5-6.3-4.1-7-7.6 1.1.5 2.7.4 3.8-.2C-4.6 22.2-7 17.4-7 12.6v-.3c1 .8 2.4 1.3 3.7 1.3C-7.7 11.1-8 4.6-5 0c3.9 5.7 9.7 9.4 16.3 9.8-.7-4.3 3.8-6.7 6.5-3.8 1.9-.4 3.6-1.4 5.2-2" },
+              { label: "Instagram", path: "M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37zM17.5 6.5h.01M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5z" },
+            ].map((s) => (
+              <a key={s.label} href="#" aria-label={s.label} className="transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.45)" }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d={s.path} />
+                </svg>
+              </a>
+            ))}
+            {(org.siteLanguages?.length ?? 0) > 1 && (
+              <SiteLanguageSwitcher orgId={org.id} available={org.siteLanguages!} defaultLang={org.defaultSiteLanguage ?? "en"} activeLang={activeLang} />
+            )}
           </div>
         </div>
       </div>
-      */}
 
-      {/* Main nav */}
-      <nav
-        style={{
-          backgroundColor: "var(--background, #ffffff)",
-          borderBottom: "1px solid var(--border, #e1e1e1)",
-        }}
-      >
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between gap-8">
-          <a
-            href="/"
-            className="text-xl font-bold tracking-tight shrink-0 transition-opacity hover:opacity-70"
-            style={{ fontFamily: "var(--font-heading, 'Raleway', sans-serif)", color: "var(--foreground, #212529)" }}
-          >
-            <OrgLogo org={org} />
+      {/* ── Main navbar ─────────────────────────────── */}
+      <div style={{ backgroundColor: "#ffffff", borderBottom: "1px solid #e1e1e1" }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-[70px] flex items-center gap-6">
+          {/* Logo */}
+          <a href="/" className="shrink-0 text-2xl font-extrabold tracking-tight" style={{ color: "#212529", fontFamily: "'Raleway', sans-serif" }}>
+            <OrgLogo org={org} className="h-10" />
           </a>
 
-          {items.length > 0 && (
-            <div className="flex items-center gap-7 flex-wrap">
-              {items.map((item) => (
-                <a
-                  key={item.id}
-                  href={item.url}
-                  target={item.target}
-                  rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
-                  className={["text-sm font-medium transition-opacity hover:opacity-60", visClass(item.visibility)].filter(Boolean).join(" ")}
-                  style={{ color: "var(--foreground, #323232)" }}
-                >
-                  {item.label}
-                </a>
-              ))}
-            </div>
-          )}
-
-          {/* Language + Theme toggle + Cart icon */}
-          <div className="flex items-center gap-3 shrink-0">
-            {(org.siteLanguages?.length ?? 0) > 1 && (
-              <SiteLanguageSwitcher
-                orgId={org.id}
-                available={org.siteLanguages!}
-                defaultLang={org.defaultSiteLanguage ?? "en"}
+          {/* Search bar */}
+          <div className="flex-1 hidden md:flex max-w-xl">
+            <div className="flex w-full border border-gray-200 rounded overflow-hidden">
+              <input
+                type="text"
+                placeholder="Search products…"
+                className="flex-1 px-4 py-2.5 text-sm outline-none text-gray-700 bg-white"
+                readOnly
               />
-            )}
-            {org.themeSwitcherEnabled && <SiteThemeToggle />}
-            <button
-              aria-label="Search"
-              className="p-1.5 transition-opacity hover:opacity-60"
-              style={{ color: "var(--foreground, #212529)" }}
-            >
+              <button className="px-5 py-2.5 text-white text-sm font-semibold shrink-0" style={{ backgroundColor: "#e4611e" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* Action icons */}
+          <div className="ml-auto flex items-center gap-1 shrink-0">
+            {/* Mobile search */}
+            <button className="md:hidden p-2.5 rounded-full hover:bg-gray-100 transition-colors" style={{ color: "#212529" }} aria-label="Search">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
               </svg>
             </button>
-            <button
-              aria-label="Cart"
-              className="relative p-1.5 transition-opacity hover:opacity-60"
-              style={{ color: "var(--foreground, #212529)" }}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            {/* Wishlist */}
+            <button className="p-2.5 rounded-full hover:bg-gray-100 transition-colors relative" style={{ color: "#212529" }} aria-label="Wishlist">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+            </button>
+            {/* Cart */}
+            <button className="p-2.5 rounded-full hover:bg-gray-100 transition-colors relative" style={{ color: "#212529" }} aria-label="Cart">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" />
                 <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
               </svg>
+              <span className="absolute top-1 right-1 w-4 h-4 rounded-full text-white flex items-center justify-center text-[9px] font-bold" style={{ backgroundColor: "#e4611e" }}>0</span>
             </button>
+            {org.themeSwitcherEnabled && <SiteThemeToggle />}
           </div>
         </div>
-      </nav>
+      </div>
+
+      {/* ── Category nav strip ──────────────────────── */}
+      {items.length > 0 && (
+        <div style={{ backgroundColor: "#ffffff", borderBottom: "2px solid #e1e1e1" }}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center gap-0 overflow-x-auto no-scrollbar">
+            {/* All Categories button */}
+            <div className="flex items-center gap-2 px-5 py-3.5 text-sm font-semibold text-white shrink-0 mr-2" style={{ backgroundColor: "#e4611e" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+              All Categories
+            </div>
+            {items.map((item) => (
+              <a
+                key={item.id}
+                href={item.url}
+                target={item.target}
+                rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
+                className={["px-4 py-3.5 text-sm font-medium whitespace-nowrap transition-colors hover:text-orange-600", visClass(item.visibility)].filter(Boolean).join(" ")}
+                style={{ color: "#4a4a4a" }}
+              >
+                {item.label}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
     </header>
   );
 }
 
-/** Shopingo-style: newsletter strip (dark) + columns (light) + bottom bar (dark) */
+/** Shopingo-style: newsletter strip + columns with brand col + bottom bar */
 async function FooterShopingo({
   org,
   columns,
@@ -612,100 +641,108 @@ async function FooterShopingo({
   columnMenus: MenuItem[][];
 }) {
   const colCount = columns.length;
+  const SOCIAL = [
+    { label: "Facebook", path: "M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" },
+    { label: "Twitter", path: "M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z" },
+    { label: "Instagram", path: "M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37zM17.5 6.5h.01M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5z" },
+    { label: "YouTube", path: "M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58zM9.75 15.02V8.98L15.5 12l-5.75 3.02z" },
+  ];
 
   return (
-    <footer className="mt-24">
-      {/* Newsletter strip */}
-      <div style={{ backgroundColor: "var(--foreground, #212529)" }}>
-        <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+    <footer>
+      {/* ── Newsletter strip ────────────────────────── */}
+      <div style={{ backgroundColor: "#212529" }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div>
-            <p className="text-lg font-bold" style={{ fontFamily: "var(--font-heading, 'Raleway', sans-serif)", color: "var(--background, #ffffff)" }}>
-              Get Latest Updates
-            </p>
+            <p className="text-lg font-bold text-white">Get Latest Updates</p>
             <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>
-              Subscribe to our newsletter for the latest offers
+              Subscribe to our newsletter for the latest offers &amp; deals
             </p>
           </div>
-          <div className="flex w-full sm:w-auto max-w-sm">
+          <div className="flex w-full sm:w-auto max-w-sm overflow-hidden border border-white/20 rounded">
             <input
               type="email"
               placeholder="Enter your email address"
-              className="flex-1 px-4 py-2.5 text-sm outline-none"
-              style={{
-                backgroundColor: "var(--background, #ffffff)",
-                color: "var(--foreground, #212529)",
-                border: "none",
-              }}
+              className="flex-1 px-4 py-2.5 text-sm outline-none bg-white text-gray-800"
+              readOnly
             />
-            <button
-              className="px-5 py-2.5 text-sm font-semibold shrink-0 transition-opacity hover:opacity-85"
-              style={{
-                backgroundColor: "var(--accent, #ff2c2c)",
-                color: "#ffffff",
-              }}
-            >
+            <button className="px-5 py-2.5 text-sm font-semibold text-white shrink-0" style={{ backgroundColor: "#e4611e" }}>
               Subscribe
             </button>
           </div>
         </div>
       </div>
 
-      {/* Columns section */}
-      <div
-        style={{
-          backgroundColor: "var(--muted, #f9f9f9)",
-          borderTop: "1px solid var(--border, #e1e1e1)",
-          borderBottom: "1px solid var(--border, #e1e1e1)",
-        }}
-      >
-        <div className="max-w-6xl mx-auto px-6 py-14">
-          {colCount > 0 && (
-            <div className={`grid gap-10 ${gridClass(colCount)}`}>
-              {columns.map((col, i) => {
-                const items = columnMenus[i] ?? [];
-                return (
-                  <div key={i}>
-                    {col.title && (
-                      <h4
-                        className="text-sm font-bold uppercase tracking-widest mb-4"
-                        style={{ fontFamily: "var(--font-heading, 'Raleway', sans-serif)", color: "var(--foreground, #212529)" }}
-                      >
-                        {col.title}
-                      </h4>
-                    )}
-                    <ul className="space-y-2.5">
-                      {items.map((item) => (
-                        <li key={item.id}>
-                          <a
-                            href={item.url}
-                            target={item.target}
-                            rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
-                            className={["text-sm transition-colors hover:text-foreground", visClass(item.visibility)].filter(Boolean).join(" ")}
-                            style={{ color: "var(--muted-foreground, #636363)" }}
-                          >
-                            {item.label}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                );
-              })}
+      {/* ── Main columns ─────────────────────────────── */}
+      <div style={{ backgroundColor: "#f5f5f5", borderTop: "1px solid #e1e1e1", borderBottom: "1px solid #e1e1e1" }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
+          <div className={`grid gap-10 ${colCount > 0 ? gridClass(colCount + 1) : "grid-cols-1"}`}>
+            {/* Brand column */}
+            <div>
+              <a href="/" className="block mb-4">
+                <OrgLogo org={org} className="h-10" />
+              </a>
+              <p className="text-sm leading-relaxed mb-5" style={{ color: "#636363" }}>
+                Your one-stop destination for quality products at great prices. Shop with confidence.
+              </p>
+              <div className="flex items-center gap-3">
+                {SOCIAL.map((s) => (
+                  <a
+                    key={s.label}
+                    href="#"
+                    aria-label={s.label}
+                    className="w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-orange-600 hover:text-white"
+                    style={{ backgroundColor: "#212529", color: "rgba(255,255,255,0.7)" }}
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d={s.path} />
+                    </svg>
+                  </a>
+                ))}
+              </div>
             </div>
-          )}
-          {colCount === 0 && (
-            <p className="text-center text-sm" style={{ color: "var(--muted-foreground, #797979)" }}>
-              {org.name}
-            </p>
-          )}
+
+            {/* Link columns */}
+            {columns.map((col, i) => {
+              const items = columnMenus[i] ?? [];
+              return (
+                <div key={i}>
+                  {col.title && (
+                    <h4 className="text-sm font-bold uppercase tracking-widest mb-4" style={{ color: "#212529", fontFamily: "'Raleway', sans-serif" }}>
+                      {col.title}
+                    </h4>
+                  )}
+                  <ul className="space-y-2.5">
+                    {items.map((item) => (
+                      <li key={item.id}>
+                        <a
+                          href={item.url}
+                          target={item.target}
+                          rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
+                          className={["text-sm transition-colors hover:text-orange-600", visClass(item.visibility)].filter(Boolean).join(" ")}
+                          style={{ color: "#636363" }}
+                        >
+                          {item.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Bottom bar */}
-      <div style={{ backgroundColor: "var(--foreground, #212529)" }}>
-        <div className="max-w-6xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
+      {/* ── Bottom bar ───────────────────────────────── */}
+      <div style={{ backgroundColor: "#212529" }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
           <span>© {new Date().getFullYear()} {org.name}. All Rights Reserved.</span>
-          <span>Powered by Vyntra</span>
+          <div className="flex items-center gap-4">
+            <a href="/privacy" className="hover:text-white transition-colors" style={{ color: "inherit" }}>Privacy Policy</a>
+            <a href="/terms" className="hover:text-white transition-colors" style={{ color: "inherit" }}>Terms of Use</a>
+            <span>Powered by Vyntra</span>
+          </div>
         </div>
       </div>
     </footer>
@@ -717,9 +754,11 @@ async function FooterShopingo({
 export async function SiteNavbar({
   org,
   layout,
+  themeIdentifier,
 }: {
   org: OrgInfo;
   layout: SiteLayoutData;
+  themeIdentifier?: string;
 }) {
   const cookieStore = await cookies();
   const rawLang = cookieStore.get("vyntra_site_lang")?.value;
@@ -729,13 +768,7 @@ export async function SiteNavbar({
 
   const items = layout.navMenuId ? await fetchMenu(org.id, layout.navMenuId) : [];
 
-  switch (layout.headerVariant) {
-    case "centered":
-      return <NavbarCentered org={org} items={items} activeLang={activeLang} />;
-    case "split":
-      return <NavbarSplit org={org} items={items} activeLang={activeLang} />;
-    case "dark":
-      return <NavbarDark org={org} items={items} activeLang={activeLang} />;
+  switch (themeIdentifier) {
     case "shopingo":
       return <NavbarShopingo org={org} items={items} activeLang={activeLang} />;
     default:
@@ -746,22 +779,18 @@ export async function SiteNavbar({
 export async function SiteFooter({
   org,
   layout,
+  themeIdentifier,
 }: {
   org: OrgInfo;
   layout: SiteLayoutData;
+  themeIdentifier?: string;
 }) {
   const columns = layout.footerColumns.filter((c) => c.menuId);
   const columnMenus = await Promise.all(
     columns.map((col) => fetchMenu(org.id, col.menuId)),
   );
 
-  switch (layout.footerVariant) {
-    case "simple":
-      return <FooterSimple org={org} />;
-    case "centered":
-      return <FooterCentered org={org} columns={columns} columnMenus={columnMenus} />;
-    case "dark":
-      return <FooterDark org={org} columns={columns} columnMenus={columnMenus} />;
+  switch (themeIdentifier) {
     case "shopingo":
       return <FooterShopingo org={org} columns={columns} columnMenus={columnMenus} />;
     default:

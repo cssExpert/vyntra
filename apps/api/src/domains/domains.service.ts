@@ -223,10 +223,13 @@ export class DomainsService {
         publishedAt: true,
         updatedAt: true,
         layoutId: true,
+        themeId: true,
+        theme: { select: { identifier: true } },
       },
     });
     if (!page) throw new NotFoundException('No landing page configured');
-    return this.applyTranslation(page, lang);
+    const translated = await this.applyTranslation(page, lang);
+    return { ...translated, themeIdentifier: page.theme?.identifier ?? null };
   }
 
   async getPublishedPages(orgId: string, lang?: string) {
@@ -266,10 +269,13 @@ export class DomainsService {
         publishedAt: true,
         updatedAt: true,
         layoutId: true,
+        themeId: true,
+        theme: { select: { identifier: true } },
       },
     });
     if (!page) throw new NotFoundException('Page not found');
-    return this.applyTranslation(page, lang);
+    const translated = await this.applyTranslation(page, lang);
+    return { ...translated, themeIdentifier: page.theme?.identifier ?? null };
   }
 
   private async applyTranslation<T extends { id: string; title: string; content?: string | null; metaDesc?: string | null; metaKeywords?: string | null }>(
@@ -302,8 +308,6 @@ export class DomainsService {
       id: layout?.id ?? null,
       navMenuId: layout?.navMenuId ?? null,
       footerColumns: (layout?.footerColumns ?? []) as { title: string; menuId: string }[],
-      headerVariant: layout?.headerVariant ?? 'minimal',
-      footerVariant: layout?.footerVariant ?? 'columns',
     };
   }
 
@@ -311,8 +315,8 @@ export class DomainsService {
     // Preview mode: return a specific theme regardless of active setting
     if (previewId) {
       const preview = await this.prisma.theme.findFirst({
-        where: { id: previewId, OR: [{ isGlobal: true }, { orgId }] },
-        select: { id: true, name: true, variables: true },
+        where: { id: previewId, isGlobal: true },
+        select: { id: true, name: true, identifier: true },
       });
       if (preview) return preview;
     }
@@ -321,7 +325,7 @@ export class DomainsService {
       where: { id: orgId },
       select: {
         activeTheme: {
-          select: { id: true, name: true, variables: true },
+          select: { id: true, name: true, identifier: true },
         },
       },
     });
@@ -334,10 +338,10 @@ export class DomainsService {
     const fallback = await this.prisma.theme.findFirst({
       where: { isGlobal: true },
       orderBy: { createdAt: 'asc' },
-      select: { id: true, name: true, variables: true },
+      select: { id: true, name: true, identifier: true },
     });
 
-    return fallback ?? { id: null, name: 'Default', variables: {} };
+    return fallback ?? { id: null, name: 'Default', identifier: 'shopingo' };
   }
 
   async getPublicMenu(orgId: string, menuId: string) {
