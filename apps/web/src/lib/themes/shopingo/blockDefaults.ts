@@ -54,6 +54,21 @@ export const BLOCK_META: Record<
     description: "Embed any raw HTML / script snippet",
     icon: "html",
   },
+  "page-header": {
+    label: "Page Header",
+    description: "Dark page title banner with breadcrumb navigation",
+    icon: "header",
+  },
+  "text-image": {
+    label: "Text + Image",
+    description: "Two-column section with heading, paragraphs and an image",
+    icon: "text-image",
+  },
+  "contact-form": {
+    label: "Contact Form",
+    description: "Contact form with info panel, business hours and optional map",
+    icon: "contact",
+  },
 };
 
 export const BLOCK_DEFAULTS: BlockDataMap = {
@@ -147,5 +162,41 @@ export const BLOCK_DEFAULTS: BlockDataMap = {
   },
   "custom-html": {
     html: "<!-- Paste your HTML here -->",
+  },
+  "page-header": {
+    title: "Page Title",
+    subtitle: "",
+    breadcrumbs: [
+      { label: "Home", url: "/" },
+      { label: "Page Title", url: "#" },
+    ],
+    backgroundImage: "",
+  },
+  "text-image": {
+    heading: "Our Story",
+    paragraphs: [
+      "We started with a simple idea — make quality products accessible to everyone.",
+      "Today we serve thousands of happy customers across the world with fast, reliable delivery.",
+      "Our team is passionate about curating the best products at the fairest prices.",
+    ],
+    image: "",
+    imagePosition: "right",
+    ctaText: "Shop Now",
+    ctaUrl: "/shop",
+  },
+  "contact-form": {
+    formTitle: "Send Us a Message",
+    formSubtitle: "Fill out the form and we'll get back to you within 24 hours.",
+    infoTitle: "Contact Information",
+    address: "123 Commerce Street\nNew York, NY 10001\nUnited States",
+    phone: "+1 (800) 123-4567",
+    email: "hello@yourstore.com",
+    hours: [
+      { day: "Monday – Friday", time: "9:00 AM – 6:00 PM" },
+      { day: "Saturday", time: "10:00 AM – 4:00 PM" },
+      { day: "Sunday", time: "Closed" },
+    ],
+    mapEmbedUrl: "",
+    subjects: ["Order Inquiry", "Return & Refund", "Product Question", "Partnership", "Other"],
   },
 };

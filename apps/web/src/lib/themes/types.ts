@@ -10,7 +10,10 @@ export type BlockType =
   | "category-grid"
   | "newsletter"
   | "blog-section"
-  | "custom-html";
+  | "custom-html"
+  | "page-header"
+  | "text-image"
+  | "contact-form";
 
 export interface Block<T = Record<string, unknown>> {
   id: string;
@@ -130,6 +133,44 @@ export interface CustomHtmlData {
   html: string;
 }
 
+export interface BreadcrumbItem {
+  label: string;
+  url: string;
+}
+
+export interface PageHeaderData {
+  title: string;
+  subtitle?: string;
+  breadcrumbs?: BreadcrumbItem[];
+  backgroundImage?: string;
+}
+
+export interface TextImageData {
+  heading: string;
+  paragraphs: string[];
+  image?: string;
+  imagePosition?: "left" | "right";
+  ctaText?: string;
+  ctaUrl?: string;
+}
+
+export interface BusinessHour {
+  day: string;
+  time: string;
+}
+
+export interface ContactFormData {
+  formTitle?: string;
+  formSubtitle?: string;
+  infoTitle?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  hours?: BusinessHour[];
+  mapEmbedUrl?: string;
+  subjects?: string[];
+}
+
 // ── Map: BlockType → its data shape ──────────────────────────────────────────
 
 export interface BlockDataMap {
@@ -143,6 +184,9 @@ export interface BlockDataMap {
   "newsletter": NewsletterData;
   "blog-section": BlogSectionData;
   "custom-html": CustomHtmlData;
+  "page-header": PageHeaderData;
+  "text-image": TextImageData;
+  "contact-form": ContactFormData;
 }
 
 export type TypedBlock = {

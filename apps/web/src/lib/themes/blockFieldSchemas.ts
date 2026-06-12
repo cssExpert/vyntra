@@ -295,4 +295,130 @@ export const BLOCK_SCHEMAS: Record<string, BlockSection[]> = {
     },
   ],
 
+  'page-header': [
+    {
+      title: 'Content',
+      fields: [
+        { type: 'text',  key: 'title',           label: 'Page Title',        placeholder: 'About Us' },
+        { type: 'text',  key: 'subtitle',         label: 'Subtitle',          placeholder: 'Optional tagline' },
+        { type: 'image', key: 'backgroundImage',  label: 'Background Image (optional)' },
+      ],
+    },
+    {
+      title: 'Breadcrumbs',
+      defaultOpen: false,
+      fields: [
+        {
+          type: 'array',
+          key: 'breadcrumbs',
+          label: 'Breadcrumb Items',
+          itemLabel: 'Crumb',
+          addLabel: 'Add Crumb',
+          defaultItem: { label: 'Page', url: '#' },
+          fields: [
+            { type: 'text', key: 'label', label: 'Label', placeholder: 'About Us' },
+            { type: 'url',  key: 'url',   label: 'URL',   placeholder: '/about-us' },
+          ],
+        },
+      ],
+    },
+  ],
+
+  'text-image': [
+    {
+      title: 'Content',
+      fields: [
+        { type: 'text',     key: 'heading',       label: 'Heading',        placeholder: 'Our Story' },
+        { type: 'select',   key: 'imagePosition', label: 'Image Position',
+          options: [{ value: 'right', label: 'Right' }, { value: 'left', label: 'Left' }] },
+        { type: 'image',    key: 'image',         label: 'Image' },
+      ],
+    },
+    {
+      title: 'Paragraphs',
+      fields: [
+        {
+          type: 'array',
+          key: 'paragraphs',
+          label: 'Text Paragraphs',
+          itemLabel: 'Paragraph',
+          addLabel: 'Add Paragraph',
+          defaultItem: 'New paragraph text.',
+          fields: [
+            { type: 'textarea', key: '', label: 'Text', rows: 3, placeholder: 'Paragraph text…' },
+          ],
+        },
+      ],
+    },
+    {
+      title: 'Call to Action',
+      defaultOpen: false,
+      fields: [
+        { type: 'text', key: 'ctaText', label: 'Button Text', placeholder: 'Shop Now' },
+        { type: 'url',  key: 'ctaUrl',  label: 'Button URL',  placeholder: '/shop' },
+      ],
+    },
+  ],
+
+  'contact-form': [
+    {
+      title: 'Form',
+      fields: [
+        { type: 'text',     key: 'formTitle',    label: 'Form Heading',  placeholder: 'Send Us a Message' },
+        { type: 'text',     key: 'formSubtitle', label: 'Form Subtitle', placeholder: "We'll get back to you within 24 hours." },
+      ],
+    },
+    {
+      title: 'Contact Info',
+      fields: [
+        { type: 'text',     key: 'infoTitle', label: 'Section Heading', placeholder: 'Contact Information' },
+        { type: 'textarea', key: 'address',   label: 'Address',         placeholder: '123 Commerce St\nNew York, NY', rows: 3 },
+        { type: 'text',     key: 'phone',     label: 'Phone',           placeholder: '+1 (800) 123-4567' },
+        { type: 'text',     key: 'email',     label: 'Email',           placeholder: 'hello@yourstore.com' },
+      ],
+    },
+    {
+      title: 'Business Hours',
+      defaultOpen: false,
+      fields: [
+        {
+          type: 'array',
+          key: 'hours',
+          label: 'Hours',
+          itemLabel: 'Row',
+          addLabel: 'Add Row',
+          defaultItem: { day: 'Monday – Friday', time: '9:00 AM – 6:00 PM' },
+          fields: [
+            { type: 'text', key: 'day',  label: 'Day',  placeholder: 'Monday – Friday' },
+            { type: 'text', key: 'time', label: 'Time', placeholder: '9:00 AM – 6:00 PM' },
+          ],
+        },
+      ],
+    },
+    {
+      title: 'Map',
+      defaultOpen: false,
+      fields: [
+        { type: 'url', key: 'mapEmbedUrl', label: 'Google Maps Embed URL', placeholder: 'https://www.google.com/maps/embed?pb=...' },
+      ],
+    },
+    {
+      title: 'Form Subjects',
+      defaultOpen: false,
+      fields: [
+        {
+          type: 'array',
+          key: 'subjects',
+          label: 'Subject Options',
+          itemLabel: 'Option',
+          addLabel: 'Add Option',
+          defaultItem: 'New Subject',
+          fields: [
+            { type: 'text', key: '', label: 'Option Label', placeholder: 'Order Inquiry' },
+          ],
+        },
+      ],
+    },
+  ],
+
 };

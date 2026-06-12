@@ -12,6 +12,9 @@ import ShopingoCategoryGrid from "./shopingo/blocks/CategoryGrid";
 import ShopingoNewsletter from "./shopingo/blocks/Newsletter";
 import ShopingoBlogSection from "./shopingo/blocks/BlogSection";
 import ShopingoCustomHtml from "./shopingo/blocks/CustomHtml";
+import ShopingoPageHeader from "./shopingo/blocks/PageHeader";
+import ShopingoTextImage from "./shopingo/blocks/TextImage";
+import ShopingoContactForm from "./shopingo/blocks/ContactForm";
 
 // ── Common (fallback) blocks ───────────────────────────────────────────────────
 import CommonHeroCarousel from "./common/blocks/HeroCarousel";
@@ -24,6 +27,9 @@ import CommonCategoryGrid from "./common/blocks/CategoryGrid";
 import CommonNewsletter from "./common/blocks/Newsletter";
 import CommonBlogSection from "./common/blocks/BlogSection";
 import CommonCustomHtml from "./common/blocks/CustomHtml";
+import CommonPageHeader from "./common/blocks/PageHeader";
+import CommonTextImage from "./common/blocks/TextImage";
+import CommonContactForm from "./common/blocks/ContactForm";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyBlockComponent = ComponentType<{ data: any }>;
@@ -39,6 +45,9 @@ const COMMON_BLOCKS: Record<BlockType, AnyBlockComponent> = {
   "newsletter": CommonNewsletter,
   "blog-section": CommonBlogSection,
   "custom-html": CommonCustomHtml,
+  "page-header": CommonPageHeader,
+  "text-image": CommonTextImage,
+  "contact-form": CommonContactForm,
 };
 
 const THEME_BLOCKS: Record<string, Partial<Record<BlockType, AnyBlockComponent>>> = {
@@ -53,6 +62,9 @@ const THEME_BLOCKS: Record<string, Partial<Record<BlockType, AnyBlockComponent>>
     "newsletter": ShopingoNewsletter,
     "blog-section": ShopingoBlogSection,
     "custom-html": ShopingoCustomHtml,
+    "page-header": ShopingoPageHeader,
+    "text-image": ShopingoTextImage,
+    "contact-form": ShopingoContactForm,
   },
 };
 
