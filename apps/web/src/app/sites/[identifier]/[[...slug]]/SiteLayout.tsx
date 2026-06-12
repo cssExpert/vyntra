@@ -511,14 +511,14 @@ async function FooterDark({
   );
 }
 
-/** Shopingo-style: dark utility bar + white main navbar + category nav strip */
+/** Shopingo-style: dark utility bar + white/dark main navbar + category nav strip */
 async function NavbarShopingo({ org, items, activeLang }: { org: OrgInfo; items: MenuItem[]; activeLang: string }) {
   return (
     <header className="sticky top-0 z-50 shadow-sm">
-      {/* ── Utility bar ─────────────────────────────── */}
-      <div style={{ backgroundColor: "#212529" }}>
+      {/* ── Utility bar — always dark ────────────────── */}
+      <div className="bg-[#1e2226]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-9 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-5 text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>
+          <div className="flex items-center gap-5 text-xs text-white/55">
             <span className="hidden sm:flex items-center gap-1.5">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.7 13.7a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l.81-.81a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
               1800-000-0000
@@ -528,14 +528,13 @@ async function NavbarShopingo({ org, items, activeLang }: { org: OrgInfo; items:
               Free shipping on orders over $99
             </span>
           </div>
-          <div className="flex items-center gap-4 text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>
-            {/* Social icons */}
+          <div className="flex items-center gap-3">
             {[
               { label: "Facebook", path: "M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" },
               { label: "Twitter/X", path: "M22 4s-.7 2.1-2 3.4c1.6 17.1-8.6 26.9-18 26.9-4.3 0-8-.3-10.5-1.6 0 0 4.2 1.3 8.7-1.5-3.6-.5-6.3-4.1-7-7.6 1.1.5 2.7.4 3.8-.2C-4.6 22.2-7 17.4-7 12.6v-.3c1 .8 2.4 1.3 3.7 1.3C-7.7 11.1-8 4.6-5 0c3.9 5.7 9.7 9.4 16.3 9.8-.7-4.3 3.8-6.7 6.5-3.8 1.9-.4 3.6-1.4 5.2-2" },
               { label: "Instagram", path: "M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37zM17.5 6.5h.01M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5z" },
             ].map((s) => (
-              <a key={s.label} href="#" aria-label={s.label} className="transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.45)" }}>
+              <a key={s.label} href="#" aria-label={s.label} className="text-white/45 hover:text-white transition-colors">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d={s.path} />
                 </svg>
@@ -549,23 +548,23 @@ async function NavbarShopingo({ org, items, activeLang }: { org: OrgInfo; items:
       </div>
 
       {/* ── Main navbar ─────────────────────────────── */}
-      <div style={{ backgroundColor: "#ffffff", borderBottom: "1px solid #e1e1e1" }}>
+      <div className="bg-white dark:bg-[#1c1c1e] border-b border-gray-200 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-[70px] flex items-center gap-6">
           {/* Logo */}
-          <a href="/" className="shrink-0 text-2xl font-extrabold tracking-tight" style={{ color: "#212529", fontFamily: "'Raleway', sans-serif" }}>
+          <a href="/" className="shrink-0 text-2xl font-extrabold tracking-tight text-[#212529] dark:text-white" style={{ fontFamily: "'Raleway', sans-serif" }}>
             <OrgLogo org={org} className="h-10" />
           </a>
 
           {/* Search bar */}
           <div className="flex-1 hidden md:flex max-w-xl">
-            <div className="flex w-full border border-gray-200 rounded overflow-hidden">
+            <div className="flex w-full border border-gray-200 dark:border-gray-700 rounded overflow-hidden">
               <input
                 type="text"
                 placeholder="Search products…"
-                className="flex-1 px-4 py-2.5 text-sm outline-none text-gray-700 bg-white"
+                className="flex-1 px-4 py-2.5 text-sm outline-none text-gray-700 dark:text-gray-200 bg-white dark:bg-[#2a2a2e] placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 readOnly
               />
-              <button className="px-5 py-2.5 text-white text-sm font-semibold shrink-0" style={{ backgroundColor: "#e4611e" }}>
+              <button className="px-5 py-2.5 text-white text-sm font-semibold shrink-0 bg-[#e4611e] hover:bg-[#cf5519] transition-colors">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
                 </svg>
@@ -574,38 +573,42 @@ async function NavbarShopingo({ org, items, activeLang }: { org: OrgInfo; items:
           </div>
 
           {/* Action icons */}
-          <div className="ml-auto flex items-center gap-1 shrink-0">
+          <div className="ml-auto flex items-center gap-0.5 shrink-0 text-[#212529] dark:text-gray-100">
             {/* Mobile search */}
-            <button className="md:hidden p-2.5 rounded-full hover:bg-gray-100 transition-colors" style={{ color: "#212529" }} aria-label="Search">
+            <button className="md:hidden p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="Search">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
               </svg>
             </button>
             {/* Wishlist */}
-            <button className="p-2.5 rounded-full hover:bg-gray-100 transition-colors relative" style={{ color: "#212529" }} aria-label="Wishlist">
+            <button className="p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors relative" aria-label="Wishlist">
               <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
             </button>
             {/* Cart */}
-            <button className="p-2.5 rounded-full hover:bg-gray-100 transition-colors relative" style={{ color: "#212529" }} aria-label="Cart">
+            <button className="p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors relative" aria-label="Cart">
               <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" />
                 <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
               </svg>
-              <span className="absolute top-1 right-1 w-4 h-4 rounded-full text-white flex items-center justify-center text-[9px] font-bold" style={{ backgroundColor: "#e4611e" }}>0</span>
+              <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-[#e4611e] text-white flex items-center justify-center text-[9px] font-bold">0</span>
             </button>
-            {org.themeSwitcherEnabled && <SiteThemeToggle />}
+            {/* Theme switcher */}
+            {org.themeSwitcherEnabled && (
+              <div className="ml-1">
+                <SiteThemeToggle />
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* ── Category nav strip ──────────────────────── */}
       {items.length > 0 && (
-        <div style={{ backgroundColor: "#ffffff", borderBottom: "2px solid #e1e1e1" }}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center gap-0 overflow-x-auto no-scrollbar">
-            {/* All Categories button */}
-            <div className="flex items-center gap-2 px-5 py-3.5 text-sm font-semibold text-white shrink-0 mr-2" style={{ backgroundColor: "#e4611e" }}>
+        <div className="bg-white dark:bg-[#1c1c1e] border-b-2 border-gray-200 dark:border-gray-800">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center overflow-x-auto no-scrollbar">
+            <div className="flex items-center gap-2 px-5 py-3.5 text-sm font-semibold text-white shrink-0 mr-2 bg-[#e4611e]">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
               </svg>
@@ -617,8 +620,7 @@ async function NavbarShopingo({ org, items, activeLang }: { org: OrgInfo; items:
                 href={item.url}
                 target={item.target}
                 rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
-                className={["px-4 py-3.5 text-sm font-medium whitespace-nowrap transition-colors hover:text-orange-600", visClass(item.visibility)].filter(Boolean).join(" ")}
-                style={{ color: "#4a4a4a" }}
+                className={["px-4 py-3.5 text-sm font-medium whitespace-nowrap transition-colors text-[#4a4a4a] dark:text-gray-300 hover:text-[#e4611e] dark:hover:text-[#e4611e]", visClass(item.visibility)].filter(Boolean).join(" ")}
               >
                 {item.label}
               </a>
@@ -650,12 +652,12 @@ async function FooterShopingo({
 
   return (
     <footer>
-      {/* ── Newsletter strip ────────────────────────── */}
-      <div style={{ backgroundColor: "#212529" }}>
+      {/* ── Newsletter strip — always dark ───────────── */}
+      <div className="bg-[#1e2226]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div>
             <p className="text-lg font-bold text-white">Get Latest Updates</p>
-            <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>
+            <p className="text-sm mt-1 text-white/50">
               Subscribe to our newsletter for the latest offers &amp; deals
             </p>
           </div>
@@ -663,10 +665,10 @@ async function FooterShopingo({
             <input
               type="email"
               placeholder="Enter your email address"
-              className="flex-1 px-4 py-2.5 text-sm outline-none bg-white text-gray-800"
+              className="flex-1 px-4 py-2.5 text-sm outline-none bg-white dark:bg-[#2a2a2e] text-gray-800 dark:text-gray-100 placeholder:text-gray-400"
               readOnly
             />
-            <button className="px-5 py-2.5 text-sm font-semibold text-white shrink-0" style={{ backgroundColor: "#e4611e" }}>
+            <button className="px-5 py-2.5 text-sm font-semibold text-white shrink-0 bg-[#e4611e] hover:bg-[#cf5519] transition-colors">
               Subscribe
             </button>
           </div>
@@ -674,7 +676,7 @@ async function FooterShopingo({
       </div>
 
       {/* ── Main columns ─────────────────────────────── */}
-      <div style={{ backgroundColor: "#f5f5f5", borderTop: "1px solid #e1e1e1", borderBottom: "1px solid #e1e1e1" }}>
+      <div className="bg-[#f7f7f7] dark:bg-[#151518] border-t border-b border-[#e8e8e8] dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
           <div className={`grid gap-10 ${colCount > 0 ? gridClass(colCount + 1) : "grid-cols-1"}`}>
             {/* Brand column */}
@@ -682,17 +684,16 @@ async function FooterShopingo({
               <a href="/" className="block mb-4">
                 <OrgLogo org={org} className="h-10" />
               </a>
-              <p className="text-sm leading-relaxed mb-5" style={{ color: "#636363" }}>
+              <p className="text-sm leading-relaxed mb-5 text-[#636363] dark:text-gray-400">
                 Your one-stop destination for quality products at great prices. Shop with confidence.
               </p>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5">
                 {SOCIAL.map((s) => (
                   <a
                     key={s.label}
                     href="#"
                     aria-label={s.label}
-                    className="w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-orange-600 hover:text-white"
-                    style={{ backgroundColor: "#212529", color: "rgba(255,255,255,0.7)" }}
+                    className="w-8 h-8 rounded-full flex items-center justify-center transition-colors bg-[#212529] dark:bg-gray-700 text-white/70 hover:bg-[#e4611e] hover:text-white"
                   >
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d={s.path} />
@@ -708,7 +709,7 @@ async function FooterShopingo({
               return (
                 <div key={i}>
                   {col.title && (
-                    <h4 className="text-sm font-bold uppercase tracking-widest mb-4" style={{ color: "#212529", fontFamily: "'Raleway', sans-serif" }}>
+                    <h4 className="text-sm font-bold uppercase tracking-widest mb-4 text-[#212529] dark:text-white" style={{ fontFamily: "'Raleway', sans-serif" }}>
                       {col.title}
                     </h4>
                   )}
@@ -719,8 +720,7 @@ async function FooterShopingo({
                           href={item.url}
                           target={item.target}
                           rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
-                          className={["text-sm transition-colors hover:text-orange-600", visClass(item.visibility)].filter(Boolean).join(" ")}
-                          style={{ color: "#636363" }}
+                          className={["text-sm transition-colors text-[#636363] dark:text-gray-400 hover:text-[#e4611e] dark:hover:text-[#e4611e]", visClass(item.visibility)].filter(Boolean).join(" ")}
                         >
                           {item.label}
                         </a>
@@ -734,13 +734,13 @@ async function FooterShopingo({
         </div>
       </div>
 
-      {/* ── Bottom bar ───────────────────────────────── */}
-      <div style={{ backgroundColor: "#212529" }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
+      {/* ── Bottom bar — always dark ─────────────────── */}
+      <div className="bg-[#1e2226]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-white/45">
           <span>© {new Date().getFullYear()} {org.name}. All Rights Reserved.</span>
           <div className="flex items-center gap-4">
-            <a href="/privacy" className="hover:text-white transition-colors" style={{ color: "inherit" }}>Privacy Policy</a>
-            <a href="/terms" className="hover:text-white transition-colors" style={{ color: "inherit" }}>Terms of Use</a>
+            <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
+            <a href="/terms" className="hover:text-white transition-colors">Terms of Use</a>
             <span>Powered by Vyntra</span>
           </div>
         </div>
