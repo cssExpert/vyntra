@@ -20,19 +20,18 @@ import { SeoSitemaps } from "./SeoSitemaps";
 import { SeoSerp } from "./SeoSerp";
 import { MotionTabs, type MotionTabItem } from "@/components/ui/MotionTabs";
 
-const TABS: MotionTabItem<TabId>[] = [
-  { id: "dashboard", label: "Dashboard",          icon: TrendingUp },
-  { id: "keywords",  label: "Keyword Explorer",   icon: Search },
-  { id: "metatags",  label: "Meta Tag Architect",  icon: FileCode },
-  { id: "sitemaps",  label: "Sitemap Creator",     icon: Map },
-  { id: "serp",      label: "SERP Simulator",      icon: Sliders },
-];
-
 export function SeoView() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("seo");
   const [activeTab, setActiveTab] = useState<TabId>("dashboard");
   const [notification, setNotification] = useState<Notification | null>(null);
+
+  const TABS: MotionTabItem<TabId>[] = [
+    { id: "dashboard", label: t("tabs.dashboard"), icon: TrendingUp },
+    { id: "keywords", label: t("tabs.keywords"), icon: Search },
+    { id: "metatags", label: t("tabs.metatags"), icon: FileCode },
+    { id: "sitemaps", label: t("tabs.sitemaps"), icon: Map },
+    { id: "serp", label: t("tabs.serp"), icon: Sliders },
+  ];
 
   const showNotification = (
     message: string,
@@ -42,9 +41,9 @@ export function SeoView() {
     setTimeout(() => setNotification(null), 4000);
   };
 
-  const handleCopy = (text: string, message = "Copied to clipboard!") => {
+  const handleCopy = (text: string, message?: string) => {
     copyToClipboard(text);
-    showNotification(message, "success");
+    showNotification(message ?? t("copiedToClipboard"), "success");
   };
 
   return (

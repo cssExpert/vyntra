@@ -1388,5 +1388,74 @@
       "aiNoActivity": "Aucune activité récente enregistrée pour ce contact.",
       "aiOriginallyAcquired": "Acquis à l'origine via {source}."
     }
+  },
+  "users": {
+    "title": "Utilisateurs",
+    "userCount": "{count, plural, one {# utilisateur} other {# utilisateurs}}",
+    "addUser": "Ajouter un utilisateur",
+    "searchPlaceholder": "Rechercher par nom ou e-mail...",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "locked": "Verrouillé",
+    "clickToLock": "Cliquez pour verrouiller le compte",
+    "clickToUnlock": "Cliquez pour déverrouiller le compte",
+    "noUsersFound": "Aucun utilisateur trouvé",
+    "noUsersFoundHint": "Modifiez votre recherche ou ajoutez un nouvel utilisateur.",
+    "emptyTitle": "Votre répertoire est vide",
+    "emptyDescription": "Obtenez un contrôle total en répertoriant et en administrant les opérateurs, les détaillants et les administrateurs système depuis un seul tableau de bord.",
+    "createFirstUser": "Créez votre premier utilisateur",
+    "showingEntries": "Affichage de {shown} sur {total} entrées",
+    "footerTagline": "Suite de contrôle du tableau de bord",
+    "table": {
+      "name": "Nom",
+      "email": "E-mail",
+      "phone": "Téléphone",
+      "role": "Rôle",
+      "group": "Groupe",
+      "status": "Statut",
+      "lock": "Verrou",
+      "joined": "Inscrit le",
+      "actions": "Actions"
+    },
+    "errors": {
+      "nameRequired": "Le nom est requis",
+      "emailRequired": "L'e-mail est requis",
+      "emailInvalid": "Format d'e-mail invalide",
+      "phoneRequired": "Le numéro de téléphone est requis",
+      "phoneInvalid": "Veuillez saisir un numéro de téléphone valide (10-12 chiffres)"
+    },
+    "toasts": {
+      "updated": "L'utilisateur « {name} » a été mis à jour avec succès !",
+      "added": "L'utilisateur « {name} » a été ajouté avec succès !",
+      "removed": "L'utilisateur « {name} » a été supprimé.",
+      "locked": "Utilisateur verrouillé avec succès",
+      "unlocked": "Utilisateur déverrouillé avec succès"
+    },
+    "modal": {
+      "editTitle": "Modifier les détails de l'utilisateur",
+      "addTitle": "Ajouter un nouvel utilisateur",
+      "editDescription": "Mettez à jour les paramètres et identifiants du compte.",
+      "addDescription": "Créez un nouvel enregistrement d'opérateur système.",
+      "cancel": "Annuler",
+      "saveChanges": "Enregistrer les modifications",
+      "createUser": "Créer l'utilisateur"
+    },
+    "form": {
+      "fullName": "Nom complet",
+      "emailAddress": "Adresse e-mail",
+      "phoneNumber": "Numéro de téléphone",
+      "systemRole": "Rôle système",
+      "commercialGroup": "Groupe commercial",
+      "initialStatus": "Statut initial",
+      "lockTitle": "Restriction de verrouillage du compte",
+      "lockDescription": "Bloquez instantanément la connexion de l'utilisateur."
+    },
+    "deleteModal": {
+      "title": "Supprimer l'opérateur du compte ?",
+      "confirmPrefix": "Êtes-vous sûr de vouloir supprimer",
+      "confirmSuffix": "Tous les paramètres, associations et identifiants seront définitivement effacés. Cette action est irréversible.",
+      "keepAccount": "Conserver le compte",
+      "confirmDelete": "Oui, supprimer l'utilisateur"
+    }
   }
 }

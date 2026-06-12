@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Sparkles,
   Search,
@@ -20,6 +21,7 @@ export function SeoDashboard({
 }: {
   setActiveTab: (tab: TabId) => void;
 }) {
+  const t = useTranslations("seo.dashboard");
   const [selectedRegion, setSelectedRegion] = useState("US");
 
   const stats = [
@@ -84,20 +86,20 @@ export function SeoDashboard({
     {
       tab: "keywords" as TabId,
       icon: Search,
-      label: "Expand Semantic Base",
-      desc: "Discover low-competition content ideas.",
+      label: t("actionKeywords"),
+      desc: t("actionKeywordsDesc"),
     },
     {
       tab: "metatags" as TabId,
       icon: FileCode,
-      label: "Audit Click-Through-Rates",
-      desc: "Optimize meta titles & social headers.",
+      label: t("actionMetatags"),
+      desc: t("actionMetatagsDesc"),
     },
     {
       tab: "sitemaps" as TabId,
       icon: Map,
-      label: "Align Crawler Pipelines",
-      desc: "Build dynamic XML sitemaps safely.",
+      label: t("actionSitemaps"),
+      desc: t("actionSitemapsDesc"),
     },
   ];
 
@@ -107,20 +109,20 @@ export function SeoDashboard({
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-card/50 p-6 rounded-2xl border border-border backdrop-blur-md">
         <div>
           <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
-            SEO Overview Hub{" "}
+            {t("title")}{" "}
             <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 border border-primary/30 text-primary">
-              Stable
+              {t("stable")}
             </span>
           </h2>
           <p className="text-muted-foreground text-sm mt-1">
-            Real-time analysis dashboard for 2026 organic algorithm guidelines.
+            {t("subtitle")}
           </p>
         </div>
         <button
           onClick={() => setActiveTab("serp")}
           className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-600 text-primary-foreground font-medium text-sm transition-all shadow-glow-brand"
         >
-          <Sparkles className="w-4 h-4" /> Run Quick Audit
+          <Sparkles className="w-4 h-4" /> {t("runQuickAudit")}
         </button>
       </div>
 
@@ -160,10 +162,10 @@ export function SeoDashboard({
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-border pb-4">
             <div>
               <h3 className="font-bold text-foreground text-lg">
-                Share of Voice & SERP Positions
+                {t("chartTitle")}
               </h3>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Average visibility percentage based on tracked focus keywords.
+                {t("chartSubtitle")}
               </p>
             </div>
             <div className="flex items-center gap-1 bg-background p-1 rounded-lg border border-border text-xs font-medium">
@@ -256,10 +258,10 @@ export function SeoDashboard({
         <div className="bg-card border border-border p-6 rounded-2xl flex flex-col justify-between">
           <div>
             <h3 className="font-bold text-foreground text-lg">
-              Instant Actions
+              {t("instantActions")}
             </h3>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Quickly construct and optimize key ranking factors.
+              {t("instantActionsSubtitle")}
             </p>
             <div className="mt-5 space-y-3.5">
               {quickActions.map((item) => (
@@ -287,7 +289,7 @@ export function SeoDashboard({
             </div>
           </div>
           <div className="text-[11px] text-muted-foreground/50 mt-6 pt-4 border-t border-border text-center">
-            Tip: Clean up broken URLs before updating sitemaps.
+            {t("tip")}
           </div>
         </div>
       </div>
@@ -296,7 +298,7 @@ export function SeoDashboard({
       <div className="space-y-4">
         <h3 className="font-extrabold text-foreground text-lg tracking-tight flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-primary" />
-          The 2026 Algorithmic Priority Checklist
+          {t("checklistTitle")}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {keyRules.map((rule, idx) => (

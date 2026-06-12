@@ -160,7 +160,6 @@ const nameEmailFilter: FilterFn<User> = (
 };
 
 export function UsersView() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("users");
   const [users, setUsers] = useState<User[]>(INITIAL_USERS);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -189,7 +188,7 @@ export function UsersView() {
   const columns = useMemo(
     () => [
       columnHelper.accessor("name", {
-        header: "Name",
+        header: t("table.name"),
         size: 210,
         cell: ({ row }) => {
           const user = row.original;
@@ -223,17 +222,17 @@ export function UsersView() {
         },
       }),
       columnHelper.accessor("email", {
-        header: "Email",
+        header: t("table.email"),
         size: 230,
         cell: ({ getValue }) => getValue(),
       }),
       columnHelper.accessor("phone", {
-        header: "Phone",
+        header: t("table.phone"),
         size: 150,
         enableSorting: false,
       }),
       columnHelper.accessor("role", {
-        header: "Role",
+        header: t("table.role"),
         size: 110,
         cell: ({ getValue }) => (
           <span className="inline-flex items-center justify-center bg-muted text-muted-foreground font-bold text-[11px] px-2.5 py-0.5 rounded-md tracking-wider">
@@ -242,7 +241,7 @@ export function UsersView() {
         ),
       }),
       columnHelper.accessor("group", {
-        header: "Group",
+        header: t("table.group"),
         size: 130,
         cell: ({ getValue }) => (
           <span className="inline-flex items-center justify-center bg-primary/10 text-primary font-bold text-[11px] px-2.5 py-1 rounded-full tracking-wider border border-primary/20">
@@ -251,7 +250,7 @@ export function UsersView() {
         ),
       }),
       columnHelper.accessor("status", {
-        header: "Status",
+        header: t("table.status"),
         size: 110,
         cell: ({ getValue }) => {
           const status = getValue();
@@ -269,7 +268,7 @@ export function UsersView() {
         },
       }),
       columnHelper.accessor("locked", {
-        header: "Lock",
+        header: t("table.lock"),
         size: 110,
         enableSorting: false,
         cell: ({ row }) => {
@@ -277,11 +276,7 @@ export function UsersView() {
           return (
             <button
               onClick={() => handleToggleLock(user.id, user.locked)}
-              title={
-                user.locked
-                  ? "Click to unlock user account"
-                  : "Click to lock user account"
-              }
+              title={user.locked ? t("clickToUnlock") : t("clickToLock")}
               className={`flex items-center gap-1.5 font-medium transition-colors group ${
                 user.locked
                   ? "text-rose-500 hover:text-rose-600"
@@ -291,7 +286,7 @@ export function UsersView() {
               {user.locked ? (
                 <>
                   <Lock size={14} className="stroke-[2.5]" />
-                  <span className="text-xs font-semibold">Locked</span>
+                  <span className="text-xs font-semibold">{t("locked")}</span>
                 </>
               ) : (
                 <span className="text-muted-foreground font-semibold group-hover:text-foreground">
@@ -303,14 +298,14 @@ export function UsersView() {
         },
       }),
       columnHelper.accessor("joined", {
-        header: "Joined",
+        header: t("table.joined"),
         size: 140,
         enableSorting: false,
         cell: ({ getValue }) => getValue(),
       }),
       columnHelper.display({
         id: "actions",
-        header: "Actions",
+        header: t("table.actions"),
         size: 80,
         cell: ({ row }) => {
           const user = row.original;
@@ -319,12 +314,12 @@ export function UsersView() {
               <TableActionMenu
                 items={[
                   {
-                    label: "Edit",
+                    label: t("edit"),
                     icon: <PencilLine size={13} className="stroke-[2.5]" />,
                     onClick: () => handleEditUserClick(user),
                   },
                   {
-                    label: "Delete",
+                    label: t("delete"),
                     icon: <Trash2 size={13} />,
                     onClick: () => setDeletingUser(user),
                     variant: "danger",
@@ -447,18 +442,18 @@ export function UsersView() {
   // Validate form inputs
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
-    if (!formData.name.trim()) newErrors.name = "Name is required";
+    if (!formData.name.trim()) newErrors.name = t("errors.nameRequired");
 
     if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
+      newErrors.email = t("errors.emailRequired");
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Invalid email format";
+      newErrors.email = t("errors.emailInvalid");
     }
 
     if (!formData.phone.trim()) {
-      newErrors.phone = "Phone number is required";
+      newErrors.phone = t("errors.phoneRequired");
     } else if (!/^\d{10,12}$/.test(formData.phone.replace(/[\s-]/g, ""))) {
-      newErrors.phone = "Please enter a valid phone number (10-12 digits)";
+      newErrors.phone = t("errors.phoneInvalid");
     }
 
     setErrors(newErrors);
@@ -482,7 +477,7 @@ export function UsersView() {
             : u,
         ),
       );
-      showToast(`User "${formData.name}" has been updated successfully!`);
+      showToast(t("toasts.updated", { name: formData.name }));
     } else {
       // Add mode
       const newUser: User = {
@@ -495,7 +490,7 @@ export function UsersView() {
         }),
       };
       setUsers((prev) => [newUser, ...prev]);
-      showToast(`User "${formData.name}" has been successfully added!`);
+      showToast(t("toasts.added", { name: formData.name }));
     }
     setIsModalOpen(false);
   };
@@ -508,9 +503,7 @@ export function UsersView() {
       ),
     );
     showToast(
-      currentLockState
-        ? "User unlocked successfully"
-        : "User locked successfully",
+      currentLockState ? t("toasts.unlocked") : t("toasts.locked"),
       currentLockState ? "success" : "info",
     );
   };
@@ -519,7 +512,7 @@ export function UsersView() {
   const handleConfirmDelete = () => {
     if (!deletingUser) return;
     setUsers((prev) => prev.filter((u) => u.id !== deletingUser.id));
-    showToast(`User "${deletingUser.name}" has been removed.`, "error");
+    showToast(t("toasts.removed", { name: deletingUser.name }), "error");
     setDeletingUser(null);
   };
 
@@ -544,8 +537,10 @@ export function UsersView() {
             {/* Header Block matching visual layout */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <SectionTitle
-                title="Users"
-                paragraph={`${table.getRowModel().rows.length} ${table.getRowModel().rows.length === 1 ? "user" : "users"}`}
+                title={t("title")}
+                paragraph={t("userCount", {
+                  count: table.getRowModel().rows.length,
+                })}
               />
               <div>
                 <button
@@ -556,7 +551,7 @@ export function UsersView() {
                     size={18}
                     className="stroke-[3] transition-transform group-hover:rotate-90 duration-300"
                   />
-                  <span>Add User</span>
+                  <span>{t("addUser")}</span>
                 </button>
               </div>
             </div>
@@ -572,7 +567,7 @@ export function UsersView() {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search by name or email..."
+                  placeholder={t("searchPlaceholder")}
                   size="xl" className="w-full pl-10 pr-4 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm"
                 />
                 {searchTerm && (
@@ -740,10 +735,10 @@ export function UsersView() {
                                     size={32}
                                   />
                                   <p className="font-semibold text-foreground">
-                                    No users found
+                                    {t("noUsersFound")}
                                   </p>
                                   <p className="text-xs text-muted-foreground">
-                                    Try modifying your search or add a new user.
+                                    {t("noUsersFoundHint")}
                                   </p>
                                 </div>
                               </td>
@@ -842,12 +837,10 @@ export function UsersView() {
                     </div>
 
                     <h3 className="text-xl md:text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight">
-                      Your Directory is Empty
+                      {t("emptyTitle")}
                     </h3>
                     <p className="text-sm md:text-md text-muted-foreground mt-2.5 max-w-sm leading-relaxed">
-                      Unlock full control by listing and administering
-                      operators, retailers, and system administrators under a
-                      single dashboard control panel.
+                      {t("emptyDescription")}
                     </p>
 
                     <button
@@ -858,7 +851,7 @@ export function UsersView() {
                         size={16}
                         className="stroke-[3] transition-transform group-hover:rotate-90 duration-300"
                       />
-                      <span>Create Your First User</span>
+                      <span>{t("createFirstUser")}</span>
                     </button>
                   </motion.div>
                 )}
@@ -866,10 +859,12 @@ export function UsersView() {
                 {/* Footer of user summary inside listing box */}
                 <div className="bg-muted/60 px-6 py-4 border-t border-border text-xs text-muted-foreground flex items-center justify-between font-medium">
                   <span>
-                    Showing {table.getRowModel().rows.length} of {users.length}{" "}
-                    total entries
+                    {t("showingEntries", {
+                      shown: table.getRowModel().rows.length,
+                      total: users.length,
+                    })}
                   </span>
-                  <span>Active Dashboard Control Suite</span>
+                  <span>{t("footerTagline")}</span>
                 </div>
               </div>
             </div>
@@ -878,11 +873,11 @@ export function UsersView() {
             <Modal
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
-              title={editingUser ? "Edit User Details" : "Add New User"}
+              title={editingUser ? t("modal.editTitle") : t("modal.addTitle")}
               description={
                 editingUser
-                  ? "Update account parameters and credentials."
-                  : "Create a fresh system-level operator record."
+                  ? t("modal.editDescription")
+                  : t("modal.addDescription")
               }
               icon={
                 editingUser ? (
@@ -898,14 +893,14 @@ export function UsersView() {
                     type="button"
                     onClick={() => setIsModalOpen(false)}
                   >
-                    Cancel
+                    {t("modal.cancel")}
                   </Button>
                   <button
                     type="submit"
                     form="user-add-edit-form"
                     className="px-5 py-3 bg-primary hover:bg-primary-600 text-primary-foreground rounded-sm text-sm font-semibold transition-all shadow-sm active:scale-95"
                   >
-                    {editingUser ? "Save Changes" : "Create User"}
+                    {editingUser ? t("modal.saveChanges") : t("modal.createUser")}
                   </button>
                 </>
               }
@@ -915,7 +910,8 @@ export function UsersView() {
                   {/* Name Input */}
                   <div>
                     <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
-                      Full Name <span className="text-rose-500">*</span>
+                      {t("form.fullName")}{" "}
+                      <span className="text-rose-500">*</span>
                     </label>
                     <div className="relative">
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-muted-foreground pointer-events-none">
@@ -945,7 +941,8 @@ export function UsersView() {
                   {/* Email Input */}
                   <div>
                     <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
-                      Email Address <span className="text-rose-500">*</span>
+                      {t("form.emailAddress")}{" "}
+                      <span className="text-rose-500">*</span>
                     </label>
                     <div className="relative">
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-muted-foreground pointer-events-none">
@@ -976,7 +973,8 @@ export function UsersView() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
-                        Phone Number <span className="text-rose-500">*</span>
+                        {t("form.phoneNumber")}{" "}
+                        <span className="text-rose-500">*</span>
                       </label>
                       <div className="relative">
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-muted-foreground pointer-events-none">
@@ -1005,7 +1003,7 @@ export function UsersView() {
 
                     <div>
                       <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
-                        System Role
+                        {t("form.systemRole")}
                       </label>
                       <select
                         value={formData.role}
@@ -1029,7 +1027,7 @@ export function UsersView() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
-                        Commercial Group
+                        {t("form.commercialGroup")}
                       </label>
                       <select
                         value={formData.group}
@@ -1050,7 +1048,7 @@ export function UsersView() {
 
                     <div>
                       <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
-                        Initial Status
+                        {t("form.initialStatus")}
                       </label>
                       <div className="flex gap-2">
                         <button
@@ -1101,10 +1099,10 @@ export function UsersView() {
                       </div>
                       <div>
                         <h4 className="text-xs font-bold text-foreground">
-                          Account Lock Restriction
+                          {t("form.lockTitle")}
                         </h4>
                         <p className="text-[10px] text-muted-foreground">
-                          Lock user access instantly from logging in.
+                          {t("form.lockDescription")}
                         </p>
                       </div>
                     </div>
@@ -1134,15 +1132,14 @@ export function UsersView() {
             <Modal
               isOpen={!!deletingUser}
               onClose={() => setDeletingUser(null)}
-              title="Remove Account Operator?"
+              title={t("deleteModal.title")}
               description={
                 <>
-                  Are you sure you want to delete{" "}
+                  {t("deleteModal.confirmPrefix")}{" "}
                   <strong className="text-foreground font-bold">
                     {deletingUser?.name}
                   </strong>
-                  ? All parameters, associations, and credentials will be
-                  permanently erased. This cannot be undone.
+                  ? {t("deleteModal.confirmSuffix")}
                 </>
               }
               icon={<HelpCircle size={20} />}
@@ -1154,13 +1151,13 @@ export function UsersView() {
                     type="button"
                     onClick={() => setDeletingUser(null)}
                   >
-                    Keep Account
+                    {t("deleteModal.keepAccount")}
                   </Button>
                   <Button variant="destructive" radius="sm" className="px-5 font-semibold active:scale-95"
                     type="button"
                     onClick={handleConfirmDelete}
                   >
-                    Yes, Delete User
+                    {t("deleteModal.confirmDelete")}
                   </Button>
                 </>
               }

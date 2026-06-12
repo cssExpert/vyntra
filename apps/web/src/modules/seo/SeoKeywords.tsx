@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Sparkles,
   Search,
@@ -16,6 +17,7 @@ import { callGemini, getMockKeywords } from "./seo.utils";
 import { Input } from "@/components/ui/input";
 
 export function SeoKeywords({ showNotification, handleCopy }: ViewProps) {
+  const t = useTranslations("seo.keywords");
   const [keywordInput, setKeywordInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<Keyword[]>([]);
@@ -37,7 +39,7 @@ export function SeoKeywords({ showNotification, handleCopy }: ViewProps) {
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!keywordInput.trim()) {
-      showNotification("Please specify a core search phrase first", "error");
+      showNotification(t("errorNoPhrase"), "error");
       return;
     }
     setLoading(true);
@@ -55,17 +57,11 @@ Provide a JSON response:
       )) as { keywords?: Keyword[]; clusters?: Cluster[] };
       setResults(data.keywords || getMockKeywords(keywordInput));
       setClusters(data.clusters || defaultClusters(keywordInput));
-      showNotification(
-        `Loaded SEO suggestions for: ${keywordInput}`,
-        "success",
-      );
+      showNotification(t("loadedSuggestions", { term: keywordInput }), "success");
     } catch {
       setResults(getMockKeywords(keywordInput));
       setClusters(defaultClusters(keywordInput));
-      showNotification(
-        "AI core is recovering. Loaded standard semantic variations.",
-        "success",
-      );
+      showNotification(t("aiRecovering"), "success");
     } finally {
       setLoading(false);
     }
@@ -75,18 +71,18 @@ Provide a JSON response:
     if (difficulty < 30)
       return (
         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-          Easy ({difficulty})
+          {t("easy")} ({difficulty})
         </span>
       );
     if (difficulty < 50)
       return (
         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20">
-          Medium ({difficulty})
+          {t("medium")} ({difficulty})
         </span>
       );
     return (
       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-500 border border-rose-500/20">
-        Hard ({difficulty})
+        {t("hard")} ({difficulty})
       </span>
     );
   };
@@ -114,11 +110,9 @@ Provide a JSON response:
     <div className="space-y-8">
       <div className="bg-card/50 p-6 rounded-2xl border border-border backdrop-blur-md">
         <h2 className="text-2xl font-extrabold text-foreground tracking-tight flex items-center gap-2">
-          <Search className="w-6 h-6 text-primary" /> Semantic Keyword Explorer
+          <Search className="w-6 h-6 text-primary" /> {t("title")}
         </h2>
-        <p className="text-muted-foreground text-sm mt-1">
-          Discover high-relevance intent targets and organic clusters.
-        </p>
+        <p className="text-muted-foreground text-sm mt-1">{t("subtitle")}</p>
         <form
           onSubmit={handleSearch}
           className="mt-6 flex flex-col sm:flex-row gap-3"
@@ -129,7 +123,7 @@ Provide a JSON response:
               type="text"
               value={keywordInput}
               onChange={(e) => setKeywordInput(e.target.value)}
-              placeholder="Enter target topic or competitor term..."
+              placeholder={t("searchPlaceholder")}
               className="w-full pl-12 pr-4 py-3.5 bg-background border border-border rounded-xl focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors text-sm text-foreground placeholder:text-muted-foreground/40"
             />
           </div>
@@ -140,12 +134,12 @@ Provide a JSON response:
           >
             {loading ? (
               <>
-                <RefreshCw className="w-4 h-4 animate-spin" /> Gathering
-                Intel...
+                <RefreshCw className="w-4 h-4 animate-spin" />{" "}
+                {t("gatheringIntel")}
               </>
             ) : (
               <>
-                <Sparkles className="w-4 h-4" /> Explore Intent
+                <Sparkles className="w-4 h-4" /> {t("exploreIntent")}
               </>
             )}
           </button>
@@ -157,22 +151,22 @@ Provide a JSON response:
           <div className="lg:col-span-2 bg-card border border-border rounded-2xl overflow-hidden">
             <div className="p-5 border-b border-border flex items-center justify-between">
               <h3 className="font-bold text-foreground text-base">
-                Key Search Variations
+                {t("variationsTitle")}
               </h3>
               <span className="text-xs text-muted-foreground font-semibold">
-                {results.length} targets identified
+                {t("targetsIdentified", { count: results.length })}
               </span>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
                   <tr className="border-b border-border bg-background/50 text-muted-foreground font-semibold uppercase tracking-wider">
-                    <th className="p-4">Keyword</th>
-                    <th className="p-4">Vol.</th>
-                    <th className="p-4">KD %</th>
-                    <th className="p-4">CPC</th>
-                    <th className="p-4">Intent</th>
-                    <th className="p-4 text-right">Copy</th>
+                    <th className="p-4">{t("colKeyword")}</th>
+                    <th className="p-4">{t("colVolume")}</th>
+                    <th className="p-4">{t("colDifficulty")}</th>
+                    <th className="p-4">{t("colCpc")}</th>
+                    <th className="p-4">{t("colIntent")}</th>
+                    <th className="p-4 text-right">{t("colCopy")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/60 font-medium">
@@ -199,7 +193,7 @@ Provide a JSON response:
                           onClick={() =>
                             handleCopy(
                               item.keyword,
-                              `Copied: "${item.keyword}"`,
+                              t("copiedKeyword", { keyword: item.keyword }),
                             )
                           }
                           className="p-1.5 rounded bg-background hover:bg-muted text-muted-foreground hover:text-foreground transition-all"
@@ -213,19 +207,17 @@ Provide a JSON response:
               </table>
             </div>
             <div className="p-4 border-t border-border bg-background/30 flex justify-between items-center text-xs text-muted-foreground">
-              <span>
-                Intent metrics verified dynamically matching 2026 guidelines.
-              </span>
+              <span>{t("metricsFootnote")}</span>
               <button
                 onClick={() =>
                   handleCopy(
                     results.map((r) => r.keyword).join("\n"),
-                    "Copied all variations!",
+                    t("copiedAll"),
                   )
                 }
                 className="flex items-center gap-1.5 text-primary hover:text-primary/80 font-semibold"
               >
-                <Copy className="w-3.5 h-3.5" /> Copy Bulk List
+                <Copy className="w-3.5 h-3.5" /> {t("copyBulkList")}
               </button>
             </div>
           </div>
@@ -233,12 +225,11 @@ Provide a JSON response:
           <div className="space-y-6">
             <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
               <h3 className="font-bold text-foreground text-base flex items-center gap-2">
-                <Layers className="w-5 h-5 text-primary" /> Topic Cluster
-                Blueprint
+                <Layers className="w-5 h-5 text-primary" />{" "}
+                {t("clusterTitle")}
               </h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Ensure maximum topical authority by creating pages for these
-                exact structures.
+                {t("clusterSubtitle")}
               </p>
               <div className="space-y-4 pt-2">
                 {clusters.map((cluster, idx) => (
@@ -251,7 +242,7 @@ Provide a JSON response:
                         {cluster.title}
                       </h4>
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/25">
-                        Priority: {cluster.value}
+                        {t("priority")}: {cluster.value}
                       </span>
                     </div>
                     <ul className="space-y-2 pl-1 border-l-2 border-border">
@@ -272,12 +263,10 @@ Provide a JSON response:
 
             <div className="p-5 bg-primary/5 border border-primary/20 rounded-2xl">
               <h4 className="font-bold text-sm text-primary flex items-center gap-2">
-                <Info className="w-4 h-4" /> 2026 Search Intent Blueprint
+                <Info className="w-4 h-4" /> {t("intentBlueprintTitle")}
               </h4>
               <p className="text-xs text-muted-foreground leading-relaxed mt-2">
-                Commercial and transactional terms should always map to
-                dedicated comparison tables, interactive tools, or purchase
-                pathways.
+                {t("intentBlueprintBody")}
               </p>
             </div>
           </div>
@@ -288,11 +277,10 @@ Provide a JSON response:
             <Search className="w-6 h-6 animate-pulse" />
           </div>
           <h3 className="font-bold text-foreground text-lg">
-            Awaiting Your Topic Input
+            {t("emptyTitle")}
           </h3>
           <p className="text-muted-foreground text-sm max-w-sm">
-            Enter a keyword above to extract immediate structural content
-            blueprints & competitor targets.
+            {t("emptyDescription")}
           </p>
         </div>
       )}

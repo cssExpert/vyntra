@@ -1388,5 +1388,74 @@
       "aiNoActivity": "No recent activity recorded for this contact.",
       "aiOriginallyAcquired": "Originally acquired via {source}."
     }
+  },
+  "users": {
+    "title": "Users",
+    "userCount": "{count, plural, one {# user} other {# users}}",
+    "addUser": "Add User",
+    "searchPlaceholder": "Search by name or email...",
+    "edit": "Edit",
+    "delete": "Delete",
+    "locked": "Locked",
+    "clickToLock": "Click to lock user account",
+    "clickToUnlock": "Click to unlock user account",
+    "noUsersFound": "No users found",
+    "noUsersFoundHint": "Try modifying your search or add a new user.",
+    "emptyTitle": "Your Directory is Empty",
+    "emptyDescription": "Unlock full control by listing and administering operators, retailers, and system administrators under a single dashboard control panel.",
+    "createFirstUser": "Create Your First User",
+    "showingEntries": "Showing {shown} of {total} total entries",
+    "footerTagline": "Active Dashboard Control Suite",
+    "table": {
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "role": "Role",
+      "group": "Group",
+      "status": "Status",
+      "lock": "Lock",
+      "joined": "Joined",
+      "actions": "Actions"
+    },
+    "errors": {
+      "nameRequired": "Name is required",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Invalid email format",
+      "phoneRequired": "Phone number is required",
+      "phoneInvalid": "Please enter a valid phone number (10-12 digits)"
+    },
+    "toasts": {
+      "updated": "User \"{name}\" has been updated successfully!",
+      "added": "User \"{name}\" has been successfully added!",
+      "removed": "User \"{name}\" has been removed.",
+      "locked": "User locked successfully",
+      "unlocked": "User unlocked successfully"
+    },
+    "modal": {
+      "editTitle": "Edit User Details",
+      "addTitle": "Add New User",
+      "editDescription": "Update account parameters and credentials.",
+      "addDescription": "Create a fresh system-level operator record.",
+      "cancel": "Cancel",
+      "saveChanges": "Save Changes",
+      "createUser": "Create User"
+    },
+    "form": {
+      "fullName": "Full Name",
+      "emailAddress": "Email Address",
+      "phoneNumber": "Phone Number",
+      "systemRole": "System Role",
+      "commercialGroup": "Commercial Group",
+      "initialStatus": "Initial Status",
+      "lockTitle": "Account Lock Restriction",
+      "lockDescription": "Lock user access instantly from logging in."
+    },
+    "deleteModal": {
+      "title": "Remove Account Operator?",
+      "confirmPrefix": "Are you sure you want to delete",
+      "confirmSuffix": "All parameters, associations, and credentials will be permanently erased. This cannot be undone.",
+      "keepAccount": "Keep Account",
+      "confirmDelete": "Yes, Delete User"
+    }
   }
 }
