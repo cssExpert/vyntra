@@ -1,4 +1,7 @@
+"use client";
+
 import dynamic from "next/dynamic";
+import type { ReactNode } from "react";
 import type { TypedBlock, BlockType } from "@/lib/themes/types";
 
 // Client blocks loaded dynamically (they use hooks / interactivity)
@@ -16,7 +19,7 @@ import BlogSection from "@/lib/themes/shopingo/blocks/BlogSection";
 import CustomHtml from "@/lib/themes/shopingo/blocks/CustomHtml";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function renderBlock(block: TypedBlock, _themeIdentifier: string): React.ReactNode {
+function renderBlock(block: TypedBlock, _themeIdentifier: string): ReactNode {
   // Future: swap renderers based on themeIdentifier
   switch (block.type as BlockType) {
     case "hero-carousel":

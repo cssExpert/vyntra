@@ -419,6 +419,194 @@ export class CmsService {
     return { ok: true };
   }
 
+  // ── Theme Installer ──────────────────────────────────────────────────────────
+
+  async getThemeInstallPreview(orgId: string, identifier: string) {
+    const { SHOPINGO_PAGES, SHOPINGO_MENUS, SHOPINGO_LAYOUT } = await import('./shopingo-installer');
+    const pages = identifier === 'shopingo' ? SHOPINGO_PAGES : [];
+    const menus = identifier === 'shopingo' ? SHOPINGO_MENUS : [];
+
+    const [existingPageSlugs, existingMenuSlugs, existingLayout] = await Promise.all([
+      this.prisma.page.findMany({
+        where: { organizationId: orgId, slug: { in: pages.map((p) => p.slug) } },
+        select: { slug: true },
+      }).then((r) => new Set(r.map((p) => p.slug))),
+      this.prisma.menu.findMany({
+        where: { organizationId: orgId, slug: { in: menus.map((m) => m.slug) } },
+        select: { slug: true },
+      }).then((r) => new Set(r.map((m) => m.slug))),
+      this.prisma.layout.findFirst({
+        where: { organizationId: orgId, name: SHOPINGO_LAYOUT.name },
+        select: { id: true },
+      }),
+    ]);
+
+    return {
+      pages: pages.map((p) => ({
+        slug: p.slug,
+        title: p.title,
+        metaDesc: p.metaDesc,
+        isLandingPage: p.isLandingPage,
+        exists: existingPageSlugs.has(p.slug),
+      })),
+      menus: menus.map((m) => ({
+        slug: m.slug,
+        name: m.name,
+        menuType: m.menuType,
+        role: m.role,
+        itemCount: m.items.length,
+        exists: existingMenuSlugs.has(m.slug),
+      })),
+      layout: {
+        name: identifier === 'shopingo' ? SHOPINGO_LAYOUT.name : '',
+        exists: !!existingLayout,
+      },
+    };
+  }
+
+  async installTheme(
+    orgId: string,
+    identifier: string,
+    dto: { pageSlugs: string[]; installMenus: boolean; installLayout: boolean; overwrite: boolean },
+  ) {
+    const { SHOPINGO_PAGES, SHOPINGO_MENUS, SHOPINGO_LAYOUT } = await import('./shopingo-installer');
+    const allPages = identifier === 'shopingo' ? SHOPINGO_PAGES : [];
+    const allMenus = identifier === 'shopingo' ? SHOPINGO_MENUS : [];
+
+    const themeRecord = await this.prisma.theme.findFirst({
+      where: { identifier },
+      select: { id: true },
+    });
+
+    const result = {
+      pages: { installed: [] as string[], skipped: [] as string[] },
+      menus: { installed: [] as string[], skipped: [] as string[] },
+      layout: null as string | null,
+    };
+
+    // ── Install pages ─────────────────────────────────────────────────────────
+    const targetPages = allPages.filter((p) => dto.pageSlugs.includes(p.slug));
+    for (const def of targetPages) {
+      const existing = await this.prisma.page.findFirst({
+        where: { organizationId: orgId, slug: def.slug },
+        select: { id: true },
+      });
+
+      if (existing && !dto.overwrite) {
+        result.pages.skipped.push(def.slug);
+        continue;
+      }
+
+      const content = JSON.stringify(def.blocks);
+      if (existing) {
+        await this.prisma.page.update({
+          where: { id: existing.id },
+          data: { content, published: true, publishedAt: new Date(), themeId: themeRecord?.id ?? null },
+        });
+      } else {
+        if (def.isLandingPage) {
+          await this.prisma.page.updateMany({
+            where: { organizationId: orgId, isLandingPage: true },
+            data: { isLandingPage: false },
+          });
+        }
+        await this.prisma.page.create({
+          data: {
+            slug: def.slug, title: def.title, metaDesc: def.metaDesc,
+            isLandingPage: def.isLandingPage, content, published: true,
+            publishedAt: new Date(), organizationId: orgId, themeId: themeRecord?.id ?? null,
+          },
+        });
+      }
+      result.pages.installed.push(def.slug);
+    }
+
+    // ── Install menus ─────────────────────────────────────────────────────────
+    if (dto.installMenus) {
+      for (const def of allMenus) {
+        const existing = await this.prisma.menu.findFirst({
+          where: { organizationId: orgId, slug: def.slug },
+          select: { id: true },
+        });
+
+        if (existing && !dto.overwrite) {
+          result.menus.skipped.push(def.name);
+          continue;
+        }
+
+        if (existing) {
+          await this.prisma.menuItem.deleteMany({ where: { menuId: existing.id } });
+          await this.prisma.menu.update({
+            where: { id: existing.id },
+            data: { name: def.name, menuType: def.menuType },
+          });
+          await this.prisma.menuItem.createMany({
+            data: def.items.map((item) => ({ ...item, menuId: existing.id })),
+          });
+        } else {
+          await this.prisma.menu.create({
+            data: {
+              slug: def.slug, name: def.name, menuType: def.menuType,
+              organizationId: orgId, visibility: ['all'],
+              items: { createMany: { data: def.items } },
+            },
+          });
+        }
+        result.menus.installed.push(def.name);
+      }
+    }
+
+    // ── Install layout ────────────────────────────────────────────────────────
+    if (dto.installLayout) {
+      const navMenu = await this.prisma.menu.findFirst({
+        where: { organizationId: orgId, slug: SHOPINGO_LAYOUT.navMenuSlug },
+        select: { id: true },
+      });
+
+      const footerColumnMenus = await Promise.all(
+        SHOPINGO_LAYOUT.footerColumns.map((col) =>
+          this.prisma.menu.findFirst({
+            where: { organizationId: orgId, slug: col.menuSlug },
+            select: { id: true },
+          }).then((m) => ({ title: col.title, menuId: m?.id ?? '' })),
+        ),
+      );
+
+      const existingLayout = await this.prisma.layout.findFirst({
+        where: { organizationId: orgId, name: SHOPINGO_LAYOUT.name },
+        select: { id: true },
+      });
+
+      // Set all layouts to non-default before creating/updating
+      await this.prisma.layout.updateMany({
+        where: { organizationId: orgId },
+        data: { isDefault: false },
+      });
+
+      if (existingLayout) {
+        await this.prisma.layout.update({
+          where: { id: existingLayout.id },
+          data: {
+            navMenuId: navMenu?.id ?? null,
+            footerColumns: footerColumnMenus.filter((c) => c.menuId) as object,
+            isDefault: true,
+          },
+        });
+      } else {
+        await this.prisma.layout.create({
+          data: {
+            name: SHOPINGO_LAYOUT.name, isDefault: true, organizationId: orgId,
+            navMenuId: navMenu?.id ?? null,
+            footerColumns: footerColumnMenus.filter((c) => c.menuId) as object,
+          },
+        });
+      }
+      result.layout = SHOPINGO_LAYOUT.name;
+    }
+
+    return result;
+  }
+
   // ── Layouts ──────────────────────────────────────────────────────────────────
 
   async listLayouts(orgId: string) {

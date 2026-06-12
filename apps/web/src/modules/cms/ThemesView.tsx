@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   ExternalLink,
   Code2,
+  Download,
 } from "lucide-react";
 import SectionTitle from "@/components/common/SectionTitle";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
@@ -21,6 +22,7 @@ import { cmsThemes, type DbTheme } from "@/lib/api";
 import { useSitePreviewUrl } from "@/hooks/useSitePreviewUrl";
 import type { ViewMode } from "./gallery/gallery.types";
 import { Input } from "@/components/ui/input";
+import { ThemeInstallModal } from "./ThemeInstallModal";
 
 // ── Theme Card ────────────────────────────────────────────────────────────────
 
@@ -30,12 +32,14 @@ function ThemeCard({
   onActivate,
   activating,
   livePreviewUrl,
+  onInstall,
 }: {
   theme: DbTheme;
   isActive: boolean;
   onActivate: (id: string) => void;
   activating: boolean;
   livePreviewUrl: string | null;
+  onInstall?: () => void;
 }) {
   return (
     <motion.div
@@ -100,29 +104,40 @@ function ThemeCard({
           )}
         </div>
 
-        <div className="mt-4 flex gap-2">
-          {livePreviewUrl && (
-            <a
-              href={livePreviewUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-semibold border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
-            >
-              <ExternalLink className="w-3 h-3" /> Preview
-            </a>
-          )}
-          <button
-            onClick={() => onActivate(theme.id)}
-            disabled={isActive || activating}
-            className={cn(
-              "flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all",
-              isActive
-                ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/30 cursor-default"
-                : "bg-primary text-primary-foreground hover:bg-primary-600 disabled:opacity-60",
+        <div className="mt-4 flex flex-col gap-2">
+          <div className="flex gap-2">
+            {livePreviewUrl && (
+              <a
+                href={livePreviewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-semibold border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+              >
+                <ExternalLink className="w-3 h-3" /> Preview
+              </a>
             )}
-          >
-            {isActive ? "Active" : activating ? "…" : "Use Theme"}
-          </button>
+            <button
+              onClick={() => onActivate(theme.id)}
+              disabled={isActive || activating}
+              className={cn(
+                "flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all",
+                isActive
+                  ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/30 cursor-default"
+                  : "bg-primary text-primary-foreground hover:bg-primary-600 disabled:opacity-60",
+              )}
+            >
+              {isActive ? "Active" : activating ? "…" : "Use Theme"}
+            </button>
+          </div>
+          {onInstall && (
+            <button
+              onClick={onInstall}
+              className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold border border-dashed transition-all hover:bg-muted"
+              style={{ borderColor: "#e4611e60", color: "#e4611e" }}
+            >
+              <Download className="w-3 h-3" /> Install Demo Content
+            </button>
+          )}
         </div>
       </div>
     </motion.div>
@@ -137,12 +152,14 @@ function ThemeTableRow({
   onActivate,
   activating,
   livePreviewUrl,
+  onInstall,
 }: {
   theme: DbTheme;
   isActive: boolean;
   onActivate: (id: string) => void;
   activating: boolean;
   livePreviewUrl: string | null;
+  onInstall?: () => void;
 }) {
   return (
     <tr
@@ -210,6 +227,15 @@ function ThemeTableRow({
           >
             {isActive ? "Active" : "Use"}
           </button>
+          {onInstall && (
+            <button
+              onClick={onInstall}
+              className="flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg font-semibold border border-dashed transition-all hover:bg-muted"
+              style={{ borderColor: "#e4611e60", color: "#e4611e" }}
+            >
+              <Download className="w-3 h-3" /> Install
+            </button>
+          )}
         </div>
       </td>
     </tr>
@@ -237,6 +263,7 @@ export function ThemesView() {
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [searchQuery, setSearchQuery] = useState("");
   const [pendingDeactivate, setPendingDeactivate] = useState(false);
+  const [installTheme, setInstallTheme] = useState<DbTheme | null>(null);
   const { toasts, addToast, dismiss } = useToaster();
 
   useEffect(() => {
@@ -389,6 +416,7 @@ export function ThemesView() {
                     onActivate={handleActivate}
                     activating={activatingId === theme.id}
                     livePreviewUrl={buildPreviewUrl(theme.id)}
+                    onInstall={() => setInstallTheme(theme)}
                   />
                 ))
               )}
@@ -414,6 +442,7 @@ export function ThemesView() {
                         onActivate={handleActivate}
                         activating={activatingId === theme.id}
                         livePreviewUrl={buildPreviewUrl(theme.id)}
+                        onInstall={() => setInstallTheme(theme)}
                       />
                     ))}
                   </tbody>
@@ -434,6 +463,16 @@ export function ThemesView() {
         onConfirm={handleDeactivate}
         onCancel={() => setPendingDeactivate(false)}
       />
+
+      {installTheme && (
+        <ThemeInstallModal
+          open={!!installTheme}
+          themeIdentifier={installTheme.identifier}
+          themeName={installTheme.name}
+          onClose={() => setInstallTheme(null)}
+          onSuccess={() => addToast("Demo pages installed and published successfully.", "success")}
+        />
+      )}
     </div>
   );
 }

@@ -889,10 +889,49 @@ export interface ThemeListResponse {
   global: DbTheme[];
 }
 
+export interface ThemeInstallPagePreview {
+  slug: string;
+  title: string;
+  metaDesc: string;
+  isLandingPage: boolean;
+  exists: boolean;
+}
+
+export interface ThemeInstallMenuPreview {
+  slug: string;
+  name: string;
+  menuType: string;
+  role: string;
+  itemCount: number;
+  exists: boolean;
+}
+
+export interface ThemeInstallPreview {
+  pages: ThemeInstallPagePreview[];
+  menus: ThemeInstallMenuPreview[];
+  layout: { name: string; exists: boolean };
+}
+
+export interface ThemeInstallResult {
+  pages: { installed: string[]; skipped: string[] };
+  menus: { installed: string[]; skipped: string[] };
+  layout: string | null;
+}
+
 export const cmsThemes = {
   list: () => apiFetch<ThemeListResponse>("/cms/themes"),
   activate: (id: string) => apiFetch<{ ok: boolean; activeThemeId: string }>(`/cms/themes/${id}/activate`, { method: "POST" }),
   deactivate: () => apiFetch<{ ok: boolean; activeThemeId: null }>("/cms/themes/active/clear", { method: "DELETE" }),
+  installPreview: (identifier: string) =>
+    apiFetch<ThemeInstallPreview>(`/cms/themes/${encodeURIComponent(identifier)}/install-preview`),
+  install: (
+    identifier: string,
+    body: { pageSlugs: string[]; installMenus: boolean; installLayout: boolean; overwrite: boolean },
+  ) =>
+    apiFetch<ThemeInstallResult>(`/cms/themes/${encodeURIComponent(identifier)}/install`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
 };
 
 export const cmsMenus = {

@@ -193,6 +193,37 @@ export class CmsController {
     return this.cmsService.deletePageTranslation(requireOrg(orgId), id, lang);
   }
 
+  // ── Theme Installer ───────────────────────────────────────────────────────
+
+  @Roles(Role.ORG_ADMIN)
+  @Get('themes/:identifier/install-preview')
+  getThemeInstallPreview(
+    @CurrentOrg() orgId: string | null,
+    @Param('identifier') identifier: string,
+  ) {
+    return this.cmsService.getThemeInstallPreview(requireOrg(orgId), identifier);
+  }
+
+  @Roles(Role.ORG_ADMIN)
+  @Post('themes/:identifier/install')
+  installTheme(
+    @CurrentOrg() orgId: string | null,
+    @Param('identifier') identifier: string,
+    @Body() body: {
+      pageSlugs?: string[];
+      installMenus?: boolean;
+      installLayout?: boolean;
+      overwrite?: boolean;
+    },
+  ) {
+    return this.cmsService.installTheme(requireOrg(orgId), identifier, {
+      pageSlugs: body.pageSlugs ?? [],
+      installMenus: body.installMenus ?? true,
+      installLayout: body.installLayout ?? true,
+      overwrite: body.overwrite ?? false,
+    });
+  }
+
   // ── Layouts ───────────────────────────────────────────────────────────────
 
   @Roles(Role.ORG_ADMIN, Role.EDITOR)
