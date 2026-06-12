@@ -174,6 +174,7 @@ export default function EditorLayout() {
     showTemplatePicker,
     setShowTemplatePicker,
     clearCanvas,
+    setThemeIdentifier,
   } = useEditorStore();
 
   // On mount: load pending theme nodes, OR load saved page content, OR show picker
@@ -192,11 +193,31 @@ export default function EditorLayout() {
         .then((page) => {
           if (page.isLandingPage) setIsLandingPage(true);
           if (page.layoutId) setLayoutId(page.layoutId);
+          if (page.themeIdentifier) setThemeIdentifier(page.themeIdentifier);
           if (page.content) {
             try {
-              const nodes = JSON.parse(page.content);
-              if (Array.isArray(nodes) && nodes.length > 0) {
+              const parsed = JSON.parse(page.content);
+              if (Array.isArray(parsed) && parsed.length > 0) {
                 clearCanvas();
+                // Detect TypedBlock[] format (installed by theme installer):
+                // { id, type: "hero-carousel", data: {...} }
+                // Convert to typed-block EditorNodes so the editor can display them.
+                const isTypedBlockArray =
+                  typeof parsed[0]?.type === "string" &&
+                  typeof parsed[0]?.id === "string" &&
+                  "data" in parsed[0];
+
+                const nodes: EditorNode[] = isTypedBlockArray
+                  ? parsed.map((b: { id: string; type: string; data: Record<string, unknown> }) => ({
+                      id: b.id,
+                      type: "typed-block",
+                      tag: "div",
+                      className: "",
+                      blockType: b.type,
+                      blockData: b.data,
+                    }))
+                  : parsed;
+
                 nodes.forEach((node) => addNode(node));
                 setShowTemplatePicker(false);
                 return;
@@ -329,6 +350,23 @@ export default function EditorLayout() {
     const activeData = active.data.current;
     const overData = over.data.current;
     if (!activeData) return;
+
+    if (activeData.type === "THEME_BLOCK") {
+      const newNode: EditorNode = {
+        id: nanoid(8),
+        type: "typed-block",
+        tag: "div",
+        className: "",
+        blockType: activeData.blockType as string,
+        blockData: activeData.blockData as Record<string, unknown>,
+      };
+      if (overData?.type === "INSERT_ZONE") {
+        addNode(newNode, undefined, overData.index as number);
+      } else {
+        addNode(newNode);
+      }
+      return;
+    }
 
     if (activeData.type === "BLOCK") {
       const block = COMPONENT_BLOCKS.find((b) => `block-${b.id}` === active.id);

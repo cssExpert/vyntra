@@ -22,6 +22,7 @@ import {
 import type { EditorNode } from "@/types/editor";
 import { useEditorStore } from "@/store/editorStore";
 import { cn } from "@/lib/utils";
+import { resolveThemeBlock } from "@/lib/themes/themeBlockResolver";
 
 interface CanvasNodeProps {
   node: EditorNode;
@@ -126,14 +127,88 @@ export default function CanvasNode({
     data: { type: "CANVAS_DROP", nodeId: node.id },
   });
 
-  const Tag = node.tag as React.ElementType;
-  const isVoid = VOID_TAGS.has(node.tag);
+  const resolvedTag = node.tag || 'div';
+  const Tag = resolvedTag as React.ElementType;
+  const isVoid = VOID_TAGS.has(resolvedTag);
   const hasChildren = !isVoid && node.children !== undefined;
   // Only leaf nodes with text content are editable
   const canEdit = !isVoid && !hasChildren && node.content !== undefined;
 
+  // All hooks must run unconditionally before any early return.
+
+  // Track the bounding rect of the outer wrapper for portalled overlays.
+  const updateRect = useCallback(() => {
+    if (outerRef.current) {
+      setNodeRect(outerRef.current.getBoundingClientRect());
+      const canvasEl = outerRef.current.closest<HTMLElement>(
+        "[data-canvas-scroll]",
+      );
+      if (canvasEl) setCanvasBounds(canvasEl.getBoundingClientRect());
+    }
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!isSelected || isEditing) {
+      return;
+    }
+    updateRect();
+    window.addEventListener("scroll", updateRect, true);
+    window.addEventListener("resize", updateRect);
+    return () => {
+      window.removeEventListener("scroll", updateRect, true);
+      window.removeEventListener("resize", updateRect);
+    };
+  }, [isSelected, isEditing, updateRect]);
+
+  // Focus + place cursor at end when editing starts
+  useEffect(() => {
+    if (!isEditing || !contentRef.current) return;
+    const el = contentRef.current;
+    el.focus();
+    try {
+      const range = document.createRange();
+      const sel = window.getSelection();
+      range.selectNodeContents(el);
+      range.collapse(false);
+      sel?.removeAllRanges();
+      sel?.addRange(range);
+    } catch {
+      // ignore selection errors on void-like elements
+    }
+  }, [isEditing]);
+
+  // ── Typed-block nodes ──────────────────────────────────────────────────────
+  if (node.type === "typed-block" && node.blockType) {
+    const BlockComponent = resolveThemeBlock(node.blockType);
+    return (
+      <div
+        ref={outerRef}
+        className={cn(
+          "relative group/block",
+          isSelected && "outline outline-2 outline-primary",
+          isHovered && !isSelected && "outline outline-1 outline-primary/40",
+          isDragging && "opacity-30",
+        )}
+        onClick={(e) => { e.stopPropagation(); selectNode(node.id); }}
+        onMouseEnter={(e) => { e.stopPropagation(); hoverNode(node.id); }}
+        onMouseLeave={(e) => { e.stopPropagation(); hoverNode(null); }}
+      >
+        {(isHovered || isSelected) && (
+          <div className="absolute -top-5 left-0 text-[10px] px-1.5 py-0.5 rounded-sm z-40 pointer-events-none font-mono leading-tight bg-primary text-white">
+            {node.blockType}
+          </div>
+        )}
+        <div className="absolute inset-0 z-10" />
+        {BlockComponent
+          ? <BlockComponent data={node.blockData ?? {}} />
+          : <div className="p-6 text-sm text-muted-foreground text-center border border-dashed border-border rounded">Unknown block: {node.blockType}</div>
+        }
+      </div>
+    );
+  }
+
   // Render an inert placeholder for tags React must not emit as real elements.
-  if (INERT_TAGS.has(node.tag)) {
+  if (INERT_TAGS.has(resolvedTag)) {
     return (
       <div
         className={cn(
@@ -168,31 +243,6 @@ export default function CanvasNode({
   const canMoveDown =
     isRoot && rootIdx !== undefined && rootIdx < nodes.length - 1;
 
-  // Track the bounding rect of the outer wrapper for portalled overlays.
-  const updateRect = useCallback(() => {
-    if (outerRef.current) {
-      setNodeRect(outerRef.current.getBoundingClientRect());
-      const canvasEl = outerRef.current.closest<HTMLElement>(
-        "[data-canvas-scroll]",
-      );
-      if (canvasEl) setCanvasBounds(canvasEl.getBoundingClientRect());
-    }
-  }, []);
-
-  useLayoutEffect(() => {
-    if (!isSelected || isEditing) {
-      //setNodeRect(null);
-      return;
-    }
-    updateRect();
-    window.addEventListener("scroll", updateRect, true);
-    window.addEventListener("resize", updateRect);
-    return () => {
-      window.removeEventListener("scroll", updateRect, true);
-      window.removeEventListener("resize", updateRect);
-    };
-  }, [isSelected, isEditing, updateRect]);
-
   const outlineClass = isDragging
     ? ""
     : isEditing
@@ -206,23 +256,6 @@ export default function CanvasNode({
             : showOutlines
               ? "outline outline-1 outline-black/[0.08] dark:outline-white/15"
               : "";
-
-  // Focus + place cursor at end when editing starts
-  useEffect(() => {
-    if (!isEditing || !contentRef.current) return;
-    const el = contentRef.current;
-    el.focus();
-    try {
-      const range = document.createRange();
-      const sel = window.getSelection();
-      range.selectNodeContents(el);
-      range.collapse(false);
-      sel?.removeAllRanges();
-      sel?.addRange(range);
-    } catch {
-      // ignore selection errors on void-like elements
-    }
-  }, [isEditing]);
 
   const commitEdit = () => {
     if (!isEditing || !contentRef.current) return;

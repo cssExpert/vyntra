@@ -69,6 +69,10 @@ interface EditorState {
   // Pending nodes to load on next editor mount (set from Themes Hub)
   pendingNodes: EditorNode[] | null
   setPendingNodes: (nodes: EditorNode[] | null) => void
+
+  // Active theme for block rendering + schema resolution
+  themeIdentifier: string
+  setThemeIdentifier: (v: string) => void
 }
 
 function findNodeById(nodes: EditorNode[], id: string): EditorNode | null {
@@ -136,6 +140,7 @@ export const useEditorStore = create<EditorState>()(
     blockPickerOpen: false,
     showTemplatePicker: false,
     pendingNodes: null,
+    themeIdentifier: 'shopingo',
     // history[historyIndex] always reflects the current canvas state
     history: [[]],
     historyIndex: 0,
@@ -262,7 +267,7 @@ export const useEditorStore = create<EditorState>()(
       set((state) => {
         const node = findNodeById(state.nodes as EditorNode[], id)
         if (!node) return
-        const classes = node.className.split(' ').filter(Boolean)
+        const classes = (node.className ?? '').split(' ').filter(Boolean)
         if (!classes.includes(cls)) {
           node.className = [...classes, cls].join(' ')
         }
@@ -273,7 +278,7 @@ export const useEditorStore = create<EditorState>()(
       set((state) => {
         const node = findNodeById(state.nodes as EditorNode[], id)
         if (!node) return
-        node.className = node.className.split(' ').filter((c) => c !== cls).join(' ')
+        node.className = (node.className ?? '').split(' ').filter((c) => c !== cls).join(' ')
       })
     },
 
@@ -318,5 +323,6 @@ export const useEditorStore = create<EditorState>()(
     setBlockPickerOpen: (open) => set((state) => { state.blockPickerOpen = open }),
     setShowTemplatePicker: (v) => set((state) => { state.showTemplatePicker = v }),
     setPendingNodes: (nodes) => set((state) => { state.pendingNodes = nodes }),
+    setThemeIdentifier: (v) => set((state) => { state.themeIdentifier = v }),
   }))
 )

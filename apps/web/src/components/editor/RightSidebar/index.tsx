@@ -7,6 +7,7 @@ import { useEditorStore } from '@/store/editorStore'
 import { cn } from '@/lib/utils'
 import { cmsMenus, cmsLayouts, type CmsMenu, type CmsLayout } from '@/lib/api'
 import { Input } from "@/components/ui/input";
+import { BlockDataEditor } from "./BlockDataEditor";
 
 const TYPOGRAPHY_SIZES = ['text-xs','text-sm','text-base','text-lg','text-xl','text-2xl','text-3xl','text-4xl','text-5xl','text-6xl','text-7xl','text-8xl','text-9xl']
 const FONT_WEIGHTS = ['font-thin','font-light','font-normal','font-medium','font-semibold','font-bold','font-extrabold','font-black']
@@ -96,7 +97,7 @@ function SpacingControl({ prefix, label }: { prefix: 'p' | 'm'; label: string })
   const { selectedId, findNode, removeClassName, addClassName } = useEditorStore()
   const node = selectedId ? findNode(selectedId) : null
   if (!node) return null
-  const classes = node.className.split(' ').filter(Boolean)
+  const classes = (node.className ?? '').split(' ').filter(Boolean)
   const sides = [
     { key: `${prefix}t`, label: 'T' }, { key: `${prefix}r`, label: 'R' },
     { key: `${prefix}b`, label: 'B' }, { key: `${prefix}l`, label: 'L' },
@@ -265,6 +266,7 @@ function PageSettingsPanel({
   )
 }
 
+
 export default function RightSidebar({
   layoutId = null,
   onLayoutChange = () => {},
@@ -276,10 +278,14 @@ export default function RightSidebar({
   const [newClass, setNewClass] = useState('')
 
   const node = selectedId ? findNode(selectedId) : null
-  const classes = node ? node.className.split(' ').filter(Boolean) : []
+  const classes = node ? (node.className ?? '').split(' ').filter(Boolean) : []
 
   if (!node) {
     return <PageSettingsPanel layoutId={layoutId} onLayoutChange={onLayoutChange} />
+  }
+
+  if (node.type === 'typed-block' && node.blockType) {
+    return <BlockDataEditor node={node} />
   }
 
   const getClass = (prefix: string) => classes.find((c) => c.startsWith(prefix + '-')) || ''

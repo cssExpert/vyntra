@@ -1,7 +1,8 @@
 import type React from "react";
 import { NodeRenderer } from "./NodeRenderer";
 import { SiteNavbar, SiteFooter } from "./SiteLayout";
-import { BlockRenderer, parseTypedBlocks } from "./BlockRenderer";
+import { BlockRenderer } from "./BlockRenderer";
+import { parseTypedBlocks } from "@/lib/themes/parseTypedBlocks";
 
 export interface OrgInfo {
   id: string;
@@ -92,7 +93,7 @@ export async function PageView({
     return (
       <div className="min-h-screen" style={pageStyle}>
         {hasLayout && <SiteNavbar org={org} layout={layout} themeIdentifier={themeIdentifier} />}
-        <NodeRenderer nodes={nodes} orgId={org.id} />
+        <NodeRenderer nodes={nodes} orgId={org.id} themeIdentifier={themeIdentifier} />
         {hasLayout && <SiteFooter org={org} layout={layout} themeIdentifier={themeIdentifier} />}
       </div>
     );

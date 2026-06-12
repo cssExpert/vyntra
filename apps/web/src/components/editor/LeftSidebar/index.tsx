@@ -14,11 +14,44 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { COMPONENT_BLOCKS, CATEGORIES } from "@/lib/componentBlocks";
+import { BLOCK_META, BLOCK_DEFAULTS } from "@/lib/themes/shopingo/blockDefaults";
+import type { BlockType } from "@/lib/themes/types";
 import { useEditorStore } from "@/store/editorStore";
 import type { ComponentBlock, EditorNode } from "@/types/editor";
 import { cn } from "@/lib/utils";
 import Icon from "@/components/common/Icon";
 import { Input } from "@/components/ui/input";
+
+function DraggableThemeBlock({ blockType }: { blockType: BlockType }) {
+  const meta = BLOCK_META[blockType];
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `theme-block-${blockType}`,
+    data: {
+      type: "THEME_BLOCK",
+      blockType,
+      blockData: BLOCK_DEFAULTS[blockType],
+    },
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      className={cn(
+        "group relative flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-grab active:cursor-grabbing select-none",
+        "border border-transparent transition-all duration-150",
+        "hover:bg-[#ff2c2c]/10 hover:border-[#ff2c2c]/30",
+        isDragging && "opacity-30 scale-95",
+      )}
+    >
+      <div className="w-7 h-7 rounded-md flex items-center justify-center shrink-0 bg-[#ff2c2c]/10 text-[#ff2c2c]">
+        <Grid3x3 className="w-3.5 h-3.5" />
+      </div>
+      <span className="text-sm font-medium truncate text-muted-foreground">{meta.label}</span>
+    </div>
+  );
+}
 
 function DraggableBlock({ block }: { block: ComponentBlock }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
@@ -296,6 +329,9 @@ export default function LeftSidebar() {
             </div>
           ) : (
             <div className="px-1">
+              {/* ── Theme Blocks (typed, theme-aware) ── */}
+              <ThemeBlocksSection />
+              {/* ── Raw HTML component blocks ── */}
               {CATEGORIES.map((cat) => (
                 <CategorySection
                   key={cat}
@@ -310,6 +346,37 @@ export default function LeftSidebar() {
         )}
       </div>
     </aside>
+  );
+}
+
+function ThemeBlocksSection() {
+  const [open, setOpen] = useState(true);
+  const blockTypes = Object.keys(BLOCK_META) as BlockType[];
+
+  return (
+    <div className="mb-0.5 mt-1">
+      <div className="border-t border-border mb-1.5 mx-2" />
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-md transition-colors bg-[#ff2c2c]/10 hover:opacity-90"
+      >
+        <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-[#ff2c2c]">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#ff2c2c] shrink-0" />
+          Theme Blocks
+        </span>
+        <span className="flex items-center gap-1.5 text-[#ff2c2c]">
+          <span className="text-[10px] opacity-60">{blockTypes.length}</span>
+          {open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+        </span>
+      </button>
+      {open && (
+        <div className="border-l-2 ml-2.5 pl-1 border-[#ff2c2c]/25 pb-1">
+          {blockTypes.map((bt) => (
+            <DraggableThemeBlock key={bt} blockType={bt} />
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 

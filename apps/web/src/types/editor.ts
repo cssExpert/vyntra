@@ -9,6 +9,9 @@ export interface EditorNode {
   props?: Record<string, string>
   content?: string
   children?: EditorNode[]
+  // Typed-block fields (set when type === "typed-block")
+  blockType?: string
+  blockData?: Record<string, unknown>
 }
 
 export interface ComponentBlock {

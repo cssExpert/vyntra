@@ -1,5 +1,6 @@
 import { createElement, type ReactNode } from "react";
 import type { EditorNode } from "@/types/editor";
+import { NodeTypedBlock } from "./NodeTypedBlock";
 
 const VOID_TAGS = new Set(["input", "img", "br", "hr", "meta", "link"]);
 const INERT_TAGS = new Set(["script", "style", "noscript"]);
@@ -129,15 +130,26 @@ function RenderNode({
 export function NodeRenderer({
   nodes,
   orgId,
+  themeIdentifier = "shopingo",
 }: {
   nodes: EditorNode[];
   orgId?: string;
+  themeIdentifier?: string;
 }) {
   return (
     <>
-      {nodes.map((node) => (
-        <RenderNode key={node.id} node={node} orgId={orgId} />
-      ))}
+      {nodes.map((node) =>
+        node.type === "typed-block" && node.blockType ? (
+          <NodeTypedBlock
+            key={node.id}
+            blockType={node.blockType}
+            blockData={node.blockData ?? {}}
+            themeIdentifier={themeIdentifier}
+          />
+        ) : (
+          <RenderNode key={node.id} node={node} orgId={orgId} />
+        ),
+      )}
     </>
   );
 }
