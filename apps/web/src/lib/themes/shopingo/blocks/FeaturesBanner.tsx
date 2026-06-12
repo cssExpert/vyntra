@@ -1,8 +1,6 @@
 import type { FeaturesBannerData } from "@/lib/themes/types";
 import type { ReactElement } from "react";
 
-const ORANGE = "#e4611e";
-
 const ICON_MAP: Record<string, ReactElement> = {
   truck: (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -75,17 +73,17 @@ function getIcon(iconKey: string) {
 export default function FeaturesBanner({ data }: { data: FeaturesBannerData }) {
   if (!data.features.length) return null;
   return (
-    <section style={{ backgroundColor: "#f5f5f5", borderTop: "1px solid #e1e1e1", borderBottom: "1px solid #e1e1e1" }}>
+    <section className="bg-[#f5f5f5] dark:bg-[#151518] border-t border-b border-[#e1e1e1] dark:border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
         <div className={`grid gap-8 ${data.features.length <= 3 ? `grid-cols-1 sm:grid-cols-${data.features.length}` : "grid-cols-2 md:grid-cols-4"}`}>
           {data.features.map((f, i) => (
             <div key={i} className="flex items-start gap-4">
-              <div className="shrink-0 w-14 h-14 rounded-full flex items-center justify-center" style={{ backgroundColor: "#fff", color: ORANGE, border: `2px solid ${ORANGE}` }}>
+              <div className="shrink-0 w-14 h-14 rounded-full flex items-center justify-center bg-white dark:bg-[#1c1c1e] text-[#e4611e] border-2 border-[#e4611e]">
                 {getIcon(f.icon)}
               </div>
               <div>
-                <p className="font-bold text-gray-800 mb-1">{f.title}</p>
-                <p className="text-sm text-gray-500 leading-relaxed">{f.description}</p>
+                <p className="font-bold text-gray-800 dark:text-gray-100 mb-1">{f.title}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{f.description}</p>
               </div>
             </div>
           ))}

@@ -1,13 +1,8 @@
 import type { NewsletterData } from "@/lib/themes/types";
 
-const ORANGE = "#e4611e";
-
 export default function Newsletter({ data }: { data: NewsletterData }) {
   return (
-    <section
-      className="py-20 relative overflow-hidden"
-      style={{ backgroundColor: "#212529" }}
-    >
+    <section className="py-20 relative overflow-hidden bg-[#1e2226]">
       {data.backgroundImage && (
         <img src={data.backgroundImage} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover opacity-15" />
       )}
@@ -25,10 +20,7 @@ export default function Newsletter({ data }: { data: NewsletterData }) {
             className="flex-1 px-5 py-3.5 text-sm bg-white text-gray-800 outline-none"
             readOnly
           />
-          <button
-            className="px-7 py-3.5 text-sm font-bold text-white shrink-0 transition-opacity hover:opacity-85"
-            style={{ backgroundColor: ORANGE }}
-          >
+          <button className="px-7 py-3.5 text-sm font-bold text-white shrink-0 bg-[#e4611e] transition-opacity hover:opacity-85">
             {data.buttonText}
           </button>
         </div>
