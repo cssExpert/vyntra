@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { BLOCK_META } from "@/lib/themes/shopingo/blockDefaults";
 import type { BlockType } from "@/lib/themes/types";
 
@@ -127,6 +128,48 @@ function BlockThumbnail({ icon }: { icon: string }) {
           ))}
         </svg>
       );
+    case "header":
+      return (
+        <svg className={base} viewBox="0 0 160 80" fill="none">
+          <rect width="160" height="80" fill="#212529" />
+          <rect x="8" y="18" width="90" height="8" rx="2" fill="white" opacity="0.9" />
+          <rect x="8" y="34" width="28" height="4" rx="1" fill="rgba(255,255,255,0.4)" />
+          <rect x="38" y="34" width="6" height="4" rx="1" fill="rgba(255,255,255,0.25)" />
+          <rect x="46" y="34" width="36" height="4" rx="1" fill={ORANGE} opacity="0.9" />
+        </svg>
+      );
+    case "text-image":
+      return (
+        <svg className={base} viewBox="0 0 160 80" fill="none">
+          <rect width="160" height="80" fill="white" />
+          <rect x="8" y="10" width="70" height="6" rx="2" fill="#212529" opacity="0.7" />
+          <rect x="8" y="22" width="65" height="3" rx="1" fill="#d1d5db" />
+          <rect x="8" y="29" width="60" height="3" rx="1" fill="#d1d5db" />
+          <rect x="8" y="36" width="55" height="3" rx="1" fill="#d1d5db" />
+          <rect x="8" y="43" width="45" height="3" rx="1" fill="#d1d5db" />
+          <rect x="8" y="56" width="28" height="10" rx="2" fill={ORANGE} />
+          <rect x="90" y="8" width="62" height="64" rx="4" fill="#e5e7eb" />
+        </svg>
+      );
+    case "contact":
+      return (
+        <svg className={base} viewBox="0 0 160 80" fill="none">
+          <rect width="160" height="80" fill="#f5f5f5" />
+          <rect x="8" y="10" width="52" height="5" rx="1.5" fill="#212529" opacity="0.7" />
+          <rect x="8" y="22" width="10" height="10" rx="2" fill={ORANGE} />
+          <rect x="22" y="24" width="35" height="4" rx="1" fill="#d1d5db" />
+          <rect x="8" y="36" width="10" height="10" rx="2" fill={ORANGE} />
+          <rect x="22" y="38" width="35" height="4" rx="1" fill="#d1d5db" />
+          <rect x="8" y="50" width="10" height="10" rx="2" fill={ORANGE} />
+          <rect x="22" y="52" width="35" height="4" rx="1" fill="#d1d5db" />
+          <rect x="82" y="6" width="70" height="68" rx="4" fill="white" stroke="#e5e7eb" strokeWidth="1" />
+          <rect x="88" y="14" width="52" height="4" rx="1" fill="#9ca3af" />
+          <rect x="88" y="22" width="58" height="7" rx="2" fill="#f5f5f5" stroke="#e5e7eb" strokeWidth="1" />
+          <rect x="88" y="33" width="58" height="7" rx="2" fill="#f5f5f5" stroke="#e5e7eb" strokeWidth="1" />
+          <rect x="88" y="44" width="58" height="11" rx="2" fill="#f5f5f5" stroke="#e5e7eb" strokeWidth="1" />
+          <rect x="88" y="59" width="58" height="9" rx="2" fill={ORANGE} />
+        </svg>
+      );
     case "html":
     default:
       return (
@@ -147,11 +190,84 @@ interface Props {
   onAdd: (type: BlockType) => void;
 }
 
-const BLOCK_ORDER: BlockType[] = [
-  "hero-carousel", "product-grid", "product-tabs", "features-banner",
-  "promo-banner", "brand-carousel", "category-grid", "newsletter",
-  "blog-section", "custom-html",
+interface BlockGroup {
+  label: string;
+  types: BlockType[];
+}
+
+const BLOCK_GROUPS: BlockGroup[] = [
+  {
+    label: "Hero",
+    types: ["hero-carousel"],
+  },
+  {
+    label: "Products",
+    types: ["product-grid", "product-tabs"],
+  },
+  {
+    label: "Content",
+    types: ["page-header", "text-image", "features-banner", "promo-banner", "brand-carousel", "category-grid"],
+  },
+  {
+    label: "Blog",
+    types: ["blog-section"],
+  },
+  {
+    label: "Other",
+    types: ["newsletter", "contact-form", "custom-html"],
+  },
 ];
+
+function BlockCard({ type, onAdd }: { type: BlockType; onAdd: (t: BlockType) => void }) {
+  const meta = BLOCK_META[type];
+  return (
+    <button
+      onClick={() => onAdd(type)}
+      className="w-full text-left rounded-lg border border-border bg-background hover:border-orange-400 hover:shadow-sm transition-all group overflow-hidden"
+    >
+      <div className="h-[72px] overflow-hidden bg-gray-50 dark:bg-muted border-b border-border">
+        <BlockThumbnail icon={meta.icon} />
+      </div>
+      <div className="p-2.5">
+        <p className="text-xs font-semibold text-foreground group-hover:text-orange-600 transition-colors">{meta.label}</p>
+        <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug line-clamp-2">{meta.description}</p>
+      </div>
+    </button>
+  );
+}
+
+function GroupSection({ group, onAdd }: { group: BlockGroup; onAdd: (t: BlockType) => void }) {
+  const [open, setOpen] = useState(true);
+  return (
+    <div>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between px-1 py-1.5 group"
+      >
+        <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground group-hover:text-foreground transition-colors">
+          {group.label}
+        </span>
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 12 12"
+          fill="none"
+          className={`text-muted-foreground transition-transform duration-200 ${open ? "rotate-0" : "-rotate-90"}`}
+        >
+          <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+
+      {open && (
+        <div className="space-y-2 mt-1">
+          {group.types.map((type) => (
+            <BlockCard key={type} type={type} onAdd={onAdd} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function BlockPalette({ onAdd }: Props) {
   return (
@@ -159,25 +275,10 @@ export function BlockPalette({ onAdd }: Props) {
       <div className="px-4 py-3.5 border-b border-border shrink-0">
         <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Shopingo Blocks</p>
       </div>
-      <div className="flex-1 overflow-y-auto p-3 space-y-2">
-        {BLOCK_ORDER.map((type) => {
-          const meta = BLOCK_META[type];
-          return (
-            <button
-              key={type}
-              onClick={() => onAdd(type)}
-              className="w-full text-left rounded-lg border border-border bg-background hover:border-orange-400 hover:shadow-sm transition-all group overflow-hidden"
-            >
-              <div className="h-[72px] overflow-hidden bg-gray-50 dark:bg-muted border-b border-border">
-                <BlockThumbnail icon={meta.icon} />
-              </div>
-              <div className="p-2.5">
-                <p className="text-xs font-semibold text-foreground group-hover:text-orange-600 transition-colors">{meta.label}</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug line-clamp-2">{meta.description}</p>
-              </div>
-            </button>
-          );
-        })}
+      <div className="flex-1 overflow-y-auto p-3 space-y-3">
+        {BLOCK_GROUPS.map((group) => (
+          <GroupSection key={group.label} group={group} onAdd={onAdd} />
+        ))}
       </div>
     </aside>
   );

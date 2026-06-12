@@ -57,14 +57,12 @@ export function ThemePageBuilder() {
 
   const { dragIdx, onDragStart, onDragOver, onDrop } = useDragReorder(blocks, setBlocks);
 
-  // Load available themes
   useEffect(() => {
     cmsThemes.list()
       .then((res) => setAvailableThemes(res.global ?? []))
       .catch(() => {});
   }, []);
 
-  // Load existing page content + themeId
   useEffect(() => {
     if (!pageSlug) { setLoading(false); return; }
     cmsPages.load(pageSlug)
@@ -152,7 +150,6 @@ export function ThemePageBuilder() {
         </span>
 
         <div className="ml-auto flex items-center gap-2">
-          {/* Theme selector */}
           {availableThemes.length > 0 && (
             <div className="flex items-center gap-1.5">
               <span className="text-xs text-muted-foreground hidden sm:inline">Theme:</span>
@@ -240,7 +237,7 @@ export function ThemePageBuilder() {
                     <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded" style={{ backgroundColor: "#e4611e20", color: "#e4611e" }}>
                       {block.type}
                     </span>
-                    <span className="text-sm font-medium text-foreground flex-1 truncate">{meta.label}</span>
+                    <span className="text-sm font-medium text-foreground flex-1 truncate">{meta?.label ?? block.type}</span>
                     <div className="flex items-center gap-1 shrink-0">
                       <button
                         onClick={(e) => { e.stopPropagation(); handleSelectBlock(block); }}

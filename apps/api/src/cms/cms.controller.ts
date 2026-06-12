@@ -168,6 +168,12 @@ export class CmsController {
     return this.cmsService.bulkUpdatePageLayout(requireOrg(orgId), body.pageIds, body.layoutId ?? null);
   }
 
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Delete('pages/:id')
+  deletePage(@CurrentOrg() orgId: string | null, @Param('id') id: string) {
+    return this.cmsService.deletePage(requireOrg(orgId), id);
+  }
+
   // ── Page Translations ────────────────────────────────────────────────────
 
   @Roles(Role.ORG_ADMIN, Role.EDITOR)

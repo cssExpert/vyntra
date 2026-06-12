@@ -13,7 +13,7 @@ import { NotificationsDropdown } from "@/components/layout/NotificationsDropdown
 const PAGE_TITLES: Record<string, string> = {
   "/dashboard": "Dashboard",
   "/crm": "CRM",
-  "/cms": "CMS / Editor",
+  "/cms": "CMS",
   "/seo": "SEO Tools",
   "/lighthouse": "Lighthouse",
   "/payments": "Payments",

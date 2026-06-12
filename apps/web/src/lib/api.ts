@@ -660,6 +660,8 @@ export const cmsPages = {
       method: "PATCH",
       body: JSON.stringify(body),
     }),
+  delete: (pageId: string) =>
+    apiFetch<{ ok: boolean }>(`/cms/pages/${pageId}`, { method: "DELETE" }),
   bulkUpdateLayout: (pageIds: string[], layoutId: string | null) =>
     apiFetch<{ ok: boolean; updated: number }>("/cms/pages/bulk-layout", {
       method: "PUT",

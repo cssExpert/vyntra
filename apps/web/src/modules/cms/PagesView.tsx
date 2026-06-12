@@ -19,7 +19,6 @@ import {
   ChevronsUpDown,
   ListFilterPlus,
   Home,
-  StarOff,
   LayoutTemplate,
   CheckCheck,
   Globe,
@@ -416,13 +415,9 @@ export function PagesView() {
           const page = row.original;
           return (
             <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => handleEditPageClick(page)}
-                className="text-primary font-semibold cursor-pointer hover:underline underline-offset-2"
-              >
+              <span className="font-semibold text-foreground">
                 {getValue()}
-              </button>
+              </span>
               {page.isLandingPage && (
                 <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 shrink-0">
                   <Home size={9} className="shrink-0" />
@@ -526,19 +521,16 @@ export function PagesView() {
                       });
                     },
                   },
-                  page.isLandingPage
-                    ? {
-                        label: "Remove Landing Page",
-                        icon: <StarOff size={13} />,
-                        onClick: () => handleUnsetLandingPage(page),
-                        separator: true,
-                      }
-                    : {
-                        label: "Set as Landing Page",
-                        icon: <Home size={13} />,
-                        onClick: () => handleSetLandingPage(page),
-                        separator: true,
-                      },
+                  ...(!page.isLandingPage
+                    ? [
+                        {
+                          label: "Set as Landing Page",
+                          icon: <Home size={13} />,
+                          onClick: () => handleSetLandingPage(page),
+                          separator: true,
+                        },
+                      ]
+                    : []),
                   {
                     label: "Delete",
                     icon: <Trash2 size={13} />,
@@ -573,10 +565,16 @@ export function PagesView() {
     enableRowSelection: true,
   });
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!deletingPage) return;
-    setPages((prev) => prev.filter((p) => p.id !== deletingPage.id));
+    const id = deletingPage.id;
     setDeletingPage(null);
+    try {
+      await cmsPages.delete(id);
+    } catch {
+      // best-effort — still remove from local state
+    }
+    setPages((prev) => prev.filter((p) => p.id !== id));
   };
 
   const { pageIndex, pageSize } = table.getState().pagination;

@@ -412,6 +412,13 @@ export class CmsService {
     });
   }
 
+  async deletePage(orgId: string, pageId: string) {
+    const page = await this.prisma.page.findFirst({ where: { id: pageId, organizationId: orgId }, select: { id: true } });
+    if (!page) throw new NotFoundException('Page not found');
+    await this.prisma.page.delete({ where: { id: pageId } });
+    return { ok: true };
+  }
+
   async deletePageTranslation(orgId: string, pageId: string, lang: string) {
     const page = await this.prisma.page.findFirst({ where: { id: pageId, organizationId: orgId }, select: { id: true } });
     if (!page) throw new NotFoundException('Page not found');
