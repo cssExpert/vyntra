@@ -123,10 +123,20 @@ export interface BlogPost {
   slug: string;
 }
 
+export type BlogTitleStyle = "default" | "underline" | "badge" | "minimal";
+export type BlogDisplayMode = "grid" | "list" | "slider";
+
 export interface BlogSectionData {
   title: string;
   subtitle?: string;
   posts: BlogPost[];
+  postsCount?: number;
+  titleStyle?: BlogTitleStyle;
+  displayMode?: BlogDisplayMode;
+  animateCards?: boolean;
+  showNavigation?: boolean;
+  showPagination?: boolean;
+  showPaging?: boolean;
 }
 
 export interface CustomHtmlData {

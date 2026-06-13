@@ -209,6 +209,41 @@ export function ScalarField({
     );
   }
 
+  if (def.type === "toggle") {
+    const isOn = Boolean(value);
+    return (
+      <div>
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {def.label}
+            </span>
+            {def.description && (
+              <p className="text-[9px] text-muted-foreground/60 mt-0.5 leading-relaxed">
+                {def.description}
+              </p>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => onChange(!isOn)}
+            className={cn(
+              "shrink-0 w-9 h-5 rounded-full p-0.5 transition-colors focus:outline-none",
+              isOn ? "bg-primary" : "bg-muted-foreground/25",
+            )}
+          >
+            <span
+              className={cn(
+                "block w-4 h-4 rounded-full bg-white shadow-sm transition-transform",
+                isOn ? "translate-x-4" : "translate-x-0",
+              )}
+            />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (def.type === "number") {
     return (
       <div>

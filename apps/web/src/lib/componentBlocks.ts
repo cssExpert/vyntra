@@ -1515,46 +1515,35 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     ]),
   },
 
-  // 8 · Blog Cards
+  // 8 · Blog Cards — typed-block so the right panel shows Settings
   {
     id: "shopingo-blog",
     label: "Latest Blog",
     category: "Shopingo",
     icon: "file-text",
-    template: makeNode("section", "section", "bg-[#f9f9f9] border-t border-[#e1e1e1] py-16 px-4", undefined, [
-      makeNode("div", "div", "max-w-6xl mx-auto", undefined, [
-        makeNode("div", "div", "text-center mb-10", undefined, [
-          makeNode("h2", "h2", "text-3xl font-extrabold text-[#212529] mb-2", "Latest Blog"),
-          makeNode("p", "p", "text-[#797979] text-sm", "Check our latest news"),
-        ]),
-        makeNode("div", "div", "grid grid-cols-1 md:grid-cols-3 gap-6", undefined, [
-          ...[
-            ["01", "Fashion Tips for 2024", "Discover the latest fashion trends and style tips for the upcoming season.", "15 Aug, 2024"],
-            ["02", "Top 10 Shoes This Year",  "Find the best footwear picks that combine style and comfort perfectly.", "20 Sep, 2024"],
-            ["03", "Makeup Must-Haves",       "Essential makeup products every woman should have in her beauty kit.", "05 Oct, 2024"],
-          ].map(([n, title, excerpt, date]) =>
-            makeNode("article", "article", "bg-white border border-[#e1e1e1] group", undefined, [
-              makeNode("div", "div", "overflow-hidden", undefined, [
-                makeNode("img", "img", "w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-300", undefined, undefined, {
-                  src: `https://codervent.com/shopingo/demo/shopingo_V1/assets/images/blog/${n}.webp`,
-                  alt: title,
-                }),
-              ]),
-              makeNode("div", "div", "p-5", undefined, [
-                makeNode("div", "div", "flex items-center gap-3 text-xs text-[#797979] mb-3", undefined, [
-                  makeNode("span", "span", "", "By Virendra"),
-                  makeNode("span", "span", "text-[#e1e1e1]", "·"),
-                  makeNode("span", "span", "", date),
-                ]),
-                makeNode("h4", "h4", "text-base font-bold text-[#212529] mb-2 leading-snug", title),
-                makeNode("p", "p", "text-sm text-[#797979] leading-relaxed mb-4", excerpt),
-                makeNode("a", "a", "text-xs font-bold uppercase tracking-wider text-[#ff2c2c] hover:underline", "Read More →", undefined, { href: "/blog" }),
-              ]),
-            ])
-          ),
-        ]),
-      ]),
-    ]),
+    template: {
+      id: "blog-section-placeholder",
+      type: "typed-block",
+      tag: "div",
+      className: "",
+      blockType: "blog-section",
+      blockData: {
+        title: "From Our Blog",
+        subtitle: "Check our latest news",
+        posts: [
+          { id: "1", title: "Fashion Tips for 2026", excerpt: "Discover the latest fashion trends and style tips for the upcoming season.", image: "https://codervent.com/shopingo/demo/shopingo_V1/assets/images/blog/01.webp", author: "Admin", date: "15 Aug, 2026", slug: "fashion-tips-2026" },
+          { id: "2", title: "Top 10 Shoes This Year", excerpt: "Find the best footwear picks that combine style and comfort perfectly.", image: "https://codervent.com/shopingo/demo/shopingo_V1/assets/images/blog/02.webp", author: "Admin", date: "20 Sep, 2026", slug: "top-10-shoes" },
+          { id: "3", title: "Makeup Must-Haves", excerpt: "Essential makeup products every woman should have in her beauty kit.", image: "https://codervent.com/shopingo/demo/shopingo_V1/assets/images/blog/03.webp", author: "Admin", date: "05 Oct, 2026", slug: "makeup-must-haves" },
+        ],
+        postsCount: 3,
+        titleStyle: "default",
+        displayMode: "grid",
+        animateCards: false,
+        showNavigation: true,
+        showPagination: true,
+        showPaging: false,
+      },
+    },
   },
 ];
 

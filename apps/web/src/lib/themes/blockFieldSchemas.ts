@@ -11,7 +11,8 @@ export type ScalarFieldDef =
   | { type: 'image';    key: string; label: string }
   | { type: 'html';     key: string; label: string; rows?: number }
   | { type: 'textarea'; key: string; label: string; rows?: number; placeholder?: string }
-  | { type: 'select';   key: string; label: string; options: { value: string; label: string }[] };
+  | { type: 'select';   key: string; label: string; options: { value: string; label: string }[] }
+  | { type: 'toggle';   key: string; label: string; description?: string };
 
 export interface ArrayFieldDef {
   type: 'array';
@@ -265,6 +266,45 @@ export const BLOCK_SCHEMAS: Record<string, BlockSection[]> = {
       ],
     },
     {
+      title: 'Settings',
+      defaultOpen: true,
+      fields: [
+        {
+          type: 'number',
+          key: 'postsCount',
+          label: 'Number of Posts',
+          min: 1,
+          max: 12,
+          suffix: 'posts',
+        },
+        {
+          type: 'select',
+          key: 'titleStyle',
+          label: 'Title Style',
+          options: [
+            { value: 'default',   label: 'Default — centered + accent bar' },
+            { value: 'underline', label: 'Underline — left-aligned' },
+            { value: 'badge',     label: 'Badge — label chip above title' },
+            { value: 'minimal',   label: 'Minimal — plain text' },
+          ],
+        },
+        {
+          type: 'select',
+          key: 'displayMode',
+          label: 'Display Mode',
+          options: [
+            { value: 'grid',   label: 'Grid — card columns' },
+            { value: 'list',   label: 'List — stacked rows' },
+            { value: 'slider', label: 'Slider — horizontal carousel' },
+          ],
+        },
+        { type: 'toggle', key: 'animateCards',    label: 'Animate Cards',         description: 'Fade-in cards as they scroll into view' },
+        { type: 'toggle', key: 'showNavigation',  label: 'Slider Navigation',     description: 'Show prev / next arrows (slider mode only)' },
+        { type: 'toggle', key: 'showPagination',  label: 'Slider Pagination',     description: 'Show dot indicators (slider mode only)' },
+        { type: 'toggle', key: 'showPaging',      label: 'Show Paging',           description: 'Page controls for grid / list mode' },
+      ],
+    },
+    {
       title: 'Data Source',
       defaultOpen: false,
       fields: [
@@ -274,7 +314,7 @@ export const BLOCK_SCHEMAS: Record<string, BlockSection[]> = {
           table: 'blog_posts',
           label: 'Blog Posts',
           description: 'Posts will be fetched live from your blog.',
-          limitKey: 'limit',
+          limitKey: 'postsCount',
           defaultLimit: 3,
         },
       ],

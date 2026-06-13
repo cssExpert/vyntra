@@ -145,6 +145,38 @@ export function ThemeInstallModal({
       description="Set up your site with demo pages, navigation menus, and a default layout — ready to customise."
       icon={<Download size={18} />}
       maxWidth="lg"
+      footer={
+        <>
+          <div className="flex items-center justify-between pt-1 gap-3 border-t border-border">
+            <p className="text-xs text-muted-foreground">
+              {totalActions === 0
+                ? "Nothing selected"
+                : `${totalActions} item${totalActions !== 1 ? "s" : ""} to install`}
+            </p>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button variant="ghost" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleInstall}
+                disabled={totalActions === 0 || installing}
+                className="bg-[#e4611e] hover:bg-[#cf5519] text-white"
+              >
+                {installing ? (
+                  <>
+                    <Loader2 size={13} className="animate-spin" /> Installing…
+                  </>
+                ) : (
+                  <>
+                    <Download size={13} /> Install {totalActions} Item
+                    {totalActions !== 1 ? "s" : ""}
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </>
+      }
     >
       <div className="px-6 pb-6 space-y-5">
         {loading ? (
@@ -396,40 +428,6 @@ export function ThemeInstallModal({
                   </div>
                 </label>
               )}
-
-              {/* ── Footer actions ── */}
-              <div className="flex items-center justify-between pt-1 gap-3 border-t border-border">
-                <p className="text-xs text-muted-foreground">
-                  {totalActions === 0
-                    ? "Nothing selected"
-                    : `${totalActions} item${totalActions !== 1 ? "s" : ""} to install`}
-                </p>
-                <div className="flex items-center gap-2 shrink-0">
-                  <Button
-                    variant="ghost"
-                    onClick={onClose}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={handleInstall}
-                    disabled={totalActions === 0 || installing}
-                    className="bg-[#e4611e] hover:bg-[#cf5519] text-white"
-                  >
-                    {installing ? (
-                      <>
-                        <Loader2 size={13} className="animate-spin" />{" "}
-                        Installing…
-                      </>
-                    ) : (
-                      <>
-                        <Download size={13} /> Install {totalActions} Item
-                        {totalActions !== 1 ? "s" : ""}
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </div>
             </>
           )
         )}
