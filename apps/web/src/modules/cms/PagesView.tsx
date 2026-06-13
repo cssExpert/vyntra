@@ -348,12 +348,6 @@ export function PagesView() {
     );
   };
 
-  const handleUnsetLandingPage = (page: CmsPage) => {
-    setPages((prev) =>
-      prev.map((p) => (p.id === page.id ? { ...p, isLandingPage: false } : p)),
-    );
-  };
-
   const handleEditSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingPage) return;

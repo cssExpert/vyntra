@@ -15,6 +15,7 @@ import {
   Link2,
   Code2,
 } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { BLOCK_SCHEMAS } from "@/lib/themes/blockFieldSchemas";
 import type {
@@ -109,9 +110,12 @@ export function ScalarField({
         <Label text={def.label} icon={ImageIcon} />
         {str ? (
           <div className="relative mb-2 rounded-lg overflow-hidden border border-border h-28 bg-muted">
-            <img
+            <Image
               src={str}
-              alt=""
+              alt="No image"
+              width="448"
+              height="448"
+              priority
               className="w-full h-full object-cover"
               onError={(e) => {
                 (e.currentTarget as HTMLElement).style.display = "none";

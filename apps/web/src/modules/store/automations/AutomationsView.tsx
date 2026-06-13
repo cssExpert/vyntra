@@ -22,7 +22,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { SAMPLE_AUTOMATIONS } from "../store.data";
-import type { AutomationRule, AutomationTrigger } from "../store.types";
+import type { AutomationTrigger } from "../store.types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 

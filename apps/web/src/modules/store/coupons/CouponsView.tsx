@@ -7,7 +7,7 @@ import { usePageLoad } from "@/hooks/usePageLoad";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
-import { Plus, Search, Tag, Eye, Pencil, Trash2, Copy } from "lucide-react";
+import { Plus, Search, Tag, Pencil, Trash2, Copy } from "lucide-react";
 import { SAMPLE_COUPONS } from "../store.data";
 import type { StoreCoupon } from "../store.types";
 import { Button } from "@/components/ui/button";

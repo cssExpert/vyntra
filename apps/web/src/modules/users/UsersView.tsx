@@ -348,7 +348,7 @@ export function UsersView() {
   // still null when isLoaded flips. A ref callback guarantees DOM presence.
   const [scrollEl, setScrollEl] = useState<HTMLDivElement | null>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
+  const [, setCanScrollRight] = useState(false);
 
   useEffect(() => {
     if (!scrollEl) return;

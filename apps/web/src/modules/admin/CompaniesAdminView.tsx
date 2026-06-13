@@ -12,6 +12,7 @@ import {
   Search,
   Trash2,
 } from "lucide-react";
+import Image from "next/image";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Toaster, useToaster } from "@/components/common/Toaster";
@@ -193,9 +194,12 @@ function Inner() {
                     <div className="flex items-center gap-2.5">
                       <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-primary/10 text-primary">
                         {company.logoUrl ? (
-                          <img
+                          <Image
                             src={company.logoUrl}
-                            alt=""
+                            alt={company.name}
+                            width="32"
+                            height="32"
+                            priority
                             className="h-full w-full object-cover"
                           />
                         ) : (
