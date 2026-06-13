@@ -92,7 +92,7 @@ export function CRMHeader({
         </button>
         <button
           onClick={onAddContact}
-          className="flex items-center gap-2 h-10 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-600 transition-colors cursor-pointer shadow-glow-brand"
+          className="flex items-center gap-2 h-10 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-colors cursor-pointer shadow-glow-brand"
         >
           <Plus className="h-3.5 w-3.5" />
           {t("addContact")}

@@ -555,7 +555,7 @@ function Inner() {
         />
         <button
           onClick={openAddModal}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition"
         >
           <Plus className="h-4 w-4" />
           {t("add")}
@@ -583,7 +583,8 @@ function Inner() {
           placeholder={t("search", {
             defaultValue: "Search by email or name...",
           })}
-          size="lg" className="w-full pl-10 pr-10 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+          size="lg"
+          className="w-full pl-10 pr-10 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
         {searchTerm && (
           <button
@@ -708,7 +709,10 @@ function Inner() {
         maxWidth="lg"
         footer={
           <>
-            <Button variant="ghost" radius="lg" className="text-muted-foreground hover:text-foreground"
+            <Button
+              variant="ghost"
+              radius="lg"
+              className="text-muted-foreground hover:text-foreground"
               onClick={() => setIsAddModalOpen(false)}
             >
               {t("cancel", { defaultValue: "Cancel" })}
@@ -743,7 +747,8 @@ function Inner() {
                   placeholder={t("userEmailPlaceholder", {
                     defaultValue: "user@example.com",
                   })}
-                  size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  size="lg"
+                  className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
                 {formErrors.email && (
                   <p className="text-xs text-error mt-1">{formErrors.email}</p>
@@ -764,7 +769,8 @@ function Inner() {
                   placeholder={t("fullNamePlaceholder", {
                     defaultValue: "John Doe",
                   })}
-                  size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  size="lg"
+                  className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
                 {formErrors.name && (
                   <p className="text-xs text-error mt-1">{formErrors.name}</p>
@@ -784,7 +790,8 @@ function Inner() {
                   placeholder={t("jobTitlePlaceholder", {
                     defaultValue: "e.g. Senior Manager",
                   })}
-                  size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  size="lg"
+                  className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
@@ -801,7 +808,8 @@ function Inner() {
                   placeholder={t("departmentPlaceholder", {
                     defaultValue: "e.g. Sales, Engineering",
                   })}
-                  size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  size="lg"
+                  className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
@@ -818,7 +826,8 @@ function Inner() {
                   placeholder={t("phoneNumberPlaceholder", {
                     defaultValue: "+1 (555) 000-0000",
                   })}
-                  size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  size="lg"
+                  className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
@@ -875,7 +884,8 @@ function Inner() {
                   placeholder={t("streetAddressPlaceholder", {
                     defaultValue: "123 Main Street",
                   })}
-                  size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  size="lg"
+                  className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
@@ -893,7 +903,8 @@ function Inner() {
                     placeholder={t("cityPlaceholder", {
                       defaultValue: "San Francisco",
                     })}
-                    size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    size="lg"
+                    className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
@@ -910,7 +921,8 @@ function Inner() {
                     placeholder={t("stateProvincePlaceholder", {
                       defaultValue: "CA",
                     })}
-                    size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    size="lg"
+                    className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
@@ -927,7 +939,8 @@ function Inner() {
                     placeholder={t("countryPlaceholder", {
                       defaultValue: "United States",
                     })}
-                    size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    size="lg"
+                    className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
               </div>
@@ -945,7 +958,10 @@ function Inner() {
         maxWidth="lg"
         footer={
           <>
-            <Button variant="ghost" radius="lg" className="text-muted-foreground hover:text-foreground"
+            <Button
+              variant="ghost"
+              radius="lg"
+              className="text-muted-foreground hover:text-foreground"
               onClick={() => setIsEditModalOpen(false)}
             >
               {t("cancel", { defaultValue: "Cancel" })}
@@ -977,7 +993,8 @@ function Inner() {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  size="lg"
+                  className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
                 {formErrors.email && (
                   <p className="text-xs text-error mt-1">{formErrors.email}</p>
@@ -995,7 +1012,8 @@ function Inner() {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  size="lg"
+                  className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
                 {formErrors.name && (
                   <p className="text-xs text-error mt-1">{formErrors.name}</p>
@@ -1015,7 +1033,8 @@ function Inner() {
                   placeholder={t("jobTitlePlaceholder", {
                     defaultValue: "e.g. Senior Manager",
                   })}
-                  size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  size="lg"
+                  className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
@@ -1032,7 +1051,8 @@ function Inner() {
                   placeholder={t("departmentPlaceholder", {
                     defaultValue: "e.g. Sales, Engineering",
                   })}
-                  size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  size="lg"
+                  className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
@@ -1049,7 +1069,8 @@ function Inner() {
                   placeholder={t("phoneNumberPlaceholder", {
                     defaultValue: "+1 (555) 000-0000",
                   })}
-                  size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  size="lg"
+                  className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
@@ -1087,7 +1108,8 @@ function Inner() {
                   placeholder={t("streetAddressPlaceholder", {
                     defaultValue: "123 Main Street",
                   })}
-                  size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  size="lg"
+                  className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
@@ -1105,7 +1127,8 @@ function Inner() {
                     placeholder={t("cityPlaceholder", {
                       defaultValue: "San Francisco",
                     })}
-                    size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    size="lg"
+                    className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
@@ -1122,7 +1145,8 @@ function Inner() {
                     placeholder={t("stateProvincePlaceholder", {
                       defaultValue: "CA",
                     })}
-                    size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    size="lg"
+                    className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
@@ -1139,7 +1163,8 @@ function Inner() {
                     placeholder={t("countryPlaceholder", {
                       defaultValue: "United States",
                     })}
-                    size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    size="lg"
+                    className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
               </div>
@@ -1188,7 +1213,10 @@ function Inner() {
         maxWidth="md"
         footer={
           <>
-            <Button variant="ghost" radius="lg" className="text-muted-foreground hover:text-foreground"
+            <Button
+              variant="ghost"
+              radius="lg"
+              className="text-muted-foreground hover:text-foreground"
               onClick={() => setIsPasswordModalOpen(false)}
             >
               {t("cancel", { defaultValue: "Cancel" })}
@@ -1221,7 +1249,8 @@ function Inner() {
                 placeholder={t("passwordPlaceholder", {
                   defaultValue: "At least 8 characters",
                 })}
-                size="lg" className="w-full px-3 pr-10 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                size="lg"
+                className="w-full px-3 pr-10 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
               <button
                 type="button"
@@ -1252,7 +1281,8 @@ function Inner() {
               placeholder={t("confirmPasswordPlaceholder", {
                 defaultValue: "Re-enter the new password",
               })}
-              size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+              size="lg"
+              className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           </div>
 
@@ -1282,7 +1312,10 @@ function Inner() {
         maxWidth="md"
         footer={
           <>
-            <Button variant="ghost" radius="lg" className="text-muted-foreground hover:text-foreground"
+            <Button
+              variant="ghost"
+              radius="lg"
+              className="text-muted-foreground hover:text-foreground"
               onClick={() => setIsDeleteConfirmOpen(false)}
             >
               {t("cancel", { defaultValue: "Cancel" })}

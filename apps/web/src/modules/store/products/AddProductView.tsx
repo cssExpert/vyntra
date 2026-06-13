@@ -571,7 +571,7 @@ export function AddProductView() {
             >
               Cancel
             </button>
-            <button className="flex items-center gap-2 rounded-sm border border-border bg-transparent px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer">
+            <button className="flex items-center gap-2 rounded-sm border border-border bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer">
               <Save size={14} />
               Save Draft
             </button>

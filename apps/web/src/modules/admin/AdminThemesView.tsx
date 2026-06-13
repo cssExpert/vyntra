@@ -3,7 +3,16 @@
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Plus, Pencil, Trash2, Search, X, Globe, Palette, Code2 } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Search,
+  X,
+  Globe,
+  Palette,
+  Code2,
+} from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Modal } from "@/components/common/Modal";
@@ -68,16 +77,18 @@ function ThemeFormModal({
         <>
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted transition-all"
+            className="px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted transition-all"
           >
             {t("cancel", { defaultValue: "Cancel" })}
           </button>
           <button
             onClick={onSave}
             disabled={busy || !form.name.trim() || !form.identifier.trim()}
-            className="px-5 py-2 text-sm font-semibold bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 transition-all disabled:opacity-50"
+            className="px-4 py-2.5 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 transition-all disabled:opacity-50"
           >
-            {busy ? t("saving", { defaultValue: "Saving…" }) : t("saveTheme", { defaultValue: "Save Theme" })}
+            {busy
+              ? t("saving", { defaultValue: "Saving…" })
+              : t("saveTheme", { defaultValue: "Save Theme" })}
           </button>
         </>
       }
@@ -103,16 +114,23 @@ function ThemeFormModal({
               className={cn(adminInput, "font-mono text-xs")}
               placeholder="e.g. shopingo"
               value={form.identifier}
-              onChange={(e) => onChange({ identifier: e.target.value.toLowerCase().replace(/\s+/g, "-") })}
+              onChange={(e) =>
+                onChange({
+                  identifier: e.target.value.toLowerCase().replace(/\s+/g, "-"),
+                })
+              }
             />
             <p className="text-[10px] text-muted-foreground">
-              Must match a key in the ThemeRegistry code (e.g. <code className="font-mono">shopingo</code>)
+              Must match a key in the ThemeRegistry code (e.g.{" "}
+              <code className="font-mono">shopingo</code>)
             </p>
           </div>
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-muted-foreground">Description</label>
+          <label className="text-xs font-medium text-muted-foreground">
+            Description
+          </label>
           <textarea
             className={cn(adminInput, "resize-none h-20")}
             placeholder="Short description of the theme style…"
@@ -122,7 +140,9 @@ function ThemeFormModal({
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-muted-foreground">Thumbnail URL</label>
+          <label className="text-xs font-medium text-muted-foreground">
+            Thumbnail URL
+          </label>
           <Input
             className={adminInput}
             placeholder="https://…"
@@ -131,7 +151,12 @@ function ThemeFormModal({
           />
           {form.thumbnail && (
             <div className="relative h-24 w-full mt-1 rounded-xl overflow-hidden border border-border">
-              <Image src={form.thumbnail} alt="preview" fill className="object-cover" />
+              <Image
+                src={form.thumbnail}
+                alt="preview"
+                fill
+                className="object-cover"
+              />
             </div>
           )}
         </div>
@@ -167,7 +192,9 @@ function Inner() {
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const filtered = search.trim()
     ? themes.filter(
@@ -178,8 +205,16 @@ function Inner() {
       )
     : themes;
 
-  const openCreate = () => { setForm(emptyForm()); setEditTarget(null); setModalMode("create"); };
-  const openEdit = (t: DbTheme) => { setForm(themeToForm(t)); setEditTarget(t); setModalMode("edit"); };
+  const openCreate = () => {
+    setForm(emptyForm());
+    setEditTarget(null);
+    setModalMode("create");
+  };
+  const openEdit = (t: DbTheme) => {
+    setForm(themeToForm(t));
+    setEditTarget(t);
+    setModalMode("edit");
+  };
 
   const handleSave = async () => {
     setFormBusy(true);
@@ -196,7 +231,9 @@ function Inner() {
         addToast("Theme registered.", "success");
       } else if (editTarget) {
         const updated = await admin.updateTheme(editTarget.id, payload);
-        setThemes((prev) => prev.map((t) => (t.id === editTarget.id ? updated : t)));
+        setThemes((prev) =>
+          prev.map((t) => (t.id === editTarget.id ? updated : t)),
+        );
         addToast("Theme updated.", "success");
       }
       setModalMode(null);
@@ -228,7 +265,8 @@ function Inner() {
           onClick={openCreate}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary-600 transition-all shrink-0"
         >
-          <Plus className="w-4 h-4" /> {t("add", { defaultValue: "Register Theme" })}
+          <Plus className="w-4 h-4" />{" "}
+          {t("add", { defaultValue: "Register Theme" })}
         </button>
       </div>
 
@@ -243,7 +281,10 @@ function Inner() {
 
       {/* Search */}
       <div className="relative max-w-sm">
-        <Search size={15} className="absolute inset-y-0 left-3 my-auto text-muted-foreground pointer-events-none" />
+        <Search
+          size={15}
+          className="absolute inset-y-0 left-3 my-auto text-muted-foreground pointer-events-none"
+        />
         <Input
           type="text"
           placeholder="Search by name or identifier…"
@@ -253,7 +294,10 @@ function Inner() {
           className="w-full pl-9 pr-8 bg-background border border-border rounded-xl text-sm"
         />
         {search && (
-          <button onClick={() => setSearch("")} className="absolute inset-y-0 right-2.5 my-auto text-muted-foreground hover:text-foreground">
+          <button
+            onClick={() => setSearch("")}
+            className="absolute inset-y-0 right-2.5 my-auto text-muted-foreground hover:text-foreground"
+          >
             <X size={14} />
           </button>
         )}
@@ -268,7 +312,10 @@ function Inner() {
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-2xl bg-muted animate-pulse aspect-[16/14]" />
+            <div
+              key={i}
+              className="rounded-2xl bg-muted animate-pulse aspect-[16/14]"
+            />
           ))}
         </div>
       ) : filtered.length === 0 ? (
@@ -311,7 +358,9 @@ function Inner() {
 
               <div className="p-4 flex flex-col flex-1 gap-3">
                 <div>
-                  <h3 className="text-sm font-bold text-foreground truncate">{theme.name}</h3>
+                  <h3 className="text-sm font-bold text-foreground truncate">
+                    {theme.name}
+                  </h3>
                   {theme.description && (
                     <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5 leading-relaxed">
                       {theme.description}
@@ -342,7 +391,9 @@ function Inner() {
       <AnimatePresence>
         <ThemeFormModal
           open={modalMode !== null}
-          title={modalMode === "create" ? "Register Global Theme" : "Edit Theme"}
+          title={
+            modalMode === "create" ? "Register Global Theme" : "Edit Theme"
+          }
           form={form}
           onChange={(patch) => setForm((prev) => ({ ...prev, ...patch }))}
           onSave={handleSave}
@@ -357,8 +408,11 @@ function Inner() {
         description={
           pendingDelete ? (
             <>
-              <span className="font-semibold text-foreground">{pendingDelete.name}</span>{" "}
-              will be removed. Organizations using it will fall back to the default.
+              <span className="font-semibold text-foreground">
+                {pendingDelete.name}
+              </span>{" "}
+              will be removed. Organizations using it will fall back to the
+              default.
             </>
           ) : undefined
         }

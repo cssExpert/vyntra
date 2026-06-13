@@ -107,7 +107,10 @@ export function DomainManagementModal({
     if (!subInput.trim()) return clearSubdomain();
     setSubBusy(true);
     try {
-      const updated = await admin.setSubdomain(orgId, subInput.trim().toLowerCase());
+      const updated = await admin.setSubdomain(
+        orgId,
+        subInput.trim().toLowerCase(),
+      );
       setDomain(updated);
       const dns2 = await admin.getDnsInfo(orgId);
       setDns(dns2);
@@ -129,7 +132,10 @@ export function DomainManagementModal({
       setDns(dns2);
       flash(t("subdomainremoved"));
     } catch (e) {
-      flash(e instanceof Error ? e.message : t("failedtoremovesubdomain"), true);
+      flash(
+        e instanceof Error ? e.message : t("failedtoremovesubdomain"),
+        true,
+      );
     } finally {
       setSubBusy(false);
     }
@@ -141,7 +147,10 @@ export function DomainManagementModal({
     if (!customInput.trim()) return clearCustomDomain();
     setCustomBusy(true);
     try {
-      const updated = await admin.setCustomDomain(orgId, customInput.trim().toLowerCase());
+      const updated = await admin.setCustomDomain(
+        orgId,
+        customInput.trim().toLowerCase(),
+      );
       setDomain(updated);
       const dns2 = await admin.getDnsInfo(orgId);
       setDns(dns2);
@@ -176,7 +185,7 @@ export function DomainManagementModal({
       const dns2 = await admin.getDnsInfo(orgId);
       setDns(dns2);
       if (result.verified) {
-        setDomain((d) => d ? { ...d, customDomainVerified: true } : d);
+        setDomain((d) => (d ? { ...d, customDomainVerified: true } : d));
       }
       flash(result.message, !result.verified);
     } catch (e) {
@@ -217,22 +226,29 @@ export function DomainManagementModal({
             {/* ── Subdomain ──────────────────────────────────────────────────── */}
             <section>
               <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-                <span className="flex h-5 w-5 items-center justify-center rounded bg-primary/10 text-primary text-[10px] font-bold">S</span>
+                <span className="flex h-5 w-5 items-center justify-center rounded bg-primary/10 text-primary text-[10px] font-bold">
+                  S
+                </span>
                 Platform Subdomain
               </h4>
               <p className="text-xs text-muted-foreground mb-3">
-                Assign a subdomain on <strong>{dns?.platformDomain ?? "vyntra.com"}</strong>.
-                The wildcard DNS record for <code>*.{dns?.platformDomain ?? "vyntra.com"}</code> must
-                point to the platform IP — no customer action needed.
+                Assign a subdomain on{" "}
+                <strong>{dns?.platformDomain ?? "vyntra.com"}</strong>. The
+                wildcard DNS record for{" "}
+                <code>*.{dns?.platformDomain ?? "vyntra.com"}</code> must point
+                to the platform IP — no customer action needed.
               </p>
               <div className="flex gap-2">
                 <div className="flex flex-1 items-center rounded-lg border border-border overflow-hidden">
                   <Input
-                    size="lg" className="flex-1 bg-background px-3 text-sm outline-none"
+                    size="lg"
+                    className="flex-1 bg-background px-3 text-sm outline-none"
                     placeholder="acme"
                     value={subInput}
                     onChange={(e) =>
-                      setSubInput(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))
+                      setSubInput(
+                        e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""),
+                      )
                     }
                   />
                   <span className="px-3 text-sm text-muted-foreground bg-muted border-l border-border">
@@ -279,7 +295,9 @@ export function DomainManagementModal({
             {/* ── Custom Domain ──────────────────────────────────────────────── */}
             <section>
               <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-                <span className="flex h-5 w-5 items-center justify-center rounded bg-primary/10 text-primary text-[10px] font-bold">C</span>
+                <span className="flex h-5 w-5 items-center justify-center rounded bg-primary/10 text-primary text-[10px] font-bold">
+                  C
+                </span>
                 Custom Domain
                 {domain?.customDomain && (
                   <span
@@ -299,8 +317,9 @@ export function DomainManagementModal({
                 )}
               </h4>
               <p className="text-xs text-muted-foreground mb-3">
-                Let the org use their own domain (e.g.&nbsp;<code>acme.com</code>).
-                The domain must have the A and TXT records configured before verification.
+                Let the org use their own domain (e.g.&nbsp;
+                <code>acme.com</code>). The domain must have the A and TXT
+                records configured before verification.
               </p>
               <div className="flex gap-2">
                 <Input
@@ -353,17 +372,25 @@ export function DomainManagementModal({
                     DNS Configuration
                   </h4>
                   <p className="text-xs text-muted-foreground mb-3">
-                    Add these records in your customer&apos;s DNS provider. Changes
-                    can take up to 48 hours to propagate.
+                    Add these records in your customer&apos;s DNS provider.
+                    Changes can take up to 48 hours to propagate.
                   </p>
                   <div className="rounded-xl border border-border overflow-hidden">
                     <table className="w-full text-xs">
                       <thead className="bg-muted/50 text-muted-foreground uppercase tracking-wide">
                         <tr>
-                          <th className="px-3 py-2 text-left font-medium w-14">Type</th>
-                          <th className="px-3 py-2 text-left font-medium">Name</th>
-                          <th className="px-3 py-2 text-left font-medium">Value</th>
-                          <th className="px-3 py-2 text-left font-medium w-12">TTL</th>
+                          <th className="px-3 py-2 text-left font-medium w-14">
+                            Type
+                          </th>
+                          <th className="px-3 py-2 text-left font-medium">
+                            Name
+                          </th>
+                          <th className="px-3 py-2 text-left font-medium">
+                            Value
+                          </th>
+                          <th className="px-3 py-2 text-left font-medium w-12">
+                            TTL
+                          </th>
                           <th className="px-3 py-2 w-8" />
                         </tr>
                       </thead>
@@ -430,7 +457,7 @@ export function DomainManagementModal({
       <div className="px-6 py-4 bg-muted/40 border-t border-border flex items-center justify-end">
         <button
           onClick={onClose}
-          className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-muted transition cursor-pointer"
+          className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium hover:bg-muted transition cursor-pointer"
         >
           Close
         </button>

@@ -298,7 +298,7 @@ function parseMDY(s: string): Date | null {
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export function EditorView() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("cms.editor.tsx");
   const [pages, setPages] = useState<CmsPage[]>(INITIAL_PAGES);
   const [searchTerm, setSearchTerm] = useState("");
@@ -541,7 +541,7 @@ export function EditorView() {
         },
       }),
     ],
-     
+
     [],
   );
 
@@ -608,7 +608,7 @@ export function EditorView() {
             <div className="flex items-center gap-2">
               <button
                 onClick={handleAddPageClick}
-                className="inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer group active:scale-[0.98]"
+                className="inline-flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer group active:scale-[0.98]"
               >
                 <Plus
                   size={16}
@@ -616,7 +616,12 @@ export function EditorView() {
                 />
                 Add Page
               </button>
-              <Button variant="outline" size="lg" radius="sm" className="px-4 active:scale-[0.98]">
+              <Button
+                variant="outline"
+                size="lg"
+                radius="sm"
+                className="px-4 active:scale-[0.98]"
+              >
                 <Download size={15} />
                 Export
               </Button>
@@ -631,7 +636,12 @@ export function EditorView() {
                   setActiveFilters(DEFAULT_FILTERS);
                 }}
                 trigger={
-                  <Button variant="secondary" size="lg" radius="sm" className="px-4 active:scale-[0.98]">
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    radius="sm"
+                    className="px-4 active:scale-[0.98]"
+                  >
                     <ListFilterPlus size={15} />
                     Apply Filters
                   </Button>
@@ -712,7 +722,8 @@ export function EditorView() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search pages..."
-                  size="xl" className="pl-9 pr-8 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all w-52"
+                  size="xl"
+                  className="pl-9 pr-8 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all w-52"
                 />
                 {searchTerm && (
                   <button
@@ -885,7 +896,10 @@ export function EditorView() {
                 </span>
 
                 <div className="flex items-center gap-1">
-                  <Button variant="outline" radius="sm" className="h-8 px-3 text-muted-foreground"
+                  <Button
+                    variant="outline"
+                    radius="sm"
+                    className="h-8 px-3 text-muted-foreground"
                     onClick={() => table.previousPage()}
                     disabled={!table.getCanPreviousPage()}
                   >
@@ -915,7 +929,10 @@ export function EditorView() {
                     ),
                   )}
 
-                  <Button variant="outline" radius="sm" className="h-8 px-3 text-muted-foreground"
+                  <Button
+                    variant="outline"
+                    radius="sm"
+                    className="h-8 px-3 text-muted-foreground"
                     onClick={() => table.nextPage()}
                     disabled={!table.getCanNextPage()}
                   >
@@ -949,7 +966,10 @@ export function EditorView() {
             maxWidth="xxxl"
             footer={
               <>
-                <Button variant="ghost" radius="sm" className="font-semibold text-muted-foreground hover:text-foreground"
+                <Button
+                  variant="ghost"
+                  radius="sm"
+                  className="font-semibold text-muted-foreground hover:text-foreground"
                   type="button"
                   onClick={() => {
                     setIsModalOpen(false);
@@ -992,13 +1012,19 @@ export function EditorView() {
             maxWidth="md"
             footer={
               <>
-                <Button variant="ghost" radius="sm" className="font-semibold text-muted-foreground hover:text-foreground"
+                <Button
+                  variant="ghost"
+                  radius="sm"
+                  className="font-semibold text-muted-foreground hover:text-foreground"
                   type="button"
                   onClick={() => setDeletingPage(null)}
                 >
                   Cancel
                 </Button>
-                <Button variant="destructive" radius="sm" className="px-5 font-semibold active:scale-95"
+                <Button
+                  variant="destructive"
+                  radius="sm"
+                  className="px-5 font-semibold active:scale-95"
                   type="button"
                   onClick={handleConfirmDelete}
                 >

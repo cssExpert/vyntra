@@ -50,8 +50,8 @@ function maskPhone(raw: string): string {
 
 function handlePhoneKeyDown(
   e: React.KeyboardEvent<HTMLInputElement>,
-  value: string,
-  onChange: (v: string) => void,
+  _value: string,
+  _onChange: (v: string) => void,
 ) {
   // Allow normal navigation keys
   if (
@@ -82,7 +82,7 @@ interface AddCompanyModalProps {
   onError: (message: string) => void;
 }
 
-type TranslationFunction = any;
+type TranslationFunction = ReturnType<typeof useTranslations>;
 
 type FormState = {
   name: string;
@@ -388,7 +388,10 @@ export function AddCompanyModal({
       description="Onboard a new company, assign a plan, and provision its first administrator."
       footer={
         <div className="flex w-full items-center justify-between">
-          <Button variant="outline" radius="lg" className="px-3 font-normal"
+          <Button
+            variant="outline"
+            radius="lg"
+            className="px-3 font-normal"
             onClick={() => (step === 1 ? close() : setStep((s) => s - 1))}
             disabled={busy}
           >
@@ -397,12 +400,14 @@ export function AddCompanyModal({
           {step < 4 ? (
             <button
               onClick={handleContinue}
-              className="rounded-lg bg-foreground px-4 py-2 text-sm font-semibold text-background hover:opacity-90 transition cursor-pointer"
+              className="rounded-lg bg-foreground px-4 py-2.5 text-sm font-medium text-background hover:opacity-90 transition cursor-pointer"
             >
               {step === 3 ? "Continue" : "Continue"}
             </button>
           ) : (
-            <Button radius="lg" className="bg-foreground px-4 font-semibold text-background hover:bg-foreground hover:opacity-90"
+            <Button
+              radius="lg"
+              className="bg-foreground px-4 font-semibold text-background hover:bg-foreground hover:opacity-90"
               onClick={submit}
               disabled={busy}
             >

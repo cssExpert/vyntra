@@ -296,7 +296,7 @@ function UserDetailInner({ userId }: { userId: string }) {
           />
           <button
             onClick={() => router.push("/admin/users")}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition"
           >
             <MoveLeft size={16} />
             Back to List
@@ -567,7 +567,10 @@ function UserDetailInner({ userId }: { userId: string }) {
         maxWidth="md"
         footer={
           <>
-            <Button variant="ghost" radius="lg" className="text-muted-foreground hover:text-foreground"
+            <Button
+              variant="ghost"
+              radius="lg"
+              className="text-muted-foreground hover:text-foreground"
               onClick={() => setIsPasswordModalOpen(false)}
             >
               Cancel
@@ -595,7 +598,8 @@ function UserDetailInner({ userId }: { userId: string }) {
                   setPasswordData({ ...passwordData, password: e.target.value })
                 }
                 placeholder="At least 8 characters"
-                size="lg" className="w-full px-3 pr-10 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                size="lg"
+                className="w-full px-3 pr-10 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
               <button
                 type="button"
@@ -619,7 +623,8 @@ function UserDetailInner({ userId }: { userId: string }) {
                 setPasswordData({ ...passwordData, confirm: e.target.value })
               }
               placeholder="Re-enter the new password"
-              size="lg" className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+              size="lg"
+              className="w-full px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           </div>
 
@@ -646,7 +651,10 @@ function UserDetailInner({ userId }: { userId: string }) {
         maxWidth="md"
         footer={
           <>
-            <Button variant="ghost" radius="lg" className="text-muted-foreground hover:text-foreground"
+            <Button
+              variant="ghost"
+              radius="lg"
+              className="text-muted-foreground hover:text-foreground"
               onClick={() => setIsDeleteConfirmOpen(false)}
             >
               Cancel
@@ -669,7 +677,6 @@ export function UserDetailView({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const t = useTranslations("admin.users");
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {

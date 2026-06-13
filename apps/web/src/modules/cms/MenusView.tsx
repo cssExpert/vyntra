@@ -827,7 +827,7 @@ function MenuModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg transition-colors"
+            className="px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg transition-colors"
           >
             Cancel
           </button>
@@ -835,7 +835,7 @@ function MenuModal({
             type="button"
             onClick={() => onSave(form)}
             disabled={saving || !form.name.trim() || !form.slug.trim()}
-            className="px-4 py-2 text-sm font-semibold bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 disabled:opacity-60 transition-colors"
+            className="px-4 py-2.5 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 disabled:opacity-60 transition-colors"
           >
             {saving ? "Saving…" : isNew ? "Create Menu" : "Save Changes"}
           </button>
@@ -903,7 +903,7 @@ function MenuCard({
 // ─── Main view ─────────────────────────────────────────────────────────────────
 
 export function MenusView() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("cms.menus.tsx");
   const [menus, setMenus] = useState<CmsMenu[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1000,7 +1000,7 @@ export function MenusView() {
       >
         <button
           onClick={openCreate}
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 transition-colors"
         >
           <Plus className="w-4 h-4" /> New Menu
         </button>
@@ -1028,7 +1028,7 @@ export function MenusView() {
             </div>
             <button
               onClick={openCreate}
-              className="mt-2 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 transition-colors"
+              className="mt-2 inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 transition-colors"
             >
               <Plus className="w-4 h-4" /> Create your first menu
             </button>
@@ -1076,14 +1076,14 @@ export function MenusView() {
           <div className="flex items-center justify-end gap-3">
             <button
               onClick={() => setDeleteTarget(null)}
-              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg transition-colors"
+              className="px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleDelete}
               disabled={deleting}
-              className="px-4 py-2 text-sm font-semibold bg-rose-600 text-white rounded-lg hover:bg-rose-700 disabled:opacity-60 transition-colors"
+              className="px-4 py-2.5 text-sm font-medium bg-rose-600 text-white rounded-lg hover:bg-rose-700 disabled:opacity-60 transition-colors"
             >
               {deleting ? "Deleting…" : "Delete"}
             </button>

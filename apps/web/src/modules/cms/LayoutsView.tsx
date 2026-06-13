@@ -532,7 +532,7 @@ export function LayoutsView() {
           <>
             <button
               onClick={() => setModal(null)}
-              className="px-4 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm transition-all"
+              className="px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm transition-all"
             >
               Cancel
             </button>
