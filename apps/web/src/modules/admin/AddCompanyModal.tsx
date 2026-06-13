@@ -398,12 +398,13 @@ export function AddCompanyModal({
             {step === 1 ? "Cancel" : "Back"}
           </Button>
           {step < 4 ? (
-            <button
+            <Button
+              radius="lg"
+              className="bg-foreground px-4 font-medium text-background hover:bg-foreground hover:opacity-90"
               onClick={handleContinue}
-              className="rounded-lg bg-foreground px-4 py-2.5 text-sm font-medium text-background hover:opacity-90 transition cursor-pointer"
             >
-              {step === 3 ? "Continue" : "Continue"}
-            </button>
+              Continue
+            </Button>
           ) : (
             <Button
               radius="lg"
@@ -731,25 +732,29 @@ export function AddCompanyModal({
                     onBlur={() => touch("adminPassword")}
                     placeholder="At least 8 characters"
                   />
-                  <button
+                  <Button
                     type="button"
+                    variant="outline"
+                    size="sm"
                     onClick={generate}
-                    className="shrink-0 rounded-lg border border-border px-3 py-2 text-xs font-medium hover:bg-muted transition cursor-pointer whitespace-nowrap"
+                    className="shrink-0 whitespace-nowrap"
                   >
                     Generate
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
+                    variant="outline"
+                    size="icon"
                     onClick={copyPassword}
                     disabled={!form.adminPassword}
-                    className="shrink-0 rounded-lg border border-border px-3 py-2 text-xs font-medium hover:bg-muted transition cursor-pointer disabled:opacity-50"
+                    className="shrink-0"
                   >
                     {copied ? (
                       <Check className="h-4 w-4 text-success" />
                     ) : (
                       <Copy className="h-4 w-4" />
                     )}
-                  </button>
+                  </Button>
                 </div>
 
                 {form.adminPassword && (

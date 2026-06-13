@@ -313,12 +313,14 @@ export function FormsView() {
                   className="pl-9 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15 w-48"
                 />
                 {searchTerm && (
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setSearchTerm("")}
-                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
+                    className="absolute inset-y-0 right-0 h-full w-8 text-muted-foreground hover:text-foreground"
                   >
                     <X size={13} />
-                  </button>
+                  </Button>
                 )}
               </div>
 

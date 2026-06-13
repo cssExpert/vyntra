@@ -3,6 +3,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const maxWidthMap = {
   sm: "max-w-sm",
@@ -98,13 +99,15 @@ export function Modal({
               </div>
               <div className="flex items-center gap-2 ml-4 shrink-0">
                 {headerActions}
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon"
                   onClick={onClose}
-                  className="w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                  className="w-8 h-8 shrink-0 rounded-full text-muted-foreground hover:text-foreground"
                 >
                   <X size={18} />
-                </button>
+                </Button>
               </div>
             </div>
 

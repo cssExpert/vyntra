@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { cn, formatCurrency, getInitials } from "@/lib/utils";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { Button } from "@/components/ui/button";
 import type { CRMContact } from "../../types";
 
 /* ─── Stage/source label maps (data-driven — will come from the backend) ── */
@@ -62,7 +63,7 @@ function QuickAction({
   label: string;
 }) {
   return (
-    <button className="flex flex-col items-center gap-1.5 group">
+    <Button variant="ghost" className="flex flex-col items-center gap-1.5 h-auto p-2 group">
       <span
         className={cn(
           "flex h-10 w-10 items-center justify-center rounded-full",
@@ -76,7 +77,7 @@ function QuickAction({
       <span className="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">
         {label}
       </span>
-    </button>
+    </Button>
   );
 }
 
@@ -184,28 +185,26 @@ export function ContactPreviewDrawer({
               <h3 className="text-base font-semibold text-foreground">
                 Preview
               </h3>
-              <button
+              <Button
+                variant="outline"
+                size="icon"
                 onClick={onClose}
-                className={cn(
-                  "flex h-7 w-7 items-center justify-center rounded-lg",
-                  "text-muted-foreground border border-border/60 bg-muted/40",
-                  "hover:text-foreground hover:bg-muted transition-all duration-150 cursor-pointer",
-                )}
+                className="h-7 w-7 text-muted-foreground border-border/60 bg-muted/40 hover:text-foreground"
               >
                 <X className="h-3.5 w-3.5" />
-              </button>
+              </Button>
             </div>
 
             {/* ── Sub-nav ──────────────────────────────── */}
             <div className="flex items-center justify-between px-5 py-2.5 border-b border-border/60 flex-shrink-0">
-              <button className="text-xs font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1">
+              <Button variant="link" size="sm" className="text-xs h-auto p-0 gap-1">
                 View record
                 <ExternalLink className="h-3 w-3" />
-              </button>
-              <button className="text-xs font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1">
+              </Button>
+              <Button variant="link" size="sm" className="text-xs h-auto p-0 gap-1">
                 Actions
                 <ChevronDown className="h-3 w-3" />
-              </button>
+              </Button>
             </div>
 
             {/* ── Scrollable content ───────────────────── */}
@@ -241,9 +240,11 @@ export function ContactPreviewDrawer({
                         {contact.email}
                       </span>
                       <ExternalLink className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={handleCopy}
-                        className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
+                        className="h-auto w-auto p-0 text-muted-foreground hover:text-foreground flex-shrink-0"
                         title={
                           copied ? t("preview.copied") : t("preview.copyEmail")
                         }
@@ -253,7 +254,7 @@ export function ContactPreviewDrawer({
                         ) : (
                           <Clipboard className="h-3.5 w-3.5" />
                         )}
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -316,9 +317,10 @@ export function ContactPreviewDrawer({
               {/* AI Record summary */}
               <div className="px-5 py-4">
                 {/* Section header */}
-                <button
+                <Button
+                  variant="ghost"
                   onClick={() => setSummaryOpen((v) => !v)}
-                  className="flex items-center justify-between w-full mb-3 group"
+                  className="flex items-center justify-between w-full mb-3 h-auto p-0 hover:bg-transparent group"
                 >
                   <div className="flex items-center gap-2">
                     <motion.span
@@ -342,7 +344,7 @@ export function ContactPreviewDrawer({
                     <Sparkles className="h-3 w-3" />
                     AI
                   </span>
-                </button>
+                </Button>
 
                 <AnimatePresence initial={false}>
                   {summaryOpen && (
@@ -370,9 +372,9 @@ export function ContactPreviewDrawer({
                               }),
                             })}
                           </p>
-                          <button className="text-muted-foreground hover:text-foreground transition-colors">
+                          <Button variant="ghost" size="icon" className="h-auto w-auto p-0 text-muted-foreground hover:text-foreground">
                             <RefreshCw className="h-3 w-3" />
-                          </button>
+                          </Button>
                         </div>
 
                         {/* Summary text */}
@@ -391,28 +393,30 @@ export function ContactPreviewDrawer({
                           <div className="flex items-center gap-1 ml-auto">
                             {[ThumbsUp, ThumbsDown, Clipboard].map(
                               (Icon, i) => (
-                                <button
+                                <Button
                                   key={i}
-                                  className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6 text-muted-foreground hover:text-foreground"
                                 >
                                   <Icon className="h-3.5 w-3.5" />
-                                </button>
+                                </Button>
                               ),
                             )}
                           </div>
                         </div>
 
                         {/* Ask a question */}
-                        <button
+                        <Button
+                          variant="ghost"
                           className={cn(
-                            "mt-3 flex w-full items-center justify-center gap-1.5 rounded-full",
-                            "border border-pink-500/40 bg-transparent px-4 py-1.5",
-                            "text-xs font-medium text-pink-500 hover:bg-pink-500/10 transition-colors",
+                            "mt-3 w-full gap-1.5 rounded-full h-auto py-1.5",
+                            "border border-pink-500/40 text-xs font-medium text-pink-500 hover:bg-pink-500/10 hover:text-pink-500",
                           )}
                         >
                           <Sparkles className="h-3 w-3" />
                           {t("preview.askQuestion")}
-                        </button>
+                        </Button>
                       </div>
                     </motion.div>
                   )}

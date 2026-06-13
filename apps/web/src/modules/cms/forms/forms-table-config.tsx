@@ -13,6 +13,7 @@ import { createColumnHelper, type FilterFn } from "@tanstack/react-table";
 
 import { TableActionMenu } from "@/components/common/TableActionMenu";
 import { type TableSkeletonColumn } from "@/components/common/TableSkeleton";
+import { Button } from "@/components/ui/button";
 import type { CmsForm, FormStatus } from "./forms.types";
 
 // Skeleton column layout mirrors the real table columns below.
@@ -158,13 +159,14 @@ export function buildFormColumns({
               <ClipboardList className="w-4 h-4 text-primary" />
             </div>
             <div className="min-w-0">
-              <button
+              <Button
                 type="button"
+                variant="link"
                 onClick={() => onEdit(form)}
-                className="font-semibold text-foreground hover:text-primary transition-colors text-left truncate block max-w-[240px]"
+                className="font-semibold text-foreground hover:text-primary h-auto p-0 text-left truncate block max-w-[240px]"
               >
                 {getValue()}
-              </button>
+              </Button>
               <span className="text-[11px] text-muted-foreground truncate block">
                 {form.fields.length} field{form.fields.length !== 1 ? "s" : ""}{" "}
                 · /forms/{form.slug}

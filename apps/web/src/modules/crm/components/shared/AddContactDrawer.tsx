@@ -19,6 +19,7 @@ import Select, { type StylesConfig, type GroupBase } from "react-select";
 import { cn } from "@/lib/utils";
 import type { ContactStage, ContactSource } from "../../types";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -302,12 +303,14 @@ export function AddContactDrawer({
                   {t("drawer.subtitle")}
                 </p>
               </div>
-              <button
+              <Button
+                variant="outline"
+                size="icon"
                 onClick={onClose}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                className="h-8 w-8 text-muted-foreground hover:text-foreground"
               >
                 <X className="h-4 w-4" />
-              </button>
+              </Button>
             </div>
 
             {/* Form */}
@@ -480,19 +483,21 @@ export function AddContactDrawer({
 
             {/* Footer */}
             <div className="flex items-center justify-end gap-3 border-t border-border px-6 py-4">
-              <button
+              <Button
                 type="button"
+                variant="outline"
+                radius="xl"
                 onClick={onClose}
-                className="rounded-xl border border-border px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
               >
                 {t("drawer.cancel")}
-              </button>
-              <button
+              </Button>
+              <Button
+                radius="xl"
                 onClick={handleSubmit}
-                className="rounded-xl bg-primary px-4 py-2.5 text-sm font-mdium text-primary-foreground hover:bg-primary-600 transition-colors cursor-pointer shadow-glow-brand"
+                className="shadow-glow-brand"
               >
                 {t("drawer.saveContact")}
-              </button>
+              </Button>
             </div>
           </motion.div>
         </>

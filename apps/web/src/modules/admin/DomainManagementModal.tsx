@@ -16,6 +16,7 @@ import { Modal } from "@/components/common/Modal";
 import { admin, type DnsInfo, type OrgDomain } from "@/lib/api";
 import { adminInput } from "./AdminGuard";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   orgId: string;
@@ -34,9 +35,11 @@ function CopyButton({ text }: { text: string }) {
     setTimeout(() => setCopied(false), 1800);
   };
   return (
-    <button
+    <Button
+      variant="outline"
+      size="icon"
       onClick={copy}
-      className="shrink-0 flex items-center justify-center h-7 w-7 rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition cursor-pointer"
+      className="shrink-0 h-7 w-7 text-muted-foreground hover:text-foreground"
       title="Copy"
     >
       {copied ? (
@@ -44,7 +47,7 @@ function CopyButton({ text }: { text: string }) {
       ) : (
         <Copy className="h-3.5 w-3.5" />
       )}
-    </button>
+    </Button>
   );
 }
 
@@ -255,22 +258,24 @@ export function DomainManagementModal({
                     .{dns?.platformDomain ?? "vyntra.com"}
                   </span>
                 </div>
-                <button
+                <Button
                   onClick={saveSubdomain}
                   disabled={subBusy}
-                  className="rounded-lg bg-foreground px-3 py-2 text-sm font-semibold text-background hover:opacity-90 transition disabled:opacity-50 cursor-pointer"
+                  className="bg-foreground text-background hover:bg-foreground hover:opacity-90"
                 >
                   {subBusy ? "…" : "Save"}
-                </button>
+                </Button>
                 {domain?.subdomain && (
-                  <button
+                  <Button
+                    variant="outline"
+                    size="icon"
                     onClick={clearSubdomain}
                     disabled={subBusy}
-                    className="rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground hover:bg-error/10 hover:text-error transition disabled:opacity-50 cursor-pointer"
+                    className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                     title="Remove subdomain"
                   >
                     <Trash2 className="h-4 w-4" />
-                  </button>
+                  </Button>
                 )}
               </div>
               {dns?.subdomainUrl && (
@@ -330,34 +335,37 @@ export function DomainManagementModal({
                     setCustomInput(e.target.value.toLowerCase().trim())
                   }
                 />
-                <button
+                <Button
                   onClick={saveCustomDomain}
                   disabled={customBusy}
-                  className="rounded-lg bg-foreground px-3 py-2 text-sm font-semibold text-background hover:opacity-90 transition disabled:opacity-50 cursor-pointer"
+                  className="bg-foreground text-background hover:bg-foreground hover:opacity-90"
                 >
                   {customBusy ? "…" : "Save"}
-                </button>
+                </Button>
                 {domain?.customDomain && (
                   <>
-                    <button
+                    <Button
+                      variant="outline"
                       onClick={verifyDomain}
                       disabled={verifyBusy || domain.customDomainVerified}
-                      className="rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground hover:bg-muted transition disabled:opacity-40 cursor-pointer flex items-center gap-1.5"
+                      className="text-muted-foreground"
                       title="Verify domain via DNS"
                     >
                       <RefreshCw
                         className={`h-4 w-4 ${verifyBusy ? "animate-spin" : ""}`}
                       />
                       Verify
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
                       onClick={clearCustomDomain}
                       disabled={customBusy}
-                      className="rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground hover:bg-error/10 hover:text-error transition disabled:opacity-50 cursor-pointer"
+                      className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                       title="Remove custom domain"
                     >
                       <Trash2 className="h-4 w-4" />
-                    </button>
+                    </Button>
                   </>
                 )}
               </div>
@@ -455,12 +463,9 @@ export function DomainManagementModal({
 
       {/* Footer */}
       <div className="px-6 py-4 bg-muted/40 border-t border-border flex items-center justify-end">
-        <button
-          onClick={onClose}
-          className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium hover:bg-muted transition cursor-pointer"
-        >
+        <Button variant="outline" onClick={onClose}>
           Close
-        </button>
+        </Button>
       </div>
     </Modal>
   );

@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { Laptop, Tablet, Smartphone, type LucideIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useSitePreviewUrl } from "@/hooks/useSitePreviewUrl";
 import type { BlogFormState } from "./types";
 
@@ -80,27 +81,27 @@ export function DevicePreviewModal({
               {DEVICES.map((dev) => {
                 const Icon = dev.icon;
                 return (
-                  <button
+                  <Button
                     key={dev.id}
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setDevice(dev.id)}
-                    className={`p-1.5 rounded-md transition-all ${
-                      device === dev.id
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
+                    active={device === dev.id}
+                    className="p-1.5 h-auto w-auto rounded-md"
                   >
                     <Icon className="w-3.5 h-3.5" />
-                  </button>
+                  </Button>
                 );
               })}
             </div>
 
-            <button
+            <Button
+              variant="muted"
+              size="sm"
               onClick={onClose}
-              className="px-3.5 py-1.5 bg-muted hover:bg-muted/70 text-xs font-bold rounded-lg text-foreground transition-colors"
             >
               Close inspector
-            </button>
+            </Button>
           </div>
 
           {/* Canvas */}

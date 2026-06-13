@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { admin, type DbTheme } from "@/lib/api";
 import { AdminGuard, adminInput } from "./AdminGuard";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface ThemeForm {
   name: string;
@@ -75,21 +76,20 @@ function ThemeFormModal({
       maxWidth="md"
       footer={
         <>
-          <button
+          <Button
+            variant="outline"
             onClick={onClose}
-            className="px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted transition-all"
           >
             {t("cancel", { defaultValue: "Cancel" })}
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={onSave}
             disabled={busy || !form.name.trim() || !form.identifier.trim()}
-            className="px-4 py-2.5 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 transition-all disabled:opacity-50"
           >
             {busy
               ? t("saving", { defaultValue: "Saving…" })
               : t("saveTheme", { defaultValue: "Save Theme" })}
-          </button>
+          </Button>
         </>
       }
     >
@@ -261,13 +261,14 @@ function Inner() {
     <div className="space-y-6 pb-20">
       <div className="flex items-center justify-between gap-4">
         <PageHeader title={t("title")} description={t("description")} />
-        <button
+        <Button
+          radius="xl"
           onClick={openCreate}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary-600 transition-all shrink-0"
+          className="shrink-0 font-semibold"
         >
           <Plus className="w-4 h-4" />{" "}
           {t("add", { defaultValue: "Register Theme" })}
-        </button>
+        </Button>
       </div>
 
       {/* Stats */}
@@ -294,12 +295,14 @@ function Inner() {
           className="w-full pl-9 pr-8 bg-background border border-border rounded-xl text-sm"
         />
         {search && (
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => setSearch("")}
-            className="absolute inset-y-0 right-2.5 my-auto text-muted-foreground hover:text-foreground"
+            className="absolute inset-y-0 right-2.5 my-auto h-auto w-auto p-0 text-muted-foreground hover:text-foreground"
           >
             <X size={14} />
-          </button>
+          </Button>
         )}
       </div>
 
@@ -369,18 +372,22 @@ function Inner() {
                 </div>
 
                 <div className="flex gap-2 mt-auto">
-                  <button
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => openEdit(theme)}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+                    className="text-xs font-semibold"
                   >
                     <Pencil className="w-3 h-3" /> Edit
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
                     onClick={() => setPendingDelete(theme)}
-                    className="p-1.5 rounded-lg text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 border border-border transition-all ml-auto"
+                    className="p-1.5 h-auto w-auto text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 ml-auto"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                  </Button>
                 </div>
               </div>
             </motion.div>

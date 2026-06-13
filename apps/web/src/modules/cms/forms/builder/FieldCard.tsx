@@ -11,6 +11,7 @@ import { GripVertical, Plus, X, Copy, Trash2 } from "lucide-react";
 import { FIELD_TYPES, getFieldMeta, renderFieldIcon } from "./field-config";
 import { isChoiceField, type FieldType, type FormField } from "../forms.types";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface FieldCardProps {
   field: FormField;
@@ -30,10 +31,11 @@ function RequiredToggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
       onClick={() => onChange(!checked)}
-      className="flex items-center gap-2 cursor-pointer select-none"
+      className="flex items-center gap-2 h-auto p-0 select-none hover:bg-transparent"
     >
       <span
         className={`w-8 h-[18px] rounded-full p-[2px] flex transition-colors ${checked ? "bg-primary justify-end" : "bg-muted-foreground/25 justify-start"}`}
@@ -47,7 +49,7 @@ function RequiredToggle({
       <span className="text-xs font-medium text-muted-foreground">
         Required
       </span>
-    </button>
+    </Button>
   );
 }
 
@@ -87,14 +89,16 @@ export function FieldCard({
     >
       <div className="flex items-start gap-3 p-4">
         {/* Drag handle */}
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon"
           onPointerDown={(e) => dragControls.start(e)}
-          className="mt-1.5 text-muted-foreground/40 hover:text-muted-foreground cursor-grab active:cursor-grabbing touch-none"
+          className="mt-1.5 h-auto w-auto p-0 text-muted-foreground/40 hover:text-muted-foreground cursor-grab active:cursor-grabbing touch-none"
           aria-label="Reorder field"
         >
           <GripVertical size={16} />
-        </button>
+        </Button>
 
         <div className="flex-1 min-w-0">
           {/* Top row: label + type select */}
@@ -165,8 +169,10 @@ export function FieldCard({
                               onChange={(e) => setOption(i, e.target.value)}
                               className="flex-1 bg-transparent text-sm text-foreground outline-none border-b border-border focus:border-primary/40 py-1 transition-colors"
                             />
-                            <button
+                            <Button
                               type="button"
+                              variant="ghost"
+                              size="icon"
                               onClick={() =>
                                 onChange({
                                   options: field.options.filter(
@@ -175,15 +181,17 @@ export function FieldCard({
                                 })
                               }
                               disabled={field.options.length <= 1}
-                              className="text-muted-foreground/50 hover:text-rose-500 disabled:opacity-30 transition-colors"
+                              className="h-auto w-auto p-0 text-muted-foreground/50 hover:text-rose-500 hover:bg-transparent"
                             >
                               <X size={14} />
-                            </button>
+                            </Button>
                           </motion.div>
                         ))}
                       </AnimatePresence>
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="sm"
                         onClick={() =>
                           onChange({
                             options: [
@@ -192,11 +200,11 @@ export function FieldCard({
                             ],
                           })
                         }
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary/80 transition-colors"
+                        className="h-auto p-0 text-xs font-semibold text-primary hover:text-primary/80 hover:bg-transparent"
                       >
                         <Plus size={13} className="stroke-[3]" />
                         Add option
-                      </button>
+                      </Button>
                     </div>
                   ) : (
                     field.type !== "rating" &&
@@ -226,28 +234,32 @@ export function FieldCard({
                       onChange={(required) => onChange({ required })}
                     />
                     <div className="flex items-center gap-1">
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="icon"
                         onClick={(e) => {
                           e.stopPropagation();
                           onDuplicate();
                         }}
-                        className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                        className="p-2 h-auto w-auto text-muted-foreground hover:text-foreground"
                         title="Duplicate field"
                       >
                         <Copy size={14} />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="icon"
                         onClick={(e) => {
                           e.stopPropagation();
                           onDelete();
                         }}
-                        className="p-2 rounded-md text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
+                        className="p-2 h-auto w-auto text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10"
                         title="Delete field"
                       >
                         <Trash2 size={14} />
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>

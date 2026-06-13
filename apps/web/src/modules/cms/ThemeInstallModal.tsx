@@ -16,6 +16,7 @@ import {
   LayoutTemplate,
 } from "lucide-react";
 import { Modal } from "@/components/common/Modal";
+import { Button } from "@/components/ui/button";
 import {
   cmsThemes,
   type ThemeInstallPreview,
@@ -193,13 +194,12 @@ export function ThemeInstallModal({
                 detail={result.menus.skipped.join(", ")}
               />
             )}
-            <button
+            <Button
               onClick={onClose}
-              className="w-full py-2.5 rounded-lg text-sm font-semibold text-white mt-2"
-              style={{ backgroundColor: "#e4611e" }}
+              className="w-full mt-2 bg-[#e4611e] hover:bg-[#cf5519] text-white"
             >
               Done
-            </button>
+            </Button>
           </div>
         ) : (
           preview && (
@@ -217,14 +217,16 @@ export function ThemeInstallModal({
                       ({preview.pages.length})
                     </span>
                   </div>
-                  <button
+                  <Button
+                    variant="link"
+                    size="sm"
                     onClick={toggleAll}
-                    className="text-[11px] text-primary hover:underline font-medium"
+                    className="text-[11px] h-auto p-0"
                   >
                     {selectedPages.size === preview.pages.length
                       ? "Deselect all"
                       : "Select all"}
-                  </button>
+                  </Button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {preview.pages.map((page) => {
@@ -403,17 +405,16 @@ export function ThemeInstallModal({
                     : `${totalActions} item${totalActions !== 1 ? "s" : ""} to install`}
                 </p>
                 <div className="flex items-center gap-2 shrink-0">
-                  <button
+                  <Button
+                    variant="ghost"
                     onClick={onClose}
-                    className="px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all"
                   >
                     Cancel
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={handleInstall}
                     disabled={totalActions === 0 || installing}
-                    className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium text-white rounded-lg transition-opacity disabled:opacity-50"
-                    style={{ backgroundColor: "#e4611e" }}
+                    className="bg-[#e4611e] hover:bg-[#cf5519] text-white"
                   >
                     {installing ? (
                       <>
@@ -426,7 +427,7 @@ export function ThemeInstallModal({
                         {totalActions !== 1 ? "s" : ""}
                       </>
                     )}
-                  </button>
+                  </Button>
                 </div>
               </div>
             </>
