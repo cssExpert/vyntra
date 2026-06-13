@@ -149,122 +149,126 @@ export function FieldCard({
           >
             <div className="min-h-0 overflow-hidden">
               <div className="pt-4 space-y-3">
-                  {isChoiceField(field.type) ? (
-                    <div className="space-y-2">
-                      <AnimatePresence initial={false}>
-                        {field.options.map((opt, i) => (
-                          <motion.div
-                            key={i}
-                            layout
-                            initial={{ opacity: 0, x: -6 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: 6 }}
-                            className="flex items-center gap-2"
+                {isChoiceField(field.type) ? (
+                  <div className="space-y-2">
+                    <AnimatePresence initial={false}>
+                      {field.options.map((opt, i) => (
+                        <motion.div
+                          key={i}
+                          layout
+                          initial={{ opacity: 0, x: -6 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 6 }}
+                          className="flex items-center gap-2"
+                        >
+                          <span
+                            className={`w-3.5 h-3.5 border-2 border-muted-foreground/30 shrink-0 ${field.type === "checkboxes" ? "rounded-[3px]" : "rounded-full"}`}
+                          />
+                          <input
+                            value={opt}
+                            onChange={(e) => setOption(i, e.target.value)}
+                            className="flex-1 bg-transparent text-sm text-foreground outline-none border-b border-border focus:border-primary/40 py-1 transition-colors"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() =>
+                              onChange({
+                                options: field.options.filter(
+                                  (_, idx) => idx !== i,
+                                ),
+                              })
+                            }
+                            disabled={field.options.length <= 1}
+                            className="h-auto w-auto p-0 text-muted-foreground/50 hover:text-rose-500 hover:bg-transparent"
                           >
-                            <span
-                              className={`w-3.5 h-3.5 border-2 border-muted-foreground/30 shrink-0 ${field.type === "checkboxes" ? "rounded-[3px]" : "rounded-full"}`}
-                            />
-                            <input
-                              value={opt}
-                              onChange={(e) => setOption(i, e.target.value)}
-                              className="flex-1 bg-transparent text-sm text-foreground outline-none border-b border-border focus:border-primary/40 py-1 transition-colors"
-                            />
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              onClick={() =>
-                                onChange({
-                                  options: field.options.filter(
-                                    (_, idx) => idx !== i,
-                                  ),
-                                })
-                              }
-                              disabled={field.options.length <= 1}
-                              className="h-auto w-auto p-0 text-muted-foreground/50 hover:text-rose-500 hover:bg-transparent"
-                            >
-                              <X size={14} />
-                            </Button>
-                          </motion.div>
-                        ))}
-                      </AnimatePresence>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          onChange({
-                            options: [
-                              ...field.options,
-                              `Option ${field.options.length + 1}`,
-                            ],
-                          })
-                        }
-                        className="h-auto p-0 text-xs font-semibold text-primary hover:text-primary/80 hover:bg-transparent"
-                      >
-                        <Plus size={13} className="stroke-[3]" />
-                        Add option
-                      </Button>
-                    </div>
-                  ) : (
-                    field.type !== "rating" &&
-                    field.type !== "file" && (
-                      <Input
-                        value={field.placeholder ?? ""}
-                        onChange={(e) =>
-                          onChange({ placeholder: e.target.value })
-                        }
-                        placeholder="Placeholder text (optional)"
-                        size="lg" className="w-full bg-muted/40 border border-border rounded-lg px-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
+                            <X size={14} />
+                          </Button>
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        onChange({
+                          options: [
+                            ...field.options,
+                            `Option ${field.options.length + 1}`,
+                          ],
+                        })
+                      }
+                      className="h-auto p-0 text-xs font-semibold text-primary hover:text-primary/80 hover:bg-transparent"
+                    >
+                      <Plus
+                        size={14}
+                        className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-3.5 w-3.5"
                       />
-                    )
-                  )}
-
-                  <input
-                    value={field.helpText ?? ""}
-                    onChange={(e) => onChange({ helpText: e.target.value })}
-                    placeholder="Help text (optional)"
-                    className="w-full bg-transparent text-xs text-muted-foreground placeholder:text-muted-foreground/40 outline-none border-b border-transparent focus:border-primary/30 py-1 transition-colors"
-                  />
-
-                  {/* Footer actions */}
-                  <div className="flex items-center justify-between pt-2 border-t border-border">
-                    <RequiredToggle
-                      checked={field.required}
-                      onChange={(required) => onChange({ required })}
+                      Add option
+                    </Button>
+                  </div>
+                ) : (
+                  field.type !== "rating" &&
+                  field.type !== "file" && (
+                    <Input
+                      value={field.placeholder ?? ""}
+                      onChange={(e) =>
+                        onChange({ placeholder: e.target.value })
+                      }
+                      placeholder="Placeholder text (optional)"
+                      size="lg"
+                      className="w-full bg-muted/40 border border-border rounded-lg px-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
                     />
-                    <div className="flex items-center gap-1">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onDuplicate();
-                        }}
-                        className="p-2 h-auto w-auto text-muted-foreground hover:text-foreground"
-                        title="Duplicate field"
-                      >
-                        <Copy size={14} />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onDelete();
-                        }}
-                        className="p-2 h-auto w-auto text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10"
-                        title="Delete field"
-                      >
-                        <Trash2 size={14} />
-                      </Button>
-                    </div>
+                  )
+                )}
+
+                <input
+                  value={field.helpText ?? ""}
+                  onChange={(e) => onChange({ helpText: e.target.value })}
+                  placeholder="Help text (optional)"
+                  className="w-full bg-transparent text-xs text-muted-foreground placeholder:text-muted-foreground/40 outline-none border-b border-transparent focus:border-primary/30 py-1 transition-colors"
+                />
+
+                {/* Footer actions */}
+                <div className="flex items-center justify-between pt-2 border-t border-border">
+                  <RequiredToggle
+                    checked={field.required}
+                    onChange={(required) => onChange({ required })}
+                  />
+                  <div className="flex items-center gap-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDuplicate();
+                      }}
+                      className="p-2 h-auto w-auto text-muted-foreground hover:text-foreground"
+                      title="Duplicate field"
+                    >
+                      <Copy size={14} />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete();
+                      }}
+                      className="p-2 h-auto w-auto text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10"
+                      title="Delete field"
+                    >
+                      <Trash2 size={14} />
+                    </Button>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
         </div>
       </div>
     </Reorder.Item>

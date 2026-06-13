@@ -401,7 +401,7 @@ export function BlogCategoriesView() {
               >
                 <Plus
                   size={16}
-                  className="stroke-[3] transition-transform group-hover:rotate-90 duration-300"
+                  className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4"
                 />
                 Add Category
               </Button>
@@ -415,7 +415,8 @@ export function BlogCategoriesView() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search categories..."
-                  size="xl" className="pl-9 pr-8 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15 w-52"
+                  size="xl"
+                  className="pl-9 pr-8 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15 w-52"
                 />
                 {searchTerm && (
                   <button

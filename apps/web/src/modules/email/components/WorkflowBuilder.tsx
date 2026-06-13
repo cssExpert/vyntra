@@ -425,7 +425,7 @@ export function WorkflowBuilder({
                         }}
                         className="absolute w-6 h-6 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:bg-primary hover:border-primary hover:text-white transition-all scale-90 hover:scale-105"
                       >
-                        <Plus className="w-4 h-4" />
+                        <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4" />
                       </button>
                       <AddMenu
                         show={
@@ -472,7 +472,7 @@ export function WorkflowBuilder({
                                   }}
                                   className="absolute w-5 h-5 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white transition-colors scale-90"
                                 >
-                                  <Plus className="w-3.5 h-3.5" />
+                                  <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4" />
                                 </button>
                                 <AddMenu
                                   show={
@@ -521,7 +521,7 @@ export function WorkflowBuilder({
                                   }}
                                   className="absolute w-5 h-5 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white transition-colors scale-90"
                                 >
-                                  <Plus className="w-3.5 h-3.5" />
+                                  <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4" />
                                 </button>
                                 <AddMenu
                                   show={

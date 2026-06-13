@@ -112,17 +112,17 @@ export function CRMFilterBar({
 
       {/* Add filter */}
       <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground bg-white dark:bg-muted hover:text-foreground hover:border-border hover:bg-muted transition-colors cursor-pointer">
-        <Plus className="h-3.5 w-3.5" />
+        <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4" />
       </button>
 
       <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground bg-white dark:bg-muted hover:text-foreground hover:border-border hover:bg-muted transition-colors cursor-pointer">
-        <Pencil className="h-3.5 w-3.5" />
+        <Pencil className="h-4 w-4" />
       </button>
 
       <div className="h-5 w-px bg-border mx-1" />
 
       <button className="flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer">
-        <SlidersHorizontal className="h-3.5 w-3.5" />
+        <SlidersHorizontal className="h-4 w-4" />
         {t("advancedFilters")}
       </button>
     </div>

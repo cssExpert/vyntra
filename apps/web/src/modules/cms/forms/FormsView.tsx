@@ -331,7 +331,7 @@ export function FormsView() {
                 size="md"
                 className="px-4 font-semibold active:scale-[0.98] group"
                 startIcon={
-                  <Plus className="stroke-[3] group-hover:rotate-90 transition-transform duration-200" />
+                  <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4" />
                 }
               >
                 New Form

@@ -188,8 +188,8 @@ export function StoreView() {
                   className="flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all duration-200 cursor-pointer"
                 >
                   <Plus
-                    size={18}
-                    className="stroke-[3] transition-transform group-hover:rotate-90 duration-300"
+                    size={16}
+                    className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4"
                   />
                   {t("addProduct")}
                 </a>

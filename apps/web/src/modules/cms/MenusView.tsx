@@ -792,7 +792,8 @@ function MenuModal({
               onClick={addItem}
               className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
             >
-              <Plus className="w-3.5 h-3.5" /> Add Item
+              <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4" />{" "}
+              Add Item
             </button>
           </div>
           {form.items.length === 0 ? (

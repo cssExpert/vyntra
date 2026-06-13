@@ -41,7 +41,7 @@ function pageWindow(current: number, total: number): (number | "…")[] {
 }
 
 export function CouponsView() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("store.coupons");
   const isLoaded = usePageLoad(600);
   const [search, setSearch] = useState("");
@@ -102,8 +102,8 @@ export function CouponsView() {
           >
             <Button size="lg" radius="sm" className="px-5">
               <Plus
-                size={18}
-                className="stroke-[3] transition-transform group-hover:rotate-90 duration-300"
+                size={16}
+                className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4"
               />
               Add Coupon
             </Button>
@@ -151,7 +151,8 @@ export function CouponsView() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search coupon code…"
-                size="xl" className="w-full pl-10 pr-4 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm"
+                size="xl"
+                className="w-full pl-10 pr-4 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm"
               />
             </div>
             <select
@@ -302,7 +303,10 @@ export function CouponsView() {
                   Showing {fromEntry} to {toEntry} of {filteredCount} entries
                 </span>
                 <div className="flex items-center gap-1">
-                  <Button variant="outline" radius="sm" className="h-8 px-3 text-muted-foreground"
+                  <Button
+                    variant="outline"
+                    radius="sm"
+                    className="h-8 px-3 text-muted-foreground"
                     onClick={() => setPageIndex((p) => Math.max(0, p - 1))}
                     disabled={pageIndex === 0}
                   >
@@ -326,7 +330,10 @@ export function CouponsView() {
                       </button>
                     ),
                   )}
-                  <Button variant="outline" radius="sm" className="h-8 px-3 text-muted-foreground"
+                  <Button
+                    variant="outline"
+                    radius="sm"
+                    className="h-8 px-3 text-muted-foreground"
                     onClick={() =>
                       setPageIndex((p) => Math.min(pageCount - 1, p + 1))
                     }

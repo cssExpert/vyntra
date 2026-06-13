@@ -270,7 +270,10 @@ export function FormBuilderView({ formId }: FormBuilderViewProps) {
             onClick={() => addField("short_text")}
             className="w-full py-3 border-2 border-dashed border-border rounded-xl text-sm font-medium text-muted-foreground hover:text-primary hover:border-primary/40 hover:bg-primary/5 transition-colors inline-flex items-center justify-center gap-2"
           >
-            <Plus size={15} className="stroke-[2.5]" />
+            <Plus
+              size={16}
+              className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4"
+            />
             Add field
           </motion.button>
         </div>

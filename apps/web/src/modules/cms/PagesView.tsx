@@ -233,7 +233,12 @@ export function PagesView() {
   const [availableLayouts, setAvailableLayouts] = useState<CmsLayout[]>([]);
   const [bulkLayoutId, setBulkLayoutId] = useState<string>("");
   const [bulkApplying, setBulkApplying] = useState(false);
-  const [translatingPage, setTranslatingPage] = useState<{ id: string; title: string; metaDesc: string | null; metaKeywords: string | null } | null>(null);
+  const [translatingPage, setTranslatingPage] = useState<{
+    id: string;
+    title: string;
+    metaDesc: string | null;
+    metaKeywords: string | null;
+  } | null>(null);
   const isLoaded = usePageLoad(700);
   const { previewUrl } = useSitePreviewUrl();
   // Ref so the memoized columns closure always reads the latest previewUrl
@@ -506,13 +511,18 @@ export function PagesView() {
                   {
                     label: "Theme Builder",
                     icon: <Blocks size={13} />,
-                    onClick: () => router.push(`/cms/theme-builder?page=${encodeURIComponent(page.slug)}`),
+                    onClick: () =>
+                      router.push(
+                        `/cms/theme-builder?page=${encodeURIComponent(page.slug)}`,
+                      ),
                   },
                   {
                     label: "Translations",
                     icon: <Globe size={13} />,
                     onClick: async () => {
-                      const detail = await cmsPages.load(page.slug).catch(() => null);
+                      const detail = await cmsPages
+                        .load(page.slug)
+                        .catch(() => null);
                       setTranslatingPage({
                         id: page.id,
                         title: page.title,
@@ -757,7 +767,8 @@ export function PagesView() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search pages..."
-                  size="xl" className="pl-9 pr-8 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15 w-52"
+                  size="xl"
+                  className="pl-9 pr-8 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15 w-52"
                 />
                 {searchTerm && (
                   <button
@@ -1056,9 +1067,12 @@ export function PagesView() {
             }
             icon={
               editingPage ? (
-                <PencilLine size={18} className="stroke-[2.5]" />
+                <PencilLine size={16} className="stroke-[2.5]" />
               ) : (
-                <Plus size={18} className="stroke-[2.5]" />
+                <Plus
+                  size={16}
+                  className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4"
+                />
               )
             }
             maxWidth="md"
@@ -1103,7 +1117,8 @@ export function PagesView() {
                         }))
                       }
                       placeholder="Page title"
-                      size="xl" className="w-full rounded-lg border border-border bg-background px-3.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
+                      size="xl"
+                      className="w-full rounded-lg border border-border bg-background px-3.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -1148,7 +1163,8 @@ export function PagesView() {
                         setAddFormData((prev) => ({ ...prev, title, slug }));
                       }}
                       placeholder="e.g. About Us"
-                      size="xl" className="w-full rounded-lg border border-border bg-background px-3.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
+                      size="xl"
+                      className="w-full rounded-lg border border-border bg-background px-3.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
                     />
                   </div>
                   <div className="space-y-1.5">

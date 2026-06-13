@@ -687,7 +687,8 @@ export function BlogView() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search posts…"
-                  size="xl" className="pl-9 pr-8 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15 w-48"
+                  size="xl"
+                  className="pl-9 pr-8 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15 w-48"
                 />
                 {searchTerm && (
                   <button
@@ -706,7 +707,7 @@ export function BlogView() {
                 onClick={() => router.push("/cms/blogs/new")}
                 className="px-4 font-semibold active:scale-[0.98] group"
                 startIcon={
-                  <Plus className="stroke-[3] group-hover:rotate-90 transition-transform duration-200" />
+                  <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4" />
                 }
               >
                 New Post

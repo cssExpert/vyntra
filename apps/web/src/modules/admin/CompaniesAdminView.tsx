@@ -49,7 +49,11 @@ function Inner() {
       setCompanies(c);
       setPackages(p);
     } catch (e) {
-      setError(e instanceof Error ? e.message : t("failedToLoad", { defaultValue: "Failed to load companies" }));
+      setError(
+        e instanceof Error
+          ? e.message
+          : t("failedToLoad", { defaultValue: "Failed to load companies" }),
+      );
     } finally {
       setLoading(false);
     }
@@ -66,7 +70,9 @@ function Inner() {
       await load();
     } catch (e) {
       addToast(
-        e instanceof Error ? e.message : t("failedChangePlan", { defaultValue: "Failed to change plan" }),
+        e instanceof Error
+          ? e.message
+          : t("failedChangePlan", { defaultValue: "Failed to change plan" }),
         "error",
       );
     }
@@ -75,16 +81,26 @@ function Inner() {
   const remove = async (company: AdminCompany) => {
     if (
       !confirm(
-        t("deleteConfirm", { defaultValue: `Delete "${company.name}"? This permanently removes the company and all of its data.` })
+        t("deleteConfirm", {
+          defaultValue: `Delete "${company.name}"? This permanently removes the company and all of its data.`,
+        }),
       )
     )
       return;
     try {
       await admin.deleteCompany(company.id);
-      addToast(`${company.name} ${t("deleted", { defaultValue: "deleted" })}`, "success");
+      addToast(
+        `${company.name} ${t("deleted", { defaultValue: "deleted" })}`,
+        "success",
+      );
       await load();
     } catch (e) {
-      addToast(e instanceof Error ? e.message : t("failedDelete", { defaultValue: "Failed to delete" }), "error");
+      addToast(
+        e instanceof Error
+          ? e.message
+          : t("failedDelete", { defaultValue: "Failed to delete" }),
+        "error",
+      );
     }
   };
 
@@ -101,14 +117,14 @@ function Inner() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={t("title")}
-        description={t("description")}
-      >
-        <Button radius="lg" className="bg-foreground px-3 font-semibold text-background hover:bg-foreground hover:opacity-90"
+      <PageHeader title={t("title")} description={t("description")}>
+        <Button
+          radius="lg"
+          className="bg-foreground px-3 font-semibold text-background hover:bg-foreground hover:opacity-90"
           onClick={() => setAddOpen(true)}
         >
-          <Plus className="h-4 w-4" /> {t("add")}
+          <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4" />{" "}
+          {t("add")}
         </Button>
       </PageHeader>
 
@@ -125,7 +141,8 @@ function Inner() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t("search")}
-          size="lg" className="w-full rounded-lg border border-border bg-background pl-9 pr-3 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
+          size="lg"
+          className="w-full rounded-lg border border-border bg-background pl-9 pr-3 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
         />
       </div>
 
@@ -138,7 +155,9 @@ function Inner() {
               <th className="px-4 py-3 font-medium">{t("users")}</th>
               <th className="px-4 py-3 font-medium">{t("status")}</th>
               <th className="px-4 py-3 font-medium">{t("domains")}</th>
-              <th className="px-4 py-3 font-medium text-right">{t("actions")}</th>
+              <th className="px-4 py-3 font-medium text-right">
+                {t("actions")}
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -193,7 +212,10 @@ function Inner() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                  <td
+                    className="px-4 py-3"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <select
                       value={company.subscription?.package.slug ?? ""}
                       onChange={(e) => changePlan(company.id, e.target.value)}
@@ -212,12 +234,19 @@ function Inner() {
                   <td className="px-4 py-3">
                     <StatusBadge
                       variant={company.isActive ? "success" : "muted"}
-                      label={company.isActive ? t("active", { defaultValue: "Active" }) : t("suspended", { defaultValue: "Suspended" })}
+                      label={
+                        company.isActive
+                          ? t("active", { defaultValue: "Active" })
+                          : t("suspended", { defaultValue: "Suspended" })
+                      }
                       dot
                       size="sm"
                     />
                   </td>
-                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                  <td
+                    className="px-4 py-3"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <button
                       onClick={() => setDomainCompany(company)}
                       className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition cursor-pointer"
@@ -268,7 +297,10 @@ function Inner() {
         packages={packages}
         onClose={() => setAddOpen(false)}
         onCreated={(name) => {
-          addToast(`${name} ${t("created", { defaultValue: "created" })}`, "success");
+          addToast(
+            `${name} ${t("created", { defaultValue: "created" })}`,
+            "success",
+          );
           load();
         }}
         onError={(m) => addToast(m, "error")}
@@ -280,7 +312,10 @@ function Inner() {
         onClose={() => setEditing(null)}
         onSaved={(name) => {
           setEditing(null);
-          addToast(`${name} ${t("updated", { defaultValue: "updated" })}`, "success");
+          addToast(
+            `${name} ${t("updated", { defaultValue: "updated" })}`,
+            "success",
+          );
           load();
         }}
         onError={(m) => addToast(m, "error")}

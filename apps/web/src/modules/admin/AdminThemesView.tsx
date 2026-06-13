@@ -76,10 +76,7 @@ function ThemeFormModal({
       maxWidth="md"
       footer={
         <>
-          <Button
-            variant="outline"
-            onClick={onClose}
-          >
+          <Button variant="outline" onClick={onClose}>
             {t("cancel", { defaultValue: "Cancel" })}
           </Button>
           <Button
@@ -266,7 +263,7 @@ function Inner() {
           onClick={openCreate}
           className="shrink-0 font-semibold"
         >
-          <Plus className="w-4 h-4" />{" "}
+          <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 w-4 h-4" />{" "}
           {t("add", { defaultValue: "Register Theme" })}
         </Button>
       </div>

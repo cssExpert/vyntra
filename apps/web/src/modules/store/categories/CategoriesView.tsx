@@ -362,10 +362,16 @@ export function CategoriesView() {
               { label: t("title", { defaultValue: "Categories" }) },
             ]}
           >
-            <Button size="lg" radius="sm" className="px-5"
+            <Button
+              size="lg"
+              radius="sm"
+              className="px-4"
               onClick={() => router.push("/store/categories/add")}
             >
-              <Plus size={18} className="stroke-[3]" />
+              <Plus
+                size={16}
+                className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4"
+              />
               {t("addCategory", { defaultValue: "Add Category" })}
             </Button>
           </PageHeader>

@@ -261,7 +261,8 @@ export function SeoSitemaps({ showNotification, handleCopy }: ViewProps) {
                 onClick={handleAddPage}
                 className="w-full py-2.5 rounded-xl bg-background border border-border hover:border-border/80 text-foreground font-semibold text-xs transition-all flex items-center justify-center gap-1.5"
               >
-                <Plus className="w-4 h-4" /> Add Page
+                <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4" />{" "}
+                Add Page
               </button>
             </div>
           </div>

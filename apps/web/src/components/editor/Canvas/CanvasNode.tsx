@@ -127,7 +127,7 @@ export default function CanvasNode({
     data: { type: "CANVAS_DROP", nodeId: node.id },
   });
 
-  const resolvedTag = node.tag || 'div';
+  const resolvedTag = node.tag || "div";
   const Tag = resolvedTag as React.ElementType;
   const isVoid = VOID_TAGS.has(resolvedTag);
   const hasChildren = !isVoid && node.children !== undefined;
@@ -189,9 +189,18 @@ export default function CanvasNode({
           isHovered && !isSelected && "outline outline-1 outline-primary/40",
           isDragging && "opacity-30",
         )}
-        onClick={(e) => { e.stopPropagation(); selectNode(node.id); }}
-        onMouseEnter={(e) => { e.stopPropagation(); hoverNode(node.id); }}
-        onMouseLeave={(e) => { e.stopPropagation(); hoverNode(null); }}
+        onClick={(e) => {
+          e.stopPropagation();
+          selectNode(node.id);
+        }}
+        onMouseEnter={(e) => {
+          e.stopPropagation();
+          hoverNode(node.id);
+        }}
+        onMouseLeave={(e) => {
+          e.stopPropagation();
+          hoverNode(null);
+        }}
       >
         {(isHovered || isSelected) && (
           <div className="absolute -top-5 left-0 text-[10px] px-1.5 py-0.5 rounded-sm z-40 pointer-events-none font-mono leading-tight bg-primary text-white">
@@ -199,10 +208,13 @@ export default function CanvasNode({
           </div>
         )}
         <div className="absolute inset-0 z-10" />
-        {BlockComponent
-          ? <BlockComponent data={node.blockData ?? {}} />
-          : <div className="p-6 text-sm text-muted-foreground text-center border border-dashed border-border rounded">Unknown block: {node.blockType}</div>
-        }
+        {BlockComponent ? (
+          <BlockComponent data={node.blockData ?? {}} />
+        ) : (
+          <div className="p-6 text-sm text-muted-foreground text-center border border-dashed border-border rounded">
+            Unknown block: {node.blockType}
+          </div>
+        )}
       </div>
     );
   }
@@ -523,7 +535,7 @@ export default function CanvasNode({
                     bg-primary dark:bg-primary text-white dark:text-primary-foreground
                     shadow-lg hover:scale-110 active:scale-95 transition-transform"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 w-4 h-4" />
               </motion.button>
             )}
           </>,

@@ -48,7 +48,7 @@ const TRIGGER_LABELS: Partial<Record<AutomationTrigger, string>> = {
 };
 
 export function AutomationsView() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("store.automations");
   const isLoaded = usePageLoad(600);
   const [rules, setRules] = useState(SAMPLE_AUTOMATIONS);
@@ -94,8 +94,8 @@ export function AutomationsView() {
           >
             <Button size="lg" radius="sm" className="px-5">
               <Plus
-                size={18}
-                className="stroke-[3] transition-transform group-hover:rotate-90 duration-300"
+                size={16}
+                className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4"
               />
               New Automation
             </Button>

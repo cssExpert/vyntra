@@ -9,7 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 interface Props {
-  page: { id: string; title: string; metaDesc: string | null; metaKeywords: string | null } | null;
+  page: {
+    id: string;
+    title: string;
+    metaDesc: string | null;
+    metaKeywords: string | null;
+  } | null;
   onClose: () => void;
 }
 
@@ -19,9 +24,16 @@ interface TranslationForm {
   metaKeywords: string;
 }
 
-const EMPTY_FORM: TranslationForm = { title: "", metaDesc: "", metaKeywords: "" };
+const EMPTY_FORM: TranslationForm = {
+  title: "",
+  metaDesc: "",
+  metaKeywords: "",
+};
 
-async function freeTranslate(text: string, targetLang: string): Promise<string> {
+async function freeTranslate(
+  text: string,
+  targetLang: string,
+): Promise<string> {
   if (!text.trim()) return "";
   const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${targetLang}`;
   const res = await fetch(url);
@@ -58,12 +70,18 @@ export function PageTranslationsModal({ page, onClose }: Props) {
   }, [page, load]);
 
   const existingLangs = new Set(translations.map((t) => t.lang));
-  const availableLangs = SITE_LANGUAGES.filter((l) => l.code !== "en" && !existingLangs.has(l.code));
+  const availableLangs = SITE_LANGUAGES.filter(
+    (l) => l.code !== "en" && !existingLangs.has(l.code),
+  );
 
   const startEdit = (t: PageTranslation) => {
     setEditingLang(t.lang);
     setSelectedLang(t.lang);
-    setForm({ title: t.title, metaDesc: t.metaDesc ?? "", metaKeywords: t.metaKeywords ?? "" });
+    setForm({
+      title: t.title,
+      metaDesc: t.metaDesc ?? "",
+      metaKeywords: t.metaKeywords ?? "",
+    });
   };
 
   const startNew = () => {
@@ -100,7 +118,9 @@ export function PageTranslationsModal({ page, onClose }: Props) {
       });
       setTranslations((prev) => {
         const exists = prev.find((x) => x.lang === t.lang);
-        return exists ? prev.map((x) => (x.lang === t.lang ? t : x)) : [...prev, t];
+        return exists
+          ? prev.map((x) => (x.lang === t.lang ? t : x))
+          : [...prev, t];
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 1500);
@@ -124,7 +144,8 @@ export function PageTranslationsModal({ page, onClose }: Props) {
   const isEditing = editingLang !== null;
   const showForm = isAdding || isEditing;
 
-  const langMeta = (code: string) => SITE_LANGUAGES.find((l) => l.code === code);
+  const langMeta = (code: string) =>
+    SITE_LANGUAGES.find((l) => l.code === code);
 
   return (
     <Modal
@@ -137,9 +158,16 @@ export function PageTranslationsModal({ page, onClose }: Props) {
       footer={
         showForm ? (
           <>
-            <Button variant="ghost" radius="sm" className="font-semibold text-muted-foreground hover:text-foreground"
+            <Button
+              variant="ghost"
+              radius="sm"
+              className="font-semibold text-muted-foreground hover:text-foreground"
               type="button"
-              onClick={() => { setEditingLang(null); setSelectedLang(""); setForm(EMPTY_FORM); }}
+              onClick={() => {
+                setEditingLang(null);
+                setSelectedLang("");
+                setForm(EMPTY_FORM);
+              }}
             >
               Cancel
             </Button>
@@ -150,12 +178,19 @@ export function PageTranslationsModal({ page, onClose }: Props) {
               disabled={saving || !form.title.trim()}
               className="gap-1.5 px-5 font-semibold active:scale-95"
             >
-              {saving ? <Loader2 size={14} className="animate-spin" /> : saved ? <Check size={14} /> : null}
+              {saving ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : saved ? (
+                <Check size={14} />
+              ) : null}
               {saving ? "Saving…" : saved ? "Saved!" : "Save Translation"}
             </Button>
           </>
         ) : (
-          <Button variant="ghost" radius="sm" className="font-semibold text-muted-foreground hover:text-foreground"
+          <Button
+            variant="ghost"
+            radius="sm"
+            className="font-semibold text-muted-foreground hover:text-foreground"
             type="button"
             onClick={onClose}
           >
@@ -174,16 +209,27 @@ export function PageTranslationsModal({ page, onClose }: Props) {
           <>
             {translations.length > 0 && !showForm && (
               <div className="space-y-2">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Existing Translations</p>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Existing Translations
+                </p>
                 <div className="divide-y divide-border rounded-lg border border-border overflow-hidden">
                   {translations.map((t) => {
                     const meta = langMeta(t.lang);
                     return (
-                      <div key={t.lang} className="flex items-center gap-3 px-4 py-3 bg-card hover:bg-muted/30 transition-colors">
-                        <span className="text-xl leading-none">{meta?.flag}</span>
+                      <div
+                        key={t.lang}
+                        className="flex items-center gap-3 px-4 py-3 bg-card hover:bg-muted/30 transition-colors"
+                      >
+                        <span className="text-xl leading-none">
+                          {meta?.flag}
+                        </span>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-foreground truncate">{t.title}</p>
-                          <p className="text-xs text-muted-foreground">{meta?.name} ({t.lang})</p>
+                          <p className="text-sm font-semibold text-foreground truncate">
+                            {t.title}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {meta?.name} ({t.lang})
+                          </p>
                         </div>
                         <Button
                           variant="link"
@@ -217,24 +263,38 @@ export function PageTranslationsModal({ page, onClose }: Props) {
                 disabled={availableLangs.length === 0}
                 className="w-full border-dashed px-4 text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5"
               >
-                <Plus size={15} />
-                {availableLangs.length === 0 ? "All languages added" : "Add Translation"}
+                <Plus
+                  size={16}
+                  className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4"
+                />
+                {availableLangs.length === 0
+                  ? "All languages added"
+                  : "Add Translation"}
               </Button>
             )}
 
             {showForm && (
               <div className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-foreground">Language</label>
+                  <label className="block text-sm font-medium text-foreground">
+                    Language
+                  </label>
                   {isEditing ? (
                     <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-lg border border-border bg-muted/30 text-sm text-foreground">
-                      <span className="text-base">{langMeta(selectedLang)?.flag}</span>
-                      <span>{langMeta(selectedLang)?.name} ({selectedLang})</span>
+                      <span className="text-base">
+                        {langMeta(selectedLang)?.flag}
+                      </span>
+                      <span>
+                        {langMeta(selectedLang)?.name} ({selectedLang})
+                      </span>
                     </div>
                   ) : (
                     <select
                       value={selectedLang}
-                      onChange={(e) => { setSelectedLang(e.target.value); setForm(EMPTY_FORM); }}
+                      onChange={(e) => {
+                        setSelectedLang(e.target.value);
+                        setForm(EMPTY_FORM);
+                      }}
                       className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
                     >
                       {availableLangs.map((l) => (
@@ -259,7 +319,9 @@ export function PageTranslationsModal({ page, onClose }: Props) {
                   ) : (
                     <Wand2 size={14} className="text-primary" />
                   )}
-                  {translating ? "Translating…" : "Auto-translate from English (Free)"}
+                  {translating
+                    ? "Translating…"
+                    : "Auto-translate from English (Free)"}
                 </Button>
 
                 <div className="space-y-1.5">
@@ -268,17 +330,24 @@ export function PageTranslationsModal({ page, onClose }: Props) {
                   </label>
                   <Input
                     value={form.title}
-                    onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, title: e.target.value }))
+                    }
                     placeholder="Translated page title"
-                    size="xl" className="w-full rounded-lg border border-border bg-background px-3.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
+                    size="xl"
+                    className="w-full rounded-lg border border-border bg-background px-3.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-foreground">Meta Description</label>
+                  <label className="block text-sm font-medium text-foreground">
+                    Meta Description
+                  </label>
                   <textarea
                     value={form.metaDesc}
-                    onChange={(e) => setForm((f) => ({ ...f, metaDesc: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, metaDesc: e.target.value }))
+                    }
                     placeholder="SEO description in the target language"
                     rows={3}
                     className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all resize-none"
@@ -286,17 +355,25 @@ export function PageTranslationsModal({ page, onClose }: Props) {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-foreground">Keywords</label>
+                  <label className="block text-sm font-medium text-foreground">
+                    Keywords
+                  </label>
                   <Input
                     value={form.metaKeywords}
-                    onChange={(e) => setForm((f) => ({ ...f, metaKeywords: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, metaKeywords: e.target.value }))
+                    }
                     placeholder="keyword1, keyword2"
-                    size="xl" className="w-full rounded-lg border border-border bg-background px-3.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
+                    size="xl"
+                    className="w-full rounded-lg border border-border bg-background px-3.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
                   />
                 </div>
 
                 <div className="rounded-lg bg-muted/40 border border-border px-4 py-3 text-xs text-muted-foreground">
-                  <strong className="text-foreground">Note:</strong> Page body content can be translated by opening the page in the visual editor. Meta fields (title, description, keywords) are managed here.
+                  <strong className="text-foreground">Note:</strong> Page body
+                  content can be translated by opening the page in the visual
+                  editor. Meta fields (title, description, keywords) are managed
+                  here.
                 </div>
               </div>
             )}

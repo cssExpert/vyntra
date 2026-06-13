@@ -30,7 +30,7 @@ function pageWindow(current: number, total: number): (number | "…")[] {
 }
 
 export function StoreCreditsView() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("store.credits");
   const isLoaded = usePageLoad(600);
   const [pageIndex, setPageIndex] = useState(0);
@@ -72,8 +72,8 @@ export function StoreCreditsView() {
           >
             <Button size="lg" radius="sm" className="px-5">
               <Plus
-                size={18}
-                className="stroke-[3] transition-transform group-hover:rotate-90 duration-300"
+                size={16}
+                className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4"
               />
               Add Credit
             </Button>
@@ -203,7 +203,10 @@ export function StoreCreditsView() {
                   Showing {fromEntry} to {toEntry} of {filteredCount} entries
                 </span>
                 <div className="flex items-center gap-1">
-                  <Button variant="outline" radius="sm" className="h-8 px-3 text-muted-foreground"
+                  <Button
+                    variant="outline"
+                    radius="sm"
+                    className="h-8 px-3 text-muted-foreground"
                     onClick={() => setPageIndex((p) => Math.max(0, p - 1))}
                     disabled={pageIndex === 0}
                   >
@@ -227,7 +230,10 @@ export function StoreCreditsView() {
                       </button>
                     ),
                   )}
-                  <Button variant="outline" radius="sm" className="h-8 px-3 text-muted-foreground"
+                  <Button
+                    variant="outline"
+                    radius="sm"
+                    className="h-8 px-3 text-muted-foreground"
                     onClick={() =>
                       setPageIndex((p) => Math.min(pageCount - 1, p + 1))
                     }

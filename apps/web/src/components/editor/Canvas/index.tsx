@@ -119,7 +119,7 @@ export default function Canvas() {
                       )}
                     >
                       {isOver ? (
-                        <Plus className="w-8 h-8 text-primary dark:text-primary" />
+                        <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 w-8 h-8 text-primary dark:text-primary" />
                       ) : (
                         <MousePointer2 className="w-8 h-8 text-muted-foreground" />
                       )}

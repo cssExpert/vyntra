@@ -103,7 +103,7 @@ export function BlockHandle({ editor }: { editor: Editor }) {
           onClick={openSlashBelow}
           className="h-6 w-5 flex items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer !border-0"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4" />
         </button>
 
         {/* Drag handle — hold to drag, click for options */}
