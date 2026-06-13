@@ -63,7 +63,9 @@ function SectionCard({
     >
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+          <h3 className="text-sm md:text-base font-bold text-foreground">
+            {title}
+          </h3>
           {description && (
             <p className="text-xs text-muted-foreground mt-0.5">
               {description}
