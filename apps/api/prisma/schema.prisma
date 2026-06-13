@@ -130,6 +130,7 @@ model Organization {
   websiteConfigs WebsiteConfig[]
   menus          Menu[]
   layouts        Layout[]
+  cmsForms       CmsForm[]
 
   // CRM (org-scoped)
   leads      Lead[]
@@ -498,6 +499,41 @@ model MenuItem {
 
   @@index([menuId])
   @@map("menu_items")
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  CMS Forms (org-scoped)
+// ════════════════════════════════════════════════════════════════════
+
+model CmsForm {
+  id             String              @id @default(cuid())
+  name           String
+  description    String?
+  slug           String
+  status         String              @default("Draft")
+  fields         Json                @default("[]")
+  organizationId String
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  organization  Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  submissions   CmsFormSubmission[]
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+  @@map("cms_forms")
+}
+
+model CmsFormSubmission {
+  id        String   @id @default(cuid())
+  formId    String
+  data      Json     @default("{}")
+  createdAt DateTime @default(now())
+
+  form CmsForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@index([formId])
+  @@map("cms_form_submissions")
 }
 
 // ════════════════════════════════════════════════════════════════════

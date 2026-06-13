@@ -749,4 +749,94 @@ export class CmsService {
     }
     return this.getMenu(orgId, menuId);
   }
+
+  // ── CMS Forms ────────────────────────────────────────────────────────────────
+
+  private formatForm(f: { id: string; name: string; description: string | null; slug: string; status: string; fields: unknown; createdAt: Date; updatedAt: Date; _count: { submissions: number } }) {
+    return {
+      id: f.id,
+      name: f.name,
+      description: f.description ?? '',
+      slug: f.slug,
+      status: f.status,
+      fields: f.fields,
+      responses: f._count.submissions,
+      createdAt: f.createdAt.toISOString(),
+      updatedAt: f.updatedAt.toISOString(),
+    };
+  }
+
+  async listForms(orgId: string) {
+    const forms = await this.prisma.cmsForm.findMany({
+      where: { organizationId: orgId },
+      include: { _count: { select: { submissions: true } } },
+      orderBy: { createdAt: 'desc' },
+    });
+    return forms.map((f) => this.formatForm(f));
+  }
+
+  async getFormById(orgId: string, id: string) {
+    const form = await this.prisma.cmsForm.findFirst({
+      where: { id, organizationId: orgId },
+      include: { _count: { select: { submissions: true } } },
+    });
+    if (!form) throw new NotFoundException('Form not found');
+    return this.formatForm(form);
+  }
+
+  async createForm(orgId: string, dto: { name: string; description?: string; slug: string; status?: string; fields?: unknown[] }) {
+    const form = await this.prisma.cmsForm.create({
+      data: {
+        name: dto.name,
+        description: dto.description,
+        slug: dto.slug,
+        status: dto.status ?? 'Draft',
+        fields: (dto.fields ?? []) as object,
+        organizationId: orgId,
+      },
+      include: { _count: { select: { submissions: true } } },
+    });
+    return this.formatForm(form);
+  }
+
+  async updateForm(orgId: string, id: string, dto: { name?: string; description?: string; slug?: string; status?: string; fields?: unknown[] }) {
+    const existing = await this.prisma.cmsForm.findFirst({ where: { id, organizationId: orgId } });
+    if (!existing) throw new NotFoundException('Form not found');
+    const form = await this.prisma.cmsForm.update({
+      where: { id },
+      data: {
+        ...(dto.name !== undefined && { name: dto.name }),
+        ...(dto.description !== undefined && { description: dto.description }),
+        ...(dto.slug !== undefined && { slug: dto.slug }),
+        ...(dto.status !== undefined && { status: dto.status }),
+        ...(dto.fields !== undefined && { fields: dto.fields as object }),
+      },
+      include: { _count: { select: { submissions: true } } },
+    });
+    return this.formatForm(form);
+  }
+
+  async deleteFormById(orgId: string, id: string) {
+    const existing = await this.prisma.cmsForm.findFirst({ where: { id, organizationId: orgId } });
+    if (!existing) throw new NotFoundException('Form not found');
+    await this.prisma.cmsForm.delete({ where: { id } });
+    return { ok: true };
+  }
+
+  async duplicateForm(orgId: string, id: string) {
+    const source = await this.prisma.cmsForm.findFirst({ where: { id, organizationId: orgId } });
+    if (!source) throw new NotFoundException('Form not found');
+    const form = await this.prisma.cmsForm.create({
+      data: {
+        name: `${source.name} (Copy)`,
+        description: source.description,
+        slug: `${source.slug}-copy-${Date.now()}`,
+        status: 'Draft',
+        fields: source.fields as object,
+        organizationId: orgId,
+      },
+      include: { _count: { select: { submissions: true } } },
+    });
+    return this.formatForm(form);
+  }
 }

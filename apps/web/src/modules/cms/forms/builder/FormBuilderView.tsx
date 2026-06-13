@@ -4,15 +4,15 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
-import { MoveLeft, Eye, Save, Plus, Sparkles, Check } from "lucide-react";
+import { MoveLeft, Eye, Save, Plus, Sparkles, Check, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { FieldPalette } from "./FieldPalette";
 import { FieldCard } from "./FieldCard";
 import { FormPreviewModal } from "./FormPreviewModal";
 import { createField } from "./field-config";
-import { getForm, upsertForm } from "../forms.store";
-import type { CmsForm, FieldType, FormField, FormStatus } from "../forms.types";
+import { cmsForms } from "@/lib/api";
+import type { FieldType, FormField, FormStatus, CmsForm } from "../forms.types";
 
 function slugify(name: string): string {
   return (
@@ -27,7 +27,7 @@ function slugify(name: string): string {
 function blankForm(): CmsForm {
   const now = new Date().toISOString();
   return {
-    id: `form_${Date.now()}`,
+    id: "",
     name: "",
     description: "",
     slug: "",
@@ -50,12 +50,16 @@ export function FormBuilderView({ formId }: FormBuilderViewProps) {
   const [form, setForm] = useState<CmsForm | null>(null);
   const [activeFieldId, setActiveFieldId] = useState<string | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
 
   useEffect(() => {
     if (formId) {
-      const existing = getForm(formId);
-      setForm(existing ?? blankForm());
+      cmsForms.get(formId).then((existing) => {
+        setForm(existing as CmsForm);
+      }).catch(() => {
+        setForm(blankForm());
+      });
     } else {
       const fresh = blankForm();
       setForm(fresh);
@@ -101,15 +105,30 @@ export function FormBuilderView({ formId }: FormBuilderViewProps) {
     if (activeFieldId === id) setActiveFieldId(null);
   };
 
-  const handleSave = () => {
-    upsertForm({
-      ...form,
-      name: form.name.trim() || "Untitled form",
-      slug: form.slug || slugify(form.name),
-      updatedAt: new Date().toISOString(),
-    });
-    setJustSaved(true);
-    setTimeout(() => router.push("/cms/forms"), 650);
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const name = form.name.trim() || "Untitled form";
+      const slug = form.slug || slugify(name);
+      const dto = {
+        name,
+        description: form.description,
+        slug,
+        status: form.status,
+        fields: form.fields,
+      };
+
+      if (formId && form.id) {
+        await cmsForms.update(formId, dto);
+      } else {
+        await cmsForms.create(dto);
+      }
+
+      setJustSaved(true);
+      setTimeout(() => router.push("/cms/forms"), 650);
+    } catch {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -167,7 +186,7 @@ export function FormBuilderView({ formId }: FormBuilderViewProps) {
             size="lg"
             radius="sm"
             onClick={handleSave}
-            disabled={justSaved}
+            disabled={isSaving || justSaved}
             className="px-5 font-semibold active:scale-[0.98] disabled:opacity-80"
           >
             <AnimatePresence mode="wait" initial={false}>
@@ -180,6 +199,16 @@ export function FormBuilderView({ formId }: FormBuilderViewProps) {
                 >
                   <Check size={15} className="stroke-[3]" />
                   Saved
+                </motion.span>
+              ) : isSaving ? (
+                <motion.span
+                  key="saving"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="inline-flex items-center gap-2"
+                >
+                  <Loader2 size={15} className="animate-spin" />
+                  Saving…
                 </motion.span>
               ) : (
                 <motion.span

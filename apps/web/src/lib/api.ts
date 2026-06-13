@@ -936,6 +936,56 @@ export const cmsThemes = {
     }),
 };
 
+// ─── CMS Forms ───────────────────────────────────────────
+export interface CmsFormField {
+  id: string;
+  type: string;
+  label: string;
+  placeholder?: string;
+  helpText?: string;
+  required: boolean;
+  options: string[];
+}
+
+export interface CmsFormItem {
+  id: string;
+  name: string;
+  description: string;
+  slug: string;
+  status: string;
+  fields: CmsFormField[];
+  responses: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CmsFormSaveDto {
+  name: string;
+  description?: string;
+  slug: string;
+  status?: string;
+  fields?: CmsFormField[];
+}
+
+export const cmsForms = {
+  list: () => apiFetch<CmsFormItem[]>("/cms/forms"),
+  get: (id: string) => apiFetch<CmsFormItem>(`/cms/forms/${id}`),
+  create: (dto: CmsFormSaveDto) =>
+    apiFetch<CmsFormItem>("/cms/forms", {
+      method: "POST",
+      body: JSON.stringify(dto),
+    }),
+  update: (id: string, dto: Partial<CmsFormSaveDto>) =>
+    apiFetch<CmsFormItem>(`/cms/forms/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(dto),
+    }),
+  delete: (id: string) =>
+    apiFetch<{ ok: boolean }>(`/cms/forms/${id}`, { method: "DELETE" }),
+  duplicate: (id: string) =>
+    apiFetch<CmsFormItem>(`/cms/forms/${id}/duplicate`, { method: "POST" }),
+};
+
 export const cmsMenus = {
   list: () => apiFetch<CmsMenu[]>("/cms/menus"),
   create: (data: { name: string; slug: string; visibility: string[]; menuType?: string }) =>

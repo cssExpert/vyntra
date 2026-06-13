@@ -327,4 +327,49 @@ export class CmsController {
   ) {
     return this.cmsService.setMenuItems(requireOrg(orgId), id, body.items);
   }
+
+  // ── Forms ─────────────────────────────────────────────────────────────────
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Get('forms')
+  listForms(@CurrentOrg() orgId: string | null) {
+    return this.cmsService.listForms(requireOrg(orgId));
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Get('forms/:id')
+  getForm(@CurrentOrg() orgId: string | null, @Param('id') id: string) {
+    return this.cmsService.getFormById(requireOrg(orgId), id);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Post('forms')
+  createForm(
+    @CurrentOrg() orgId: string | null,
+    @Body() body: { name: string; description?: string; slug: string; status?: string; fields?: unknown[] },
+  ) {
+    return this.cmsService.createForm(requireOrg(orgId), body);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Patch('forms/:id')
+  updateForm(
+    @CurrentOrg() orgId: string | null,
+    @Param('id') id: string,
+    @Body() body: { name?: string; description?: string; slug?: string; status?: string; fields?: unknown[] },
+  ) {
+    return this.cmsService.updateForm(requireOrg(orgId), id, body);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Delete('forms/:id')
+  deleteForm(@CurrentOrg() orgId: string | null, @Param('id') id: string) {
+    return this.cmsService.deleteFormById(requireOrg(orgId), id);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Post('forms/:id/duplicate')
+  duplicateForm(@CurrentOrg() orgId: string | null, @Param('id') id: string) {
+    return this.cmsService.duplicateForm(requireOrg(orgId), id);
+  }
 }

@@ -33,7 +33,6 @@ import { FilterPanel } from "@/components/common/FilterPanel";
 import { FilterSelect } from "@/components/common/FilterSelect";
 import { DateRangePicker } from "@/components/common/DateRangePicker";
 import { TableSkeleton } from "@/components/common/TableSkeleton";
-import { usePageLoad } from "@/hooks/usePageLoad";
 import { MotionTabs, type MotionTabItem } from "@/components/ui/MotionTabs";
 
 import {
@@ -43,7 +42,7 @@ import {
 } from "./forms-table-config";
 import { FormsTable } from "./FormsTable";
 import { FormPreviewModal } from "./builder/FormPreviewModal";
-import { loadForms, deleteForm, duplicateForm } from "./forms.store";
+import { cmsForms } from "@/lib/api";
 import type { CmsForm, FormStatus } from "./forms.types";
 import { Input } from "@/components/ui/input";
 
@@ -81,10 +80,14 @@ export function FormsView() {
   const [filterDraft, setFilterDraft] = useState<FormFilters>(DEFAULT_FILTERS);
   const [activeFilters, setActiveFilters] =
     useState<FormFilters>(DEFAULT_FILTERS);
-  const isLoaded = usePageLoad(700);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setForms(loadForms());
+    setIsLoading(true);
+    cmsForms.list()
+      .then((data) => setForms(data as CmsForm[]))
+      .catch(() => setForms([]))
+      .finally(() => setIsLoading(false));
   }, []);
 
   // Lock outer scroll while table is mounted
@@ -160,9 +163,13 @@ export function FormsView() {
     });
   }, [forms, activeTab, activeFilters]);
 
-  const handleDuplicate = useCallback((form: CmsForm) => {
-    setForms(duplicateForm(form.id));
+  const refresh = useCallback(() => {
+    cmsForms.list().then((data) => setForms(data as CmsForm[])).catch(() => {});
   }, []);
+
+  const handleDuplicate = useCallback((form: CmsForm) => {
+    cmsForms.duplicate(form.id).then(refresh).catch(() => {});
+  }, [refresh]);
 
   const columns = useMemo(
     () =>
@@ -194,7 +201,9 @@ export function FormsView() {
 
   const handleConfirmDelete = () => {
     if (!deletingForm) return;
-    setForms(deleteForm(deletingForm.id));
+    cmsForms.delete(deletingForm.id).then(() => {
+      setForms((prev) => prev.filter((f) => f.id !== deletingForm.id));
+    }).catch(() => {});
     setDeletingForm(null);
   };
 
@@ -205,7 +214,7 @@ export function FormsView() {
 
   return (
     <AnimatePresence mode="wait" initial={false}>
-      {!isLoaded ? (
+      {isLoading ? (
         <motion.div
           key="skeleton"
           exit={{ opacity: 0 }}
