@@ -169,11 +169,11 @@ export function AddCategoryView({ mode = "add" }: AddCategoryViewProps) {
         >
           <button
             onClick={() => router.push("/store/categories")}
-            className="rounded-sm border border-border bg-transparent px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer"
+            className="rounded-sm border border-border bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer"
           >
             Cancel
           </button>
-          <Button size="lg" radius="sm" className="px-5">
+          <Button size="lg" radius="sm" className="px-4">
             <Save size={14} />
             {isEdit ? "Save Changes" : "Save"}
           </Button>

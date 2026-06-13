@@ -82,7 +82,7 @@ export function SortDropdown({ activeSort, onSortChange }: SortDropdownProps) {
       <button
         onClick={() => setIsOpen((p) => !p)}
         className={cn(
-          "flex items-center gap-1.5 rounded-xl bg-white dark:bg-muted border px-3 py-2 text-sm font-medium",
+          "flex items-center gap-1.5 rounded-xl bg-white dark:bg-muted border px-4 py-2.5 text-sm font-medium",
           "transition-all duration-150 cursor-pointer",
           isOpen
             ? "border-primary/50 bg-primary/10 text-primary"

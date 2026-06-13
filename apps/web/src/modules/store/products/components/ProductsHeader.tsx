@@ -36,11 +36,11 @@ export function ProductsHeader({
 
       {/* Actions */}
       <div className="flex items-center gap-2">
-        <button className="flex items-center gap-1.5 rounded-sm border border-border bg-transparent px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer">
+        <button className="flex items-center gap-1.5 rounded-sm border border-border bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer">
           <Upload size={16} />
           Import
         </button>
-        <button className="flex items-center gap-1.5 rounded-sm border border-border bg-transparent px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer">
+        <button className="flex items-center gap-1.5 rounded-sm border border-border bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer">
           <Download size={16} />
           Export
         </button>

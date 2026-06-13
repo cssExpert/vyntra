@@ -230,7 +230,7 @@ export function SubscriptionSettingsView() {
                   <button
                     disabled
                     title="Contact your administrator to change plans"
-                    className="mt-5 w-full cursor-not-allowed rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted-foreground"
+                    className="mt-5 w-full cursor-not-allowed rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-muted-foreground"
                   >
                     {isCurrent ? "Current Plan" : "Contact admin"}
                   </button>

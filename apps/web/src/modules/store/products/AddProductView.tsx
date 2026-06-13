@@ -213,15 +213,15 @@ export function AddProductView() {
         >
           <button
             onClick={() => router.push("/store/products")}
-            className="rounded-sm border border-border bg-transparent px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer"
+            className="rounded-sm border border-border bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer"
           >
             Cancel
           </button>
-          <button className="flex items-center gap-2 rounded-sm border border-border bg-transparent px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer">
+          <button className="flex items-center gap-2 rounded-sm border border-border bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer">
             <Save size={14} />
             Save Draft
           </button>
-          <Button size="lg" radius="sm" className="px-5">
+          <Button size="lg" radius="sm" className="px-4">
             <Send size={14} />
             Publish
           </Button>

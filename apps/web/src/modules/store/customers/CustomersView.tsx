@@ -9,14 +9,31 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
 import {
-  useReactTable, getCoreRowModel, getSortedRowModel, getPaginationRowModel, flexRender,
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getPaginationRowModel,
+  flexRender,
   createColumnHelper,
-  type SortingState, type Column, type ColumnPinningState, type PaginationState,
+  type SortingState,
+  type Column,
+  type ColumnPinningState,
+  type PaginationState,
 } from "@tanstack/react-table";
 import {
-  Search, X, Download, Users,
-  Eye, Pencil, Trash2, Mail, Star,
-  TrendingUp, ChevronUp, ChevronDown, ChevronsUpDown,
+  Search,
+  X,
+  Download,
+  Users,
+  Eye,
+  Pencil,
+  Trash2,
+  Mail,
+  Star,
+  TrendingUp,
+  ChevronUp,
+  ChevronDown,
+  ChevronsUpDown,
 } from "lucide-react";
 import { SAMPLE_CUSTOMERS } from "../store.data";
 import type { StoreCustomer } from "../store.types";
@@ -26,28 +43,45 @@ import { Input } from "@/components/ui/input";
 const columnHelper = createColumnHelper<StoreCustomer>();
 
 function formatCurrency(v: number) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(v);
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(v);
 }
 
 function getInitials(name: string) {
-  return name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 }
 
 function pageWindow(current: number, total: number): (number | "…")[] {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i);
   const pages: (number | "…")[] = [];
-  const add = (n: number) => { if (!pages.includes(n)) pages.push(n); };
+  const add = (n: number) => {
+    if (!pages.includes(n)) pages.push(n);
+  };
   add(0);
   if (current > 2) pages.push("…");
-  for (let i = Math.max(1, current - 1); i <= Math.min(total - 2, current + 1); i++) add(i);
+  for (
+    let i = Math.max(1, current - 1);
+    i <= Math.min(total - 2, current + 1);
+    i++
+  )
+    add(i);
   if (current < total - 3) pages.push("…");
   add(total - 1);
   return pages;
 }
 
-function getCommonPinningStyles(column: Column<StoreCustomer>): React.CSSProperties {
+function getCommonPinningStyles(
+  column: Column<StoreCustomer>,
+): React.CSSProperties {
   const isPinned = column.getIsPinned();
-  const isLastLeft   = isPinned === "left"  && column.getIsLastColumn("left");
+  const isLastLeft = isPinned === "left" && column.getIsLastColumn("left");
   const isFirstRight = isPinned === "right" && column.getIsFirstColumn("right");
   return {
     boxShadow: isLastLeft
@@ -55,21 +89,27 @@ function getCommonPinningStyles(column: Column<StoreCustomer>): React.CSSPropert
       : isFirstRight
         ? "-3px 0 6px -2px rgba(0,0,0,0.12)"
         : undefined,
-    left:     isPinned === "left"  ? `${column.getStart("left")}px`  : undefined,
-    right:    isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
+    left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
+    right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
     position: isPinned ? "sticky" : "relative",
-    zIndex:   isPinned ? 1 : 0,
-    width:    column.getSize(),
+    zIndex: isPinned ? 1 : 0,
+    width: column.getSize(),
     background: "inherit",
   };
 }
 
-const SEGMENT_BADGE: Record<string, { variant: "success" | "warning" | "error" | "info" | "muted" | "purple"; label: string }> = {
-  new:      { variant: "info",    label: "New" },
-  regular:  { variant: "muted",   label: "Regular" },
-  vip:      { variant: "warning", label: "VIP" },
-  at_risk:  { variant: "error",   label: "At Risk" },
-  inactive: { variant: "muted",   label: "Inactive" },
+const SEGMENT_BADGE: Record<
+  string,
+  {
+    variant: "success" | "warning" | "error" | "info" | "muted" | "purple";
+    label: string;
+  }
+> = {
+  new: { variant: "info", label: "New" },
+  regular: { variant: "muted", label: "Regular" },
+  vip: { variant: "warning", label: "VIP" },
+  at_risk: { variant: "error", label: "At Risk" },
+  inactive: { variant: "muted", label: "Inactive" },
 };
 
 const getColumns = (t: any) => [
@@ -89,8 +129,12 @@ const getColumns = (t: any) => [
             )}
           </div>
           <div className="min-w-0">
-            <p className="font-semibold text-foreground text-[13px] truncate">{c.name}</p>
-            <p className="text-[11px] text-muted-foreground truncate">{c.email}</p>
+            <p className="font-semibold text-foreground text-[13px] truncate">
+              {c.name}
+            </p>
+            <p className="text-[11px] text-muted-foreground truncate">
+              {c.email}
+            </p>
           </div>
         </div>
       );
@@ -100,21 +144,27 @@ const getColumns = (t: any) => [
     header: () => t("ordersHeader", { defaultValue: "Orders" }),
     size: 90,
     cell: ({ getValue }) => (
-      <span className="font-semibold text-foreground tabular-nums">{getValue()}</span>
+      <span className="font-semibold text-foreground tabular-nums">
+        {getValue()}
+      </span>
     ),
   }),
   columnHelper.accessor("totalSpent", {
     header: () => t("totalSpent", { defaultValue: "Total Spent" }),
     size: 120,
     cell: ({ getValue }) => (
-      <span className="font-bold text-success tabular-nums">{formatCurrency(getValue())}</span>
+      <span className="font-bold text-success tabular-nums">
+        {formatCurrency(getValue())}
+      </span>
     ),
   }),
   columnHelper.accessor("averageOrderValue", {
     header: () => t("aov", { defaultValue: "AOV" }),
     size: 100,
     cell: ({ getValue }) => (
-      <span className="text-xs text-foreground tabular-nums">{formatCurrency(getValue())}</span>
+      <span className="text-xs text-foreground tabular-nums">
+        {formatCurrency(getValue())}
+      </span>
     ),
   }),
   columnHelper.accessor("rewardPoints", {
@@ -123,7 +173,9 @@ const getColumns = (t: any) => [
     cell: ({ getValue }) => (
       <div className="flex items-center gap-1">
         <TrendingUp size={11} className="text-warning" />
-        <span className="text-xs font-semibold text-foreground tabular-nums">{getValue().toLocaleString()}</span>
+        <span className="text-xs font-semibold text-foreground tabular-nums">
+          {getValue().toLocaleString()}
+        </span>
       </div>
     ),
   }),
@@ -132,9 +184,13 @@ const getColumns = (t: any) => [
     size: 90,
     cell: ({ getValue }) => {
       const v = getValue();
-      return v > 0
-        ? <span className="text-xs font-semibold text-info tabular-nums">{formatCurrency(v)}</span>
-        : <span className="text-muted-foreground/40 text-xs">—</span>;
+      return v > 0 ? (
+        <span className="text-xs font-semibold text-info tabular-nums">
+          {formatCurrency(v)}
+        </span>
+      ) : (
+        <span className="text-muted-foreground/40 text-xs">—</span>
+      );
     },
   }),
   columnHelper.accessor("segment", {
@@ -142,16 +198,21 @@ const getColumns = (t: any) => [
     size: 100,
     cell: ({ getValue }) => {
       const seg = getValue();
-      if (!seg) return <span className="text-muted-foreground/40 text-xs">—</span>;
+      if (!seg)
+        return <span className="text-muted-foreground/40 text-xs">—</span>;
       const badge = SEGMENT_BADGE[seg];
-      return <StatusBadge variant={badge.variant} label={badge.label} size="sm" />;
+      return (
+        <StatusBadge variant={badge.variant} label={badge.label} size="sm" />
+      );
     },
   }),
   columnHelper.accessor("lastOrderDate", {
     header: () => t("lastOrder", { defaultValue: "Last Order" }),
     size: 110,
     cell: ({ getValue }) => (
-      <span className="text-xs text-muted-foreground tabular-nums">{getValue() ?? "—"}</span>
+      <span className="text-xs text-muted-foreground tabular-nums">
+        {getValue() ?? "—"}
+      </span>
     ),
   }),
   columnHelper.display({
@@ -162,10 +223,28 @@ const getColumns = (t: any) => [
     cell: ({ row }) => (
       <TableActionMenu
         items={[
-          { label: t("viewProfile", { defaultValue: "View Profile" }), icon: <Eye size={14} />,    onClick: () => {} },
-          { label: t("sendEmail", { defaultValue: "Send Email" }),   icon: <Mail size={14} />,   onClick: () => {} },
-          { label: t("edit", { defaultValue: "Edit" }),         icon: <Pencil size={14} />, onClick: () => {} },
-          { label: t("delete", { defaultValue: "Delete" }),       icon: <Trash2 size={14} />, onClick: () => {}, variant: "danger", separator: true },
+          {
+            label: t("viewProfile", { defaultValue: "View Profile" }),
+            icon: <Eye size={14} />,
+            onClick: () => {},
+          },
+          {
+            label: t("sendEmail", { defaultValue: "Send Email" }),
+            icon: <Mail size={14} />,
+            onClick: () => {},
+          },
+          {
+            label: t("edit", { defaultValue: "Edit" }),
+            icon: <Pencil size={14} />,
+            onClick: () => {},
+          },
+          {
+            label: t("delete", { defaultValue: "Delete" }),
+            icon: <Trash2 size={14} />,
+            onClick: () => {},
+            variant: "danger",
+            separator: true,
+          },
         ]}
       />
     ),
@@ -175,12 +254,15 @@ const getColumns = (t: any) => [
 function Inner() {
   const t = useTranslations("admin.store.customers");
   const isLoaded = usePageLoad(700);
-  const [search,  setSearch]  = useState("");
+  const [search, setSearch] = useState("");
   const [segment, setSegment] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
   const [columnPinning] = useState<ColumnPinningState>({
-    left:  ["name"],
+    left: ["name"],
     right: ["actions"],
   });
 
@@ -189,12 +271,17 @@ function Inner() {
     if (segment) r = r.filter((c) => c.segment === segment);
     if (search.trim()) {
       const q = search.toLowerCase();
-      r = r.filter((c) => c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q));
+      r = r.filter(
+        (c) =>
+          c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q),
+      );
     }
     return r;
   }, [search, segment]);
 
-  useEffect(() => { setPagination((p) => ({ ...p, pageIndex: 0 })); }, [search, segment]);
+  useEffect(() => {
+    setPagination((p) => ({ ...p, pageIndex: 0 }));
+  }, [search, segment]);
 
   const table = useReactTable({
     data: filtered,
@@ -214,7 +301,7 @@ function Inner() {
   const pageCount = table.getPageCount();
 
   const totalSpent = SAMPLE_CUSTOMERS.reduce((s, c) => s + c.totalSpent, 0);
-  const vipCount   = SAMPLE_CUSTOMERS.filter((c) => c.isVip).length;
+  const vipCount = SAMPLE_CUSTOMERS.filter((c) => c.isVip).length;
 
   return (
     <AnimatePresence mode="wait" initial={false}>
@@ -234,9 +321,12 @@ function Inner() {
           <PageHeader
             title={t("title", { defaultValue: "Customers" })}
             description={`${SAMPLE_CUSTOMERS.length} ${t("totalCustomers", { defaultValue: "customers" }).toLowerCase()} · ${vipCount} ${t("vip")} · $${totalSpent.toFixed(0)} ${t("lifetimeValue", { defaultValue: "lifetime value" }).toLowerCase()}`}
-            breadcrumbs={[{ label: t("store", { defaultValue: "Store" }), href: "/store" }, { label: t("title", { defaultValue: "Customers" }) }]}
+            breadcrumbs={[
+              { label: t("store", { defaultValue: "Store" }), href: "/store" },
+              { label: t("title", { defaultValue: "Customers" }) },
+            ]}
           >
-            <button className="flex items-center gap-2 rounded-sm border border-border px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer">
+            <button className="flex items-center gap-2 rounded-sm border border-border px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer">
               <Download className="h-3.5 w-3.5" />
               {t("export", { defaultValue: "Export" })}
             </button>
@@ -245,15 +335,34 @@ function Inner() {
           {/* Quick stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: t("totalCustomers", { defaultValue: "Total" }),    value: SAMPLE_CUSTOMERS.length,                              color: "text-foreground" },
-              { label: t("vip"),      value: vipCount,                                              color: "text-warning" },
-              { label: t("new", { defaultValue: "New" }),      value: SAMPLE_CUSTOMERS.filter((c) => c.segment === "new").length, color: "text-info" },
-              { label: t("atRisk", { defaultValue: "At Risk" }),  value: SAMPLE_CUSTOMERS.filter((c) => c.segment === "at_risk").length, color: "text-error" },
+              {
+                label: t("totalCustomers", { defaultValue: "Total" }),
+                value: SAMPLE_CUSTOMERS.length,
+                color: "text-foreground",
+              },
+              { label: t("vip"), value: vipCount, color: "text-warning" },
+              {
+                label: t("new", { defaultValue: "New" }),
+                value: SAMPLE_CUSTOMERS.filter((c) => c.segment === "new")
+                  .length,
+                color: "text-info",
+              },
+              {
+                label: t("atRisk", { defaultValue: "At Risk" }),
+                value: SAMPLE_CUSTOMERS.filter((c) => c.segment === "at_risk")
+                  .length,
+                color: "text-error",
+              },
             ].map((s) => (
-              <div key={s.label} className="glass-card p-3 flex items-center gap-3">
+              <div
+                key={s.label}
+                className="glass-card p-3 flex items-center gap-3"
+              >
                 <Users size={16} className={s.color} />
                 <div>
-                  <p className={`text-lg font-extrabold ${s.color}`}>{s.value}</p>
+                  <p className={`text-lg font-extrabold ${s.color}`}>
+                    {s.value}
+                  </p>
                   <p className="text-[11px] text-muted-foreground">{s.label}</p>
                 </div>
               </div>
@@ -269,11 +378,17 @@ function Inner() {
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder={t("searchPlaceholder", { defaultValue: "Search customers…" })}
-                size="xl" className="w-full pl-10 pr-4 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm"
+                placeholder={t("searchPlaceholder", {
+                  defaultValue: "Search customers…",
+                })}
+                size="xl"
+                className="w-full pl-10 pr-4 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm"
               />
               {search && (
-                <button onClick={() => setSearch("")} className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+                <button
+                  onClick={() => setSearch("")}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                >
                   <X size={16} />
                 </button>
               )}
@@ -283,45 +398,90 @@ function Inner() {
               onChange={(e) => setSegment(e.target.value)}
               className="rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all cursor-pointer"
             >
-              <option value="">{t("allSegments", { defaultValue: "All Segments" })}</option>
+              <option value="">
+                {t("allSegments", { defaultValue: "All Segments" })}
+              </option>
               <option value="new">{t("new", { defaultValue: "New" })}</option>
-              <option value="regular">{t("regular", { defaultValue: "Regular" })}</option>
+              <option value="regular">
+                {t("regular", { defaultValue: "Regular" })}
+              </option>
               <option value="vip">{t("vip", { defaultValue: "VIP" })}</option>
-              <option value="at_risk">{t("atRisk", { defaultValue: "At Risk" })}</option>
-              <option value="inactive">{t("inactive", { defaultValue: "Inactive" })}</option>
+              <option value="at_risk">
+                {t("atRisk", { defaultValue: "At Risk" })}
+              </option>
+              <option value="inactive">
+                {t("inactive", { defaultValue: "Inactive" })}
+              </option>
             </select>
           </div>
 
           {/* Table */}
           <div className="bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-clip">
-
-            <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: "calc(100vh - 340px)" }}>
-              <table className="text-left border-collapse" style={{ tableLayout: "fixed", width: "100%", minWidth: "1100px" }}>
+            <div
+              className="overflow-x-auto overflow-y-auto"
+              style={{ maxHeight: "calc(100vh - 340px)" }}
+            >
+              <table
+                className="text-left border-collapse"
+                style={{
+                  tableLayout: "fixed",
+                  width: "100%",
+                  minWidth: "1100px",
+                }}
+              >
                 <thead>
                   {table.getHeaderGroups().map((hg) => (
-                    <tr key={hg.id} className="text-[13px] font-semibold text-muted-foreground select-none">
+                    <tr
+                      key={hg.id}
+                      className="text-[13px] font-semibold text-muted-foreground select-none"
+                    >
                       {hg.headers.map((header) => {
-                        const canSort   = header.column.getCanSort();
-                        const sorted    = header.column.getIsSorted();
+                        const canSort = header.column.getCanSort();
+                        const sorted = header.column.getIsSorted();
                         const isActions = header.id === "actions";
                         return (
                           <th
                             key={header.id}
-                            onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
+                            onClick={
+                              canSort
+                                ? header.column.getToggleSortingHandler()
+                                : undefined
+                            }
                             className={[
                               "sticky top-0 bg-muted border-b border-border font-semibold py-4 px-4",
                               isActions ? "text-right" : "",
-                              canSort ? "cursor-pointer hover:text-foreground transition-colors" : "",
+                              canSort
+                                ? "cursor-pointer hover:text-foreground transition-colors"
+                                : "",
                             ].join(" ")}
                             style={getCommonPinningStyles(header.column)}
                           >
-                            <div className={`flex items-center gap-1 ${isActions ? "justify-end" : ""}`}>
-                              {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                              {canSort && (
-                                sorted === "asc"  ? <ChevronUp size={13} className="text-primary shrink-0" /> :
-                                sorted === "desc" ? <ChevronDown size={13} className="text-primary shrink-0" /> :
-                                                   <ChevronsUpDown size={13} className="text-muted-foreground/40 shrink-0" />
-                              )}
+                            <div
+                              className={`flex items-center gap-1 ${isActions ? "justify-end" : ""}`}
+                            >
+                              {header.isPlaceholder
+                                ? null
+                                : flexRender(
+                                    header.column.columnDef.header,
+                                    header.getContext(),
+                                  )}
+                              {canSort &&
+                                (sorted === "asc" ? (
+                                  <ChevronUp
+                                    size={13}
+                                    className="text-primary shrink-0"
+                                  />
+                                ) : sorted === "desc" ? (
+                                  <ChevronDown
+                                    size={13}
+                                    className="text-primary shrink-0"
+                                  />
+                                ) : (
+                                  <ChevronsUpDown
+                                    size={13}
+                                    className="text-muted-foreground/40 shrink-0"
+                                  />
+                                ))}
                             </div>
                           </th>
                         );
@@ -345,7 +505,10 @@ function Inner() {
                             className={`py-4 px-4 ${cell.column.getIsPinned() ? "transition-colors group-hover:bg-muted/40 bg-card" : ""}`}
                             style={getCommonPinningStyles(cell.column)}
                           >
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext(),
+                            )}
                           </td>
                         ))}
                       </motion.tr>
@@ -357,21 +520,63 @@ function Inner() {
             <div className="px-6 py-4 border-t border-border bg-muted/30 flex items-center justify-between gap-4 flex-wrap text-sm">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <span>{t("show", { defaultValue: "Show" })}</span>
-                <select value={pageSize} onChange={(e) => table.setPageSize(Number(e.target.value))} className="px-2 py-1.5 bg-background border border-border rounded-sm text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 cursor-pointer">
-                  {[10, 25, 50, 100].map((s) => <option key={s} value={s}>{s}</option>)}
+                <select
+                  value={pageSize}
+                  onChange={(e) => table.setPageSize(Number(e.target.value))}
+                  className="px-2 py-1.5 bg-background border border-border rounded-sm text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 cursor-pointer"
+                >
+                  {[10, 25, 50, 100].map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
                 </select>
                 <span>{t("entries", { defaultValue: "entries" })}</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-muted-foreground">{t("showing", { defaultValue: "Showing" })} {fromEntry} {t("to", { defaultValue: "to" })} {toEntry} {t("of", { defaultValue: "of" })} {filteredCount} {t("entries", { defaultValue: "entries" })}</span>
+                <span className="text-muted-foreground">
+                  {t("showing", { defaultValue: "Showing" })} {fromEntry}{" "}
+                  {t("to", { defaultValue: "to" })} {toEntry}{" "}
+                  {t("of", { defaultValue: "of" })} {filteredCount}{" "}
+                  {t("entries", { defaultValue: "entries" })}
+                </span>
                 <div className="flex items-center gap-1">
-                  <Button variant="outline" radius="sm" className="h-8 px-3 text-muted-foreground" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>← {t("previous", { defaultValue: "Previous" })}</Button>
+                  <Button
+                    variant="outline"
+                    radius="sm"
+                    className="h-8 px-3 text-muted-foreground"
+                    onClick={() => table.previousPage()}
+                    disabled={!table.getCanPreviousPage()}
+                  >
+                    ← {t("previous", { defaultValue: "Previous" })}
+                  </Button>
                   {pageWindow(pageIndex, pageCount).map((p, idx) =>
-                    p === "…" ? <span key={`e-${idx}`} className="w-8 text-center text-muted-foreground">…</span> : (
-                      <button key={p} onClick={() => table.setPageIndex(p)} className={`w-8 h-8 text-sm font-semibold rounded-sm transition-all cursor-pointer ${pageIndex === p ? "bg-primary text-primary-foreground" : "border border-border text-muted-foreground hover:bg-muted hover:text-foreground"}`}>{(p as number) + 1}</button>
-                    )
+                    p === "…" ? (
+                      <span
+                        key={`e-${idx}`}
+                        className="w-8 text-center text-muted-foreground"
+                      >
+                        …
+                      </span>
+                    ) : (
+                      <button
+                        key={p}
+                        onClick={() => table.setPageIndex(p)}
+                        className={`w-8 h-8 text-sm font-semibold rounded-sm transition-all cursor-pointer ${pageIndex === p ? "bg-primary text-primary-foreground" : "border border-border text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+                      >
+                        {(p as number) + 1}
+                      </button>
+                    ),
                   )}
-                  <Button variant="outline" radius="sm" className="h-8 px-3 text-muted-foreground" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>{t("next", { defaultValue: "Next" })} →</Button>
+                  <Button
+                    variant="outline"
+                    radius="sm"
+                    className="h-8 px-3 text-muted-foreground"
+                    onClick={() => table.nextPage()}
+                    disabled={!table.getCanNextPage()}
+                  >
+                    {t("next", { defaultValue: "Next" })} →
+                  </Button>
                 </div>
               </div>
             </div>

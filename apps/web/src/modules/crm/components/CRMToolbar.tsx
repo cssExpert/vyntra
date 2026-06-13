@@ -45,7 +45,8 @@ export function CRMToolbar({
           placeholder={t("searchPlaceholder")}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          size="xl" className={cn(
+          size="xl"
+          className={cn(
             "w-full rounded-xl border border-border bg-background pl-9 pr-9 py-2.5 text-sm",
             "text-foreground placeholder:text-muted-foreground/50",
             "outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20",
@@ -96,7 +97,7 @@ export function CRMToolbar({
 
       <div className="h-6 w-px bg-border" />
 
-      <button className="flex items-center gap-1.5 rounded-xl border border-primary bg-primary/10 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/15 transition-colors cursor-pointer">
+      <button className="flex items-center gap-1.5 rounded-xl border border-primary bg-primary/10 px-4 py-2.5 text-sm font-medium text-primary hover:bg-primary/15 transition-colors cursor-pointer">
         <SlidersHorizontal className="h-3.5 w-3.5" />
         {t("filters")}
       </button>
