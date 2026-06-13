@@ -389,7 +389,7 @@ function PageSettingsPanel({
 
   return (
     <aside className="w-64 flex flex-col h-full border-l bg-card border-border dark:border-border">
-      <div className="flex-shrink-0 px-4 py-3 border-b border-border dark:border-border">
+      <div className="min-h-16 flex-shrink-0 px-4 py-3 border-b border-border dark:border-border">
         <div className="flex items-center gap-2">
           <LayoutTemplate className="w-3.5 h-3.5 text-muted-foreground dark:text-muted-foreground" />
           <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
@@ -492,7 +492,7 @@ export default function RightSidebar({
   return (
     <aside className="w-64 flex flex-col h-full overflow-hidden border-l bg-card border-border dark:border-border">
       {/* Node header */}
-      <div className="flex-shrink-0 px-4 py-3 border-b border-border dark:border-border">
+      <div className="min-h-16 flex-shrink-0 px-4 py-3 border-b border-border dark:border-border">
         <div className="flex items-center gap-2 mb-0.5">
           <span className="text-[10px] font-mono px-2 py-0.5 rounded font-semibold bg-primary dark:bg-primary text-white dark:text-primary-foreground">
             &lt;{node.tag}&gt;
