@@ -73,7 +73,7 @@ export function Modal({
             className={`bg-card rounded-2xl w-full ${maxWidthMap[maxWidth]} max-h-[calc(100vh-2rem)] flex flex-col shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-border overflow-hidden relative z-10`}
           >
             {/* Header */}
-            <div className="px-5 py-5 border-b border-border flex items-center justify-between bg-muted/40 shrink-0">
+            <div className="px-5 py-3.5 border-b border-border flex items-center justify-between bg-muted/40 shrink-0">
               <div className="flex items-center gap-2.5 min-w-0">
                 {icon && (
                   <div

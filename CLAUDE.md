@@ -26,21 +26,11 @@
 - [Where models/types live]
 - [Where tests live]
 
-## Code Style
-- [Rule 1 — be specific]
-- [Rule 2 - Make change what is prompted for ]
-- [Rule 3 - Always follow the folder/file structure and use the already available components ]
-- [Rule 4 - Always follow the Font Sizes used in modules, keep the heading in ascending order like h1, h2 etc ]
-- [Rule 5 - Always Use the @tanstack/react-table when asked for table ]
-- [Rule 6 - Always Use the Modal from the common Component ]
-- [Rule 7 - Always Use the font size classes like text-xs or text-sm md: lg: don't add text-[12px] ]
-- [Rule 8 - Always Use MoverLeft/MoverRight icon for Next/Previous ]
-
-## Rules - Core
-- ALWAYS run tests after changes
-- ALWAYS use TypeScript strict mode
-- NEVER commit directly to main
-- Keep files under 300 lines — split if larger
+# ERVFlow Development Rules
+See also:
+- RULES.md
+- UI_RULES.md
+- COMPONENT_RULES.md
 
 ## Git Safety Rules
 - Never run git add, git commit, or git push unless I explicitly ask.

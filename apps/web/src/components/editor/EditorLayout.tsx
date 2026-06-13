@@ -34,6 +34,10 @@ import { ThemeToggle } from "@/components/common/ThemeToggle";
 import Canvas from "./Canvas";
 import RightSidebar from "./RightSidebar";
 import BlockPickerModal from "./BlockPickerModal";
+import { SaveComponentModal } from "./modals/SaveComponentModal";
+import { SaveSectionModal } from "./modals/SaveSectionModal";
+import { CreateBrandKitModal } from "./modals/CreateBrandKitModal";
+import { AddGlobalElementModal } from "./modals/AddGlobalElementModal";
 
 const TemplatePicker = dynamic(() => import("./TemplatePicker"), {
   ssr: false,
@@ -430,6 +434,12 @@ export default function EditorLayout() {
         onClose={() => setBlockPickerOpen(false)}
         onSelect={handleInsertBlock}
       />
+
+      {/* Library modals — all mounted here to escape sidebar overflow-hidden stacking context */}
+      <SaveComponentModal />
+      <SaveSectionModal />
+      <CreateBrandKitModal />
+      <AddGlobalElementModal />
 
       <DragOverlay>
         <motion.div

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDraggable } from "@dnd-kit/core";
 import {
@@ -11,10 +11,20 @@ import {
   Grid3x3,
   Loader2,
   X,
+  Library,
+  Puzzle,
+  LayoutTemplate,
+  FileCode2,
+  Palette,
+  Globe,
+  Plus,
 } from "lucide-react";
 import Link from "next/link";
 import { COMPONENT_BLOCKS, CATEGORIES } from "@/lib/componentBlocks";
-import { BLOCK_META, BLOCK_DEFAULTS } from "@/lib/themes/shopingo/blockDefaults";
+import {
+  BLOCK_META,
+  BLOCK_DEFAULTS,
+} from "@/lib/themes/shopingo/blockDefaults";
 import type { BlockType } from "@/lib/themes/types";
 import { useEditorStore } from "@/store/editorStore";
 import type { ComponentBlock, EditorNode } from "@/types/editor";
@@ -48,7 +58,9 @@ function DraggableThemeBlock({ blockType }: { blockType: BlockType }) {
       <div className="w-7 h-7 rounded-md flex items-center justify-center shrink-0 bg-[#ff2c2c]/10 text-[#ff2c2c]">
         <Grid3x3 className="w-3.5 h-3.5" />
       </div>
-      <span className="text-sm font-medium truncate text-muted-foreground">{meta.label}</span>
+      <span className="text-sm font-medium truncate text-muted-foreground">
+        {meta.label}
+      </span>
     </div>
   );
 }
@@ -76,12 +88,14 @@ function DraggableBlock({ block }: { block: ComponentBlock }) {
         isDragging && "opacity-30 scale-95",
       )}
     >
-      <div className={cn(
-        "w-7 h-7 rounded-md flex items-center justify-center shrink-0 transition-colors",
-        isThemed
-          ? `${theme.bg} ${theme.text}`
-          : "bg-muted dark:bg-muted text-muted-foreground dark:text-muted-foreground",
-      )}>
+      <div
+        className={cn(
+          "w-7 h-7 rounded-md flex items-center justify-center shrink-0 transition-colors",
+          isThemed
+            ? `${theme.bg} ${theme.text}`
+            : "bg-muted dark:bg-muted text-muted-foreground dark:text-muted-foreground",
+        )}
+      >
         <Grid3x3 className="w-3.5 h-3.5" />
       </div>
       <span className="text-sm font-medium truncate text-muted-foreground dark:text-muted-foreground">
@@ -92,8 +106,15 @@ function DraggableBlock({ block }: { block: ComponentBlock }) {
 }
 
 // Categories that get a coloured accent pill instead of plain text
-const THEME_CATEGORIES: Record<string, { bg: string; text: string; dot: string }> = {
-  Shopingo: { bg: "bg-[#ff2c2c]/10", text: "text-[#ff2c2c]", dot: "bg-[#ff2c2c]" },
+const THEME_CATEGORIES: Record<
+  string,
+  { bg: string; text: string; dot: string }
+> = {
+  Shopingo: {
+    bg: "bg-[#ff2c2c]/10",
+    text: "text-[#ff2c2c]",
+    dot: "bg-[#ff2c2c]",
+  },
 };
 
 function CategorySection({
@@ -120,16 +141,31 @@ function CategorySection({
             : "text-muted-foreground hover:text-foreground",
         )}
       >
-        <span className={cn(
-          "flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest",
-          theme ? theme.text : "text-muted-foreground",
-        )}>
-          {theme && <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", theme.dot)} />}
+        <span
+          className={cn(
+            "flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest",
+            theme ? theme.text : "text-muted-foreground",
+          )}
+        >
+          {theme && (
+            <span
+              className={cn("w-1.5 h-1.5 rounded-full shrink-0", theme.dot)}
+            />
+          )}
           {category}
         </span>
-        <span className={cn("flex items-center gap-1.5", theme ? theme.text : "text-muted-foreground")}>
+        <span
+          className={cn(
+            "flex items-center gap-1.5",
+            theme ? theme.text : "text-muted-foreground",
+          )}
+        >
           <span className="text-[10px] opacity-60">{blocks.length}</span>
-          {open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+          {open ? (
+            <ChevronDown className="w-3 h-3" />
+          ) : (
+            <ChevronRight className="w-3 h-3" />
+          )}
         </span>
       </button>
 
@@ -142,7 +178,12 @@ function CategorySection({
             transition={{ duration: 0.14 }}
             className="overflow-hidden"
           >
-            <div className={cn("pb-1", theme && "border-l-2 ml-2.5 pl-1 border-[#ff2c2c]/25")}>
+            <div
+              className={cn(
+                "pb-1",
+                theme && "border-l-2 ml-2.5 pl-1 border-[#ff2c2c]/25",
+              )}
+            >
               {blocks.map((b) => (
                 <DraggableBlock key={b.id} block={b} />
               ))}
@@ -175,7 +216,9 @@ export function Brand() {
 export default function LeftSidebar() {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [activeTab, setActiveTab] = useState<"blocks" | "layers">("blocks");
+  const [activeTab, setActiveTab] = useState<"blocks" | "layers" | "library">(
+    "blocks",
+  );
   const [mounted, setMounted] = useState(false);
   const { selectedId } = useEditorStore();
 
@@ -225,30 +268,36 @@ export default function LeftSidebar() {
         <div className="relative flex p-1 bg-muted dark:bg-muted rounded-lg">
           {/* The Sliding Pill background */}
           <div
-            className="absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] rounded-md bg-card shadow-sm dark:bg-primary transition-transform duration-200 ease-out-quad"
+            className="absolute top-1 bottom-1 left-1 w-[calc(33.333%-2.667px)] rounded-md bg-card shadow-sm dark:bg-primary transition-transform duration-200 ease-out-quad"
             style={{
               transform:
-                activeTab === "layers" ? "translateX(100%)" : "translateX(0)",
+                activeTab === "layers"
+                  ? "translateX(100%)"
+                  : activeTab === "library"
+                    ? "translateX(200%)"
+                    : "translateX(0)",
             }}
           />
 
-          {(["blocks", "layers"] as const).map((tab) => {
+          {(["blocks", "layers", "library"] as const).map((tab) => {
             const active = activeTab === tab;
             return (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={cn(
-                  "relative z-10 flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-medium transition-colors duration-200",
+                  "relative z-10 flex-1 flex items-center justify-center gap-1 py-1.5 rounded-md text-xs font-medium transition-colors duration-200",
                   active
                     ? "text-foreground dark:text-primary-foreground font-semibold"
                     : "text-muted-foreground dark:text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground",
                 )}
               >
                 {tab === "blocks" ? (
-                  <Grid3x3 className="w-3.5 h-3.5" />
+                  <Grid3x3 className="w-3.5 h-3.5 shrink-0" />
+                ) : tab === "layers" ? (
+                  <Layers className="w-3.5 h-3.5 shrink-0" />
                 ) : (
-                  <Layers className="w-3.5 h-3.5" />
+                  <Library className="w-3.5 h-3.5 shrink-0" />
                 )}
                 <span className="capitalize">{tab}</span>
               </button>
@@ -270,7 +319,11 @@ export default function LeftSidebar() {
           <Input
             type="text"
             placeholder={
-              activeTab === "blocks" ? "Search blocks…" : "Search layers…"
+              activeTab === "blocks"
+                ? "Search blocks…"
+                : activeTab === "layers"
+                  ? "Search layers…"
+                  : "Search library…"
             }
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -297,7 +350,7 @@ export default function LeftSidebar() {
       </div>
 
       {/* Content Side panel */}
-      <div className="flex-1 overflow-y-auto py-1.5 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto pt-0 pb-1.5 custom-scrollbar">
         {!mounted ? (
           <div className="w-full h-20 animate-pulse bg-muted dark:bg-foreground/50" />
         ) : activeTab === "blocks" ? (
@@ -341,8 +394,10 @@ export default function LeftSidebar() {
               ))}
             </div>
           )
-        ) : (
+        ) : activeTab === "layers" ? (
           <LayersPanel />
+        ) : (
+          <LibraryPanel search={debouncedSearch} />
         )}
       </div>
     </aside>
@@ -366,7 +421,11 @@ function ThemeBlocksSection() {
         </span>
         <span className="flex items-center gap-1.5 text-[#ff2c2c]">
           <span className="text-[10px] opacity-60">{blockTypes.length}</span>
-          {open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+          {open ? (
+            <ChevronDown className="w-3 h-3" />
+          ) : (
+            <ChevronRight className="w-3 h-3" />
+          )}
         </span>
       </button>
       {open && (
@@ -376,6 +435,833 @@ function ThemeBlocksSection() {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+// ── Library Panel (Figma Assets-style) ────────────────────────────────────────
+
+import {
+  useLibraryStore,
+  type SavedComponent,
+  type BrandKit,
+  type GlobalElement,
+} from "@/store/libraryStore";
+const SECTION_CATEGORIES = [
+  "Landing Pages",
+  "Business",
+  "SaaS",
+  "Store",
+  "Blog",
+  "Portfolio",
+] as const;
+
+function SectionHeader({
+  icon: Ico,
+  label,
+  count,
+  open,
+  onToggle,
+  action,
+}: {
+  icon: React.ElementType;
+  label: string;
+  count: number;
+  open: boolean;
+  onToggle: () => void;
+  action?: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center">
+      <button
+        onClick={onToggle}
+        className="flex-1 flex items-center gap-2 px-3 py-2 hover:bg-muted/60 transition-colors"
+      >
+        {open ? (
+          <ChevronDown className="w-3 h-3 text-muted-foreground shrink-0" />
+        ) : (
+          <ChevronRight className="w-3 h-3 text-muted-foreground shrink-0" />
+        )}
+        <Ico className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+        <span className="flex-1 text-xs font-semibold text-foreground text-left truncate">
+          {label}
+        </span>
+        <span className="text-[10px] text-muted-foreground/60 tabular-nums mr-1">
+          {count}
+        </span>
+      </button>
+      {action && <div className="pr-2">{action}</div>}
+    </div>
+  );
+}
+
+function EmptyState({
+  text,
+  action,
+}: {
+  text: string;
+  action?: React.ReactNode;
+}) {
+  return (
+    <div className="px-3 pb-4 pt-1 flex flex-col items-center gap-2">
+      <p className="text-[11px] text-muted-foreground text-center leading-relaxed">
+        {text}
+      </p>
+      {action}
+    </div>
+  );
+}
+
+function LibraryItemRow({
+  label,
+  sublabel,
+  badge,
+  onDelete,
+}: {
+  label: string;
+  sublabel?: string;
+  badge?: React.ReactNode;
+  onDelete: () => void;
+}) {
+  return (
+    <div className="group flex items-center gap-2 px-3 py-1.5 hover:bg-muted/60 transition-colors cursor-grab active:cursor-grabbing">
+      <div className="w-6 h-6 rounded bg-primary/10 flex items-center justify-center shrink-0">
+        <Puzzle className="w-3 h-3 text-primary" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-medium text-foreground truncate">{label}</p>
+        {sublabel && (
+          <p className="text-[10px] text-muted-foreground">{sublabel}</p>
+        )}
+      </div>
+      {badge}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete();
+        }}
+        className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 text-muted-foreground hover:text-red-500"
+      >
+        <X className="w-3 h-3" />
+      </button>
+    </div>
+  );
+}
+
+// ── My Components ─────────────────────────────────────────────────────────────
+
+function MyComponentsSection({
+  search,
+  open,
+  onToggle,
+  sectionRef,
+}: {
+  search: string;
+  open: boolean;
+  onToggle: () => void;
+  sectionRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  const { components, deleteComponent, setPendingSave } = useLibraryStore();
+  const filtered = search
+    ? components.filter((c) =>
+        c.name.toLowerCase().includes(search.toLowerCase()),
+      )
+    : components;
+
+  const byCategory = filtered.reduce<Record<string, SavedComponent[]>>(
+    (acc, c) => {
+      (acc[c.category] ??= []).push(c);
+      return acc;
+    },
+    {},
+  );
+
+  return (
+    <div ref={sectionRef} className="border-b border-border">
+      <SectionHeader
+        icon={Puzzle}
+        label="My Components"
+        count={components.length}
+        open={open}
+        onToggle={onToggle}
+        action={
+          <button
+            onClick={() => {
+              const { nodes, selectedId } = useEditorStore.getState();
+              const node = selectedId ? (nodes.find((n) => n.id === selectedId) ?? null) : null;
+              setPendingSave(node, "component");
+            }}
+            className="w-5 h-5 flex items-center justify-center rounded hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
+            title="Save selected as component"
+          >
+            <Plus className="w-3.5 h-3.5" />
+          </button>
+        }
+      />
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.14 }}
+            className="overflow-hidden"
+          >
+            {filtered.length === 0 ? (
+              <EmptyState
+                text={
+                  search
+                    ? `No components match "${search}"`
+                    : "Select any element on canvas and click  to save it as a reusable component."
+                }
+                action={
+                  !search && (
+                    <p className="text-[10px] text-muted-foreground/60 text-center">
+                      Tip: use the <Puzzle className="inline w-2.5 h-2.5" />{" "}
+                      button in the canvas toolbar
+                    </p>
+                  )
+                }
+              />
+            ) : (
+              <div className="pb-1">
+                {Object.entries(byCategory).map(([cat, items]) => (
+                  <div key={cat}>
+                    <p className="px-3 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+                      {cat}
+                    </p>
+                    {items.map((c) => (
+                      <LibraryItemRow
+                        key={c.id}
+                        label={c.name}
+                        sublabel={c.isGlobal ? "Global" : "Local"}
+                        badge={
+                          c.isGlobal ? (
+                            <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">
+                              Global
+                            </span>
+                          ) : (
+                            <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-semibold">
+                              Local
+                            </span>
+                          )
+                        }
+                        onDelete={() => deleteComponent(c.id)}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ── My Sections ───────────────────────────────────────────────────────────────
+
+function MySectionsSection({
+  search,
+  open,
+  onToggle,
+  sectionRef,
+}: {
+  search: string;
+  open: boolean;
+  onToggle: () => void;
+  sectionRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  const { sections, deleteSection, setPendingSave } = useLibraryStore();
+  const [openCats, setOpenCats] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(SECTION_CATEGORIES.map((c) => [c, true])),
+  );
+
+  const filtered = search
+    ? sections.filter((s) =>
+        s.name.toLowerCase().includes(search.toLowerCase()),
+      )
+    : sections;
+
+  const byCategory = filtered.reduce<Record<string, typeof filtered>>(
+    (acc, s) => {
+      (acc[s.category] ??= []).push(s);
+      return acc;
+    },
+    {},
+  );
+
+  return (
+    <div ref={sectionRef} className="border-b border-border">
+      <SectionHeader
+        icon={LayoutTemplate}
+        label="My Sections"
+        count={sections.length}
+        open={open}
+        onToggle={onToggle}
+        action={
+          <button
+            onClick={() => {
+              const { nodes, selectedId } = useEditorStore.getState();
+              const node = selectedId ? (nodes.find((n) => n.id === selectedId) ?? null) : null;
+              setPendingSave(node, "section");
+            }}
+            className="w-5 h-5 flex items-center justify-center rounded hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
+            title="Save selected as section"
+          >
+            <Plus className="w-3.5 h-3.5" />
+          </button>
+        }
+      />
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.14 }}
+            className="overflow-hidden"
+          >
+            {sections.length === 0 && !search ? (
+              <EmptyState
+                text="Save entire page sections — Hero, Pricing, FAQ — for reuse across pages."
+                action={
+                  <p className="text-[10px] text-muted-foreground/60 text-center">
+                    Select a <code className="font-mono">&lt;section&gt;</code>{" "}
+                    on canvas and click{" "}
+                    <LayoutTemplate className="inline w-2.5 h-2.5" />
+                  </p>
+                }
+              />
+            ) : (
+              <div className="pb-1">
+                {SECTION_CATEGORIES.map((cat) => {
+                  const items = byCategory[cat] ?? [];
+                  if (items.length === 0 && search) return null;
+                  return (
+                    <div key={cat}>
+                      <button
+                        onClick={() =>
+                          setOpenCats((p) => ({ ...p, [cat]: !p[cat] }))
+                        }
+                        className="w-full flex items-center justify-between px-4 py-1 hover:bg-muted/40 transition-colors"
+                      >
+                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                          {cat}
+                        </span>
+                        <span className="flex items-center gap-1 text-muted-foreground">
+                          <span className="text-[10px]">{items.length}</span>
+                          {openCats[cat] ? (
+                            <ChevronDown className="w-2.5 h-2.5" />
+                          ) : (
+                            <ChevronRight className="w-2.5 h-2.5" />
+                          )}
+                        </span>
+                      </button>
+                      {openCats[cat] && items.length === 0 && (
+                        <p className="px-5 pb-2 text-[10px] text-muted-foreground/50 italic">
+                          No sections yet
+                        </p>
+                      )}
+                      {openCats[cat] &&
+                        items.map((s) => (
+                          <LibraryItemRow
+                            key={s.id}
+                            label={s.name}
+                            sublabel={s.category}
+                            onDelete={() => deleteSection(s.id)}
+                          />
+                        ))}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ── Templates ─────────────────────────────────────────────────────────────────
+
+function TemplatesSection({
+  open,
+  onToggle,
+  sectionRef,
+}: {
+  open: boolean;
+  onToggle: () => void;
+  sectionRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  const [openCats, setOpenCats] = useState<Record<string, boolean>>({});
+
+  return (
+    <div ref={sectionRef} className="border-b border-border">
+      <SectionHeader
+        icon={FileCode2}
+        label="Templates"
+        count={0}
+        open={open}
+        onToggle={onToggle}
+      />
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.14 }}
+            className="overflow-hidden"
+          >
+            <div className="pb-1">
+              {SECTION_CATEGORIES.map((cat) => (
+                <div key={cat}>
+                  <button
+                    onClick={() =>
+                      setOpenCats((p) => ({ ...p, [cat]: !p[cat] }))
+                    }
+                    className="w-full flex items-center justify-between px-4 py-1.5 hover:bg-muted/40 transition-colors"
+                  >
+                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                      {cat}
+                    </span>
+                    <span className="flex items-center gap-1 text-muted-foreground">
+                      {openCats[cat] ? (
+                        <ChevronDown className="w-2.5 h-2.5" />
+                      ) : (
+                        <ChevronRight className="w-2.5 h-2.5" />
+                      )}
+                    </span>
+                  </button>
+                  {openCats[cat] && (
+                    <p className="px-5 pb-2 text-[10px] text-muted-foreground/50 italic">
+                      Coming soon
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ── Brand Kits ────────────────────────────────────────────────────────────────
+
+function BrandKitsSection({
+  open,
+  onToggle,
+  sectionRef,
+}: {
+  open: boolean;
+  onToggle: () => void;
+  sectionRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  const { brandKits, deleteBrandKit, activateBrandKit, setBrandKitModalOpen } = useLibraryStore();
+
+  return (
+    <div ref={sectionRef} className="border-b border-border">
+      <SectionHeader
+        icon={Palette}
+        label="Brand Kits"
+        count={brandKits.length}
+        open={open}
+        onToggle={onToggle}
+        action={
+          <button
+            onClick={() => setBrandKitModalOpen(true)}
+            className="w-5 h-5 flex items-center justify-center rounded hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
+            title="Create brand kit"
+          >
+            <Plus className="w-3.5 h-3.5" />
+          </button>
+        }
+      />
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.14 }}
+            className="overflow-hidden"
+          >
+            {brandKits.length === 0 ? (
+              <EmptyState
+                text="Define colors, fonts, logos and button styles. Apply a kit to restyle the whole site."
+                action={
+                  <button
+                    onClick={() => setBrandKitModalOpen(true)}
+                    className="flex items-center gap-1.5 text-[11px] font-semibold text-primary hover:text-primary/80 transition-colors"
+                  >
+                    <Plus className="w-3 h-3" />
+                    Add Brand Kit
+                  </button>
+                }
+              />
+            ) : (
+              <div className="pb-1 px-2 flex flex-col gap-1">
+                {brandKits.map((kit) => (
+                  <BrandKitRow
+                    key={kit.id}
+                    kit={kit}
+                    onActivate={() => activateBrandKit(kit.id)}
+                    onDelete={() => deleteBrandKit(kit.id)}
+                  />
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function BrandKitRow({
+  kit,
+  onActivate,
+  onDelete,
+}: {
+  kit: BrandKit;
+  onActivate: () => void;
+  onDelete: () => void;
+}) {
+  return (
+    <div className="group flex items-center gap-2 p-2 rounded-lg border border-border hover:border-primary/30 transition-colors">
+      {/* Color swatches */}
+      <div className="flex gap-0.5 shrink-0">
+        {[kit.primaryColor, kit.secondaryColor, kit.accentColor].map((c, i) => (
+          <span
+            key={i}
+            className="w-3.5 h-5 rounded-sm border border-black/10"
+            style={{ backgroundColor: c }}
+          />
+        ))}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-semibold text-foreground truncate">
+          {kit.name}
+        </p>
+        <p className="text-[10px] text-muted-foreground">
+          {kit.fontHeading} / {kit.fontBody}
+        </p>
+      </div>
+      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <button
+          onClick={onActivate}
+          className={`text-[10px] px-2 py-0.5 rounded font-semibold transition-colors ${
+            kit.isActive
+              ? "bg-primary text-white"
+              : "bg-muted text-muted-foreground hover:bg-primary hover:text-white"
+          }`}
+        >
+          {kit.isActive ? "Active" : "Apply"}
+        </button>
+        <button
+          onClick={onDelete}
+          className="p-0.5 text-muted-foreground hover:text-red-500"
+        >
+          <X className="w-3 h-3" />
+        </button>
+      </div>
+      {kit.isActive && (
+        <span className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0" />
+      )}
+    </div>
+  );
+}
+
+// ── Global Elements ───────────────────────────────────────────────────────────
+
+const GLOBAL_ICONS: Record<string, React.ElementType> = {
+  header: Globe,
+  footer: Globe,
+  "announcement-bar": Globe,
+  "contact-cta": Globe,
+};
+
+const GLOBAL_LABELS: Record<string, string> = {
+  header: "Header",
+  footer: "Footer",
+  "announcement-bar": "Announcement Bar",
+  "contact-cta": "Contact CTA",
+};
+
+function GlobalElementsSection({
+  open,
+  onToggle,
+  sectionRef,
+}: {
+  open: boolean;
+  onToggle: () => void;
+  sectionRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  const { globalElements, deleteGlobalElement, setGlobalElementModalOpen } = useLibraryStore();
+
+  return (
+    <div ref={sectionRef} className="border-b border-border">
+      <SectionHeader
+        icon={Globe}
+        label="Global Elements"
+        count={globalElements.length}
+        open={open}
+        onToggle={onToggle}
+        action={
+          <button
+            onClick={() => setGlobalElementModalOpen(true)}
+            className="w-5 h-5 flex items-center justify-center rounded hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
+            title="Add global element"
+          >
+            <Plus className="w-3.5 h-3.5" />
+          </button>
+        }
+      />
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.14 }}
+            className="overflow-hidden"
+          >
+            {globalElements.length === 0 ? (
+              <EmptyState
+                text="Save headers, footers and site-wide elements. Edit once — updates everywhere."
+                action={
+                  <button
+                    onClick={() => setGlobalElementModalOpen(true)}
+                    className="flex items-center gap-1.5 text-[11px] font-semibold text-primary hover:text-primary/80 transition-colors"
+                  >
+                    <Plus className="w-3 h-3" />
+                    Add Global Element
+                  </button>
+                }
+              />
+            ) : (
+              <div className="pb-1">
+                {globalElements.map((el: GlobalElement) => (
+                  <div
+                    key={el.id}
+                    className="group flex items-center gap-2 px-3 py-1.5 hover:bg-muted/60 transition-colors"
+                  >
+                    <Globe className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-foreground truncate">
+                        {el.name}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {GLOBAL_LABELS[el.elementType] ?? el.elementType}
+                        {el.syncAcrossPages && " · Synced"}
+                      </p>
+                    </div>
+                    {el.syncAcrossPages && (
+                      <span
+                        className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"
+                        title="Synced across pages"
+                      />
+                    )}
+                    <button
+                      onClick={() => deleteGlobalElement(el.id)}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 text-muted-foreground hover:text-red-500"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ── Marketplace ───────────────────────────────────────────────────────────────
+
+function MarketplaceSection({
+  open,
+  onToggle,
+  sectionRef,
+}: {
+  open: boolean;
+  onToggle: () => void;
+  sectionRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  return (
+    <div ref={sectionRef} className="border-b border-border last:border-b-0">
+      <SectionHeader
+        icon={Library}
+        label="Marketplace"
+        count={0}
+        open={open}
+        onToggle={onToggle}
+      />
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.14 }}
+            className="overflow-hidden"
+          >
+            <div className="px-3 pb-4 pt-2 flex flex-col items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                <Library className="w-5 h-5 text-primary" />
+              </div>
+              <div className="text-center">
+                <p className="text-xs font-semibold text-foreground">
+                  Coming Soon
+                </p>
+                <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">
+                  Premium templates, community components and agency kits.
+                </p>
+              </div>
+              <div className="flex flex-col gap-1.5 w-full">
+                {[
+                  "Premium Templates",
+                  "Community Components",
+                  "Agency Kits",
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-muted border border-border/50"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30 shrink-0" />
+                    <span className="text-[11px] text-muted-foreground">
+                      {item}
+                    </span>
+                    <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-semibold">
+                      Soon
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ── Main Library Panel ────────────────────────────────────────────────────────
+
+const SECTION_IDS = [
+  "components",
+  "sections",
+  "templates",
+  "brand-kits",
+  "global-elements",
+  "marketplace",
+] as const;
+type SectionId = (typeof SECTION_IDS)[number];
+
+const QUICK_ACCESS = [
+  { icon: Puzzle, label: "Components", sectionId: "components" as SectionId },
+  { icon: Palette, label: "Brand Kits", sectionId: "brand-kits" as SectionId },
+  { icon: Globe, label: "Global", sectionId: "global-elements" as SectionId },
+  {
+    icon: Library,
+    label: "Marketplace",
+    sectionId: "marketplace" as SectionId,
+  },
+] as const;
+
+function LibraryPanel({ search }: { search: string }) {
+  const [openSections, setOpenSections] = useState<Record<SectionId, boolean>>(
+    () =>
+      Object.fromEntries(SECTION_IDS.map((s) => [s, true])) as Record<
+        SectionId,
+        boolean
+      >,
+  );
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const sectionRefs = useRef<
+    Record<SectionId, React.RefObject<HTMLDivElement | null>>
+  >(
+    Object.fromEntries(
+      SECTION_IDS.map((s) => [s, { current: null }]),
+    ) as Record<SectionId, React.RefObject<HTMLDivElement | null>>,
+  );
+
+  function toggle(id: SectionId) {
+    setOpenSections((prev) => ({ ...prev, [id]: !prev[id] }));
+  }
+
+  function jumpToSection(sectionId: SectionId) {
+    setOpenSections((prev) => ({ ...prev, [sectionId]: true }));
+    setTimeout(() => {
+      sectionRefs.current[sectionId]?.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 50);
+  }
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Quick-access 2×2 grid */}
+      <div className="grid grid-cols-4 gap-px bg-border border-b border-border shrink-0">
+        {QUICK_ACCESS.map(({ icon: Ico, label, sectionId }) => (
+          <button
+            key={label}
+            onClick={() => jumpToSection(sectionId)}
+            className="flex flex-col items-center gap-1 py-2 bg-card hover:bg-primary/10 transition-colors group"
+          >
+            <Ico className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
+            <span className="text-[9px] text-muted-foreground group-hover:text-primary transition-colors leading-tight text-center">
+              {label}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      {/* Sections list */}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto custom-scrollbar">
+        <MyComponentsSection
+          search={search}
+          open={openSections.components}
+          onToggle={() => toggle("components")}
+          sectionRef={sectionRefs.current.components}
+        />
+        <MySectionsSection
+          search={search}
+          open={openSections.sections}
+          onToggle={() => toggle("sections")}
+          sectionRef={sectionRefs.current.sections}
+        />
+        <TemplatesSection
+          open={openSections.templates}
+          onToggle={() => toggle("templates")}
+          sectionRef={sectionRefs.current.templates}
+        />
+        <BrandKitsSection
+          open={openSections["brand-kits"]}
+          onToggle={() => toggle("brand-kits")}
+          sectionRef={sectionRefs.current["brand-kits"]}
+        />
+        <GlobalElementsSection
+          open={openSections["global-elements"]}
+          onToggle={() => toggle("global-elements")}
+          sectionRef={sectionRefs.current["global-elements"]}
+        />
+        <MarketplaceSection
+          open={openSections.marketplace}
+          onToggle={() => toggle("marketplace")}
+          sectionRef={sectionRefs.current.marketplace}
+        />
+      </div>
+
+      {/* Modals are mounted in EditorLayout to avoid overflow-hidden clipping */}
     </div>
   );
 }

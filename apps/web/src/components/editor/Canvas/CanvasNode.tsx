@@ -18,9 +18,12 @@ import {
   ChevronDown,
   Plus,
   Pin,
+  Puzzle,
+  LayoutTemplate,
 } from "lucide-react";
 import type { EditorNode } from "@/types/editor";
 import { useEditorStore } from "@/store/editorStore";
+import { useLibraryStore } from "@/store/libraryStore";
 import { cn } from "@/lib/utils";
 import { resolveThemeBlock } from "@/lib/themes/themeBlockResolver";
 
@@ -92,6 +95,8 @@ export default function CanvasNode({
   index,
   isDragActive = false,
 }: CanvasNodeProps) {
+  const { setPendingSave } = useLibraryStore();
+
   const {
     selectedId,
     hoveredId,
@@ -325,6 +330,22 @@ export default function CanvasNode({
                   title="Duplicate"
                 >
                   <Copy className="w-3 h-3" />
+                </button>
+                {/* Save as Component */}
+                <button
+                  className="p-1.5 transition-opacity hover:opacity-70 text-white dark:text-primary-foreground"
+                  onClick={(e) => { e.stopPropagation(); setPendingSave(node, "component"); }}
+                  title="Save as Component"
+                >
+                  <Puzzle className="w-3 h-3" />
+                </button>
+                {/* Save as Section */}
+                <button
+                  className="p-1.5 transition-opacity hover:opacity-70 text-white dark:text-primary-foreground"
+                  onClick={(e) => { e.stopPropagation(); setPendingSave(node, "section"); }}
+                  title="Save as Section"
+                >
+                  <LayoutTemplate className="w-3 h-3" />
                 </button>
                 <button
                   className="p-1.5 transition-opacity hover:opacity-70 text-white dark:text-primary-foreground"
@@ -588,6 +609,20 @@ export default function CanvasNode({
                 title="Duplicate"
               >
                 <Copy className="w-3 h-3" />
+              </button>
+              <button
+                className="p-1.5 transition-opacity hover:opacity-70 text-white dark:text-primary-foreground"
+                onClick={(e) => { e.stopPropagation(); setPendingSave(node, "component"); }}
+                title="Save as Component"
+              >
+                <Puzzle className="w-3 h-3" />
+              </button>
+              <button
+                className="p-1.5 transition-opacity hover:opacity-70 text-white dark:text-primary-foreground"
+                onClick={(e) => { e.stopPropagation(); setPendingSave(node, "section"); }}
+                title="Save as Section"
+              >
+                <LayoutTemplate className="w-3 h-3" />
               </button>
               <button
                 className="p-1.5 transition-opacity hover:opacity-70 text-white dark:text-primary-foreground"
