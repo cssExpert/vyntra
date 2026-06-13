@@ -279,7 +279,7 @@ export function MetadataTab({
                       e.preventDefault();
                       addTag(cleanSearch);
                     }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:bg-primary/5 transition-colors border-t border-border text-primary font-semibold"
+                    className="group w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:bg-primary/5 transition-colors border-t border-border text-primary font-semibold"
                   >
                     <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4 shrink-0" />
                     <span>Create &ldquo;#{cleanSearch}&rdquo;</span>

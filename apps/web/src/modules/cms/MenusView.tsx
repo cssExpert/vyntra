@@ -790,7 +790,7 @@ function MenuModal({
             <button
               type="button"
               onClick={addItem}
-              className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+              className="group flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
             >
               <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4" />{" "}
               Add Item
@@ -1001,7 +1001,7 @@ export function MenusView() {
       >
         <button
           onClick={openCreate}
-          className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 transition-colors"
+          className="group inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 transition-colors"
         >
           <Plus className="w-4 h-4" /> New Menu
         </button>
@@ -1029,7 +1029,7 @@ export function MenusView() {
             </div>
             <button
               onClick={openCreate}
-              className="mt-2 inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 transition-colors"
+              className="group mt-2 inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 transition-colors"
             >
               <Plus className="w-4 h-4" /> Create your first menu
             </button>

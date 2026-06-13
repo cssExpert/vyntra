@@ -147,7 +147,7 @@ function Inner() {
       <PageHeader title={t("title")} description={t("description")}>
         <Button
           radius="lg"
-          className="bg-foreground px-3 font-semibold text-background hover:bg-foreground hover:opacity-90"
+          className="bg-foreground px-4 font-semibold text-background hover:bg-foreground hover:opacity-90"
           onClick={openCreate}
         >
           <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4" />{" "}

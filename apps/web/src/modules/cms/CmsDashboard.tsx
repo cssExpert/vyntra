@@ -187,7 +187,7 @@ export function CmsDashboard() {
           </button>
           <Link
             href="/cms/blogs/new"
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-primary hover:bg-primary-600 text-primary-foreground text-xs font-bold rounded-lg transition-all"
+            className="group flex items-center gap-1.5 px-3.5 py-2 bg-primary hover:bg-primary-600 text-primary-foreground text-xs font-bold rounded-lg transition-all"
           >
             <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4" />
             New Blog Post

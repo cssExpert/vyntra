@@ -555,7 +555,7 @@ function Inner() {
         />
         <button
           onClick={openAddModal}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition"
+          className="group inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition"
         >
           <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4" />
           {t("add")}

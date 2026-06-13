@@ -534,7 +534,7 @@ export default function RightSidebar({
             />
             <button
               type="submit"
-              className="rounded-md px-2 text-xs transition-colors flex-shrink-0 bg-primary dark:bg-primary text-white dark:text-primary-foreground hover:bg-primary dark:hover:bg-primary"
+              className="group rounded-md px-2 text-xs transition-colors flex-shrink-0 bg-primary dark:bg-primary text-white dark:text-primary-foreground hover:bg-primary dark:hover:bg-primary"
             >
               <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 w-3.5 h-3.5" />
             </button>

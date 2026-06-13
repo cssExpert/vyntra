@@ -78,7 +78,7 @@ export function CRMHeader({
 
         {/* Add view */}
         <button
-          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+          className="group flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
           title={t("addView")}
         >
           <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4" />
@@ -92,7 +92,7 @@ export function CRMHeader({
         </button>
         <button
           onClick={onAddContact}
-          className="flex items-center gap-2 h-10 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-colors cursor-pointer shadow-glow-brand"
+          className="group flex items-center gap-2 h-10 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-colors cursor-pointer shadow-glow-brand"
         >
           <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4" />
           {t("addContact")}

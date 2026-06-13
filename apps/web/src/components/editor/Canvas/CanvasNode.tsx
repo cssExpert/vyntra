@@ -531,7 +531,7 @@ export default function CanvasNode({
                   e.stopPropagation();
                   useEditorStore.getState().setBlockPickerOpen(true);
                 }}
-                className="z-40 w-10 h-10 rounded-full flex items-center justify-center
+                className="group z-40 w-10 h-10 rounded-full flex items-center justify-center
                     bg-primary dark:bg-primary text-white dark:text-primary-foreground
                     shadow-lg hover:scale-110 active:scale-95 transition-transform"
               >

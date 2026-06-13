@@ -112,7 +112,7 @@ export default function Canvas() {
                   >
                     <div
                       className={cn(
-                        "w-20 h-20 rounded-2xl flex items-center justify-center mb-5 transition-colors",
+                        "group w-20 h-20 rounded-2xl flex items-center justify-center mb-5 transition-colors",
                         isOver
                           ? "bg-primary/10 dark:bg-primary/10"
                           : "bg-muted",

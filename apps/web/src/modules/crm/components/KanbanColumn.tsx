@@ -127,7 +127,7 @@ export function KanbanColumn({
             {contacts.length > 0 && (
               <button
                 onClick={onAddContact}
-                className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg border border-dashed border-border/60 text-xs text-muted-foreground hover:text-foreground hover:border-border hover:bg-muted/50 transition-all duration-150 cursor-pointer"
+                className="group w-full flex items-center justify-center gap-1.5 py-2 rounded-lg border border-dashed border-border/60 text-xs text-muted-foreground hover:text-foreground hover:border-border hover:bg-muted/50 transition-all duration-150 cursor-pointer"
               >
                 <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4" />
                 {t("addContact")}

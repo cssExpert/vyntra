@@ -106,7 +106,7 @@ export function Modal({
                   onClick={onClose}
                   className="w-8 h-8 shrink-0 rounded-full text-muted-foreground hover:text-foreground"
                 >
-                  <X size={18} />
+                  <X size={16} />
                 </Button>
               </div>
             </div>

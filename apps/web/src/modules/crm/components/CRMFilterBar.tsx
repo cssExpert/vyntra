@@ -111,7 +111,7 @@ export function CRMFilterBar({
       />
 
       {/* Add filter */}
-      <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground bg-white dark:bg-muted hover:text-foreground hover:border-border hover:bg-muted transition-colors cursor-pointer">
+      <button className="group flex h-8 w-8 items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground bg-white dark:bg-muted hover:text-foreground hover:border-border hover:bg-muted transition-colors cursor-pointer">
         <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4" />
       </button>
 
