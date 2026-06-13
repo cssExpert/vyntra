@@ -87,7 +87,7 @@ function F({
 }
 
 export function AddProductView() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("store.products");
   const isLoaded = usePageLoad(700);
   const { user } = useAuth();
@@ -567,7 +567,7 @@ export function AddProductView() {
           <div className="flex items-center gap-2 ml-auto">
             <button
               onClick={() => router.push("/store/products")}
-              className="rounded-sm border border-border bg-transparent px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer"
+              className="rounded-sm border border-border bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer"
             >
               Cancel
             </button>
@@ -575,7 +575,7 @@ export function AddProductView() {
               <Save size={14} />
               Save Draft
             </button>
-            <button className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer shadow-sm shadow-primary/20">
+            <button className="flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer shadow-sm shadow-primary/20">
               <Send size={14} />
               Publish
             </button>

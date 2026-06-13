@@ -77,7 +77,7 @@ function getResponse(prompt: string): string {
 }
 
 export function AIAssistantView() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("store.ai-assistant");
   const isLoaded = usePageLoad(500);
   const [messages, setMessages] = useState<Message[]>([
@@ -266,13 +266,14 @@ export function AIAssistantView() {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask about your store, generate content, create automations…"
                 disabled={isTyping}
-                size="xl" className="w-full pl-9 pr-4 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm disabled:opacity-50"
+                size="xl"
+                className="w-full pl-9 pr-4 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm disabled:opacity-50"
               />
             </div>
             <button
               type="submit"
               disabled={!input.trim() || isTyping}
-              className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+              className="flex items-center gap-2 rounded-sm bg-primary px-45 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
             >
               <Send size={14} />
               Send

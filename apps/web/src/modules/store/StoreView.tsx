@@ -177,7 +177,7 @@ export function StoreView() {
             {/* Page header */}
             <motion.div variants={itemVariants}>
               <PageHeader title={t("title")} description={t("description")}>
-                <button className="flex items-center gap-2 rounded-sm border border-border bg-white dark:bg-muted px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200 cursor-pointer">
+                <button className="flex items-center gap-2 rounded-sm border border-border bg-white dark:bg-muted px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200 cursor-pointer">
                   <RefreshCw className="h-3.5 w-3.5" />
                   <span className="hidden sm:inline">
                     {t("refresh", { defaultValue: "Refresh" })}
@@ -185,7 +185,7 @@ export function StoreView() {
                 </button>
                 <a
                   href="/store/products/add"
-                  className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all duration-200 cursor-pointer"
+                  className="flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all duration-200 cursor-pointer"
                 >
                   <Plus
                     size={18}

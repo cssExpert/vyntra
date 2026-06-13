@@ -177,7 +177,8 @@ function PropertiesPanel({
             onChange={(e) =>
               handleUpdateStep(step.id, { label: e.target.value })
             }
-            size="xl" className="w-full rounded-md bg-background border border-border px-4 text-sm font-semibold text-foreground shadow-sm outline-none transition-[border-color,box-shadow] placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/20 focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50"
+            size="xl"
+            className="w-full rounded-md bg-background border border-border px-4 text-sm font-semibold text-foreground shadow-sm outline-none transition-[border-color,box-shadow] placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/20 focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50"
           />
         </div>
         <div>
@@ -210,7 +211,8 @@ function PropertiesPanel({
                     parseInt(e.target.value),
                   )
                 }
-                size="xl" className="w-full rounded-md bg-background border border-border px-4 text-foreground shadow-sm outline-none transition-[border-color,box-shadow] placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/20 focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50"
+                size="xl"
+                className="w-full rounded-md bg-background border border-border px-4 text-foreground shadow-sm outline-none transition-[border-color,box-shadow] placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/20 focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>
             <div>
@@ -222,7 +224,7 @@ function PropertiesPanel({
                 onChange={(e) =>
                   handleUpdateStepConfig(step.id, "unit", e.target.value)
                 }
-                className="w-full rounded-md bg-background border border-border px-4 py-2.5 text-sm font-semibold text-foreground shadow-sm outline-none transition-[border-color,box-shadow] placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/20 focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-md bg-background border border-border px-4 py-2.5 text-sm font-medium text-foreground shadow-sm outline-none transition-[border-color,box-shadow] placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/20 focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <option value="hours">Hours</option>
                 <option value="days">Days</option>
@@ -245,7 +247,8 @@ function PropertiesPanel({
                   handleUpdateStepConfig(step.id, "subject", e.target.value)
                 }
                 placeholder="Subject Line"
-                size="xl" className="w-full rounded-md bg-background border border-border px-4 text-sm font-semibold text-foreground shadow-sm outline-none transition-[border-color,box-shadow] placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/20 focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50"
+                size="xl"
+                className="w-full rounded-md bg-background border border-border px-4 text-sm font-semibold text-foreground shadow-sm outline-none transition-[border-color,box-shadow] placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/20 focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>
 

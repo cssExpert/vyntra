@@ -575,7 +575,11 @@ function Inner() {
                   }))
                 }
               />
-              <Button variant="outline" size="lg" radius="lg" className="border-primary/30 bg-primary/5 px-4 text-primary hover:bg-primary/10 hover:text-primary"
+              <Button
+                variant="outline"
+                size="lg"
+                radius="lg"
+                className="border-primary/30 bg-primary/5 px-4 text-primary hover:bg-primary/10 hover:text-primary"
                 onClick={testStorage}
                 disabled={testingStorage}
               >
@@ -663,7 +667,11 @@ function Inner() {
                   }))
                 }
               />
-              <Button variant="outline" size="lg" radius="lg" className="border-primary/30 bg-primary/5 px-4 text-primary hover:bg-primary/10 hover:text-primary"
+              <Button
+                variant="outline"
+                size="lg"
+                radius="lg"
+                className="border-primary/30 bg-primary/5 px-4 text-primary hover:bg-primary/10 hover:text-primary"
                 onClick={testStorage}
                 disabled={testingStorage}
               >
@@ -737,7 +745,11 @@ function Inner() {
                   }))
                 }
               />
-              <Button variant="outline" size="lg" radius="lg" className="border-primary/30 bg-primary/5 px-4 text-primary hover:bg-primary/10 hover:text-primary"
+              <Button
+                variant="outline"
+                size="lg"
+                radius="lg"
+                className="border-primary/30 bg-primary/5 px-4 text-primary hover:bg-primary/10 hover:text-primary"
                 onClick={testStorage}
                 disabled={testingStorage}
               >
@@ -787,7 +799,11 @@ function Inner() {
                   </ul>
                 </div>
               </div>
-              <Button variant="outline" size="lg" radius="lg" className="border-primary/30 bg-primary/5 px-4 text-primary hover:bg-primary/10 hover:text-primary"
+              <Button
+                variant="outline"
+                size="lg"
+                radius="lg"
+                className="border-primary/30 bg-primary/5 px-4 text-primary hover:bg-primary/10 hover:text-primary"
                 onClick={testStorage}
                 disabled={testingStorage}
               >
@@ -901,7 +917,7 @@ function Inner() {
               <button
                 onClick={migrate}
                 disabled={migrating}
-                className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition disabled:opacity-50"
+                className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 transition disabled:opacity-50"
               >
                 {migrating ? (
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />

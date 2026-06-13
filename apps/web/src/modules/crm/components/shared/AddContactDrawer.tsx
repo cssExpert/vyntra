@@ -483,13 +483,13 @@ export function AddContactDrawer({
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-xl border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                className="rounded-xl border border-border px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
               >
                 {t("drawer.cancel")}
               </button>
               <button
                 onClick={handleSubmit}
-                className="rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary-600 transition-colors cursor-pointer shadow-glow-brand"
+                className="rounded-xl bg-primary px-4 py-2.5 text-sm font-mdium text-primary-foreground hover:bg-primary-600 transition-colors cursor-pointer shadow-glow-brand"
               >
                 {t("drawer.saveContact")}
               </button>

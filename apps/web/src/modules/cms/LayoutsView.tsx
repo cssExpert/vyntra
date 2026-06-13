@@ -131,7 +131,8 @@ function LayoutForm({
           value={form.name}
           onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
           placeholder="e.g. Blog Layout, Marketing Dark"
-          size="xl" className="w-full rounded-lg border border-border bg-background px-3.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
+          size="xl"
+          className="w-full rounded-lg border border-border bg-background px-3.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
         />
       </div>
 
@@ -194,7 +195,8 @@ function LayoutForm({
               value={col.title}
               onChange={(e) => updateColumn(i, "title", e.target.value)}
               placeholder="Column heading"
-              size="lg" className="flex-1 rounded-lg border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary transition-all"
+              size="lg"
+              className="flex-1 rounded-lg border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary transition-all"
             />
             <select
               value={col.menuId}
@@ -229,7 +231,7 @@ function LayoutForm({
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2.5 text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm transition-all"
+          className="px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm transition-all"
         >
           Cancel
         </button>
@@ -335,7 +337,7 @@ const EMPTY_FORM: FormState = {
 };
 
 export function LayoutsView() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("cms.layouts.tsx");
   const [layouts, setLayouts] = useState<CmsLayout[]>([]);
   const [menus, setMenus] = useState<CmsMenu[]>([]);
@@ -450,7 +452,7 @@ export function LayoutsView() {
             setActive(null);
             setModal("create");
           }}
-          className="inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer group active:scale-[0.98] shrink-0"
+          className="inline-flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer group active:scale-[0.98] shrink-0"
         >
           <Plus
             size={16}

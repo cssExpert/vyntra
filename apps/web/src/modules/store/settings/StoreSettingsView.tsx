@@ -167,11 +167,11 @@ export function StoreSettingsView() {
               onClick={() => {
                 alert("alert");
               }}
-              className="rounded-sm border border-border bg-transparent px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer"
+              className="rounded-sm border border-border bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer"
             >
               {t("cancel", { defaultValue: "Cancel" })}
             </button>
-            <button className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer">
+            <button className="flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer">
               <Save className="h-3.5 w-3.5" />
               {t("saveChanges", { defaultValue: "Save Changes" })}
             </button>
@@ -408,11 +408,11 @@ export function StoreSettingsView() {
                   onClick={() => {
                     alert("alert");
                   }}
-                  className="rounded-sm border border-border bg-transparent px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer"
+                  className="rounded-sm border border-border bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer"
                 >
                   Cancel
                 </button>
-                <button className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer">
+                <button className="flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer">
                   <Save className="h-3.5 w-3.5" />
                   Save Changes
                 </button>

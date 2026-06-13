@@ -68,9 +68,11 @@ function SectionCard({
     >
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+          <h3 className="text-sm md:text-base lg:text-lg xl:text-xl font-bold text-foreground">
+            {title}
+          </h3>
           {description && (
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="text-xs md:text-sm text-muted-foreground mt-0.5">
               {description}
             </p>
           )}
@@ -78,7 +80,7 @@ function SectionCard({
         {action && (
           <a
             href={action.href}
-            className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer"
+            className="flex items-center gap-1 text-xs md:text-sm font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer"
           >
             {action.label}
             <MoveRight className="h-3 w-3" />
@@ -116,8 +118,10 @@ function ConfigStatus({
         )}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-medium text-foreground">{label}</p>
-        <p className="text-[10px] text-muted-foreground mt-0.5">
+        <p className="text-xs md:text-sm lg:text-base font-semibold text-foreground">
+          {label}
+        </p>
+        <p className="text-xs md:text-sm text-muted-foreground mt-0.5">
           {configured ? "Configured" : "Not configured"}
         </p>
       </div>
@@ -273,7 +277,7 @@ export function SuperAdminDashboardView() {
                 <button
                   onClick={handleRefresh}
                   disabled={data.loading}
-                  className="flex items-center gap-2 rounded-sm border border-border bg-white dark:bg-muted px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200 cursor-pointer disabled:opacity-50"
+                  className="flex items-center gap-2 rounded-sm border border-border bg-white dark:bg-muted px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200 cursor-pointer disabled:opacity-50"
                 >
                   <RefreshCw
                     className={cn(
@@ -285,7 +289,7 @@ export function SuperAdminDashboardView() {
                 </button>
                 <a
                   href="/admin/settings"
-                  className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all duration-200 cursor-pointer"
+                  className="flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all duration-200 cursor-pointer"
                 >
                   <Settings className="h-3.5 w-3.5" />
                   Settings
@@ -431,16 +435,16 @@ export function SuperAdminDashboardView() {
                       key={pkg.id}
                       className="rounded-sm border border-border/50 p-3 hover:border-border transition-colors"
                     >
-                      <div className="flex items-start justify-between mb-2">
-                        <p className="text-xs font-medium text-foreground">
+                      <div className="flex items-start justify-between mb-0.5">
+                        <p className="text-sm md:text-base lg:text-lg font-bold text-foreground mb-0">
                           {pkg.name}
                         </p>
                       </div>
-                      <p className="text-[10px] text-muted-foreground mb-2">
+                      <p className="text-xs md:text-sm text-muted-foreground line-clamp-2 mb-1">
                         {pkg.description || "No description"}
                       </p>
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-foreground">
+                        <span className="text-xs md:text-sm font-semibold text-foreground">
                           ${pkg.price}/mo
                         </span>
                         <span className="text-[10px] text-muted-foreground">
@@ -468,13 +472,13 @@ export function SuperAdminDashboardView() {
                       key={module.id}
                       className="rounded-sm border border-border/50 p-3 hover:border-border transition-colors"
                     >
-                      <p className="text-xs font-medium text-foreground mb-1">
+                      <p className="text-sm md:text-base lg:text-lg font-semibold text-foreground mb-1">
                         {module.name}
                       </p>
-                      <p className="text-[10px] text-muted-foreground line-clamp-2">
+                      <p className="text-xs md:text-sm text-muted-foreground line-clamp-2">
                         {module.description || "No description"}
                       </p>
-                      <p className="text-[10px] text-muted-foreground mt-2">
+                      <p className="text-xs text-muted-foreground mt-2">
                         ID: {module.id}
                       </p>
                     </div>

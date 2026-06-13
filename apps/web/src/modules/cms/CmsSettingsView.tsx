@@ -231,7 +231,7 @@ function DomainTab() {
               <button
                 onClick={save}
                 disabled={busy}
-                className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition disabled:opacity-50 cursor-pointer"
+                className="rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 transition disabled:opacity-50 cursor-pointer"
               >
                 {busy ? "Saving…" : "Save"}
               </button>
@@ -760,7 +760,7 @@ const TABS = [
 type TabId = (typeof TABS)[number]["id"];
 
 export function CmsSettingsView() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("cms.cmssettings.tsx");
   const [activeTab, setActiveTab] = useState<TabId>("branding");
 
@@ -777,7 +777,7 @@ export function CmsSettingsView() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-all -mb-px ${
+            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-all -mb-px ${
               activeTab === tab.id
                 ? "border-primary text-primary"
                 : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"

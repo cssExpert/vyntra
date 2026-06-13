@@ -45,7 +45,7 @@ export function MailSidebar({
       {/* Compose */}
       <button
         onClick={onCompose}
-        className="inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary-600 transition-all active:scale-[0.98] group shadow-glow-brand w-full justify-center"
+        className="inline-flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all active:scale-[0.98] group shadow-glow-brand w-full justify-center"
       >
         <Pencil size={15} className="stroke-[2.5]" />
         Compose

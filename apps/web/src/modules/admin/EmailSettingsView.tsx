@@ -648,7 +648,7 @@ function Inner() {
               <button
                 onClick={testSmtp}
                 disabled={testingSmtp}
-                className="flex items-center gap-2 rounded-lg bg-primary-500 hover:bg-primary-500/90 disabled:bg-muted text-white px-4 py-2.5 text-sm font-semibold transition disabled:opacity-50 cursor-pointer"
+                className="flex items-center gap-2 rounded-lg bg-primary-500 hover:bg-primary-500/90 disabled:bg-muted text-white px-4 py-2.5 text-sm font-medium transition disabled:opacity-50 cursor-pointer"
               >
                 {testingSmtp ? (
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -682,7 +682,7 @@ function Inner() {
         <button
           onClick={save}
           disabled={busy}
-          className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition disabled:opacity-50 cursor-pointer shadow-md shadow-primary/20"
+          className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 transition disabled:opacity-50 cursor-pointer shadow-md shadow-primary/20"
         >
           {busy ? (
             <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />

@@ -545,7 +545,7 @@ export function UsersView() {
               <div>
                 <button
                   onClick={handleAddUserClick}
-                  className="inline-flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all duration-200 cursor-pointer group transform active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all duration-200 cursor-pointer group transform active:scale-[0.98]"
                 >
                   <Plus
                     size={18}
@@ -568,7 +568,8 @@ export function UsersView() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder={t("searchPlaceholder")}
-                  size="xl" className="w-full pl-10 pr-4 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm"
+                  size="xl"
+                  className="w-full pl-10 pr-4 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm"
                 />
                 {searchTerm && (
                   <button
@@ -889,7 +890,10 @@ export function UsersView() {
               maxWidth="lg"
               footer={
                 <>
-                  <Button variant="ghost" radius="sm" className="h-auto py-3 font-semibold text-muted-foreground hover:text-foreground"
+                  <Button
+                    variant="ghost"
+                    radius="sm"
+                    className="h-auto py-3 font-semibold text-muted-foreground hover:text-foreground"
                     type="button"
                     onClick={() => setIsModalOpen(false)}
                   >
@@ -900,7 +904,9 @@ export function UsersView() {
                     form="user-add-edit-form"
                     className="px-5 py-3 bg-primary hover:bg-primary-600 text-primary-foreground rounded-sm text-sm font-semibold transition-all shadow-sm active:scale-95"
                   >
-                    {editingUser ? t("modal.saveChanges") : t("modal.createUser")}
+                    {editingUser
+                      ? t("modal.saveChanges")
+                      : t("modal.createUser")}
                   </button>
                 </>
               }
@@ -924,7 +930,8 @@ export function UsersView() {
                           setFormData({ ...formData, name: e.target.value })
                         }
                         placeholder="e.g. Vasudev Sharma"
-                        size="xl" className={`w-full pl-10 pr-4 py-2.5 bg-background text-foreground placeholder:text-muted-foreground border rounded-sm text-sm transition-all focus:outline-none focus:ring-2 focus:ring-ring/20 ${
+                        size="xl"
+                        className={`w-full pl-10 pr-4 py-2.5 bg-background text-foreground placeholder:text-muted-foreground border rounded-sm text-sm transition-all focus:outline-none focus:ring-2 focus:ring-ring/20 ${
                           errors.name
                             ? "border-rose-400 focus:border-rose-500"
                             : "border-border focus:border-ring"
@@ -955,7 +962,8 @@ export function UsersView() {
                           setFormData({ ...formData, email: e.target.value })
                         }
                         placeholder="e.g. vasu14082@gmail.com"
-                        size="xl" className={`w-full pl-10 pr-4 py-2.5 bg-background text-foreground placeholder:text-muted-foreground border rounded-sm text-sm transition-all focus:outline-none focus:ring-2 focus:ring-ring/20 ${
+                        size="xl"
+                        className={`w-full pl-10 pr-4 py-2.5 bg-background text-foreground placeholder:text-muted-foreground border rounded-sm text-sm transition-all focus:outline-none focus:ring-2 focus:ring-ring/20 ${
                           errors.email
                             ? "border-rose-400 focus:border-rose-500"
                             : "border-border focus:border-ring"
@@ -987,7 +995,8 @@ export function UsersView() {
                             setFormData({ ...formData, phone: e.target.value })
                           }
                           placeholder="e.g. 8976352629"
-                          size="xl" className={`w-full pl-10 pr-4 py-2.5 bg-background text-foreground placeholder:text-muted-foreground border rounded-sm text-sm transition-all focus:outline-none focus:ring-2 focus:ring-ring/20 ${
+                          size="xl"
+                          className={`w-full pl-10 pr-4 py-2.5 bg-background text-foreground placeholder:text-muted-foreground border rounded-sm text-sm transition-all focus:outline-none focus:ring-2 focus:ring-ring/20 ${
                             errors.phone
                               ? "border-rose-400 focus:border-rose-500"
                               : "border-border focus:border-ring"
@@ -1147,13 +1156,19 @@ export function UsersView() {
               maxWidth="md"
               footer={
                 <>
-                  <Button variant="ghost" radius="sm" className="font-semibold text-muted-foreground hover:text-foreground"
+                  <Button
+                    variant="ghost"
+                    radius="sm"
+                    className="font-semibold text-muted-foreground hover:text-foreground"
                     type="button"
                     onClick={() => setDeletingUser(null)}
                   >
                     {t("deleteModal.keepAccount")}
                   </Button>
-                  <Button variant="destructive" radius="sm" className="px-5 font-semibold active:scale-95"
+                  <Button
+                    variant="destructive"
+                    radius="sm"
+                    className="px-5 font-semibold active:scale-95"
                     type="button"
                     onClick={handleConfirmDelete}
                   >

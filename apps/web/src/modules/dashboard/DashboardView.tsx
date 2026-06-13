@@ -210,11 +210,11 @@ export function DashboardView() {
                     "Welcome back, Ravi. Here's your business overview.",
                 })}
               >
-                <button className="flex items-center gap-2 rounded-sm border border-border bg-white dark:bg-muted px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200 cursor-pointer">
+                <button className="flex items-center gap-2 rounded-sm border border-border bg-white dark:bg-muted px-4 py-2.5 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200 cursor-pointer">
                   <RefreshCw className="h-3.5 w-3.5" />
                   <span className="hidden sm:inline">Refresh</span>
                 </button>
-                <button className="flex items-center gap-2 rounded-sm bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all duration-200 cursor-pointer">
+                <button className="flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all duration-200 cursor-pointer">
                   <Plus className="h-3.5 w-3.5" />
                   Quick Add
                 </button>
