@@ -752,7 +752,7 @@ export class CmsService {
 
   // ── CMS Forms ────────────────────────────────────────────────────────────────
 
-  private formatForm(f: { id: string; name: string; description: string | null; slug: string; status: string; fields: unknown; createdAt: Date; updatedAt: Date; _count: { submissions: number } }) {
+  private formatForm(f: { id: string; name: string; description: string | null; slug: string; status: string; fields: unknown; captchaEnabled: boolean; createdAt: Date; updatedAt: Date; _count: { submissions: number } }) {
     return {
       id: f.id,
       name: f.name,
@@ -760,6 +760,7 @@ export class CmsService {
       slug: f.slug,
       status: f.status,
       fields: f.fields,
+      captchaEnabled: f.captchaEnabled,
       responses: f._count.submissions,
       createdAt: f.createdAt.toISOString(),
       updatedAt: f.updatedAt.toISOString(),
@@ -784,7 +785,7 @@ export class CmsService {
     return this.formatForm(form);
   }
 
-  async createForm(orgId: string, dto: { name: string; description?: string; slug: string; status?: string; fields?: unknown[] }) {
+  async createForm(orgId: string, dto: { name: string; description?: string; slug: string; status?: string; fields?: unknown[]; captchaEnabled?: boolean }) {
     const form = await this.prisma.cmsForm.create({
       data: {
         name: dto.name,
@@ -792,6 +793,7 @@ export class CmsService {
         slug: dto.slug,
         status: dto.status ?? 'Draft',
         fields: (dto.fields ?? []) as object,
+        captchaEnabled: dto.captchaEnabled ?? false,
         organizationId: orgId,
       },
       include: { _count: { select: { submissions: true } } },
@@ -799,7 +801,7 @@ export class CmsService {
     return this.formatForm(form);
   }
 
-  async updateForm(orgId: string, id: string, dto: { name?: string; description?: string; slug?: string; status?: string; fields?: unknown[] }) {
+  async updateForm(orgId: string, id: string, dto: { name?: string; description?: string; slug?: string; status?: string; fields?: unknown[]; captchaEnabled?: boolean }) {
     const existing = await this.prisma.cmsForm.findFirst({ where: { id, organizationId: orgId } });
     if (!existing) throw new NotFoundException('Form not found');
     const form = await this.prisma.cmsForm.update({
@@ -810,6 +812,7 @@ export class CmsService {
         ...(dto.slug !== undefined && { slug: dto.slug }),
         ...(dto.status !== undefined && { status: dto.status }),
         ...(dto.fields !== undefined && { fields: dto.fields as object }),
+        ...(dto.captchaEnabled !== undefined && { captchaEnabled: dto.captchaEnabled }),
       },
       include: { _count: { select: { submissions: true } } },
     });
@@ -833,10 +836,25 @@ export class CmsService {
         slug: `${source.slug}-copy-${Date.now()}`,
         status: 'Draft',
         fields: source.fields as object,
+        captchaEnabled: source.captchaEnabled,
         organizationId: orgId,
       },
       include: { _count: { select: { submissions: true } } },
     });
     return this.formatForm(form);
+  }
+
+  async verifyCaptcha(token: string): Promise<{ success: boolean; errorCodes?: string[] }> {
+    const secret = process.env.RECAPTCHA_SECRET_KEY;
+    if (!secret) return { success: false, errorCodes: ['missing-secret'] };
+
+    const params = new URLSearchParams({ secret, response: token });
+    const res = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString(),
+    });
+    const data = await res.json() as { success: boolean; 'error-codes'?: string[] };
+    return { success: data.success, errorCodes: data['error-codes'] };
   }
 }

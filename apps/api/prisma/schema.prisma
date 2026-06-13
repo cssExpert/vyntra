@@ -506,15 +506,16 @@ model MenuItem {
 // ════════════════════════════════════════════════════════════════════
 
 model CmsForm {
-  id             String              @id @default(cuid())
-  name           String
-  description    String?
-  slug           String
-  status         String              @default("Draft")
-  fields         Json                @default("[]")
-  organizationId String
-  createdAt      DateTime            @default(now())
-  updatedAt      DateTime            @updatedAt
+  id              String              @id @default(cuid())
+  name            String
+  description     String?
+  slug            String
+  status          String              @default("Draft")
+  fields          Json                @default("[]")
+  captchaEnabled  Boolean             @default(false)
+  organizationId  String
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
 
   organization  Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   submissions   CmsFormSubmission[]

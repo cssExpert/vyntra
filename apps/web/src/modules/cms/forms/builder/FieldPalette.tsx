@@ -1,5 +1,6 @@
 "use client";
 
+import { type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { MousePointerClick } from "lucide-react";
 
@@ -8,9 +9,10 @@ import type { FieldType } from "../forms.types";
 
 interface FieldPaletteProps {
   onAdd: (type: FieldType) => void;
+  footer?: ReactNode;
 }
 
-export function FieldPalette({ onAdd }: FieldPaletteProps) {
+export function FieldPalette({ onAdd, footer }: FieldPaletteProps) {
   return (
     <aside className="bg-card border border-border rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.04)] p-4 sticky top-4 self-start">
       <p className="text-sm md:text-base font-semibold text-foreground mb-1">
@@ -53,6 +55,12 @@ export function FieldPalette({ onAdd }: FieldPaletteProps) {
           );
         })}
       </div>
+
+      {footer && (
+        <div className="mt-4 pt-4 border-t border-border">
+          {footer}
+        </div>
+      )}
     </aside>
   );
 }

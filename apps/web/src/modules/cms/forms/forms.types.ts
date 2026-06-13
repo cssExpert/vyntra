@@ -30,6 +30,7 @@ export interface CmsForm {
   slug: string;
   status: FormStatus;
   fields: FormField[];
+  captchaEnabled: boolean;
   responses: number;
   createdAt: string; // ISO date
   updatedAt: string; // ISO date

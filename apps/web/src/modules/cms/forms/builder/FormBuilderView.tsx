@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
-import { MoveLeft, Eye, Save, Plus, Sparkles, Check, Loader2 } from "lucide-react";
+import { MoveLeft, Eye, Save, Plus, Sparkles, Check, Loader2, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { FieldPalette } from "./FieldPalette";
@@ -33,6 +33,7 @@ function blankForm(): CmsForm {
     slug: "",
     status: "Draft",
     fields: [createField("short_text")],
+    captchaEnabled: false,
     responses: 0,
     createdAt: now,
     updatedAt: now,
@@ -116,6 +117,7 @@ export function FormBuilderView({ formId }: FormBuilderViewProps) {
         slug,
         status: form.status,
         fields: form.fields,
+        captchaEnabled: form.captchaEnabled,
       };
 
       if (formId && form.id) {
@@ -228,7 +230,44 @@ export function FormBuilderView({ formId }: FormBuilderViewProps) {
 
       {/* ── Builder layout ───────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-5 mt-5 items-start">
-        <FieldPalette onAdd={addField} />
+        <FieldPalette
+          onAdd={addField}
+          footer={
+            <div>
+              <p className="text-sm font-semibold text-foreground mb-3">
+                Form Settings
+              </p>
+              <label className="flex items-start gap-3 cursor-pointer group">
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={form.captchaEnabled}
+                  onClick={() => patchForm({ captchaEnabled: !form.captchaEnabled })}
+                  className={`relative mt-0.5 inline-flex h-5 w-9 shrink-0 rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                    form.captchaEnabled ? "bg-primary" : "bg-muted-foreground/30"
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-sm ring-0 transition-transform ${
+                      form.captchaEnabled ? "translate-x-4" : "translate-x-0"
+                    }`}
+                  />
+                </button>
+                <span className="min-w-0">
+                  <span className="flex items-center gap-1.5 text-sm font-medium text-foreground leading-tight">
+                    <ShieldCheck size={13} className={form.captchaEnabled ? "text-primary" : "text-muted-foreground"} />
+                    reCAPTCHA
+                  </span>
+                  <span className="block text-xs text-muted-foreground mt-0.5">
+                    {form.captchaEnabled
+                      ? "Enabled — bot protection active"
+                      : "Disabled — no captcha on submit"}
+                  </span>
+                </span>
+              </label>
+            </div>
+          }
+        />
 
         <div className="max-w-3xl w-full mx-auto space-y-3">
           {/* Form title card */}

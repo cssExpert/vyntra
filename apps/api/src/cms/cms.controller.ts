@@ -346,7 +346,7 @@ export class CmsController {
   @Post('forms')
   createForm(
     @CurrentOrg() orgId: string | null,
-    @Body() body: { name: string; description?: string; slug: string; status?: string; fields?: unknown[] },
+    @Body() body: { name: string; description?: string; slug: string; status?: string; fields?: unknown[]; captchaEnabled?: boolean },
   ) {
     return this.cmsService.createForm(requireOrg(orgId), body);
   }
@@ -356,7 +356,7 @@ export class CmsController {
   updateForm(
     @CurrentOrg() orgId: string | null,
     @Param('id') id: string,
-    @Body() body: { name?: string; description?: string; slug?: string; status?: string; fields?: unknown[] },
+    @Body() body: { name?: string; description?: string; slug?: string; status?: string; fields?: unknown[]; captchaEnabled?: boolean },
   ) {
     return this.cmsService.updateForm(requireOrg(orgId), id, body);
   }
@@ -371,5 +371,10 @@ export class CmsController {
   @Post('forms/:id/duplicate')
   duplicateForm(@CurrentOrg() orgId: string | null, @Param('id') id: string) {
     return this.cmsService.duplicateForm(requireOrg(orgId), id);
+  }
+
+  @Post('forms/verify-captcha')
+  verifyCaptcha(@Body() body: { token: string }) {
+    return this.cmsService.verifyCaptcha(body.token);
   }
 }

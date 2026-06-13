@@ -954,6 +954,7 @@ export interface CmsFormItem {
   slug: string;
   status: string;
   fields: CmsFormField[];
+  captchaEnabled: boolean;
   responses: number;
   createdAt: string;
   updatedAt: string;
@@ -965,6 +966,7 @@ export interface CmsFormSaveDto {
   slug: string;
   status?: string;
   fields?: CmsFormField[];
+  captchaEnabled?: boolean;
 }
 
 export const cmsForms = {
@@ -984,6 +986,11 @@ export const cmsForms = {
     apiFetch<{ ok: boolean }>(`/cms/forms/${id}`, { method: "DELETE" }),
   duplicate: (id: string) =>
     apiFetch<CmsFormItem>(`/cms/forms/${id}/duplicate`, { method: "POST" }),
+  verifyCaptcha: (token: string) =>
+    apiFetch<{ success: boolean; errorCodes?: string[] }>("/cms/forms/verify-captcha", {
+      method: "POST",
+      body: JSON.stringify({ token }),
+    }),
 };
 
 export const cmsMenus = {
