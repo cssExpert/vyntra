@@ -177,12 +177,64 @@ export default function CanvasNode({
     }
   }, [isEditing]);
 
+  // Compute root-level move info and toolbar positions here so both
+  // typed-block and regular branches can use them (must be before early returns).
+  const rootIdx = isRoot ? index : undefined;
+  const canMoveUp = isRoot && rootIdx !== undefined && rootIdx > 0;
+  const canMoveDown =
+    isRoot && rootIdx !== undefined && rootIdx < nodes.length - 1;
+
+  const TOOLBAR_H = 32;
+  const TOOLBAR_W = 220;
+  const toolbarTop = nodeRect
+    ? canvasBounds && nodeRect.top - TOOLBAR_H - 2 < canvasBounds.top + 4
+      ? nodeRect.bottom + 4
+      : nodeRect.top - TOOLBAR_H - 2
+    : 0;
+  const toolbarLeft = nodeRect
+    ? Math.max(
+        canvasBounds ? canvasBounds.left : 4,
+        Math.min(
+          nodeRect.left,
+          canvasBounds
+            ? canvasBounds.right - TOOLBAR_W
+            : window.innerWidth - TOOLBAR_W,
+        ),
+      )
+    : 0;
+  const addBtnTop = nodeRect
+    ? canvasBounds
+      ? Math.min(nodeRect.bottom + 8, canvasBounds.bottom - 44)
+      : nodeRect.bottom + 8
+    : 0;
+  const addBtnLeft = nodeRect
+    ? canvasBounds
+      ? Math.max(
+          canvasBounds.left + 4,
+          Math.min(
+            nodeRect.left + nodeRect.width / 2 - 20,
+            canvasBounds.right - 44,
+          ),
+        )
+      : nodeRect.left + nodeRect.width / 2 - 20
+    : 0;
+  const isNodeInView =
+    nodeRect && canvasBounds
+      ? nodeRect.bottom > canvasBounds.top &&
+        nodeRect.top < canvasBounds.bottom &&
+        nodeRect.right > canvasBounds.left &&
+        nodeRect.left < canvasBounds.right
+      : true;
+
   // ── Typed-block nodes ──────────────────────────────────────────────────────
   if (node.type === "typed-block" && node.blockType) {
     const BlockComponent = resolveThemeBlock(node.blockType);
     return (
       <div
-        ref={outerRef}
+        ref={(el) => {
+          (outerRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
+          setDragRef(el);
+        }}
         className={cn(
           "relative group/block",
           isSelected && "outline outline-2 outline-primary",
@@ -202,12 +254,16 @@ export default function CanvasNode({
           hoverNode(null);
         }}
       >
-        {(isHovered || isSelected) && (
+        {/* Block-type label badge */}
+        {(isHovered || isSelected) && !isDragging && (
           <div className="absolute -top-5 left-0 text-[10px] px-1.5 py-0.5 rounded-sm z-40 pointer-events-none font-mono leading-tight bg-primary text-white">
             {node.blockType}
           </div>
         )}
+
+        {/* Transparent overlay intercepts clicks so interactive block content doesn't steal selection */}
         <div className="absolute inset-0 z-10" />
+
         {BlockComponent ? (
           <BlockComponent data={node.blockData ?? {}} />
         ) : (
@@ -215,6 +271,95 @@ export default function CanvasNode({
             Unknown block: {node.blockType}
           </div>
         )}
+
+        {/* ── Portalled toolbar (same as regular nodes) ── */}
+        {typeof window !== "undefined" &&
+          isSelected &&
+          nodeRect &&
+          isNodeInView &&
+          createPortal(
+            <>
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                style={{ position: "absolute", top: toolbarTop, left: toolbarLeft }}
+                className="z-40 flex items-center rounded-md shadow-lg overflow-hidden bg-primary dark:bg-primary"
+              >
+                {isRoot && (
+                  <>
+                    <button
+                      disabled={!canMoveUp}
+                      className="p-1.5 disabled:opacity-30 transition-opacity text-white dark:text-primary-foreground"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (canMoveUp && rootIdx !== undefined)
+                          useEditorStore.getState().reorderNodes(node.id, nodes[rootIdx - 1].id);
+                      }}
+                    >
+                      <ChevronUp className="w-3 h-3" />
+                    </button>
+                    <button
+                      disabled={!canMoveDown}
+                      className="p-1.5 disabled:opacity-30 transition-opacity text-white dark:text-primary-foreground"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (canMoveDown && rootIdx !== undefined)
+                          useEditorStore.getState().reorderNodes(node.id, nodes[rootIdx + 1].id);
+                      }}
+                    >
+                      <ChevronDown className="w-3 h-3" />
+                    </button>
+                  </>
+                )}
+                <div
+                  className="p-1.5 cursor-grab active:cursor-grabbing text-white dark:text-primary-foreground"
+                  {...listeners}
+                  {...attributes}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <GripVertical className="w-3 h-3" />
+                </div>
+                <button
+                  className="p-1.5 transition-opacity hover:opacity-70 text-white dark:text-primary-foreground"
+                  onClick={(e) => { e.stopPropagation(); duplicateNode(node.id); }}
+                  title="Duplicate"
+                >
+                  <Copy className="w-3 h-3" />
+                </button>
+                <button
+                  className="p-1.5 transition-opacity hover:opacity-70 text-white dark:text-primary-foreground"
+                  onClick={(e) => e.stopPropagation()}
+                  title="Pin"
+                >
+                  <Pin className="w-3 h-3" />
+                </button>
+                <button
+                  className="p-1.5 hover:bg-red-500/20 transition-colors text-white dark:text-primary-foreground"
+                  onClick={(e) => { e.stopPropagation(); removeNode(node.id); }}
+                  title="Delete"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              </motion.div>
+
+              {isRoot && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  title="Add block"
+                  style={{ position: "absolute", top: addBtnTop, left: addBtnLeft }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    useEditorStore.getState().setBlockPickerOpen(true);
+                  }}
+                  className="group z-40 w-10 h-10 rounded-full flex items-center justify-center bg-primary dark:bg-primary text-white dark:text-primary-foreground shadow-lg hover:scale-110 active:scale-95 transition-transform"
+                >
+                  <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 w-4 h-4" />
+                </motion.button>
+              )}
+            </>,
+            document.body,
+          )}
       </div>
     );
   }
@@ -249,11 +394,6 @@ export default function CanvasNode({
       </div>
     );
   }
-
-  const rootIdx = isRoot ? index : undefined;
-  const canMoveUp = isRoot && rootIdx !== undefined && rootIdx > 0;
-  const canMoveDown =
-    isRoot && rootIdx !== undefined && rootIdx < nodes.length - 1;
 
   const outlineClass = isDragging
     ? ""
@@ -341,51 +481,6 @@ export default function CanvasNode({
   ) : (
     node.content
   );
-
-  // Clamped toolbar position — derived from state, safe to compute during render
-  const TOOLBAR_H = 32;
-  const TOOLBAR_W = 220;
-  const toolbarTop = nodeRect
-    ? canvasBounds && nodeRect.top - TOOLBAR_H - 2 < canvasBounds.top + 4
-      ? nodeRect.bottom + 4
-      : nodeRect.top - TOOLBAR_H - 2
-    : 0;
-  const toolbarLeft = nodeRect
-    ? Math.max(
-        canvasBounds ? canvasBounds.left : 4,
-        Math.min(
-          nodeRect.left,
-          canvasBounds
-            ? canvasBounds.right - TOOLBAR_W
-            : window.innerWidth - TOOLBAR_W,
-        ),
-      )
-    : 0;
-  const addBtnTop = nodeRect
-    ? canvasBounds
-      ? Math.min(nodeRect.bottom + 8, canvasBounds.bottom - 44)
-      : nodeRect.bottom + 8
-    : 0;
-  const addBtnLeft = nodeRect
-    ? canvasBounds
-      ? Math.max(
-          canvasBounds.left + 4,
-          Math.min(
-            nodeRect.left + nodeRect.width / 2 - 20,
-            canvasBounds.right - 44,
-          ),
-        )
-      : nodeRect.left + nodeRect.width / 2 - 20
-    : 0;
-
-  // Hide portal overlays when the node has scrolled outside the canvas bounds
-  const isNodeInView =
-    nodeRect && canvasBounds
-      ? nodeRect.bottom > canvasBounds.top &&
-        nodeRect.top < canvasBounds.bottom &&
-        nodeRect.right > canvasBounds.left &&
-        nodeRect.left < canvasBounds.right
-      : true;
 
   return (
     <div
