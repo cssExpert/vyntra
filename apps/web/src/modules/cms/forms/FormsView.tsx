@@ -41,10 +41,13 @@ import {
   formNameFilter,
 } from "./forms-table-config";
 import { FormsTable } from "./FormsTable";
-import { FormPreviewModal } from "./builder/FormPreviewModal";
-import { cmsForms } from "@/lib/api";
+import { cmsForms, orgDomain, type OrgDomain } from "@/lib/api";
+import { useSettings } from "@/providers/SettingsProvider";
+import { Toaster, useToaster } from "@/components/common/Toaster";
 import type { CmsForm, FormStatus } from "./forms.types";
 import { Input } from "@/components/ui/input";
+
+const PLATFORM_DOMAIN = process.env.NEXT_PUBLIC_PLATFORM_DOMAIN || "vyntra.com";
 
 type TabKey = "all" | FormStatus;
 
@@ -66,7 +69,10 @@ export function FormsView() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("cms.forms");
   const router = useRouter();
+  const { settings } = useSettings();
+  const { toasts, addToast, dismiss } = useToaster();
   const [forms, setForms] = useState<CmsForm[]>([]);
+  const [domain, setDomain] = useState<OrgDomain | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState<TabKey>("all");
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -76,7 +82,6 @@ export function FormsView() {
     pageSize: 10,
   });
   const [deletingForm, setDeletingForm] = useState<CmsForm | null>(null);
-  const [previewingForm, setPreviewingForm] = useState<CmsForm | null>(null);
   const [filterDraft, setFilterDraft] = useState<FormFilters>(DEFAULT_FILTERS);
   const [activeFilters, setActiveFilters] =
     useState<FormFilters>(DEFAULT_FILTERS);
@@ -84,11 +89,28 @@ export function FormsView() {
 
   useEffect(() => {
     setIsLoading(true);
-    cmsForms.list()
-      .then((data) => setForms(data as CmsForm[]))
-      .catch(() => setForms([]))
-      .finally(() => setIsLoading(false));
+    Promise.all([
+      cmsForms.list().catch(() => [] as CmsForm[]),
+      orgDomain.get().catch(() => null),
+    ]).then(([data, domainData]) => {
+      setForms(data as CmsForm[]);
+      setDomain(domainData);
+    }).finally(() => setIsLoading(false));
   }, []);
+
+  const getFormUrl = useCallback((formSlug: string): string => {
+    if (domain?.customDomain && domain.customDomainVerified) {
+      return `https://${domain.customDomain}/form/${formSlug}`;
+    }
+    if (domain?.subdomain) {
+      return `https://${domain.subdomain}.${PLATFORM_DOMAIN}/form/${formSlug}`;
+    }
+    const orgSlug = settings?.slug;
+    return orgSlug
+      ? `${window.location.origin}/sites/${orgSlug}/form/${formSlug}`
+      : "#";
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [domain, settings]);
 
   // Lock outer scroll while table is mounted
   useEffect(() => {
@@ -175,12 +197,23 @@ export function FormsView() {
     () =>
       buildFormColumns({
         onEdit: (form) => router.push(`/cms/forms/${form.id}/edit`),
-        onPreview: (form) => setPreviewingForm(form),
+        onPreview: (form) => {
+          const url = getFormUrl(form.slug);
+          if (url !== "#") window.open(url, "_blank");
+        },
+        onCopyLink: (form) => {
+          const url = getFormUrl(form.slug);
+          if (url === "#") return;
+          navigator.clipboard.writeText(url).then(() => {
+            addToast("Link copied to clipboard", "success");
+          }).catch(() => {
+            addToast("Failed to copy link", "error");
+          });
+        },
         onDuplicate: handleDuplicate,
         onDelete: (form) => setDeletingForm(form),
       }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [handleDuplicate],
+    [handleDuplicate, getFormUrl, addToast],
   );
 
   const table = useReactTable({
@@ -367,11 +400,7 @@ export function FormsView() {
             onCreateFirst={() => router.push("/cms/forms/new")}
           />
 
-          {/* ── Preview modal ───────────────────────────────────────────── */}
-          <FormPreviewModal
-            form={previewingForm}
-            onClose={() => setPreviewingForm(null)}
-          />
+          <Toaster toasts={toasts} onDismiss={dismiss} />
 
           {/* ── Delete modal ────────────────────────────────────────────── */}
           <Modal

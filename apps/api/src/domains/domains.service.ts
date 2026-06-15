@@ -344,6 +344,34 @@ export class DomainsService {
     return fallback ?? { id: null, name: 'Default', identifier: 'shopingo' };
   }
 
+  async getPublicForm(orgId: string, slug: string) {
+    const form = await this.prisma.cmsForm.findFirst({
+      where: { organizationId: orgId, slug, status: 'Published' },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        slug: true,
+        fields: true,
+        captchaEnabled: true,
+      },
+    });
+    if (!form) throw new NotFoundException('Form not found');
+    return form;
+  }
+
+  async submitPublicForm(orgId: string, slug: string, data: Record<string, unknown>) {
+    const form = await this.prisma.cmsForm.findFirst({
+      where: { organizationId: orgId, slug, status: 'Published' },
+      select: { id: true },
+    });
+    if (!form) throw new NotFoundException('Form not found');
+    await this.prisma.cmsFormSubmission.create({
+      data: { formId: form.id, data: data as object },
+    });
+    return { ok: true };
+  }
+
   async getPublicMenu(orgId: string, menuId: string) {
     const menu = await this.prisma.menu.findFirst({
       where: { id: menuId, organizationId: orgId },

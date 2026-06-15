@@ -176,4 +176,20 @@ export class DomainsController {
   ) {
     return this.domainsService.getPublicTheme(orgId, previewId || undefined);
   }
+
+  @Public()
+  @Get('public/sites/:orgId/forms/:slug')
+  getPublicForm(@Param('orgId') orgId: string, @Param('slug') slug: string) {
+    return this.domainsService.getPublicForm(orgId, slug);
+  }
+
+  @Public()
+  @Post('public/sites/:orgId/forms/:slug/submit')
+  submitPublicForm(
+    @Param('orgId') orgId: string,
+    @Param('slug') slug: string,
+    @Body() body: Record<string, unknown>,
+  ) {
+    return this.domainsService.submitPublicForm(orgId, slug, body);
+  }
 }

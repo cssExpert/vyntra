@@ -8,6 +8,7 @@ import {
   Copy,
   Trash2,
   Inbox,
+  Link,
 } from "lucide-react";
 import { createColumnHelper, type FilterFn } from "@tanstack/react-table";
 
@@ -104,6 +105,7 @@ export const formNameFilter: FilterFn<CmsForm> = (
 interface ColumnHandlers {
   onEdit: (form: CmsForm) => void;
   onPreview: (form: CmsForm) => void;
+  onCopyLink: (form: CmsForm) => void;
   onDuplicate: (form: CmsForm) => void;
   onDelete: (form: CmsForm) => void;
 }
@@ -111,6 +113,7 @@ interface ColumnHandlers {
 export function buildFormColumns({
   onEdit,
   onPreview,
+  onCopyLink,
   onDuplicate,
   onDelete,
 }: ColumnHandlers) {
@@ -236,6 +239,11 @@ export function buildFormColumns({
                   label: "Preview",
                   icon: <Eye size={13} />,
                   onClick: () => onPreview(form),
+                },
+                {
+                  label: "Copy Link",
+                  icon: <Link size={13} />,
+                  onClick: () => onCopyLink(form),
                 },
                 {
                   label: "Duplicate",
