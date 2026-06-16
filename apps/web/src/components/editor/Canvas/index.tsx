@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, Fragment } from "react";
+import { useRef, Fragment, lazy, Suspense } from "react";
 import { useDndContext, useDroppable } from "@dnd-kit/core";
 import { motion, AnimatePresence } from "framer-motion";
 import { Monitor, Tablet, Smartphone, MousePointer2, Plus } from "lucide-react";
@@ -8,6 +8,8 @@ import { useEditorStore } from "@/store/editorStore";
 import CanvasNode from "./CanvasNode";
 import { cn } from "@/lib/utils";
 import AddressBar from "./AddressBar";
+
+const PreviewPane = lazy(() => import("./PreviewPane"));
 
 const CANVAS_WIDTHS = {
   desktop: "w-full max-w-none",
@@ -45,7 +47,7 @@ function InsertZone({ index }: { index: number }) {
 }
 
 export default function Canvas() {
-  const { nodes, responsiveMode, selectNode, showGrid } = useEditorStore();
+  const { nodes, responsiveMode, selectNode, showGrid, previewMode } = useEditorStore();
   const canvasRef = useRef<HTMLDivElement | null>(null);
 
   const { active } = useDndContext();
@@ -54,6 +56,14 @@ export default function Canvas() {
     id: "canvas-root",
     data: { type: "CANVAS_ROOT" },
   });
+
+  if (previewMode) {
+    return (
+      <Suspense fallback={<div className="flex-1 animate-pulse bg-muted" />}>
+        <PreviewPane />
+      </Suspense>
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-trnsparent">

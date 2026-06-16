@@ -73,6 +73,10 @@ interface EditorState {
   // Active theme for block rendering + schema resolution
   themeIdentifier: string
   setThemeIdentifier: (v: string) => void
+
+  // Preview mode — renders canvas as the public site would
+  previewMode: boolean
+  setPreviewMode: (v: boolean) => void
 }
 
 function findNodeById(nodes: EditorNode[], id: string): EditorNode | null {
@@ -141,6 +145,7 @@ export const useEditorStore = create<EditorState>()(
     showTemplatePicker: false,
     pendingNodes: null,
     themeIdentifier: 'shopingo',
+    previewMode: false,
     // history[historyIndex] always reflects the current canvas state
     history: [[]],
     historyIndex: 0,
@@ -324,5 +329,6 @@ export const useEditorStore = create<EditorState>()(
     setShowTemplatePicker: (v) => set((state) => { state.showTemplatePicker = v }),
     setPendingNodes: (nodes) => set((state) => { state.pendingNodes = nodes }),
     setThemeIdentifier: (v) => set((state) => { state.themeIdentifier = v }),
+    setPreviewMode: (v) => set((state) => { state.previewMode = v }),
   }))
 )

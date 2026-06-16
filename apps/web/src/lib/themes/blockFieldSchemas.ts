@@ -5,14 +5,15 @@
 // ── Field type definitions ────────────────────────────────────────────────────
 
 export type ScalarFieldDef =
-  | { type: 'text';     key: string; label: string; placeholder?: string }
-  | { type: 'number';   key: string; label: string; min?: number; max?: number; suffix?: string }
-  | { type: 'url';      key: string; label: string; placeholder?: string }
-  | { type: 'image';    key: string; label: string }
-  | { type: 'html';     key: string; label: string; rows?: number }
-  | { type: 'textarea'; key: string; label: string; rows?: number; placeholder?: string }
-  | { type: 'select';   key: string; label: string; options: { value: string; label: string }[] }
-  | { type: 'toggle';   key: string; label: string; description?: string };
+  | { type: 'text';        key: string; label: string; placeholder?: string }
+  | { type: 'number';      key: string; label: string; min?: number; max?: number; suffix?: string }
+  | { type: 'url';         key: string; label: string; placeholder?: string }
+  | { type: 'image';       key: string; label: string }
+  | { type: 'html';        key: string; label: string; rows?: number }
+  | { type: 'textarea';    key: string; label: string; rows?: number; placeholder?: string }
+  | { type: 'select';      key: string; label: string; options: { value: string; label: string }[] }
+  | { type: 'toggle';      key: string; label: string; description?: string }
+  | { type: 'string-list'; key: string; label: string; placeholder?: string; addLabel?: string };
 
 export interface ArrayFieldDef {
   type: 'array';
@@ -378,15 +379,11 @@ export const BLOCK_SCHEMAS: Record<string, BlockSection[]> = {
       title: 'Paragraphs',
       fields: [
         {
-          type: 'array',
+          type: 'string-list',
           key: 'paragraphs',
-          label: 'Text Paragraphs',
-          itemLabel: 'Paragraph',
+          label: 'Paragraphs',
+          placeholder: 'Paragraph text…',
           addLabel: 'Add Paragraph',
-          defaultItem: 'New paragraph text.',
-          fields: [
-            { type: 'textarea', key: '', label: 'Text', rows: 3, placeholder: 'Paragraph text…' },
-          ],
         },
       ],
     },
@@ -447,15 +444,11 @@ export const BLOCK_SCHEMAS: Record<string, BlockSection[]> = {
       defaultOpen: false,
       fields: [
         {
-          type: 'array',
+          type: 'string-list',
           key: 'subjects',
           label: 'Subject Options',
-          itemLabel: 'Option',
-          addLabel: 'Add Option',
-          defaultItem: 'New Subject',
-          fields: [
-            { type: 'text', key: '', label: 'Option Label', placeholder: 'Order Inquiry' },
-          ],
+          placeholder: 'e.g. Order Inquiry',
+          addLabel: 'Add Subject',
         },
       ],
     },

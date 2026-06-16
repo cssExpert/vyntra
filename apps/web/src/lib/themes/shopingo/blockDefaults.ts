@@ -1,5 +1,29 @@
 import type { BlockDataMap, BlockType } from "@/lib/themes/types";
 
+// Block categories for sidebar grouping
+export const BLOCK_CATEGORIES: { label: string; blocks: BlockType[] }[] = [
+  {
+    label: "Hero & Banners",
+    blocks: ["hero-carousel", "promo-banner", "page-header"],
+  },
+  {
+    label: "Products",
+    blocks: ["product-grid", "product-tabs"],
+  },
+  {
+    label: "Discovery",
+    blocks: ["category-grid", "brand-carousel"],
+  },
+  {
+    label: "Content",
+    blocks: ["text-image", "blog-section", "features-banner"],
+  },
+  {
+    label: "Engagement",
+    blocks: ["newsletter", "contact-form", "custom-html"],
+  },
+];
+
 export const BLOCK_META: Record<
   BlockType,
   { label: string; description: string; icon: string }

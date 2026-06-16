@@ -19,9 +19,11 @@ import { Modal } from "@/components/common/Modal";
 import { Button } from "@/components/ui/button";
 import {
   cmsThemes,
+  cmsPages,
   type ThemeInstallPreview,
   type ThemeInstallResult,
 } from "@/lib/api";
+import { getThemePageDefaults } from "@/lib/themes/shopingo/pageDefaults";
 
 const PAGE_ICONS: Record<string, React.ElementType> = {
   home: Home,
@@ -107,6 +109,22 @@ export function ThemeInstallModal({
         installLayout,
         overwrite,
       });
+
+      // Seed installed pages with default block content from the theme
+      if (res.pages.installed.length > 0) {
+        const defaults = getThemePageDefaults(themeIdentifier);
+        await Promise.allSettled(
+          res.pages.installed
+            .filter((slug) => defaults[slug])
+            .map((slug) =>
+              cmsPages.save(slug, {
+                content: JSON.stringify(defaults[slug]),
+                publish: true,
+              }),
+            ),
+        );
+      }
+
       setResult(res);
       const didInstallSomething =
         res.pages.installed.length > 0 ||

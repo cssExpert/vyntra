@@ -1,8 +1,7 @@
 "use client";
 
-// Shared schema-driven form used by both BlockDataEditor (main editor)
-// and BlockConfigPanel (theme-builder). Renders sections + fields based on
-// BLOCK_SCHEMAS[blockType]. All inputs are pre-filled from `data`.
+// Schema-driven form rendered by BlockDataEditor when a typed-block is selected.
+// Sections + fields are defined in BLOCK_SCHEMAS[blockType].
 
 import { useState } from "react";
 import {
@@ -14,8 +13,8 @@ import {
   ImageIcon,
   Link2,
   Code2,
+  List,
 } from "lucide-react";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { BLOCK_SCHEMAS } from "@/lib/themes/blockFieldSchemas";
 import type {
@@ -24,6 +23,8 @@ import type {
   DbSourceDef,
   AnyFieldDef,
 } from "@/lib/themes/blockFieldSchemas";
+import { ImageUploadWithStorage } from "@/components/common/ImageUploadWithStorage";
+import { useAuth } from "@/providers/AuthProvider";
 
 export const fieldCls = [
   "w-full rounded-lg px-3 py-2 text-xs transition-colors",
@@ -103,40 +104,32 @@ export function ScalarField({
   onChange: (v: unknown) => void;
 }) {
   const str = String(value ?? "");
+  const { user } = useAuth();
+  const companyId = user?.organizationId ?? undefined;
 
   if (def.type === "image") {
     return (
       <div>
         <Label text={def.label} icon={ImageIcon} />
-        {str ? (
-          <div className="relative mb-2 rounded-lg overflow-hidden border border-border h-28 bg-muted">
-            <Image
-              src={str}
-              alt="No image"
-              width="448"
-              height="448"
-              priority
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                (e.currentTarget as HTMLElement).style.display = "none";
-              }}
-            />
-          </div>
-        ) : (
-          <div className="mb-2 rounded-lg border border-dashed border-border h-16 flex items-center justify-center gap-1.5 bg-muted/30">
-            <ImageIcon className="w-4 h-4 text-muted-foreground/30" />
-            <span className="text-[10px] text-muted-foreground/40">
-              No image
-            </span>
-          </div>
-        )}
-        <input
-          type="url"
-          value={str}
-          placeholder="https://…"
-          onChange={(e) => onChange(e.target.value)}
-          className={fieldCls}
+        <ImageUploadWithStorage
+          value={str || null}
+          onChange={(url) => onChange(url ?? "")}
+          companyId={companyId}
+          module="cms"
+          accept="image/png,image/jpeg,image/webp,image/gif"
+          maxSizeMB={5}
+          previewShape="wide"
         />
+        <div className="mt-2">
+          <p className="text-[9px] text-muted-foreground mb-1">Or paste a URL:</p>
+          <input
+            type="url"
+            value={str}
+            placeholder="https://…"
+            onChange={(e) => onChange(e.target.value)}
+            className={fieldCls}
+          />
+        </div>
       </div>
     );
   }
@@ -267,6 +260,48 @@ export function ScalarField({
     );
   }
 
+  if (def.type === "string-list") {
+    const items = Array.isArray(value) ? (value as string[]) : [];
+    return (
+      <div>
+        <Label text={def.label} icon={List} />
+        <div className="space-y-1.5">
+          {items.map((item, idx) => (
+            <div key={idx} className="flex items-center gap-1.5">
+              <input
+                type="text"
+                value={item}
+                placeholder={def.placeholder}
+                onChange={(e) => {
+                  const next = items.map((v, i) =>
+                    i === idx ? e.target.value : v,
+                  );
+                  onChange(next);
+                }}
+                className={cn(fieldCls, "flex-1")}
+              />
+              <button
+                type="button"
+                onClick={() => onChange(items.filter((_, i) => i !== idx))}
+                className="p-1.5 rounded-md text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors shrink-0"
+              >
+                <Trash2 className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={() => onChange([...items, ""])}
+            className="w-full flex items-center justify-center gap-2 py-2 rounded-xl border border-dashed border-border dark:border-border text-xs font-medium text-muted-foreground hover:text-primary hover:border-primary hover:bg-primary/5 transition-all"
+          >
+            <Plus className="stroke-[3] w-3.5 h-3.5" />
+            {def.addLabel ?? "Add Item"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // text (default)
   return (
     <div>
@@ -328,7 +363,9 @@ export function ArrayField({
     <div className="space-y-1.5">
       {items.map((item, idx) => {
         const isOpen = openIdx === idx;
-        const firstText = def.fields.find((f) => f.type === "text");
+        const firstText = def.fields.find(
+          (f) => f.type === "text" || f.type === "textarea",
+        );
         const preview =
           firstText && item[firstText.key]
             ? String(item[firstText.key])

@@ -24,6 +24,7 @@ import { COMPONENT_BLOCKS, CATEGORIES } from "@/lib/componentBlocks";
 import {
   BLOCK_META,
   BLOCK_DEFAULTS,
+  BLOCK_CATEGORIES,
 } from "@/lib/themes/shopingo/blockDefaults";
 import type { BlockType } from "@/lib/themes/types";
 import { useEditorStore } from "@/store/editorStore";
@@ -384,8 +385,8 @@ export default function LeftSidebar() {
             <div className="px-1">
               {/* ── Theme Blocks (typed, theme-aware) ── */}
               <ThemeBlocksSection />
-              {/* ── Raw HTML component blocks ── */}
-              {CATEGORIES.map((cat) => (
+              {/* ── Raw HTML component blocks (exclude categories covered by theme) ── */}
+              {CATEGORIES.filter((cat) => cat !== "Hero" && cat !== "Shopingo").map((cat) => (
                 <CategorySection
                   key={cat}
                   category={cat}
@@ -404,9 +405,56 @@ export default function LeftSidebar() {
   );
 }
 
+function ThemeBlockCategorySection({
+  label,
+  blocks,
+}: {
+  label: string;
+  blocks: BlockType[];
+}) {
+  const [open, setOpen] = useState(true);
+  return (
+    <div className="mb-0.5">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-2.5 py-1 rounded-md transition-colors hover:bg-[#ff2c2c]/5"
+      >
+        <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-[#ff2c2c]/80">
+          {label}
+        </span>
+        <span className="flex items-center gap-1.5 text-[#ff2c2c]/60">
+          <span className="text-[10px]">{blocks.length}</span>
+          {open ? (
+            <ChevronDown className="w-3 h-3" />
+          ) : (
+            <ChevronRight className="w-3 h-3" />
+          )}
+        </span>
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.12 }}
+            className="overflow-hidden"
+          >
+            <div className="border-l-2 ml-2.5 pl-1 border-[#ff2c2c]/20 pb-0.5">
+              {blocks.map((bt) => (
+                <DraggableThemeBlock key={bt} blockType={bt} />
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 function ThemeBlocksSection() {
   const [open, setOpen] = useState(true);
-  const blockTypes = Object.keys(BLOCK_META) as BlockType[];
+  const totalBlocks = Object.keys(BLOCK_META).length;
 
   return (
     <div className="mb-0.5 mt-1">
@@ -420,7 +468,7 @@ function ThemeBlocksSection() {
           Theme Blocks
         </span>
         <span className="flex items-center gap-1.5 text-[#ff2c2c]">
-          <span className="text-[10px] opacity-60">{blockTypes.length}</span>
+          <span className="text-[10px] opacity-60">{totalBlocks}</span>
           {open ? (
             <ChevronDown className="w-3 h-3" />
           ) : (
@@ -428,13 +476,25 @@ function ThemeBlocksSection() {
           )}
         </span>
       </button>
-      {open && (
-        <div className="border-l-2 ml-2.5 pl-1 border-[#ff2c2c]/25 pb-1">
-          {blockTypes.map((bt) => (
-            <DraggableThemeBlock key={bt} blockType={bt} />
-          ))}
-        </div>
-      )}
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.14 }}
+            className="overflow-hidden pl-1"
+          >
+            {BLOCK_CATEGORIES.map((cat) => (
+              <ThemeBlockCategorySection
+                key={cat.label}
+                label={cat.label}
+                blocks={cat.blocks}
+              />
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -25,7 +25,7 @@ const BottomToolbar = dynamic(() => import("./BottomToolbar"), {
 });
 
 import Link from "next/link";
-import { ExternalLink, ChevronLeft } from "lucide-react";
+import { ExternalLink, ChevronLeft, Eye, EyeOff } from "lucide-react";
 import { useEditorStore } from "@/store/editorStore";
 import { useSitePreviewUrl } from "@/hooks/useSitePreviewUrl";
 import { cmsPages } from "@/lib/api";
@@ -53,6 +53,20 @@ function deepCloneWithNewIds(node: EditorNode): EditorNode {
   };
 }
 
+// When all root nodes are theme blocks, save as TypedBlock[] (BlockRenderer path).
+// Mixed/HTML nodes stay as EditorNode[] (NodeRenderer path).
+function serializeNodes(nodes: EditorNode[]): string {
+  const allTyped =
+    nodes.length > 0 &&
+    nodes.every((n) => n.type === "typed-block" && n.blockType);
+  if (allTyped) {
+    return JSON.stringify(
+      nodes.map((n) => ({ id: n.id, type: n.blockType, data: n.blockData ?? {} })),
+    );
+  }
+  return JSON.stringify(nodes);
+}
+
 type SaveState = "idle" | "saving" | "saved" | "error";
 
 function EditorHeader({
@@ -76,6 +90,8 @@ function EditorHeader({
 
   const { previewUrl } = useSitePreviewUrl();
   const href = previewUrl(pageSlug ?? undefined) ?? undefined;
+
+  const { previewMode, setPreviewMode } = useEditorStore();
 
   const publishLabel =
     publishState === "saving"
@@ -116,6 +132,20 @@ function EditorHeader({
       </div>
       <div className="flex items-center gap-3">
         <div className="inline-flex items-center gap-2">
+          <button
+            onClick={() => setPreviewMode(!previewMode)}
+            title={previewMode ? "Exit preview" : "Preview page"}
+            className={`flex items-center gap-1.5 text-sm font-medium transition-colors px-3 py-1.5 rounded-lg border
+              ${previewMode
+                ? "border-primary text-primary bg-primary/10"
+                : "border-border text-muted-foreground hover:text-foreground hover:bg-muted bg-transparent"}`}
+          >
+            {previewMode ? (
+              <><EyeOff className="w-3.5 h-3.5" /> Exit Preview</>
+            ) : (
+              <><Eye className="w-3.5 h-3.5" /> Preview</>
+            )}
+          </button>
           <a
             href={href}
             target="_blank"
@@ -246,7 +276,7 @@ export default function EditorLayout() {
     setPublishState("saving");
     try {
       await cmsPages.save(pageSlug, {
-        content: JSON.stringify(nodes),
+        content: serializeNodes(nodes),
         publish: true,
         layoutId,
       });
@@ -264,7 +294,7 @@ export default function EditorLayout() {
     setDraftState("saving");
     try {
       await cmsPages.save(pageSlug, {
-        content: JSON.stringify(nodes),
+        content: serializeNodes(nodes),
         publish: false,
         layoutId,
       });
