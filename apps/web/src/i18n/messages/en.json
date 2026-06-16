@@ -1457,5 +1457,65 @@
       "keepAccount": "Keep Account",
       "confirmDelete": "Yes, Delete User"
     }
+  },
+  "seo": {
+    "tabs": {
+      "dashboard": "Dashboard",
+      "keywords": "Keywords",
+      "metatags": "Meta Tags",
+      "sitemaps": "Sitemaps",
+      "serp": "SERP Preview"
+    },
+    "copiedToClipboard": "Copied to clipboard",
+    "dashboard": {
+      "title": "SEO",
+      "stable": "Stable",
+      "subtitle": "Monitor and optimize your search engine presence",
+      "runQuickAudit": "Run Quick Audit",
+      "chartTitle": "Organic Traffic",
+      "chartSubtitle": "Monthly visits from search engines",
+      "instantActions": "Instant Actions",
+      "instantActionsSubtitle": "Quick wins to boost your SEO",
+      "actionKeywords": "Keyword Research",
+      "actionKeywordsDesc": "Discover high-value keywords for your niche",
+      "actionMetatags": "Meta Tags",
+      "actionMetatagsDesc": "Optimize titles and descriptions",
+      "actionSitemaps": "Sitemaps",
+      "actionSitemapsDesc": "Submit and manage XML sitemaps",
+      "tip": "Pro tip: Focus on long-tail keywords for faster ranking wins.",
+      "checklistTitle": "SEO Health Checklist"
+    },
+    "keywords": {
+      "title": "Keyword Research",
+      "subtitle": "Discover high-value keywords and search intent for your content",
+      "searchPlaceholder": "Enter a keyword or topic…",
+      "exploreIntent": "Explore Intent",
+      "gatheringIntel": "Gathering intel…",
+      "variationsTitle": "Keyword Variations",
+      "targetsIdentified": "{count} targets identified",
+      "colKeyword": "Keyword",
+      "colVolume": "Volume",
+      "colDifficulty": "Difficulty",
+      "colCpc": "CPC",
+      "colIntent": "Intent",
+      "colCopy": "Copy",
+      "copiedKeyword": "Copied: {keyword}",
+      "copiedAll": "Copied all keywords!",
+      "copyBulkList": "Copy Bulk List",
+      "metricsFootnote": "Metrics are estimates. Actual data may vary.",
+      "clusterTitle": "Keyword Clusters",
+      "clusterSubtitle": "Semantically grouped topics for content planning",
+      "priority": "Priority",
+      "intentBlueprintTitle": "Intent Blueprint",
+      "intentBlueprintBody": "Use these keywords to map out content that matches searcher intent at every stage of the funnel.",
+      "emptyTitle": "No keywords yet",
+      "emptyDescription": "Enter a topic above to discover keyword opportunities.",
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard",
+      "errorNoPhrase": "Please enter a keyword or phrase",
+      "loadedSuggestions": "Loaded suggestions for \"{term}\"",
+      "aiRecovering": "AI recovering — sample data loaded"
+    }
   }
 }

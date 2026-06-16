@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
-import { useTranslations } from "next-intl";
+// import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -29,6 +29,7 @@ import {
   Boxes,
   ChevronLeft,
   ChevronDown,
+  Sparkles,
   LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -58,6 +59,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Building2,
   Package,
   Boxes,
+  Sparkles,
 };
 
 /* Shared fade transition constants */
