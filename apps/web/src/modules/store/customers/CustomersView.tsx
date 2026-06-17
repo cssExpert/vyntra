@@ -39,64 +39,15 @@ import { SAMPLE_CUSTOMERS } from "../store.data";
 import type { StoreCustomer } from "../store.types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  formatStorePrice,
+  getInitials,
+  pageWindow,
+  getCommonPinningStyles,
+} from "../store.utils";
+import { CUSTOMER_STATUS_BADGES } from "../store.constants";
 
 const columnHelper = createColumnHelper<StoreCustomer>();
-
-function formatCurrency(v: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(v);
-}
-
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-}
-
-function pageWindow(current: number, total: number): (number | "…")[] {
-  if (total <= 7) return Array.from({ length: total }, (_, i) => i);
-  const pages: (number | "…")[] = [];
-  const add = (n: number) => {
-    if (!pages.includes(n)) pages.push(n);
-  };
-  add(0);
-  if (current > 2) pages.push("…");
-  for (
-    let i = Math.max(1, current - 1);
-    i <= Math.min(total - 2, current + 1);
-    i++
-  )
-    add(i);
-  if (current < total - 3) pages.push("…");
-  add(total - 1);
-  return pages;
-}
-
-function getCommonPinningStyles(
-  column: Column<StoreCustomer>,
-): React.CSSProperties {
-  const isPinned = column.getIsPinned();
-  const isLastLeft = isPinned === "left" && column.getIsLastColumn("left");
-  const isFirstRight = isPinned === "right" && column.getIsFirstColumn("right");
-  return {
-    boxShadow: isLastLeft
-      ? "3px 0 6px -2px rgba(0,0,0,0.12)"
-      : isFirstRight
-        ? "-3px 0 6px -2px rgba(0,0,0,0.12)"
-        : undefined,
-    left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
-    right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
-    position: isPinned ? "sticky" : "relative",
-    zIndex: isPinned ? 1 : 0,
-    width: column.getSize(),
-    background: "inherit",
-  };
-}
 
 const SEGMENT_BADGE: Record<
   string,
@@ -154,7 +105,7 @@ const getColumns = (t: any) => [
     size: 120,
     cell: ({ getValue }) => (
       <span className="font-bold text-success tabular-nums">
-        {formatCurrency(getValue())}
+        {formatStorePrice(getValue())}
       </span>
     ),
   }),
@@ -163,7 +114,7 @@ const getColumns = (t: any) => [
     size: 100,
     cell: ({ getValue }) => (
       <span className="text-xs text-foreground tabular-nums">
-        {formatCurrency(getValue())}
+        {formatStorePrice(getValue())}
       </span>
     ),
   }),
@@ -186,7 +137,7 @@ const getColumns = (t: any) => [
       const v = getValue();
       return v > 0 ? (
         <span className="text-xs font-semibold text-info tabular-nums">
-          {formatCurrency(v)}
+          {formatStorePrice(v)}
         </span>
       ) : (
         <span className="text-muted-foreground/40 text-xs">—</span>

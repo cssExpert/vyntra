@@ -1168,7 +1168,13 @@
       "previous": "Précédent",
       "next": "Suivant",
       "noOrders": "Aucune commande trouvée",
-      "adjustFilters": "Essayez d'ajuster vos filtres."
+      "adjustFilters": "Essayez d'ajuster vos filtres.",
+      "export": "Exporter",
+      "store": "Magasin",
+      "description": "Toutes les commandes",
+      "searchPlaceholder": "Search orders, customer...",
+      "allPayments": "All Payments",
+      "failedPayment": "Failed Payment"
     },
     "categories": {
       "view": "Afficher",
@@ -1176,11 +1182,47 @@
       "delete": "Supprimer",
       "dragToReorder": "Faire glisser pour réorganiser",
       "addCategory": "Ajouter une catégorie",
-      "title": "Catégories"
+      "title": "Catégories",
+      "statusActive": "Actif",
+      "statusInactive": "Inactif",
+      "products": "produits",
+      "store": "Magasin",
+      "editCategory": "Modifier la catégorie",
+      "basicInformation": "Informations de base",
+      "categoryName": "Nom de la catégorie",
+      "slug": "Slug",
+      "description": "Description",
+      "thumbnailImage": "Image miniature",
+      "seo": "SEO",
+      "seoTitle": "Titre SEO",
+      "metaDescription": "Méta-description",
+      "preview": "Aperçu",
+      "noDescriptionProvided": "Aucune description fournie.",
+      "visibility": "Visibilité",
+      "active": "Actif",
+      "showInStore": "Afficher cette catégorie dans le magasin",
+      "featured": "En vedette",
+      "highlightHomepage": "Mettre en évidence sur la page d'accueil",
+      "parentCategory": "Catégorie parente",
+      "leaveEmpty": "Laissez vide pour créer une catégorie de niveau supérieur.",
+      "none": "— Aucun (niveau supérieur) —",
+      "unsavedChanges": "Les modifications non enregistrées seront perdues si vous naviguez.",
+      "cancel": "Annuler",
+      "saveChanges": "Enregistrer les modifications",
+      "save": "Enregistrer",
+      "publish": "Publier",
+      "updateCategoryDetails": "Mettre à jour les détails de la catégorie",
+      "createNewCategory": "Créer une nouvelle catégorie de produits",
+      "searchPlaceholder": "Search categories...",
+      "noCategoriesFound": "No categories found",
+      "activeTab": "Active",
+      "inactiveTab": "Inactive"
     },
     "credits": {
       "title": "Crédits de la boutique",
-      "description": "Gérer les crédits store et les transactions des clients"
+      "description": "Gérer les crédits store et les transactions des clients",
+      "store": "Magasin",
+      "addCredit": "Ajouter du crédit"
     },
     "products": {
       "title": "Produits",
@@ -1265,14 +1307,20 @@
         "colorBlue": "Bleu",
         "colorPurple": "Violet",
         "colorPink": "Rose"
-      }
+      },
+      "statusInStock": "In Stock",
+      "statusLowStock": "Low Stock",
+      "statusOutOfStock": "Out of Stock",
+      "statusBackorder": "Backorder"
     },
     "rewards": {
       "title": "Points de récompense",
       "tierBronze": "Bronze",
       "tierSilver": "Argent",
       "tierGold": "Or",
-      "tierPlatinum": "Platine"
+      "tierPlatinum": "Platine",
+      "description": "Gérer les récompenses de fidélité et les niveaux de points",
+      "store": "Magasin"
     },
     "settings": {
       "generalTab": "Général",
@@ -1284,7 +1332,10 @@
       "storeDescription": "Paramètres de la boutique",
       "alert": "Alerte",
       "cancel": "Annuler",
-      "saveChanges": "Enregistrer les modifications"
+      "saveChanges": "Enregistrer les modifications",
+      "title": "Paramètres magasin",
+      "description": "Configurer les détails et préférences du magasin",
+      "store": "Magasin"
     },
     "title": "Boutique",
     "description": "Gérez vos produits, commandes, inventaire et paramètres de boutique.",
@@ -1330,7 +1381,8 @@
       "statusInStock": "En stock",
       "statusLowStock": "Stock bas",
       "statusOutOfStock": "En rupture de stock",
-      "statusBackorder": "Commande en attente"
+      "statusBackorder": "Commande en attente",
+      "store": "Magasin"
     },
     "automations": {
       "title": "Automations",
@@ -1370,7 +1422,8 @@
     "ai-assistant": {
       "title": "Assistant IA",
       "description": "Assistance magasin alimentée par l'IA",
-      "noAssistant": "Assistant IA non disponible"
+      "noAssistant": "Assistant IA non disponible",
+      "store": "Magasin"
     },
     "coupons": {
       "statusActive": "Actif",
@@ -1378,18 +1431,46 @@
       "statusDisabled": "Désactivé",
       "typePercent": "Pourcentage",
       "typeFixedCart": "Réduction de panier fixe",
-      "typeFixedProduct": "Réduction de produit fixe"
+      "typeFixedProduct": "Réduction de produit fixe",
+      "title": "Coupons et réductions",
+      "description": "Gérer les codes promotionnels et les remises",
+      "addCoupon": "Ajouter un coupon",
+      "noCoupons": "Aucun coupon trouvé",
+      "freeShipping": "Livraison gratuite",
+      "codeHeader": "Code",
+      "typeHeader": "Type",
+      "valueHeader": "Valeur",
+      "usageHeader": "Utilisation",
+      "statusHeader": "Statut",
+      "store": "Magasin",
+      "totalUses": "Utilisation totale",
+      "searchPlaceholder": "Search coupons, code...",
+      "expiresHeader": "Expires",
+      "noExpiry": "No expiry",
+      "discountTypeHeader": "Discount Type",
+      "discountValueHeader": "Discount Value"
     },
     "customers": {
       "title": "Clients",
       "description": "Gérer votre base de données clients et segmentation",
       "statusActive": "Actif",
       "statusBlocked": "Bloqué",
-      "statusUnverified": "Non vérifié"
+      "statusUnverified": "Non vérifié",
+      "store": "Magasin",
+      "customerHeader": "Client",
+      "emailHeader": "E-mail",
+      "spentHeader": "Dépensé",
+      "ordersHeader": "Commandes",
+      "statusHeader": "Statut",
+      "searchPlaceholder": "Search customers...",
+      "addCustomer": "Add Customer",
+      "noCustomers": "No customers found",
+      "lifetimeValue": "Lifetime Value"
     },
     "reports": {
       "title": "Rapports magasin",
-      "description": "Analytique des ventes, stocks et performances"
+      "description": "Analytique des ventes, stocks et performances",
+      "store": "Magasin"
     }
   },
   "messages": {

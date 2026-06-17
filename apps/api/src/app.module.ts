@@ -18,6 +18,7 @@ import { PackagesModule } from './packages/packages.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UploadModule } from './upload/upload.module';
 import { UsersModule } from './users/users.module';
+import { StoreModule } from './store/store.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { UsersModule } from './users/users.module';
     CmsModule,
     ThemesModule,
     UploadModule,
+    StoreModule,
     // CrmModule added in the next phase.
   ],
   providers: [

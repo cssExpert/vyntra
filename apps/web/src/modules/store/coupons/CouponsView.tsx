@@ -12,36 +12,10 @@ import { SAMPLE_COUPONS } from "../store.data";
 import type { StoreCoupon } from "../store.types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
-function formatDiscount(c: StoreCoupon) {
-  if (c.freeShipping && c.value === 0) return "Free Shipping";
-  if (c.type === "percent") return `${c.value}% off`;
-  if (c.type === "fixed_cart") return `$${c.value} off cart`;
-  if (c.type === "fixed_product") return `$${c.value} off product`;
-  return `${c.value}`;
-}
-
-function pageWindow(current: number, total: number): (number | "…")[] {
-  if (total <= 7) return Array.from({ length: total }, (_, i) => i);
-  const pages: (number | "…")[] = [];
-  const add = (n: number) => {
-    if (!pages.includes(n)) pages.push(n);
-  };
-  add(0);
-  if (current > 2) pages.push("…");
-  for (
-    let i = Math.max(1, current - 1);
-    i <= Math.min(total - 2, current + 1);
-    i++
-  )
-    add(i);
-  if (current < total - 3) pages.push("…");
-  add(total - 1);
-  return pages;
-}
+import { formatCouponDiscount, pageWindow } from "../store.utils";
+import { COUPON_STATUS_BADGES } from "../store.constants";
 
 export function CouponsView() {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("store.coupons");
   const isLoaded = usePageLoad(600);
   const [search, setSearch] = useState("");
@@ -93,11 +67,11 @@ export function CouponsView() {
           className="flex flex-col gap-4"
         >
           <PageHeader
-            title="Coupons & Discounts"
-            description={`${SAMPLE_COUPONS.length} coupons · ${totalUsed} total uses`}
+            title={t("title")}
+            description={`${SAMPLE_COUPONS.length} ${t("title").toLowerCase()} · ${totalUsed} total uses`}
             breadcrumbs={[
-              { label: "Store", href: "/store" },
-              { label: "Coupons" },
+              { label: t("store"), href: "/store" },
+              { label: t("title") },
             ]}
           >
             <Button size="lg" radius="sm" className="px-4">
@@ -105,7 +79,7 @@ export function CouponsView() {
                 size={16}
                 className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4"
               />
-              Add Coupon
+              {t("addCoupon")}
             </Button>
           </PageHeader>
 
@@ -113,21 +87,21 @@ export function CouponsView() {
           <div className="grid grid-cols-3 gap-3">
             {[
               {
-                label: "Active",
+                key: "statusActive",
                 value: SAMPLE_COUPONS.filter((c) => c.status === "active")
                   .length,
                 color: "text-success",
               },
               {
-                label: "Expired",
+                key: "statusExpired",
                 value: SAMPLE_COUPONS.filter((c) => c.status === "expired")
                   .length,
                 color: "text-error",
               },
-              { label: "Total Uses", value: totalUsed, color: "text-info" },
+              { key: "totalUses", value: totalUsed, color: "text-info" },
             ].map((s) => (
               <div
-                key={s.label}
+                key={s.key}
                 className="glass-card p-3 flex items-center gap-3"
               >
                 <Tag size={15} className={s.color} />
@@ -135,7 +109,7 @@ export function CouponsView() {
                   <p className={`text-lg font-extrabold ${s.color}`}>
                     {s.value}
                   </p>
-                  <p className="text-[11px] text-muted-foreground">{s.label}</p>
+                  <p className="text-[11px] text-muted-foreground">{t(s.key)}</p>
                 </div>
               </div>
             ))}

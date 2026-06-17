@@ -273,11 +273,11 @@ function CatNodeRenderer(props: Record<string, unknown>) {
         </span>
         <div className="items-center gap-2 hidden md:inline-flex">
           <span className="text-xs text-muted-foreground tabular-nums border-l border-border ml-2 pl-2">
-            {node.productCount} products
+            {node.productCount} {t("products")}
           </span>
           <StatusBadge
             variant={node.status === "active" ? "success" : "muted"}
-            label={node.status === "active" ? "Active" : "Inactive"}
+            label={t(node.status === "active" ? "statusActive" : "statusInactive")}
             size="sm"
           />
         </div>
@@ -293,14 +293,14 @@ function CatNodeRenderer(props: Record<string, unknown>) {
         >
           <button
             type="button"
-            title={t("view", { defaultValue: "View" })}
+            title={t("view")}
             className="p-1.5 rounded-md text-primary hover:bg-primary/10 transition-colors cursor-pointer"
           >
             <Eye size={14} />
           </button>
           <button
             type="button"
-            title={t("edit", { defaultValue: "Edit" })}
+            title={t("edit")}
             onClick={() => onEdit(node.id)}
             className="p-1.5 rounded-md text-teal-500 hover:bg-teal-500/10 transition-colors cursor-pointer"
           >
@@ -308,7 +308,7 @@ function CatNodeRenderer(props: Record<string, unknown>) {
           </button>
           <button
             type="button"
-            title={t("delete", { defaultValue: "Delete" })}
+            title={t("delete")}
             className="p-1.5 rounded-md text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
           >
             <Trash2 size={14} />
@@ -355,11 +355,11 @@ export function CategoriesView() {
           className="flex flex-col gap-4"
         >
           <PageHeader
-            title={t("title", { defaultValue: "Categories" })}
-            description={`${INIT.length} ${t("title", { defaultValue: "categories" }).toLowerCase()} · ${t("dragToReorder", { defaultValue: "drag to reorder or change level" })}`}
+            title={t("title")}
+            description={`${INIT.length} ${t("products")} · ${t("dragToReorder")}`}
             breadcrumbs={[
-              { label: t("store", { defaultValue: "Store" }), href: "/store" },
-              { label: t("title", { defaultValue: "Categories" }) },
+              { label: t("store"), href: "/store" },
+              { label: t("title") },
             ]}
           >
             <Button
@@ -372,7 +372,7 @@ export function CategoriesView() {
                 size={16}
                 className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4"
               />
-              {t("addCategory", { defaultValue: "Add Category" })}
+              {t("addCategory")}
             </Button>
           </PageHeader>
 

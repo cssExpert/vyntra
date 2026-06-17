@@ -26,22 +26,22 @@ export const PRODUCT_STATUS_BADGES: Record<
 > = {
   active: {
     variant: "success",
-    label: "store.products.statusActive",
+    label: "statusActive",
     icon: "CheckCircle2",
   },
   draft: {
     variant: "muted",
-    label: "store.products.statusDraft",
+    label: "statusDraft",
     icon: "Clock",
   },
   archived: {
     variant: "secondary",
-    label: "store.products.statusArchived",
+    label: "statusArchived",
     icon: "Archive",
   },
   scheduled: {
     variant: "info",
-    label: "store.products.statusScheduled",
+    label: "statusScheduled",
     icon: "Calendar",
   },
 };
@@ -49,14 +49,14 @@ export const PRODUCT_STATUS_BADGES: Record<
 // ─── Product Type Labels & Colors ─────────────────────────────────────────
 
 export const PRODUCT_TYPE_LABELS: Record<ProductType, string> = {
-  simple: "store.products.typeSimple",
-  variable: "store.products.typeVariable",
-  digital: "store.products.typeDigital",
-  downloadable: "store.products.typeDownloadable",
-  service: "store.products.typeService",
-  subscription: "store.products.typeSubscription",
-  bundle: "store.products.typeBundle",
-  gift_card: "store.products.typeGiftCard",
+  simple: "typeSimple",
+  variable: "typeVariable",
+  digital: "typeDigital",
+  downloadable: "typeDownloadable",
+  service: "typeService",
+  subscription: "typeSubscription",
+  bundle: "typeBundle",
+  gift_card: "typeGiftCard",
 };
 
 export const PRODUCT_TYPE_COLORS: Record<ProductType, string> = {
@@ -78,37 +78,37 @@ export const ORDER_STATUS_BADGES: Record<
 > = {
   pending: {
     variant: "muted",
-    label: "store.orders.statusPending",
+    label: "statusPending",
     icon: "Clock",
   },
   processing: {
     variant: "info",
-    label: "store.orders.statusProcessing",
+    label: "statusProcessing",
     icon: "Loader2",
   },
   shipped: {
     variant: "brand",
-    label: "store.orders.statusShipped",
+    label: "statusShipped",
     icon: "Truck",
   },
   delivered: {
     variant: "success",
-    label: "store.orders.statusDelivered",
+    label: "statusDelivered",
     icon: "CheckCircle2",
   },
   cancelled: {
     variant: "destructive",
-    label: "store.orders.statusCancelled",
+    label: "statusCancelled",
     icon: "XCircle",
   },
   refunded: {
     variant: "warning",
-    label: "store.orders.statusRefunded",
+    label: "statusRefunded",
     icon: "RefreshCw",
   },
   on_hold: {
     variant: "secondary",
-    label: "store.orders.statusOnHold",
+    label: "statusOnHold",
     icon: "PauseCircle",
   },
 };
@@ -121,27 +121,27 @@ export const PAYMENT_STATUS_BADGES: Record<
 > = {
   pending: {
     variant: "muted",
-    label: "store.orders.payPending",
+    label: "payPending",
     icon: "Clock",
   },
   paid: {
     variant: "success",
-    label: "store.orders.payPaid",
+    label: "payPaid",
     icon: "CheckCircle2",
   },
   failed: {
     variant: "destructive",
-    label: "store.orders.payFailed",
+    label: "payFailed",
     icon: "XCircle",
   },
   refunded: {
     variant: "warning",
-    label: "store.orders.payRefunded",
+    label: "payRefunded",
     icon: "RefreshCw",
   },
   partial: {
     variant: "info",
-    label: "store.orders.payPartial",
+    label: "payPartial",
     icon: "AlertCircle",
   },
 };
@@ -154,22 +154,22 @@ export const COUPON_STATUS_BADGES: Record<
 > = {
   active: {
     variant: "success",
-    label: "store.coupons.statusActive",
+    label: "statusActive",
   },
   expired: {
     variant: "secondary",
-    label: "store.coupons.statusExpired",
+    label: "statusExpired",
   },
   disabled: {
     variant: "destructive",
-    label: "store.coupons.statusDisabled",
+    label: "statusDisabled",
   },
 };
 
 export const COUPON_TYPE_LABELS: Record<CouponType, string> = {
-  percent: "store.coupons.typePercent",
-  fixed_cart: "store.coupons.typeFixedCart",
-  fixed_product: "store.coupons.typeFixedProduct",
+  percent: "typePercent",
+  fixed_cart: "typeFixedCart",
+  fixed_product: "typeFixedProduct",
 };
 
 // ─── Stock Status Badges ──────────────────────────────────────────────────
@@ -180,22 +180,22 @@ export const STOCK_STATUS_BADGES: Record<
 > = {
   in_stock: {
     variant: "success",
-    label: "store.inventory.statusInStock",
+    label: "statusInStock",
     icon: "CheckCircle2",
   },
   low_stock: {
     variant: "warning",
-    label: "store.inventory.statusLowStock",
+    label: "statusLowStock",
     icon: "AlertTriangle",
   },
   out_of_stock: {
     variant: "destructive",
-    label: "store.inventory.statusOutOfStock",
+    label: "statusOutOfStock",
     icon: "XCircle",
   },
   backorder: {
     variant: "info",
-    label: "store.inventory.statusBackorder",
+    label: "statusBackorder",
     icon: "Loader2",
   },
 };
@@ -208,17 +208,17 @@ export const CUSTOMER_STATUS_BADGES: Record<
 > = {
   active: {
     variant: "success",
-    label: "store.customers.statusActive",
+    label: "statusActive",
     icon: "CheckCircle2",
   },
   blocked: {
     variant: "destructive",
-    label: "store.customers.statusBlocked",
+    label: "statusBlocked",
     icon: "XCircle",
   },
   unverified: {
     variant: "warning",
-    label: "store.customers.statusUnverified",
+    label: "statusUnverified",
     icon: "AlertCircle",
   },
 };
@@ -231,25 +231,25 @@ export const REWARD_TIER_BADGES: Record<
 > = {
   bronze: {
     variant: "secondary",
-    label: "store.rewards.tierBronze",
+    label: "tierBronze",
     icon: "Trophy",
     color: "text-amber-700",
   },
   silver: {
     variant: "secondary",
-    label: "store.rewards.tierSilver",
+    label: "tierSilver",
     icon: "Trophy",
     color: "text-slate-500",
   },
   gold: {
     variant: "warning",
-    label: "store.rewards.tierGold",
+    label: "tierGold",
     icon: "Trophy",
     color: "text-yellow-500",
   },
   platinum: {
     variant: "success",
-    label: "store.rewards.tierPlatinum",
+    label: "tierPlatinum",
     icon: "Crown",
     color: "text-purple-500",
   },
@@ -270,17 +270,17 @@ export const AUTOMATION_STATUS_BADGES: Record<
 > = {
   active: {
     variant: "success",
-    label: "store.automations.statusActive",
+    label: "automations.statusActive",
     icon: "Play",
   },
   paused: {
     variant: "warning",
-    label: "store.automations.statusPaused",
+    label: "automations.statusPaused",
     icon: "PauseCircle",
   },
   draft: {
     variant: "muted",
-    label: "store.automations.statusDraft",
+    label: "automations.statusDraft",
     icon: "FileText",
   },
 };

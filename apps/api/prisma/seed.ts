@@ -739,7 +739,6 @@ async function main() {
         name: t.name,
         description: t.description,
         thumbnail: t.thumbnail,
-        variables: { ...t.variables, category: t.category, tags: t.tags } as object,
         isGlobal: true,
       },
       create: {
@@ -747,7 +746,6 @@ async function main() {
         name: t.name,
         description: t.description,
         thumbnail: t.thumbnail,
-        variables: { ...t.variables, category: t.category, tags: t.tags } as object,
         isGlobal: true,
         orgId: null,
       },

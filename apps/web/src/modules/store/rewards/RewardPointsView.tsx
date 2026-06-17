@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
@@ -11,30 +11,11 @@ import { Trophy, Eye, Pencil } from "lucide-react";
 import { SAMPLE_REWARDS } from "../store.data";
 import type { CustomerReward } from "../store.types";
 import { Button } from "@/components/ui/button";
-
-const TIER_BADGE: Record<CustomerReward["tier"], { variant: "muted" | "info" | "warning" | "purple"; label: string }> = {
-  bronze:   { variant: "muted",    label: "Bronze" },
-  silver:   { variant: "info",     label: "Silver" },
-  gold:     { variant: "warning",  label: "Gold" },
-  platinum: { variant: "purple",   label: "Platinum" },
-};
-
-const TIER_THRESHOLDS = { bronze: 0, silver: 500, gold: 1000, platinum: 3000 };
-
-function pageWindow(current: number, total: number): (number | "…")[] {
-  if (total <= 7) return Array.from({ length: total }, (_, i) => i);
-  const pages: (number | "…")[] = [];
-  const add = (n: number) => { if (!pages.includes(n)) pages.push(n); };
-  add(0);
-  if (current > 2) pages.push("…");
-  for (let i = Math.max(1, current - 1); i <= Math.min(total - 2, current + 1); i++) add(i);
-  if (current < total - 3) pages.push("…");
-  add(total - 1);
-  return pages;
-}
+import { REWARD_TIER_BADGES, REWARD_TIER_THRESHOLDS } from "../store.constants";
+import { pageWindow } from "../store.utils";
 
 export function RewardPointsView() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     
   const t = useTranslations("store.rewards");
   const isLoaded = usePageLoad(600);
   const [pageIndex, setPageIndex] = useState(0);
@@ -63,16 +44,16 @@ export function RewardPointsView() {
           className="flex flex-col gap-4"
         >
           <PageHeader
-            title="Reward Points"
-            description="Customer loyalty tiers and point balances."
-            breadcrumbs={[{ label: "Store", href: "/store" }, { label: "Rewards" }]}
+            title={t("title")}
+            description={t("description")}
+            breadcrumbs={[{ label: t("store"), href: "/store" }, { label: t("title") }]}
           />
 
           {/* Tier stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {(["bronze","silver","gold","platinum"] as const).map((tier) => {
               const count = SAMPLE_REWARDS.filter((r) => r.tier === tier).length;
-              const badge = TIER_BADGE[tier];
+              const badge = REWARD_TIER_BADGES[tier];
               return (
                 <div key={tier} className="glass-card p-4">
                   <Trophy size={16} className={`mb-2 ${tier === "platinum" ? "text-purple-400" : tier === "gold" ? "text-warning" : tier === "silver" ? "text-info" : "text-muted-foreground"}`} />

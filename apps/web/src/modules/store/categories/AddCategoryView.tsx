@@ -85,7 +85,6 @@ export interface AddCategoryViewProps {
 }
 
 export function AddCategoryView({ mode = "add" }: AddCategoryViewProps) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("store.categories");
   const isLoaded = usePageLoad(600);
   const { user } = useAuth();
@@ -113,7 +112,7 @@ export function AddCategoryView({ mode = "add" }: AddCategoryViewProps) {
   };
 
   const isEdit = mode === "edit";
-  const pageTitle = isEdit ? "Edit Category" : "Add Category";
+  const pageTitle = isEdit ? t("editCategory") : t("addCategory");
 
   if (!isLoaded) {
     return (
@@ -159,11 +158,11 @@ export function AddCategoryView({ mode = "add" }: AddCategoryViewProps) {
         <PageHeader
           title={pageTitle}
           description={
-            isEdit ? "Update category details" : "Create a new product category"
+            isEdit ? t("updateCategoryDetails") : t("createNewCategory")
           }
           breadcrumbs={[
-            { label: "Store", href: "/store" },
-            { label: "Categories", href: "/store/categories" },
+            { label: t("store"), href: "/store" },
+            { label: t("title"), href: "/store/categories" },
             { label: pageTitle },
           ]}
         >
@@ -171,11 +170,11 @@ export function AddCategoryView({ mode = "add" }: AddCategoryViewProps) {
             onClick={() => router.push("/store/categories")}
             className="rounded-sm border border-border bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer"
           >
-            Cancel
+            {t("cancel")}
           </button>
           <Button size="lg" radius="sm" className="px-4">
             <Save size={14} />
-            {isEdit ? "Save Changes" : "Save"}
+            {isEdit ? t("saveChanges") : t("save")}
           </Button>
         </PageHeader>
 
@@ -187,11 +186,11 @@ export function AddCategoryView({ mode = "add" }: AddCategoryViewProps) {
         >
           {/* ── Left Column ─── */}
           <div className="lg:col-span-2 space-y-5">
-            <Card title="Basic Information">
+            <Card title={t("basicInformation")}>
               <F
                 label={
                   <>
-                    Category Name <span className="text-destructive">*</span>
+                    {t("categoryName")} <span className="text-destructive">*</span>
                   </>
                 }
               >
@@ -202,7 +201,7 @@ export function AddCategoryView({ mode = "add" }: AddCategoryViewProps) {
                   className={inp}
                 />
               </F>
-              <F label="Slug">
+              <F label={t("slug")}>
                 <Input
                   value={slug}
                   onChange={(e) => setSlug(e.target.value)}
@@ -210,7 +209,7 @@ export function AddCategoryView({ mode = "add" }: AddCategoryViewProps) {
                   className={inp}
                 />
               </F>
-              <F label="Description">
+              <F label={t("description")}>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
@@ -221,7 +220,7 @@ export function AddCategoryView({ mode = "add" }: AddCategoryViewProps) {
               </F>
             </Card>
 
-            <Card title="Thumbnail Image">
+            <Card title={t("thumbnailImage")}>
               <ImageUploadWithStorage
                 value={image}
                 onChange={setImage}
@@ -234,8 +233,8 @@ export function AddCategoryView({ mode = "add" }: AddCategoryViewProps) {
               />
             </Card>
 
-            <Card title="SEO">
-              <F label="SEO Title">
+            <Card title={t("seo")}>
+              <F label={t("seoTitle")}>
                 <Input
                   value={seoTitle}
                   onChange={(e) => setSeoTitle(e.target.value)}
@@ -246,7 +245,7 @@ export function AddCategoryView({ mode = "add" }: AddCategoryViewProps) {
                   {seoTitle.length}/60
                 </p>
               </F>
-              <F label="Meta Description">
+              <F label={t("metaDescription")}>
                 <textarea
                   value={seoDesc}
                   onChange={(e) => setSeoDesc(e.target.value)}
@@ -261,7 +260,7 @@ export function AddCategoryView({ mode = "add" }: AddCategoryViewProps) {
               {(seoTitle || name) && (
                 <div className="rounded-sm border border-border bg-muted/20 p-3 space-y-1">
                   <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                    Preview
+                    {t("preview")}
                   </p>
                   <p className="text-[13px] text-blue-500 font-medium truncate">
                     {seoTitle || name}
@@ -270,7 +269,7 @@ export function AddCategoryView({ mode = "add" }: AddCategoryViewProps) {
                     yourstore.com › categories › {slug || "category-slug"}
                   </p>
                   <p className="text-[11px] text-muted-foreground line-clamp-2">
-                    {seoDesc || description || "No description provided."}
+                    {seoDesc || description || t("noDescriptionProvided")}
                   </p>
                 </div>
               )}
@@ -279,15 +278,15 @@ export function AddCategoryView({ mode = "add" }: AddCategoryViewProps) {
 
           {/* ── Sidebar ─── */}
           <div className="top-5 sticky space-y-5">
-            <Card title="Visibility">
+            <Card title={t("visibility")}>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-foreground">
-                      Active
+                      {t("active")}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Show this category in the store
+                      {t("showInStore")}
                     </p>
                   </div>
                   <Switch checked={active} onCheckedChange={setActive} />
@@ -295,10 +294,10 @@ export function AddCategoryView({ mode = "add" }: AddCategoryViewProps) {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-foreground">
-                      Featured
+                      {t("featured")}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Highlight on homepage
+                      {t("highlightHomepage")}
                     </p>
                   </div>
                   <Switch checked={featured} onCheckedChange={setFeatured} />
@@ -306,16 +305,16 @@ export function AddCategoryView({ mode = "add" }: AddCategoryViewProps) {
               </div>
             </Card>
 
-            <Card title="Parent Category">
+            <Card title={t("parentCategory")}>
               <p className="text-xs text-muted-foreground -mt-1 mb-1">
-                Leave empty to create a top-level category.
+                {t("leaveEmpty")}
               </p>
               <select
                 value={parentId}
                 onChange={(e) => setParentId(e.target.value)}
                 className={sel}
               >
-                <option value="">— None (top level) —</option>
+                <option value="">{t("none")}</option>
                 {PARENT_OPTIONS.map((o) => (
                   <option key={o.id} value={o.id}>
                     {o.depth === 1 ? "  ↳ " : ""}
@@ -330,18 +329,18 @@ export function AddCategoryView({ mode = "add" }: AddCategoryViewProps) {
         {/* Sticky bottom bar */}
         <div className="sticky bottom-0 -mx-4 sm:-mx-6 px-4 sm:px-6 py-4 bg-background/80 backdrop-blur-md border-t border-border/60 flex items-center justify-between gap-4 z-10">
           <p className="text-xs text-muted-foreground hidden sm:block">
-            Unsaved changes will be lost if you navigate away.
+            {t("unsavedChanges")}
           </p>
           <div className="flex items-center gap-2 ml-auto">
             <button
               onClick={() => router.push("/store/categories")}
               className="rounded-sm border border-border bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer"
             >
-              Cancel
+              {t("cancel")}
             </button>
             <button className="flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer shadow-sm shadow-primary/20">
               <Send size={14} />
-              Publish
+              {t("publish")}
             </button>
           </div>
         </div>

@@ -11,18 +11,8 @@ import { Search, Package, Pencil, AlertTriangle } from "lucide-react";
 import { SAMPLE_INVENTORY } from "../store.data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
-function pageWindow(current: number, total: number): (number | "…")[] {
-  if (total <= 7) return Array.from({ length: total }, (_, i) => i);
-  const pages: (number | "…")[] = [];
-  const add = (n: number) => { if (!pages.includes(n)) pages.push(n); };
-  add(0);
-  if (current > 2) pages.push("…");
-  for (let i = Math.max(1, current - 1); i <= Math.min(total - 2, current + 1); i++) add(i);
-  if (current < total - 3) pages.push("…");
-  add(total - 1);
-  return pages;
-}
+import { pageWindow } from "../store.utils";
+import { STOCK_STATUS_BADGES } from "../store.constants";
 
 export function InventoryView() {
   const t = useTranslations("store.inventory");
@@ -53,13 +43,6 @@ export function InventoryView() {
   const outOfStock = SAMPLE_INVENTORY.filter((i) => i.stockStatus === "out_of_stock").length;
   const lowStock   = SAMPLE_INVENTORY.filter((i) => i.stockStatus === "low_stock").length;
 
-  const STOCK_BADGE: Record<string, { variant: "success" | "warning" | "error" | "muted"; label: string }> = {
-    in_stock:     { variant: "success", label: "In Stock" },
-    low_stock:    { variant: "warning", label: "Low Stock" },
-    out_of_stock: { variant: "error",   label: "Out of Stock" },
-    backorder:    { variant: "muted",   label: "Backorder" },
-  };
-
   const selectCls = "rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all cursor-pointer";
 
   return (
@@ -78,9 +61,9 @@ export function InventoryView() {
           className="flex flex-col gap-4"
         >
           <PageHeader
-            title={t("title", { defaultValue: "Inventory" })}
-            description={t("description", { defaultValue: "Monitor and manage product stock levels." })}
-            breadcrumbs={[{ label: t("store", { defaultValue: "Store" }), href: "/store" }, { label: t("title", { defaultValue: "Inventory" }) }]}
+            title={t("title")}
+            description={t("description")}
+            breadcrumbs={[{ label: t("store"), href: "/store" }, { label: t("title") }]}
           />
 
           {/* Alert banners */}
@@ -89,13 +72,13 @@ export function InventoryView() {
               {outOfStock > 0 && (
                 <div className="flex items-center gap-2 rounded-sm bg-error/10 border border-error/20 px-4 py-2.5">
                   <AlertTriangle size={14} className="text-error" />
-                  <span className="text-xs font-semibold text-error">{outOfStock} {t("outOfStockAlert", { defaultValue: "product(s) out of stock" })}</span>
+                  <span className="text-xs font-semibold text-error">{outOfStock} {t("outOfStockAlert")}</span>
                 </div>
               )}
               {lowStock > 0 && (
                 <div className="flex items-center gap-2 rounded-sm bg-warning/10 border border-warning/20 px-4 py-2.5">
                   <AlertTriangle size={14} className="text-warning" />
-                  <span className="text-xs font-semibold text-warning">{lowStock} {t("lowStockAlert", { defaultValue: "product(s) running low" })}</span>
+                  <span className="text-xs font-semibold text-warning">{lowStock} {t("lowStockAlert")}</span>
                 </div>
               )}
             </div>
@@ -110,16 +93,16 @@ export function InventoryView() {
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder={t("searchPlaceholder", { defaultValue: "Search product, SKU…" })}
+                placeholder={t("searchPlaceholder")}
                 size="xl" className="w-full pl-10 pr-4 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm"
               />
             </div>
             <select value={stockFilter} onChange={(e) => setStockFilter(e.target.value)} className={selectCls}>
-              <option value="">{t("allStock", { defaultValue: "All Stock" })}</option>
-              <option value="in_stock">{t("inStockTab", { defaultValue: "In Stock" })}</option>
-              <option value="low_stock">{t("lowStockTab", { defaultValue: "Low Stock" })}</option>
-              <option value="out_of_stock">{t("outOfStockTab", { defaultValue: "Out of Stock" })}</option>
-              <option value="backorder">{t("backorderTab", { defaultValue: "Backorder" })}</option>
+              <option value="">{t("allStock")}</option>
+              <option value="in_stock">{t("inStockTab")}</option>
+              <option value="low_stock">{t("lowStockTab")}</option>
+              <option value="out_of_stock">{t("outOfStockTab")}</option>
+              <option value="backorder">{t("backorderTab")}</option>
             </select>
           </div>
 
@@ -129,19 +112,19 @@ export function InventoryView() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="text-[13px] font-semibold text-muted-foreground">
-                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("productSKUHeader", { defaultValue: "Product / SKU" })}</th>
-                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("typeHeader", { defaultValue: "Type" })}</th>
-                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("stockHeader", { defaultValue: "Stock" })}</th>
-                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("thresholdHeader", { defaultValue: "Threshold" })}</th>
-                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("statusHeader", { defaultValue: "Status" })}</th>
-                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("backorderHeader", { defaultValue: "Backorder" })}</th>
-                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("lastUpdatedHeader", { defaultValue: "Last Updated" })}</th>
+                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("productSKUHeader")}</th>
+                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("typeHeader")}</th>
+                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("stockHeader")}</th>
+                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("thresholdHeader")}</th>
+                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("statusHeader")}</th>
+                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("backorderHeader")}</th>
+                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("lastUpdatedHeader")}</th>
                   <th className="sticky top-0 bg-muted border-b border-border py-4 px-4 text-right" />
                 </tr>
               </thead>
               <tbody className="divide-y divide-border text-[14px]">
                 {paginatedRows.map((item) => {
-                  const badge = STOCK_BADGE[item.stockStatus];
+                  const badge = STOCK_STATUS_BADGES[item.stockStatus as keyof typeof STOCK_STATUS_BADGES];
                   return (
                     <tr key={item.id} className="group hover:bg-muted/40 transition-colors">
                       <td className="py-4 px-4">
@@ -167,7 +150,7 @@ export function InventoryView() {
                       </td>
                       <td className="py-4 px-4 text-xs text-muted-foreground tabular-nums">{item.lowStockThreshold || "—"}</td>
                       <td className="py-4 px-4">
-                        <StatusBadge variant={badge.variant} label={badge.label} size="sm" dot />
+                        <StatusBadge variant={badge.variant} label={t(badge.label)} size="sm" dot />
                       </td>
                       <td className="py-4 px-4">
                         <StatusBadge variant={item.backorderEnabled ? "info" : "muted"} label={item.backorderEnabled ? t("enabled", { defaultValue: "Enabled" }) : t("disabled", { defaultValue: "Disabled" })} size="sm" />

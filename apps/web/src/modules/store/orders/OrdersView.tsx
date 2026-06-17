@@ -81,15 +81,15 @@ export function OrdersView() {
         >
           <PageHeader
             title={t("title")}
-            description={`${SAMPLE_ORDERS.length} orders · $${total.toFixed(2)} total revenue`}
+            description={t("description", { defaultValue: `${SAMPLE_ORDERS.length} orders · $${total.toFixed(2)} total revenue` })}
             breadcrumbs={[
-              { label: "Store", href: "/store" },
+              { label: t("store"), href: "/store" },
               { label: t("title") },
             ]}
           >
             <button className="flex items-center gap-2 rounded-sm border border-border bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer">
               <Download className="h-3.5 w-3.5" />
-              {t("exportCSV", { defaultValue: "Export CSV" })}
+              {t("export")}
             </button>
           </PageHeader>
 
@@ -110,7 +110,7 @@ export function OrdersView() {
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search order #, customer…"
+                placeholder={t("searchPlaceholder")}
                 size="xl"
                 className="w-full pl-10 pr-4 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm"
               />
@@ -128,11 +128,11 @@ export function OrdersView() {
               onChange={(e) => setPayFilter(e.target.value)}
               className={selectCls}
             >
-              <option value="">All Payments</option>
-              <option value="paid">Paid</option>
-              <option value="pending">Pending</option>
-              <option value="failed">Failed</option>
-              <option value="refunded">Refunded</option>
+              <option value="">{t("allPayments")}</option>
+              <option value="paid">{t("payPaid")}</option>
+              <option value="pending">{t("payPending")}</option>
+              <option value="failed">{t("payFailed")}</option>
+              <option value="refunded">{t("payRefunded")}</option>
             </select>
           </div>
 

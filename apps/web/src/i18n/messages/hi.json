@@ -1168,7 +1168,13 @@
       "previous": "पिछला",
       "next": "अगला",
       "noOrders": "कोई ऑर्डर नहीं मिला",
-      "adjustFilters": "अपने फ़िल्टर समायोजित करने का प्रयास करें।"
+      "adjustFilters": "अपने फ़िल्टर समायोजित करने का प्रयास करें।",
+      "export": "निर्यात करें",
+      "store": "स्टोर",
+      "description": "सभी आदेश",
+      "searchPlaceholder": "Search orders, customer...",
+      "allPayments": "All Payments",
+      "failedPayment": "Failed Payment"
     },
     "categories": {
       "view": "देखें",
@@ -1176,11 +1182,47 @@
       "delete": "हटाएं",
       "dragToReorder": "क्रम बदलने के लिए खींचें",
       "addCategory": "श्रेणी जोड़ें",
-      "title": "श्रेणियां"
+      "title": "श्रेणियां",
+      "statusActive": "सक्रिय",
+      "statusInactive": "निष्क्रिय",
+      "products": "उत्पाद",
+      "store": "स्टोर",
+      "editCategory": "श्रेणी संपादित करें",
+      "basicInformation": "मूल जानकारी",
+      "categoryName": "श्रेणी का नाम",
+      "slug": "स्लग",
+      "description": "विवरण",
+      "thumbnailImage": "थंबनेल छवि",
+      "seo": "एसईओ",
+      "seoTitle": "एसईओ शीर्षक",
+      "metaDescription": "मेटा विवरण",
+      "preview": "पूर्वावलोकन",
+      "noDescriptionProvided": "कोई विवरण प्रदान नहीं किया गया।",
+      "visibility": "दृश्यता",
+      "active": "सक्रिय",
+      "showInStore": "इस श्रेणी को स्टोर में दिखाएं",
+      "featured": "फीचर्ड",
+      "highlightHomepage": "होमपेज पर हाइलाइट करें",
+      "parentCategory": "पैरेंट श्रेणी",
+      "leaveEmpty": "शीर्ष-स्तरीय श्रेणी बनाने के लिए खाली छोड़ें।",
+      "none": "— कोई नहीं (शीर्ष स्तर) —",
+      "unsavedChanges": "यदि आप दूर नेविगेट करते हैं तो अनसेव किए गए परिवर्तन खो जाएंगे।",
+      "cancel": "रद्द करें",
+      "saveChanges": "परिवर्तन सहेजें",
+      "save": "सहेजें",
+      "publish": "प्रकाशित करें",
+      "updateCategoryDetails": "श्रेणी विवरण अपडेट करें",
+      "createNewCategory": "एक नई उत्पाद श्रेणी बनाएं",
+      "searchPlaceholder": "Search categories...",
+      "noCategoriesFound": "No categories found",
+      "activeTab": "Active",
+      "inactiveTab": "Inactive"
     },
     "credits": {
       "title": "स्टोर क्रेडिट",
-      "description": "ग्राहक स्टोर क्रेडिट और लेनदेन प्रबंधित करें"
+      "description": "ग्राहक स्टोर क्रेडिट और लेनदेन प्रबंधित करें",
+      "store": "स्टोर",
+      "addCredit": "क्रेडिट जोड़ें"
     },
     "products": {
       "title": "उत्पाद",
@@ -1265,14 +1307,20 @@
         "colorBlue": "नीला",
         "colorPurple": "बैंगनी",
         "colorPink": "गुलाबी"
-      }
+      },
+      "statusInStock": "In Stock",
+      "statusLowStock": "Low Stock",
+      "statusOutOfStock": "Out of Stock",
+      "statusBackorder": "Backorder"
     },
     "rewards": {
       "title": "पुरस्कार अंक",
       "tierBronze": "कांस्य",
       "tierSilver": "चाँदी",
       "tierGold": "सोना",
-      "tierPlatinum": "प्लेटिनम"
+      "tierPlatinum": "प्लेटिनम",
+      "description": "वफादारी पुरस्कार और बिंदु स्तर प्रबंधित करें",
+      "store": "स्टोर"
     },
     "settings": {
       "generalTab": "सामान्य",
@@ -1284,7 +1332,10 @@
       "storeDescription": "स्टोर सेटिंग्स",
       "alert": "अलर्ट",
       "cancel": "रद्द करें",
-      "saveChanges": "परिवर्तन सहेजें"
+      "saveChanges": "परिवर्तन सहेजें",
+      "title": "स्टोर सेटिंग्स",
+      "description": "स्टोर विवरण और प्राथमिकताएं कॉन्फ़िगर करें",
+      "store": "स्टोर"
     },
     "title": "स्टोर",
     "description": "अपने उत्पादों, ऑर्डर, इन्वेंटरी और स्टोर सेटिंग्स को प्रबंधित करें।",
@@ -1330,7 +1381,8 @@
       "statusInStock": "स्टॉक में",
       "statusLowStock": "कम स्टॉक",
       "statusOutOfStock": "स्टॉक समाप्त",
-      "statusBackorder": "बैकऑर्डर"
+      "statusBackorder": "बैकऑर्डर",
+      "store": "स्टोर"
     },
     "automations": {
       "title": "ऑटोमेशन",
@@ -1370,7 +1422,8 @@
     "ai-assistant": {
       "title": "एआई सहायक",
       "description": "एआई-संचालित स्टोर सहायता",
-      "noAssistant": "एआई सहायक उपलब्ध नहीं है"
+      "noAssistant": "एआई सहायक उपलब्ध नहीं है",
+      "store": "स्टोर"
     },
     "coupons": {
       "statusActive": "सक्रिय",
@@ -1378,18 +1431,46 @@
       "statusDisabled": "अक्षम",
       "typePercent": "प्रतिशत",
       "typeFixedCart": "निश्चित कार्ट छूट",
-      "typeFixedProduct": "निश्चित उत्पाद छूट"
+      "typeFixedProduct": "निश्चित उत्पाद छूट",
+      "title": "कूपन और छूट",
+      "description": "प्रचारणात्मक कोड और छूट प्रबंधित करें",
+      "addCoupon": "कूपन जोड़ें",
+      "noCoupons": "कोई कूपन नहीं मिला",
+      "freeShipping": "मुफ्त शिपिंग",
+      "codeHeader": "कोड",
+      "typeHeader": "प्रकार",
+      "valueHeader": "मूल्य",
+      "usageHeader": "उपयोग",
+      "statusHeader": "स्थिति",
+      "store": "स्टोर",
+      "totalUses": "कुल उपयोग",
+      "searchPlaceholder": "Search coupons, code...",
+      "expiresHeader": "Expires",
+      "noExpiry": "No expiry",
+      "discountTypeHeader": "Discount Type",
+      "discountValueHeader": "Discount Value"
     },
     "customers": {
       "title": "ग्राहक",
       "description": "अपनी ग्राहक डेटाबेस और सेगमेंट प्रबंधित करें",
       "statusActive": "सक्रिय",
       "statusBlocked": "अवरुद्ध",
-      "statusUnverified": "अपरिवर्तनीय"
+      "statusUnverified": "अपरिवर्तनीय",
+      "store": "स्टोर",
+      "customerHeader": "ग्राहक",
+      "emailHeader": "ईमेल",
+      "spentHeader": "खर्च किया",
+      "ordersHeader": "आदेश",
+      "statusHeader": "स्थिति",
+      "searchPlaceholder": "Search customers...",
+      "addCustomer": "Add Customer",
+      "noCustomers": "No customers found",
+      "lifetimeValue": "Lifetime Value"
     },
     "reports": {
       "title": "स्टोर रिपोर्ट",
-      "description": "बिक्री, इन्वेंटरी और प्रदर्शन विश्लेषण"
+      "description": "बिक्री, इन्वेंटरी और प्रदर्शन विश्लेषण",
+      "store": "स्टोर"
     }
   },
   "messages": {

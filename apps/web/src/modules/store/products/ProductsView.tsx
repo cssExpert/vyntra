@@ -77,9 +77,9 @@ export function ProductsView() {
           className="flex flex-col gap-4"
         >
           <PageHeader
-            title={t("products")}
-            description={t("productsDescription")}
-            breadcrumbs={[{ label: "Store", href: "/store" }, { label: t("products") }]}
+            title={t("title")}
+            description={t("description")}
+            breadcrumbs={[{ label: "Store", href: "/store" }, { label: t("title") }]}
           />
 
           <ProductsHeader

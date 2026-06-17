@@ -9,28 +9,10 @@ import { TableActionMenu } from "@/components/common/TableActionMenu";
 import { Plus, Wallet, Pencil, Eye } from "lucide-react";
 import { SAMPLE_CREDITS } from "../store.data";
 import { Button } from "@/components/ui/button";
-
-function pageWindow(current: number, total: number): (number | "…")[] {
-  if (total <= 7) return Array.from({ length: total }, (_, i) => i);
-  const pages: (number | "…")[] = [];
-  const add = (n: number) => {
-    if (!pages.includes(n)) pages.push(n);
-  };
-  add(0);
-  if (current > 2) pages.push("…");
-  for (
-    let i = Math.max(1, current - 1);
-    i <= Math.min(total - 2, current + 1);
-    i++
-  )
-    add(i);
-  if (current < total - 3) pages.push("…");
-  add(total - 1);
-  return pages;
-}
+import { pageWindow } from "../store.utils";
 
 export function StoreCreditsView() {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   const t = useTranslations("store.credits");
   const isLoaded = usePageLoad(600);
   const [pageIndex, setPageIndex] = useState(0);
@@ -63,11 +45,11 @@ export function StoreCreditsView() {
           className="flex flex-col gap-4"
         >
           <PageHeader
-            title="Store Credits"
-            description="Issue and manage store credit balances for customers."
+            title={t("title")}
+            description={t("description")}
             breadcrumbs={[
-              { label: "Store", href: "/store" },
-              { label: "Credits" },
+              { label: t("store"), href: "/store" },
+              { label: t("title") },
             ]}
           >
             <Button size="lg" radius="sm" className="px-4">
@@ -75,7 +57,7 @@ export function StoreCreditsView() {
                 size={16}
                 className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4"
               />
-              Add Credit
+              {t("addCredit")}
             </Button>
           </PageHeader>
 
