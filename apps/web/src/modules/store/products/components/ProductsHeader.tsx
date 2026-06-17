@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Plus, Download, Upload } from "lucide-react";
 import { MotionTabs, type MotionTabItem } from "@/components/ui/MotionTabs";
 
@@ -18,11 +19,12 @@ export function ProductsHeader({
   onTabChange,
   onAdd,
 }: Props) {
+  const t = useTranslations("store.products");
   const tabs: MotionTabItem<ProductTabId>[] = [
-    { id: "all", label: "All Products", badge: total },
-    { id: "active", label: "Active" },
-    { id: "draft", label: "Draft" },
-    { id: "archived", label: "Archived" },
+    { id: "all", label: t("allProductsTab"), badge: total },
+    { id: "active", label: t("activeTab") },
+    { id: "draft", label: t("draftTab") },
+    { id: "archived", label: t("archivedTab") },
   ];
 
   return (
@@ -38,11 +40,11 @@ export function ProductsHeader({
       <div className="flex items-center gap-2">
         <button className="flex items-center gap-1.5 rounded-sm border border-border bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer">
           <Upload size={16} />
-          Import
+          {t("import")}
         </button>
         <button className="flex items-center gap-1.5 rounded-sm border border-border bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer">
           <Download size={16} />
-          Export
+          {t("export")}
         </button>
         <button
           onClick={onAdd}
@@ -52,7 +54,7 @@ export function ProductsHeader({
             size={16}
             className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4"
           />
-          Add Product
+          {t("addProduct")}
         </button>
       </div>
     </div>

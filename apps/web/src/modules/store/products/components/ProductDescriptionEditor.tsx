@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import UnderlineExt from "@tiptap/extension-underline";
@@ -30,29 +31,6 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const TEXT_COLORS: { name: string; value: string | null }[] = [
-  { name: "Default", value: null },
-  { name: "Gray", value: "#6b7280" },
-  { name: "Red", value: "#dc2626" },
-  { name: "Orange", value: "#ea580c" },
-  { name: "Yellow", value: "#ca8a04" },
-  { name: "Green", value: "#16a34a" },
-  { name: "Blue", value: "#2563eb" },
-  { name: "Purple", value: "#9333ea" },
-  { name: "Pink", value: "#db2777" },
-];
-
-const HIGHLIGHT_COLORS: { name: string; value: string | null }[] = [
-  { name: "None", value: null },
-  { name: "Yellow", value: "#fef9c3" },
-  { name: "Green", value: "#dcfce7" },
-  { name: "Blue", value: "#dbeafe" },
-  { name: "Purple", value: "#f3e8ff" },
-  { name: "Pink", value: "#fce7f3" },
-  { name: "Orange", value: "#ffedd5" },
-  { name: "Gray", value: "#e5e7eb" },
-];
 
 function TBtn({
   icon: Icon,
@@ -132,9 +110,33 @@ export function ProductDescriptionEditor({
   value,
   onChange,
 }: ProductDescriptionEditorProps) {
+  const t = useTranslations("store.products.editor");
   const [colorOpen, setColorOpen] = useState(false);
   const [highlightOpen, setHighlightOpen] = useState(false);
   const [headingOpen, setHeadingOpen] = useState(false);
+
+  const TEXT_COLORS: { name: string; value: string | null }[] = [
+    { name: t("colorDefault"), value: null },
+    { name: t("colorGray"), value: "#6b7280" },
+    { name: t("colorRed"), value: "#dc2626" },
+    { name: t("colorOrange"), value: "#ea580c" },
+    { name: t("colorYellow"), value: "#ca8a04" },
+    { name: t("colorGreen"), value: "#16a34a" },
+    { name: t("colorBlue"), value: "#2563eb" },
+    { name: t("colorPurple"), value: "#9333ea" },
+    { name: t("colorPink"), value: "#db2777" },
+  ];
+
+  const HIGHLIGHT_COLORS: { name: string; value: string | null }[] = [
+    { name: t("colorNone"), value: null },
+    { name: t("colorYellow"), value: "#fef9c3" },
+    { name: t("colorGreen"), value: "#dcfce7" },
+    { name: t("colorBlue"), value: "#dbeafe" },
+    { name: t("colorPurple"), value: "#f3e8ff" },
+    { name: t("colorPink"), value: "#fce7f3" },
+    { name: t("colorOrange"), value: "#ffedd5" },
+    { name: t("colorGray"), value: "#e5e7eb" },
+  ];
 
   const closeAll = () => {
     setColorOpen(false);
@@ -152,7 +154,7 @@ export function ProductDescriptionEditor({
       Highlight.configure({ multicolor: true }),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       Placeholder.configure({
-        placeholder: "Write your product description here…",
+        placeholder: t("placeholder"),
       }),
     ],
     content: value || "",
@@ -167,22 +169,22 @@ export function ProductDescriptionEditor({
 
   const HEADINGS = [
     {
-      label: "Normal Text",
+      label: t("normalText"),
       fn: () => editor?.chain().focus().setParagraph().run(),
       active: editor?.isActive("paragraph"),
     },
     {
-      label: "Heading 2",
+      label: t("heading2"),
       fn: () => editor?.chain().focus().setHeading({ level: 2 }).run(),
       active: editor?.isActive("heading", { level: 2 }),
     },
     {
-      label: "Heading 3",
+      label: t("heading3"),
       fn: () => editor?.chain().focus().setHeading({ level: 3 }).run(),
       active: editor?.isActive("heading", { level: 3 }),
     },
     {
-      label: "Heading 4",
+      label: t("heading4"),
       fn: () => editor?.chain().focus().setHeading({ level: 4 }).run(),
       active: editor?.isActive("heading", { level: 4 }),
     },
@@ -223,25 +225,25 @@ export function ProductDescriptionEditor({
         </div>
         <TBtn
           icon={Bold}
-          title="Bold"
+          title={t("bold")}
           active={editor?.isActive("bold")}
           onClick={() => editor?.chain().focus().toggleBold().run()}
         />
         <TBtn
           icon={Italic}
-          title="Italic"
+          title={t("italic")}
           active={editor?.isActive("italic")}
           onClick={() => editor?.chain().focus().toggleItalic().run()}
         />
         <TBtn
           icon={UnderlineIcon}
-          title="Underline"
+          title={t("underline")}
           active={editor?.isActive("underline")}
           onClick={() => editor?.chain().focus().toggleUnderline().run()}
         />
         <TBtn
           icon={Strikethrough}
-          title="Strikethrough"
+          title={t("strikethrough")}
           active={editor?.isActive("strike")}
           onClick={() => editor?.chain().focus().toggleStrike().run()}
         />
@@ -251,7 +253,7 @@ export function ProductDescriptionEditor({
         <div className="relative">
           <button
             type="button"
-            title="Text color"
+            title={t("textColorTitle")}
             onMouseDown={(e) => {
               e.preventDefault();
               setColorOpen((p) => !p);
@@ -270,7 +272,7 @@ export function ProductDescriptionEditor({
           {colorOpen && (
             <div className="absolute top-full left-0 z-30 mt-1 p-2.5 bg-popover border border-border rounded-lg shadow-[0_8px_30px_rgba(0,0,0,0.14)] w-[156px]">
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                Text Color
+                {t("textColor")}
               </p>
               <Swatches
                 mode="text"
@@ -289,7 +291,7 @@ export function ProductDescriptionEditor({
         <div className="relative">
           <button
             type="button"
-            title="Highlight text"
+            title={t("highlightTitle")}
             onMouseDown={(e) => {
               e.preventDefault();
               setHighlightOpen((p) => !p);
@@ -308,7 +310,7 @@ export function ProductDescriptionEditor({
           {highlightOpen && (
             <div className="absolute top-full left-0 z-30 mt-1 p-2.5 bg-popover border border-border rounded-lg shadow-[0_8px_30px_rgba(0,0,0,0.14)] w-[156px]">
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                Highlight
+                {t("highlight")}
               </p>
               <Swatches
                 mode="bg"
@@ -327,55 +329,55 @@ export function ProductDescriptionEditor({
         <TDiv />
         <TBtn
           icon={AlignLeft}
-          title="Align left"
+          title={t("alignLeft")}
           active={editor?.isActive({ textAlign: "left" })}
           onClick={() => editor?.chain().focus().setTextAlign("left").run()}
         />
         <TBtn
           icon={AlignCenter}
-          title="Align center"
+          title={t("alignCenter")}
           active={editor?.isActive({ textAlign: "center" })}
           onClick={() => editor?.chain().focus().setTextAlign("center").run()}
         />
         <TBtn
           icon={AlignRight}
-          title="Align right"
+          title={t("alignRight")}
           active={editor?.isActive({ textAlign: "right" })}
           onClick={() => editor?.chain().focus().setTextAlign("right").run()}
         />
         <TBtn
           icon={AlignJustify}
-          title="Justify"
+          title={t("justify")}
           active={editor?.isActive({ textAlign: "justify" })}
           onClick={() => editor?.chain().focus().setTextAlign("justify").run()}
         />
         <TDiv />
         <TBtn
           icon={List}
-          title="Bullet list"
+          title={t("bulletList")}
           active={editor?.isActive("bulletList")}
           onClick={() => editor?.chain().focus().toggleBulletList().run()}
         />
         <TBtn
           icon={ListOrdered}
-          title="Ordered list"
+          title={t("orderedList")}
           active={editor?.isActive("orderedList")}
           onClick={() => editor?.chain().focus().toggleOrderedList().run()}
         />
         <TBtn
           icon={Minus}
-          title="Divider line"
+          title={t("dividerLine")}
           onClick={() => editor?.chain().focus().setHorizontalRule().run()}
         />
         <TDiv />
         <TBtn
           icon={Undo2}
-          title="Undo"
+          title={t("undo")}
           onClick={() => editor?.chain().focus().undo().run()}
         />
         <TBtn
           icon={Redo2}
-          title="Redo"
+          title={t("redo")}
           onClick={() => editor?.chain().focus().redo().run()}
         />
       </div>

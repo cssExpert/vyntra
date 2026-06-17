@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/providers/AuthProvider";
 import { cn } from "@/lib/utils";
@@ -44,6 +45,7 @@ function Toggle({
 
 // ─── Main page ────────────────────────────────────────────
 export function LoginPage() {
+  const t = useTranslations("auth");
   const router = useRouter();
   const {
     login,
@@ -75,7 +77,7 @@ export function LoginPage() {
     e.preventDefault();
     setError("");
     if (!email || !password) {
-      setError("Please enter your email and password.");
+      setError(t("enterCredentials"));
       return;
     }
     setIsLoading(true);
@@ -85,9 +87,7 @@ export function LoginPage() {
       await login(email, password);
     } catch (err) {
       setError(
-        err instanceof Error
-          ? err.message
-          : "Invalid email or password. Please try again.",
+        err instanceof Error ? err.message : t("invalidCredentials"),
       );
     } finally {
       setIsLoading(false);
@@ -125,11 +125,10 @@ export function LoginPage() {
           {/* Heading */}
           <div className="mb-7 text-center">
             <h1 className="text-xl md:text-2xl lg:text-3xl font-extrabold text-gray-900 font-merienda leading-tight">
-              Login to ERVFlow
+              {t("loginTitle")}
             </h1>
             <p className="mt-2 text-sm md:text-base text-gray-500 leading-relaxed">
-              Manage your business operations effortlessly with our powerful
-              all-in-one platform.
+              {t("loginSubtitle")}
             </p>
           </div>
 
@@ -141,7 +140,7 @@ export function LoginPage() {
                 htmlFor="email"
                 className="block text-sm text-gray-400 mb-0.5"
               >
-                Email
+                {t("email")}
               </label>
               <input
                 id="email"
@@ -163,7 +162,7 @@ export function LoginPage() {
                 htmlFor="password"
                 className="block text-sm text-gray-400 mb-0.5"
               >
-                Password
+                {t("password")}
               </label>
               <div className="flex items-center relative">
                 <input
@@ -182,7 +181,7 @@ export function LoginPage() {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 flex-shrink-0 text-gray-400 hover:text-primary transition-colors cursor-pointer"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-label={showPassword ? t("hidePassword") : t("showPassword")}
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4" />
@@ -199,14 +198,14 @@ export function LoginPage() {
                 href="/forgot-password"
                 className="text-[13px] font-semibold text-primary/75 hover:text-primary transition-colors"
               >
-                Forgot password?
+                {t("forgotPassword")}
               </Link>
             </div>
 
             {/* Remember me toggle */}
             <div className="flex items-center justify-between py-1">
               <span className="text-[13px] text-gray-500">
-                Remember sign in details
+                {t("rememberDetails")}
               </span>
               <Toggle
                 checked={rememberMe}
@@ -262,7 +261,7 @@ export function LoginPage() {
                   />
                 </svg>
               ) : (
-                "Log in"
+                t("logIn")
               )}
             </button>
           </form>
@@ -271,7 +270,7 @@ export function LoginPage() {
           <div className="my-5 flex items-center gap-3">
             <div className="flex-1 h-px bg-gray-200" />
             <span className="text-[11px] font-medium text-gray-400 uppercase tracking-widest">
-              or
+              {t("or")}
             </span>
             <div className="flex-1 h-px bg-gray-200" />
           </div>
@@ -288,17 +287,17 @@ export function LoginPage() {
             )}
           >
             <Icon name="Google" size="20" className="w-5 h-5" />
-            Continue with Google
+            {t("continueWithGoogle")}
           </button>
 
           {/* Sign up */}
           <p className="mt-7 text-[13px] text-gray-500 text-center">
-            Don&apos;t have an account?{" "}
+            {t("noAccount")}{" "}
             <Link
               href="/signup"
               className="font-semibold text-primary/75 hover:text-primary transition-colors"
             >
-              Sign up
+              {t("signUp")}
             </Link>
           </p>
         </div>

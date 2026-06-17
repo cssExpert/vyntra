@@ -3,12 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { HeroPanel } from "./HeroPanel";
 import Icon from "@/components/common/Icon";
 
 export function SignupPage() {
+  const t = useTranslations("auth");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,7 +27,7 @@ export function SignupPage() {
     e.preventDefault();
     setError("");
     if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
+      setError(t("passwordMinError"));
       return;
     }
     setIsLoading(true);
@@ -33,7 +35,7 @@ export function SignupPage() {
       // TODO: wire up to API when endpoint is available
       await new Promise((r) => setTimeout(r, 1000));
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError(t("somethingWrong"));
     } finally {
       setIsLoading(false);
     }
@@ -66,10 +68,10 @@ export function SignupPage() {
           {/* Heading */}
           <div className="mb-7 text-center">
             <h1 className="text-xl md:text-2xl lg:text-3xl font-extrabold text-gray-900 font-merienda leading-tight">
-              Create your account
+              {t("signupTitle")}
             </h1>
             <p className="mt-2 text-sm md:text-base text-gray-500 leading-relaxed">
-              Get started with ERVFlow — free to try, no card required.
+              {t("signupSubtitle")}
             </p>
           </div>
 
@@ -80,7 +82,7 @@ export function SignupPage() {
                 htmlFor="name"
                 className="block text-sm text-gray-400 mb-0.5"
               >
-                Full name
+                {t("fullName")}
               </label>
               <input
                 id="name"
@@ -102,7 +104,7 @@ export function SignupPage() {
                 htmlFor="email"
                 className="block text-sm text-gray-400 mb-0.5"
               >
-                Email
+                {t("email")}
               </label>
               <input
                 id="email"
@@ -124,7 +126,7 @@ export function SignupPage() {
                 htmlFor="password"
                 className="block text-sm text-gray-400 mb-0.5"
               >
-                Password
+                {t("password")}
               </label>
               <div className="relative flex items-center">
                 <input
@@ -136,14 +138,14 @@ export function SignupPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   onFocus={() => setPasswordFocused(true)}
                   onBlur={() => setPasswordFocused(false)}
-                  placeholder="Min. 6 characters"
+                  placeholder={t("passwordMinPlaceholder")}
                   className={inputClass(passwordFocused, "pr40")}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 text-gray-400 hover:text-primary transition-colors cursor-pointer"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-label={showPassword ? t("hidePassword") : t("showPassword")}
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4" />
@@ -154,7 +156,7 @@ export function SignupPage() {
               </div>
               {password && password.length < 6 && (
                 <p className="text-[11px] text-red-400 mt-1">
-                  At least 6 characters required
+                  {t("passwordMinHint")}
                 </p>
               )}
             </div>
@@ -205,7 +207,7 @@ export function SignupPage() {
                   />
                 </svg>
               ) : (
-                "Create account"
+                t("createAccount")
               )}
             </button>
           </form>
@@ -214,7 +216,7 @@ export function SignupPage() {
           <div className="my-5 flex items-center gap-3">
             <div className="flex-1 h-px bg-gray-200" />
             <span className="text-[11px] font-medium text-gray-400 uppercase tracking-widest">
-              or
+              {t("or")}
             </span>
             <div className="flex-1 h-px bg-gray-200" />
           </div>
@@ -225,16 +227,16 @@ export function SignupPage() {
             className="w-full flex items-center justify-center gap-3 rounded-xl border border-gray-200 bg-gray-50 py-3 text-[13.5px] font-semibold text-gray-800 hover:bg-gray-100 transition-colors cursor-pointer"
           >
             <Icon name="Google" size="20" className="w-5 h-5" />
-            Continue with Google
+            {t("continueWithGoogle")}
           </button>
 
           <p className="mt-6 text-[13px] text-gray-500 text-center">
-            Already have an account?{" "}
+            {t("alreadyHaveAccount")}{" "}
             <Link
               href="/login"
               className="font-semibold text-primary hover:text-primary/80 transition-colors"
             >
-              Log in
+              {t("logIn")}
             </Link>
           </p>
         </div>

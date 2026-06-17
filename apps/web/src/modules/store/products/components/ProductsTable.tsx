@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   useReactTable,
@@ -43,17 +44,6 @@ function formatPrice(v: number) {
   }).format(v);
 }
 
-const TYPE_LABEL: Record<string, string> = {
-  simple: "Simple",
-  variable: "Variable",
-  digital: "Digital",
-  downloadable: "Download",
-  service: "Service",
-  subscription: "Subscription",
-  bundle: "Bundle",
-  gift_card: "Gift Card",
-};
-
 const TYPE_COLORS: Record<string, string> = {
   simple: "bg-slate-500/10 text-slate-500",
   variable: "bg-purple-500/10 text-purple-400",
@@ -65,26 +55,6 @@ const TYPE_COLORS: Record<string, string> = {
   gift_card: "bg-indigo-500/10 text-indigo-400",
 };
 
-const STOCK_BADGE: Record<
-  string,
-  { variant: "success" | "warning" | "error" | "muted"; label: string }
-> = {
-  in_stock: { variant: "success", label: "In Stock" },
-  low_stock: { variant: "warning", label: "Low Stock" },
-  out_of_stock: { variant: "error", label: "Out of Stock" },
-  backorder: { variant: "muted", label: "Backorder" },
-};
-
-const STATUS_BADGE: Record<
-  string,
-  { variant: "success" | "warning" | "muted" | "info"; label: string }
-> = {
-  active: { variant: "success", label: "Active" },
-  draft: { variant: "muted", label: "Draft" },
-  archived: { variant: "muted", label: "Archived" },
-  scheduled: { variant: "info", label: "Scheduled" },
-};
-
 // ─── Columns ──────────────────────────────────────────────────────────────────
 
 const buildColumns = (
@@ -92,7 +62,37 @@ const buildColumns = (
   onToggle: (id: string) => void,
   onToggleAll: (ids: string[]) => void,
   allIds: string[],
-) => [
+  tx: (key: string) => string,
+) => {
+  const TYPE_LABEL: Record<string, string> = {
+    simple: tx("typeSimple"),
+    variable: tx("typeVariable"),
+    digital: tx("typeDigital"),
+    downloadable: tx("typeDownloadable"),
+    service: tx("typeService"),
+    subscription: tx("typeSubscription"),
+    bundle: tx("typeBundle"),
+    gift_card: tx("typeGiftCard"),
+  };
+  const STOCK_BADGE: Record<
+    string,
+    { variant: "success" | "warning" | "error" | "muted"; label: string }
+  > = {
+    in_stock: { variant: "success", label: tx("stockInStock") },
+    low_stock: { variant: "warning", label: tx("stockLowStock") },
+    out_of_stock: { variant: "error", label: tx("stockOutOfStock") },
+    backorder: { variant: "muted", label: tx("stockBackorder") },
+  };
+  const STATUS_BADGE: Record<
+    string,
+    { variant: "success" | "warning" | "muted" | "info"; label: string }
+  > = {
+    active: { variant: "success", label: tx("statusActive") },
+    draft: { variant: "muted", label: tx("statusDraft") },
+    archived: { variant: "muted", label: tx("statusArchived") },
+    scheduled: { variant: "info", label: tx("statusScheduled") },
+  };
+  return [
   columnHelper.display({
     id: "select",
     size: 44,
@@ -119,7 +119,7 @@ const buildColumns = (
     ),
   }),
   columnHelper.accessor("name", {
-    header: "Product",
+    header: tx("productHeader"),
     size: 260,
     cell: ({ row }) => {
       const p = row.original;
@@ -147,7 +147,7 @@ const buildColumns = (
     },
   }),
   columnHelper.accessor("type", {
-    header: "Type",
+    header: tx("typeHeader"),
     size: 110,
     cell: ({ getValue }) => {
       const t = getValue();
@@ -161,7 +161,7 @@ const buildColumns = (
     },
   }),
   columnHelper.accessor("price", {
-    header: "Price",
+    header: tx("priceHeader"),
     size: 120,
     cell: ({ row }) => {
       const { price, compareAtPrice } = row.original;
@@ -180,7 +180,7 @@ const buildColumns = (
     },
   }),
   columnHelper.accessor("stockStatus", {
-    header: "Stock",
+    header: tx("stockHeader"),
     size: 130,
     cell: ({ row }) => {
       const { stockStatus, stock, type } = row.original;
@@ -190,7 +190,7 @@ const buildColumns = (
         type === "downloadable" ||
         type === "subscription";
       if (isDigital)
-        return <span className="text-xs text-muted-foreground">Unlimited</span>;
+        return <span className="text-xs text-muted-foreground">{tx("unlimited")}</span>;
       return (
         <div className="flex items-center gap-1.5">
           <StatusBadge variant={badge.variant} label={badge.label} size="sm" />
@@ -202,7 +202,7 @@ const buildColumns = (
     },
   }),
   columnHelper.accessor("status", {
-    header: "Status",
+    header: tx("statusHeader"),
     size: 110,
     cell: ({ getValue }) => {
       const s = getValue();
@@ -213,7 +213,7 @@ const buildColumns = (
     },
   }),
   columnHelper.accessor("rating", {
-    header: "Rating",
+    header: tx("ratingHeader"),
     size: 100,
     cell: ({ row }) => {
       const { rating, reviewCount } = row.original;
@@ -233,7 +233,7 @@ const buildColumns = (
     },
   }),
   columnHelper.accessor("totalSales", {
-    header: "Sales",
+    header: tx("salesHeader"),
     size: 80,
     cell: ({ getValue }) => (
       <span className="text-xs font-semibold text-success tabular-nums">
@@ -251,16 +251,16 @@ const buildColumns = (
       return (
         <TableActionMenu
           items={[
-            { label: "View", icon: <Eye size={14} />, onClick: () => {} },
-            { label: "Edit", icon: <Pencil size={14} />, onClick: () => {} },
+            { label: tx("view"), icon: <Eye size={14} />, onClick: () => {} },
+            { label: tx("edit"), icon: <Pencil size={14} />, onClick: () => {} },
             {
-              label: "Duplicate",
+              label: tx("duplicate"),
               icon: <Copy size={14} />,
               onClick: () => {},
               separator: true,
             },
             {
-              label: "Delete",
+              label: tx("delete"),
               icon: <Trash2 size={14} />,
               onClick: () => {},
               variant: "danger",
@@ -271,7 +271,8 @@ const buildColumns = (
       );
     },
   }),
-];
+  ];
+};
 
 function pageWindow(current: number, total: number): (number | "…")[] {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i);
@@ -300,6 +301,7 @@ export function ProductsTable({
   onToggleSelect,
   onToggleAll,
 }: Props) {
+  const tx = useTranslations("store.products");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [columnPinning] = useState<ColumnPinningState>({
@@ -355,6 +357,7 @@ export function ProductsTable({
     onToggleSelect,
     onToggleAll,
     products.map((p) => p.id),
+    tx,
   );
 
   const table = useReactTable({
@@ -492,7 +495,7 @@ export function ProductsTable({
         {/* ── Table Footer ─────────────────────────────────────────────── */}
         <div className="px-6 py-4 border-t border-border bg-muted/30 flex items-center justify-between gap-4 flex-wrap text-sm">
           <div className="flex items-center gap-2 text-muted-foreground">
-            <span>Show</span>
+            <span>{tx("show")}</span>
             <select
               value={pageSize}
               onChange={(e) => table.setPageSize(Number(e.target.value))}
@@ -502,19 +505,23 @@ export function ProductsTable({
                 <option key={s} value={s}>{s}</option>
               ))}
             </select>
-            <span>entries</span>
+            <span>{tx("entries")}</span>
           </div>
 
           <div className="flex items-center gap-3">
             <span className="text-muted-foreground">
-              Showing {fromEntry} to {toEntry} of {filteredCount} entries
+              {tx("showingEntries", {
+                from: fromEntry,
+                to: toEntry,
+                total: filteredCount,
+              })}
             </span>
             <div className="flex items-center gap-1">
               <Button variant="outline" radius="sm" className="h-8 px-3 text-muted-foreground"
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
               >
-                ← Previous
+                ← {tx("previous")}
               </Button>
               {pageWindow(pageIndex, pageCount).map((p, idx) =>
                 p === "…" ? (
@@ -537,7 +544,7 @@ export function ProductsTable({
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
               >
-                Next →
+                {tx("next")} →
               </Button>
             </div>
           </div>
@@ -547,8 +554,8 @@ export function ProductsTable({
         <div className="py-20 text-center text-muted-foreground">
           <div className="flex flex-col items-center gap-3">
             <Package size={36} className="text-muted-foreground/30" />
-            <p className="font-semibold text-foreground">No products found</p>
-            <p className="text-sm">Try adjusting your search or filters.</p>
+            <p className="font-semibold text-foreground">{tx("noProducts")}</p>
+            <p className="text-sm">{tx("adjustSearch")}</p>
           </div>
         </div>
       )}

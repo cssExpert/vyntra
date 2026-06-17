@@ -3,11 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { MoveLeft, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { HeroPanel } from "./HeroPanel";
 
 export function ForgotPasswordPage() {
+  const t = useTranslations("auth");
   const [email, setEmail] = useState("");
   const [emailFocused, setEmailFocused] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -23,7 +25,7 @@ export function ForgotPasswordPage() {
       await new Promise((r) => setTimeout(r, 1000));
       setSubmitted(true);
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError(t("somethingWrong"));
     } finally {
       setIsLoading(false);
     }
@@ -65,11 +67,10 @@ export function ForgotPasswordPage() {
                 {/* Heading */}
                 <div className="mb-7 text-center">
                   <h1 className="text-xl md:text-2xl lg:text-3xl font-extrabold text-gray-900 font-merienda leading-tight">
-                    Forgot your password?
+                    {t("forgotTitle")}
                   </h1>
                   <p className="mt-2 text-sm md:text-base text-gray-500 leading-relaxed">
-                    Enter your email and we&apos;ll send you a link to reset
-                    your password.
+                    {t("forgotSubtitle")}
                   </p>
                 </div>
 
@@ -80,7 +81,7 @@ export function ForgotPasswordPage() {
                       htmlFor="email"
                       className="block text-sm text-gray-400 mb-0.5"
                     >
-                      Email
+                      {t("email")}
                     </label>
                     <input
                       id="email"
@@ -142,7 +143,7 @@ export function ForgotPasswordPage() {
                         />
                       </svg>
                     ) : (
-                      "Send reset link"
+                      t("sendResetLink")
                     )}
                   </button>
                 </form>
@@ -153,7 +154,7 @@ export function ForgotPasswordPage() {
                     className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-gray-500 hover:text-primary transition-colors"
                   >
                     <MoveLeft className="h-3.5 w-3.5" />
-                    Back to login
+                    {t("backToLogin")}
                   </Link>
                 </p>
               </motion.div>
@@ -169,15 +170,15 @@ export function ForgotPasswordPage() {
                   <Mail className="h-7 w-7 text-primary" />
                 </div>
                 <h2 className="text-xl md:text-2xl font-extrabold text-gray-900 font-merienda">
-                  Check your inbox
+                  {t("checkInbox")}
                 </h2>
                 <p className="mt-2 text-sm text-gray-500 leading-relaxed">
-                  We sent a password reset link to
+                  {t("resetLinkSent")}
                   <br />
                   <span className="font-semibold text-gray-700">{email}</span>
                 </p>
                 <p className="mt-6 text-[13px] text-gray-400">
-                  Didn&apos;t receive it?{" "}
+                  {t("didntReceive")}{" "}
                   <button
                     onClick={() => {
                       setSubmitted(false);
@@ -185,7 +186,7 @@ export function ForgotPasswordPage() {
                     }}
                     className="font-semibold text-primary hover:text-primary/80 transition-colors cursor-pointer"
                   >
-                    Try again
+                    {t("tryAgain")}
                   </button>
                 </p>
                 <p className="mt-4">
@@ -194,7 +195,7 @@ export function ForgotPasswordPage() {
                     className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-gray-500 hover:text-primary transition-colors"
                   >
                     <MoveLeft className="h-3.5 w-3.5" />
-                    Back to login
+                    {t("backToLogin")}
                   </Link>
                 </p>
               </motion.div>
