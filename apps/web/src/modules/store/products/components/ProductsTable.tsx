@@ -24,36 +24,25 @@ import {
   Trash2,
   Copy,
   Package,
-  AlertTriangle,
   Star,
 } from "lucide-react";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import type { StoreProduct } from "../../store.types";
 import { Button } from "@/components/ui/button";
+import {
+  formatStorePrice,
+  pageWindow,
+  getCommonPinningStyles,
+} from "../../store.utils";
+import {
+  PRODUCT_TYPE_LABELS,
+  PRODUCT_TYPE_COLORS,
+  PRODUCT_STATUS_BADGES,
+  STOCK_STATUS_BADGES,
+} from "../../store.constants";
 
 const columnHelper = createColumnHelper<StoreProduct>();
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatPrice(v: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  }).format(v);
-}
-
-const TYPE_COLORS: Record<string, string> = {
-  simple: "bg-slate-500/10 text-slate-500",
-  variable: "bg-purple-500/10 text-purple-400",
-  digital: "bg-info/10 text-info",
-  downloadable: "bg-cyan-500/10 text-cyan-400",
-  service: "bg-pink-500/10 text-pink-400",
-  subscription: "bg-brand-500/10 text-brand-500",
-  bundle: "bg-warning/10 text-warning",
-  gift_card: "bg-indigo-500/10 text-indigo-400",
-};
 
 // ─── Columns ──────────────────────────────────────────────────────────────────
 
@@ -64,34 +53,6 @@ const buildColumns = (
   allIds: string[],
   tx: (key: string) => string,
 ) => {
-  const TYPE_LABEL: Record<string, string> = {
-    simple: tx("typeSimple"),
-    variable: tx("typeVariable"),
-    digital: tx("typeDigital"),
-    downloadable: tx("typeDownloadable"),
-    service: tx("typeService"),
-    subscription: tx("typeSubscription"),
-    bundle: tx("typeBundle"),
-    gift_card: tx("typeGiftCard"),
-  };
-  const STOCK_BADGE: Record<
-    string,
-    { variant: "success" | "warning" | "error" | "muted"; label: string }
-  > = {
-    in_stock: { variant: "success", label: tx("stockInStock") },
-    low_stock: { variant: "warning", label: tx("stockLowStock") },
-    out_of_stock: { variant: "error", label: tx("stockOutOfStock") },
-    backorder: { variant: "muted", label: tx("stockBackorder") },
-  };
-  const STATUS_BADGE: Record<
-    string,
-    { variant: "success" | "warning" | "muted" | "info"; label: string }
-  > = {
-    active: { variant: "success", label: tx("statusActive") },
-    draft: { variant: "muted", label: tx("statusDraft") },
-    archived: { variant: "muted", label: tx("statusArchived") },
-    scheduled: { variant: "info", label: tx("statusScheduled") },
-  };
   return [
   columnHelper.display({
     id: "select",
@@ -153,9 +114,9 @@ const buildColumns = (
       const t = getValue();
       return (
         <span
-          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${TYPE_COLORS[t] ?? "bg-muted text-muted-foreground"}`}
+          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${PRODUCT_TYPE_COLORS[t] ?? "bg-muted text-muted-foreground"}`}
         >
-          {TYPE_LABEL[t] ?? t}
+          {tx(PRODUCT_TYPE_LABELS[t] ?? "typeSimple")}
         </span>
       );
     },
@@ -168,11 +129,11 @@ const buildColumns = (
       return (
         <div>
           <span className="font-semibold text-foreground tabular-nums">
-            {formatPrice(price)}
+            {formatStorePrice(price)}
           </span>
           {compareAtPrice && compareAtPrice > price && (
             <span className="ml-1.5 text-[11px] text-muted-foreground line-through tabular-nums">
-              {formatPrice(compareAtPrice)}
+              {formatStorePrice(compareAtPrice)}
             </span>
           )}
         </div>
@@ -184,7 +145,7 @@ const buildColumns = (
     size: 130,
     cell: ({ row }) => {
       const { stockStatus, stock, type } = row.original;
-      const badge = STOCK_BADGE[stockStatus];
+      const badge = STOCK_STATUS_BADGES[stockStatus];
       const isDigital =
         type === "digital" ||
         type === "downloadable" ||
@@ -193,7 +154,7 @@ const buildColumns = (
         return <span className="text-xs text-muted-foreground">{tx("unlimited")}</span>;
       return (
         <div className="flex items-center gap-1.5">
-          <StatusBadge variant={badge.variant} label={badge.label} size="sm" />
+          <StatusBadge variant={badge.variant} label={tx(badge.label)} size="sm" />
           <span className="text-[11px] text-muted-foreground tabular-nums">
             ({stock})
           </span>
@@ -206,9 +167,9 @@ const buildColumns = (
     size: 110,
     cell: ({ getValue }) => {
       const s = getValue();
-      const badge = STATUS_BADGE[s];
+      const badge = PRODUCT_STATUS_BADGES[s];
       return (
-        <StatusBadge variant={badge.variant} label={badge.label} size="sm" />
+        <StatusBadge variant={badge.variant} label={tx(badge.label)} size="sm" />
       );
     },
   }),
@@ -274,18 +235,6 @@ const buildColumns = (
   ];
 };
 
-function pageWindow(current: number, total: number): (number | "…")[] {
-  if (total <= 7) return Array.from({ length: total }, (_, i) => i);
-  const pages: (number | "…")[] = [];
-  const add = (n: number) => { if (!pages.includes(n)) pages.push(n); };
-  add(0);
-  if (current > 2) pages.push("…");
-  for (let i = Math.max(1, current - 1); i <= Math.min(total - 2, current + 1); i++) add(i);
-  if (current < total - 3) pages.push("…");
-  add(total - 1);
-  return pages;
-}
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
 interface Props {
@@ -330,27 +279,6 @@ export function ProductsTable({
     };
   }, [scrollEl]);
 
-  const getCommonPinningStyles = (
-    column: Column<StoreProduct>,
-  ): React.CSSProperties => {
-    const isPinned = column.getIsPinned();
-    const isLastLeft = isPinned === "left" && column.getIsLastColumn("left");
-    const isFirstRight =
-      isPinned === "right" && column.getIsFirstColumn("right");
-    return {
-      position: isPinned ? "sticky" : undefined,
-      left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
-      right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
-      zIndex: isPinned ? 2 : undefined,
-      boxShadow:
-        isLastLeft && canScrollLeft
-          ? "4px 0 6px -2px rgba(0,0,0,0.08)"
-          : isFirstRight && canScrollRight
-            ? "-4px 0 6px -2px rgba(0,0,0,0.08)"
-            : undefined,
-      transition: "box-shadow 0.2s ease",
-    };
-  };
 
   const columns = buildColumns(
     selectedIds,

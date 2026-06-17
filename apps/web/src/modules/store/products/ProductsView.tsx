@@ -11,7 +11,7 @@ import { ProductsTable } from "./components/ProductsTable";
 import { SAMPLE_PRODUCTS } from "../store.data";
 
 export function ProductsView() {
-  const t = useTranslations("admin.store");
+  const t = useTranslations("store.products");
   const isLoaded = usePageLoad(700);
 
   useEffect(() => {
