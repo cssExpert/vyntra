@@ -1179,7 +1179,8 @@
       "title": "श्रेणियां"
     },
     "credits": {
-      "title": "स्टोर क्रेडिट"
+      "title": "स्टोर क्रेडिट",
+      "description": "ग्राहक स्टोर क्रेडिट और लेनदेन प्रबंधित करें"
     },
     "products": {
       "title": "उत्पाद",
@@ -1267,7 +1268,11 @@
       }
     },
     "rewards": {
-      "title": "पुरस्कार अंक"
+      "title": "पुरस्कार अंक",
+      "tierBronze": "कांस्य",
+      "tierSilver": "चाँदी",
+      "tierGold": "सोना",
+      "tierPlatinum": "प्लेटिनम"
     },
     "settings": {
       "generalTab": "सामान्य",
@@ -1321,7 +1326,70 @@
       "to": "को",
       "of": "का",
       "previous": "पिछला",
-      "next": "अगला"
+      "next": "अगला",
+      "statusInStock": "स्टॉक में",
+      "statusLowStock": "कम स्टॉक",
+      "statusOutOfStock": "स्टॉक समाप्त",
+      "statusBackorder": "बैकऑर्डर"
+    },
+    "automations": {
+      "title": "ऑटोमेशन",
+      "description": "स्वचालित वर्कफ़्लो और ट्रिगर प्रबंधित करें",
+      "addAutomation": "ऑटोमेशन जोड़ें",
+      "noAutomations": "कोई ऑटोमेशन नहीं मिला",
+      "statusActive": "सक्रिय",
+      "statusPaused": "रुका हुआ",
+      "statusDraft": "मसौदा",
+      "triggerOrderCreated": "ऑर्डर बनाया गया",
+      "triggerOrderPaid": "ऑर्डर भुगतान किया गया",
+      "triggerOrderShipped": "ऑर्डर भेजा गया",
+      "triggerOrderDelivered": "ऑर्डर पहुंचाया गया",
+      "triggerOrderCancelled": "ऑर्डर रद्द किया गया",
+      "triggerOrderRefunded": "ऑर्डर वापस किया गया",
+      "triggerAbandonedCart": "परित्यक्त कार्ट",
+      "triggerCustomerRegistered": "ग्राहक पंजीकृत",
+      "triggerFirstPurchase": "पहली खरीद",
+      "triggerProductLowStock": "उत्पाद कम स्टॉक",
+      "triggerProductOutOfStock": "उत्पाद स्टॉक समाप्त",
+      "triggerReviewReceived": "समीक्षा प्राप्त",
+      "triggerSubscriptionRenewed": "सदस्यता नवीनीकृत",
+      "triggerSubscriptionCancelled": "सदस्यता रद्द की गई",
+      "triggerRewardMilestone": "पुरस्कार माइलस्टोन",
+      "triggerCustomerBirthday": "ग्राहक जन्मदिन",
+      "actionSendEmail": "ईमेल भेजें",
+      "actionSendSms": "एसएमएस भेजें",
+      "actionAddRewardPoints": "पुरस्कार अंक जोड़ें",
+      "actionAddStoreCredit": "स्टोर क्रेडिट जोड़ें",
+      "actionApplyTag": "टैग लागू करें",
+      "actionCreateCoupon": "कूपन बनाएं",
+      "actionNotifyAdmin": "व्यवस्थापक को सूचित करें",
+      "actionWebhook": "वेबहुक",
+      "actionAssignLicense": "लाइसेंस असाइन करें",
+      "actionGenerateInvoice": "चालान जनरेट करें"
+    },
+    "ai-assistant": {
+      "title": "एआई सहायक",
+      "description": "एआई-संचालित स्टोर सहायता",
+      "noAssistant": "एआई सहायक उपलब्ध नहीं है"
+    },
+    "coupons": {
+      "statusActive": "सक्रिय",
+      "statusExpired": "समाप्त",
+      "statusDisabled": "अक्षम",
+      "typePercent": "प्रतिशत",
+      "typeFixedCart": "निश्चित कार्ट छूट",
+      "typeFixedProduct": "निश्चित उत्पाद छूट"
+    },
+    "customers": {
+      "title": "ग्राहक",
+      "description": "अपनी ग्राहक डेटाबेस और सेगमेंट प्रबंधित करें",
+      "statusActive": "सक्रिय",
+      "statusBlocked": "अवरुद्ध",
+      "statusUnverified": "अपरिवर्तनीय"
+    },
+    "reports": {
+      "title": "स्टोर रिपोर्ट",
+      "description": "बिक्री, इन्वेंटरी और प्रदर्शन विश्लेषण"
     }
   },
   "messages": {

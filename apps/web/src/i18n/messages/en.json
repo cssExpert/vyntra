@@ -1179,7 +1179,8 @@
       "title": "Categories"
     },
     "credits": {
-      "title": "Store Credits"
+      "title": "Store Credits",
+      "description": "Manage customer store credits and transactions"
     },
     "products": {
       "title": "Products",
@@ -1267,7 +1268,11 @@
       }
     },
     "rewards": {
-      "title": "Reward Points"
+      "title": "Reward Points",
+      "tierBronze": "Bronze",
+      "tierSilver": "Silver",
+      "tierGold": "Gold",
+      "tierPlatinum": "Platinum"
     },
     "settings": {
       "generalTab": "General",
@@ -1321,7 +1326,70 @@
       "to": "to",
       "of": "of",
       "previous": "Previous",
-      "next": "Next"
+      "next": "Next",
+      "statusInStock": "In Stock",
+      "statusLowStock": "Low Stock",
+      "statusOutOfStock": "Out of Stock",
+      "statusBackorder": "Backorder"
+    },
+    "automations": {
+      "title": "Automations",
+      "description": "Manage automated workflows and triggers",
+      "addAutomation": "Add Automation",
+      "noAutomations": "No automations found",
+      "statusActive": "Active",
+      "statusPaused": "Paused",
+      "statusDraft": "Draft",
+      "triggerOrderCreated": "Order Created",
+      "triggerOrderPaid": "Order Paid",
+      "triggerOrderShipped": "Order Shipped",
+      "triggerOrderDelivered": "Order Delivered",
+      "triggerOrderCancelled": "Order Cancelled",
+      "triggerOrderRefunded": "Order Refunded",
+      "triggerAbandonedCart": "Abandoned Cart",
+      "triggerCustomerRegistered": "Customer Registered",
+      "triggerFirstPurchase": "First Purchase",
+      "triggerProductLowStock": "Product Low Stock",
+      "triggerProductOutOfStock": "Product Out of Stock",
+      "triggerReviewReceived": "Review Received",
+      "triggerSubscriptionRenewed": "Subscription Renewed",
+      "triggerSubscriptionCancelled": "Subscription Cancelled",
+      "triggerRewardMilestone": "Reward Milestone",
+      "triggerCustomerBirthday": "Customer Birthday",
+      "actionSendEmail": "Send Email",
+      "actionSendSms": "Send SMS",
+      "actionAddRewardPoints": "Add Reward Points",
+      "actionAddStoreCredit": "Add Store Credit",
+      "actionApplyTag": "Apply Tag",
+      "actionCreateCoupon": "Create Coupon",
+      "actionNotifyAdmin": "Notify Admin",
+      "actionWebhook": "Webhook",
+      "actionAssignLicense": "Assign License",
+      "actionGenerateInvoice": "Generate Invoice"
+    },
+    "ai-assistant": {
+      "title": "AI Assistant",
+      "description": "AI-powered store assistance",
+      "noAssistant": "AI assistant not available"
+    },
+    "coupons": {
+      "statusActive": "Active",
+      "statusExpired": "Expired",
+      "statusDisabled": "Disabled",
+      "typePercent": "Percentage",
+      "typeFixedCart": "Fixed Cart Discount",
+      "typeFixedProduct": "Fixed Product Discount"
+    },
+    "customers": {
+      "title": "Customers",
+      "description": "Manage your customer database and segments",
+      "statusActive": "Active",
+      "statusBlocked": "Blocked",
+      "statusUnverified": "Unverified"
+    },
+    "reports": {
+      "title": "Store Reports",
+      "description": "Sales, inventory, and performance analytics"
     }
   },
   "messages": {

@@ -1179,7 +1179,8 @@
       "title": "Catégories"
     },
     "credits": {
-      "title": "Crédits de la boutique"
+      "title": "Crédits de la boutique",
+      "description": "Gérer les crédits store et les transactions des clients"
     },
     "products": {
       "title": "Produits",
@@ -1267,7 +1268,11 @@
       }
     },
     "rewards": {
-      "title": "Points de récompense"
+      "title": "Points de récompense",
+      "tierBronze": "Bronze",
+      "tierSilver": "Argent",
+      "tierGold": "Or",
+      "tierPlatinum": "Platine"
     },
     "settings": {
       "generalTab": "Général",
@@ -1321,7 +1326,70 @@
       "to": "à",
       "of": "de",
       "previous": "Précédent",
-      "next": "Suivant"
+      "next": "Suivant",
+      "statusInStock": "En stock",
+      "statusLowStock": "Stock bas",
+      "statusOutOfStock": "En rupture de stock",
+      "statusBackorder": "Commande en attente"
+    },
+    "automations": {
+      "title": "Automations",
+      "description": "Gérer les workflows et déclencheurs automatisés",
+      "addAutomation": "Ajouter une automatisation",
+      "noAutomations": "Aucune automatisation trouvée",
+      "statusActive": "Actif",
+      "statusPaused": "En pause",
+      "statusDraft": "Brouillon",
+      "triggerOrderCreated": "Commande créée",
+      "triggerOrderPaid": "Commande payée",
+      "triggerOrderShipped": "Commande expédiée",
+      "triggerOrderDelivered": "Commande livrée",
+      "triggerOrderCancelled": "Commande annulée",
+      "triggerOrderRefunded": "Commande remboursée",
+      "triggerAbandonedCart": "Panier abandonné",
+      "triggerCustomerRegistered": "Client enregistré",
+      "triggerFirstPurchase": "Premier achat",
+      "triggerProductLowStock": "Stock bas du produit",
+      "triggerProductOutOfStock": "Produit en rupture de stock",
+      "triggerReviewReceived": "Avis reçu",
+      "triggerSubscriptionRenewed": "Abonnement renouvelé",
+      "triggerSubscriptionCancelled": "Abonnement annulé",
+      "triggerRewardMilestone": "Jalon de récompense",
+      "triggerCustomerBirthday": "Anniversaire du client",
+      "actionSendEmail": "Envoyer un email",
+      "actionSendSms": "Envoyer un SMS",
+      "actionAddRewardPoints": "Ajouter des points de récompense",
+      "actionAddStoreCredit": "Ajouter du crédit store",
+      "actionApplyTag": "Appliquer une étiquette",
+      "actionCreateCoupon": "Créer un coupon",
+      "actionNotifyAdmin": "Notifier l'admin",
+      "actionWebhook": "Webhook",
+      "actionAssignLicense": "Assigner une licence",
+      "actionGenerateInvoice": "Générer une facture"
+    },
+    "ai-assistant": {
+      "title": "Assistant IA",
+      "description": "Assistance magasin alimentée par l'IA",
+      "noAssistant": "Assistant IA non disponible"
+    },
+    "coupons": {
+      "statusActive": "Actif",
+      "statusExpired": "Expiré",
+      "statusDisabled": "Désactivé",
+      "typePercent": "Pourcentage",
+      "typeFixedCart": "Réduction de panier fixe",
+      "typeFixedProduct": "Réduction de produit fixe"
+    },
+    "customers": {
+      "title": "Clients",
+      "description": "Gérer votre base de données clients et segmentation",
+      "statusActive": "Actif",
+      "statusBlocked": "Bloqué",
+      "statusUnverified": "Non vérifié"
+    },
+    "reports": {
+      "title": "Rapports magasin",
+      "description": "Analytique des ventes, stocks et performances"
     }
   },
   "messages": {
