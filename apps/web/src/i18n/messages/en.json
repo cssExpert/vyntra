@@ -1266,7 +1266,11 @@
       "description": "All Orders",
       "searchPlaceholder": "Search orders, customer...",
       "allPayments": "All Payments",
-      "failedPayment": "Failed Payment"
+      "failedPayment": "Failed Payment",
+      "customer": "Customer",
+      "details": "Details",
+      "items": "Items",
+      "send": "Send"
     },
     "categories": {
       "view": "View",
@@ -1314,7 +1318,11 @@
       "title": "Store Credits",
       "description": "Manage customer store credits and transactions",
       "store": "Store",
-      "addCredit": "Add Credit"
+      "addCredit": "Add Credit",
+      "customer": "Customer",
+      "email": "Email",
+      "balance": "Balance",
+      "lastTransaction": "Last Transaction"
     },
     "products": {
       "title": "Products",
@@ -1403,7 +1411,18 @@
       "statusInStock": "In Stock",
       "statusLowStock": "Low Stock",
       "statusOutOfStock": "Out of Stock",
-      "statusBackorder": "Backorder"
+      "statusBackorder": "Backorder",
+      "price": "Price",
+      "sku": "SKU",
+      "status": "Status",
+      "type": "Type",
+      "tags": "Tags",
+      "share": "Share",
+      "store": "Store",
+      "formInstructions": "Update the product details below",
+      "statusLabel": "Status",
+      "updateInformation": "Update product information",
+      "visibility": "Visibility"
     },
     "rewards": {
       "title": "Reward Points",
@@ -1412,7 +1431,16 @@
       "tierGold": "Gold",
       "tierPlatinum": "Platinum",
       "description": "Manage loyalty rewards and point tiers",
-      "store": "Store"
+      "store": "Store",
+      "customer": "Customer",
+      "points": "Points",
+      "tier": "Tier",
+      "toNextTier": "To Next Tier",
+      "lastEarned": "Last Earned",
+      "tierThresholds": "Tier Thresholds",
+      "maxTier": "Max tier",
+      "viewHistory": "View History",
+      "adjust": "Adjust"
     },
     "settings": {
       "generalTab": "General",
@@ -1474,7 +1502,20 @@
       "statusLowStock": "Low Stock",
       "statusOutOfStock": "Out of Stock",
       "statusBackorder": "Backorder",
-      "store": "Store"
+      "store": "Store",
+      "addStock": "Add Stock",
+      "currentStock": "Current Stock",
+      "lastUpdated": "Last Updated",
+      "location": "Location",
+      "maximumStock": "Maximum Stock",
+      "minimumStock": "Minimum Stock",
+      "noInventory": "No inventory items found",
+      "notes": "Notes",
+      "reorderPoint": "Reorder Point",
+      "status": "Status",
+      "stockLevels": "Stock Levels",
+      "trends": "View Trends",
+      "warehouse": "Warehouse"
     },
     "automations": {
       "title": "Automations",
@@ -1540,7 +1581,23 @@
       "expiresHeader": "Expires",
       "noExpiry": "No expiry",
       "discountTypeHeader": "Discount Type",
-      "discountValueHeader": "Discount Value"
+      "discountValueHeader": "Discount Value",
+      "code": "Code",
+      "createdDate": "Created",
+      "discount": "Discount",
+      "duplicate": "Duplicate",
+      "minPurchase": "Minimum Purchase",
+      "noMinimum": "No Minimum",
+      "performance": "Performance",
+      "status": "Status",
+      "totalRedemptions": "Total Redemptions",
+      "unlimited": "Unlimited",
+      "usageLimit": "Usage Limit",
+      "validFrom": "Valid From",
+      "formInstructions": "Update coupon settings below",
+      "updateRules": "Update coupon rules and limits",
+      "active": "Active",
+      "inactive": "Inactive"
     },
     "customers": {
       "title": "Customers",
@@ -1557,7 +1614,15 @@
       "searchPlaceholder": "Search customers...",
       "addCustomer": "Add Customer",
       "noCustomers": "No customers found",
-      "lifetimeValue": "Lifetime Value"
+      "lifetimeValue": "Lifetime Value",
+      "details": "Details",
+      "joinedDate": "Joined",
+      "lastOrder": "Last Order",
+      "message": "Message",
+      "status": "Status",
+      "totalOrders": "Total Orders",
+      "viewProfile": "View Profile",
+      "sendEmail": "Send Email"
     },
     "reports": {
       "title": "Store Reports",

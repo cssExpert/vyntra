@@ -1266,7 +1266,11 @@
       "description": "Toutes les commandes",
       "searchPlaceholder": "Search orders, customer...",
       "allPayments": "All Payments",
-      "failedPayment": "Failed Payment"
+      "failedPayment": "Failed Payment",
+      "customer": "Client",
+      "details": "Détails",
+      "items": "Articles",
+      "send": "Envoyer"
     },
     "categories": {
       "view": "Afficher",
@@ -1314,7 +1318,11 @@
       "title": "Crédits de la boutique",
       "description": "Gérer les crédits store et les transactions des clients",
       "store": "Magasin",
-      "addCredit": "Ajouter du crédit"
+      "addCredit": "Ajouter du crédit",
+      "customer": "Client",
+      "email": "Email",
+      "balance": "Solde",
+      "lastTransaction": "Dernière transaction"
     },
     "products": {
       "title": "Produits",
@@ -1403,7 +1411,18 @@
       "statusInStock": "In Stock",
       "statusLowStock": "Low Stock",
       "statusOutOfStock": "Out of Stock",
-      "statusBackorder": "Backorder"
+      "statusBackorder": "Backorder",
+      "price": "Prix",
+      "sku": "SKU",
+      "status": "Statut",
+      "type": "Type",
+      "tags": "Tags",
+      "share": "Partager",
+      "store": "Magasin",
+      "formInstructions": "Mettez à jour les détails du produit ci-dessous",
+      "statusLabel": "Statut",
+      "updateInformation": "Mettre à jour les informations produit",
+      "visibility": "Visibilité"
     },
     "rewards": {
       "title": "Points de récompense",
@@ -1412,7 +1431,16 @@
       "tierGold": "Or",
       "tierPlatinum": "Platine",
       "description": "Gérer les récompenses de fidélité et les niveaux de points",
-      "store": "Magasin"
+      "store": "Magasin",
+      "customer": "Client",
+      "points": "Points",
+      "tier": "Niveau",
+      "toNextTier": "Vers le prochain niveau",
+      "lastEarned": "Dernier gain",
+      "tierThresholds": "Seuils des niveaux",
+      "maxTier": "Niveau maximum",
+      "viewHistory": "Afficher l'historique",
+      "adjust": "Ajuster"
     },
     "settings": {
       "generalTab": "Général",
@@ -1474,7 +1502,20 @@
       "statusLowStock": "Stock bas",
       "statusOutOfStock": "En rupture de stock",
       "statusBackorder": "Commande en attente",
-      "store": "Magasin"
+      "store": "Magasin",
+      "addStock": "Ajouter du stock",
+      "currentStock": "Stock actuel",
+      "lastUpdated": "Dernière mise à jour",
+      "location": "Localisation",
+      "maximumStock": "Stock maximum",
+      "minimumStock": "Stock minimum",
+      "noInventory": "Aucun article d'inventaire trouvé",
+      "notes": "Remarques",
+      "reorderPoint": "Point de réapprovisionnement",
+      "status": "Statut",
+      "stockLevels": "Niveaux de stock",
+      "trends": "Afficher les tendances",
+      "warehouse": "Entrepôt"
     },
     "automations": {
       "title": "Automations",
@@ -1540,7 +1581,23 @@
       "expiresHeader": "Expires",
       "noExpiry": "No expiry",
       "discountTypeHeader": "Discount Type",
-      "discountValueHeader": "Discount Value"
+      "discountValueHeader": "Discount Value",
+      "code": "Code",
+      "createdDate": "Créé",
+      "discount": "Rabais",
+      "duplicate": "Dupliquer",
+      "minPurchase": "Achat minimum",
+      "noMinimum": "Pas de minimum",
+      "performance": "Performance",
+      "status": "Statut",
+      "totalRedemptions": "Rachats totaux",
+      "unlimited": "Illimité",
+      "usageLimit": "Limite d'utilisation",
+      "validFrom": "Valable à partir du",
+      "formInstructions": "Mettez à jour les paramètres du coupon ci-dessous",
+      "updateRules": "Mettre à jour les règles et limites du coupon",
+      "active": "Actif",
+      "inactive": "Inactif"
     },
     "customers": {
       "title": "Clients",
@@ -1557,7 +1614,15 @@
       "searchPlaceholder": "Search customers...",
       "addCustomer": "Add Customer",
       "noCustomers": "No customers found",
-      "lifetimeValue": "Lifetime Value"
+      "lifetimeValue": "Lifetime Value",
+      "details": "Détails",
+      "joinedDate": "Adhéré",
+      "lastOrder": "Dernière commande",
+      "message": "Message",
+      "status": "Statut",
+      "totalOrders": "Nombre de commandes",
+      "viewProfile": "Voir le profil",
+      "sendEmail": "Envoyer un email"
     },
     "reports": {
       "title": "Rapports magasin",

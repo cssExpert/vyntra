@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Save, X } from "lucide-react";
+import { Save, X, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import type { StoreCoupon } from "../store.types";
+import { SAMPLE_COUPONS } from "../store.data";
 
 interface EditCouponViewProps {
   couponId: string;
@@ -15,17 +17,56 @@ interface EditCouponViewProps {
 export function EditCouponView({ couponId }: EditCouponViewProps) {
   const t = useTranslations("store.coupons");
   const router = useRouter();
+  const [coupon, setCoupon] = useState<StoreCoupon | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // TODO: Fetch coupon details from API using couponId
-  // TODO: Initialize form with coupon data
-  // TODO: Setup form validation with React Hook Form + Zod
+  useEffect(() => {
+    const fetchCoupon = async () => {
+      setIsLoading(true);
+      try {
+        const found = SAMPLE_COUPONS.find((c) => c.id === couponId);
+        setCoupon(found || null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchCoupon();
+  }, [couponId]);
 
   const handleSave = async () => {
     setIsSaving(true);
-    // TODO: Update coupon via API
-    setIsSaving(false);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex items-center justify-center min-h-96"
+      >
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </motion.div>
+    );
+  }
+
+  if (!coupon) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex flex-col items-center justify-center gap-4 min-h-96"
+      >
+        <p className="text-muted-foreground">{t("noCoupons")}</p>
+        <Button onClick={() => router.back()}>Go Back</Button>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
@@ -35,12 +76,12 @@ export function EditCouponView({ couponId }: EditCouponViewProps) {
       className="flex flex-col gap-6"
     >
       <PageHeader
-        title="Edit Coupon"
-        description="Update coupon settings and rules"
+        title={`${t("edit")} - ${coupon.code}`}
+        description={t("updateRules")}
         breadcrumbs={[
-          { label: "Store", href: "/store" },
-          { label: "Coupons", href: "/store/coupons" },
-          { label: "Edit" },
+          { label: t("store"), href: "/store" },
+          { label: t("title"), href: "/store/coupons" },
+          { label: t("edit") },
         ]}
       >
         <div className="flex gap-2">
@@ -50,7 +91,7 @@ export function EditCouponView({ couponId }: EditCouponViewProps) {
             onClick={() => router.back()}
           >
             <X size={16} />
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             size="lg"
@@ -58,7 +99,7 @@ export function EditCouponView({ couponId }: EditCouponViewProps) {
             disabled={isSaving}
           >
             <Save size={16} />
-            {isSaving ? "Saving..." : "Save"}
+            {isSaving ? "Saving..." : t("save")}
           </Button>
         </div>
       </PageHeader>
@@ -66,15 +107,15 @@ export function EditCouponView({ couponId }: EditCouponViewProps) {
       <div className="grid grid-cols-3 gap-6">
         <div className="col-span-2 space-y-6">
           <div className="glass-card p-6 rounded-xl space-y-4">
-            <p className="text-muted-foreground">Coupon edit form</p>
+            <p className="text-sm text-muted-foreground">{t("formInstructions")}</p>
           </div>
         </div>
 
         <div className="space-y-4">
           <div className="glass-card p-4 rounded-xl">
-            <p className="text-sm font-medium mb-4">Options</p>
-            <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">Status & Limits</p>
+            <p className="text-sm font-medium mb-4">{t("status")}</p>
+            <div className="space-y-2 text-xs text-muted-foreground">
+              <p className="capitalize">{coupon.status}</p>
             </div>
           </div>
         </div>

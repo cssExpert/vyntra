@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   useReactTable,
@@ -36,6 +37,7 @@ function getInitials(name: string) {
 
 const buildColumns = (
   tx: (key: string, values?: Record<string, string | number>) => string,
+  router: any,
 ) => {
   const ORDER_STATUS_MAP: Record<string, { variant: "success" | "warning" | "info" | "error" | "muted" | "default"; label: string }> = {
     pending:    { variant: "warning",  label: tx("statusPending") },
@@ -143,7 +145,7 @@ const buildColumns = (
     cell: ({ row }) => (
       <TableActionMenu
         items={[
-          { label: tx("view"),   icon: <Eye size={14} />,       onClick: () => {} },
+          { label: tx("view"),   icon: <Eye size={14} />,       onClick: () => router.push(`/store/orders/${row.original.id}`) },
           { label: tx("edit"),   icon: <Pencil size={14} />,    onClick: () => {} },
           { label: tx("print"),  icon: <Printer size={14} />,   onClick: () => {} },
           { label: tx("ship"),   icon: <Truck size={14} />,     onClick: () => {}, separator: true },
@@ -174,6 +176,7 @@ interface Props {
 
 export function OrdersTable({ orders }: Props) {
   const tx = useTranslations("store.orders");
+  const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [columnPinning] = useState<ColumnPinningState>({ left: ["orderNumber"], right: ["actions"] });
@@ -212,7 +215,7 @@ export function OrdersTable({ orders }: Props) {
 
   const table = useReactTable({
     data: orders,
-    columns: buildColumns(tx),
+    columns: buildColumns(tx, router),
     state: { sorting, columnPinning, pagination },
     onSortingChange: setSorting,
     onPaginationChange: setPagination,

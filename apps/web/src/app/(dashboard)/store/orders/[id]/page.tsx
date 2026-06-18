@@ -7,6 +7,7 @@ const OrderDetailsView = dynamic(() =>
 
 export const metadata: Metadata = { title: "Order Details — Store" };
 
-export default function OrderDetailsPage({ params }: { params: { id: string } }) {
-  return <OrderDetailsView orderId={params.id} />;
+export default async function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return <OrderDetailsView orderId={id} />;
 }

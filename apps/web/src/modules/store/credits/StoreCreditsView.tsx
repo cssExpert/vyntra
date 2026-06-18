@@ -95,16 +95,16 @@ export function StoreCreditsView() {
                 <thead>
                   <tr className="text-[13px] font-semibold text-muted-foreground">
                     <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">
-                      Customer
+                      {t("customer")}
                     </th>
                     <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">
-                      Email
+                      {t("email")}
                     </th>
                     <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">
-                      Balance
+                      {t("balance")}
                     </th>
                     <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">
-                      Last Transaction
+                      {t("lastTransaction")}
                     </th>
                     <th className="sticky top-0 bg-muted border-b border-border py-4 px-4 text-right" />
                   </tr>

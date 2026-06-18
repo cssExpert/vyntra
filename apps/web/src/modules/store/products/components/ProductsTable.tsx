@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   useReactTable,
@@ -52,6 +53,7 @@ const buildColumns = (
   onToggleAll: (ids: string[]) => void,
   allIds: string[],
   tx: (key: string) => string,
+  router: any,
 ) => {
   return [
   columnHelper.display({
@@ -212,8 +214,8 @@ const buildColumns = (
       return (
         <TableActionMenu
           items={[
-            { label: tx("view"), icon: <Eye size={14} />, onClick: () => {} },
-            { label: tx("edit"), icon: <Pencil size={14} />, onClick: () => {} },
+            { label: tx("view"), icon: <Eye size={14} />, onClick: () => router.push(`/store/products/${p.id}`) },
+            { label: tx("edit"), icon: <Pencil size={14} />, onClick: () => router.push(`/store/products/${p.id}/edit`) },
             {
               label: tx("duplicate"),
               icon: <Copy size={14} />,
@@ -251,6 +253,7 @@ export function ProductsTable({
   onToggleAll,
 }: Props) {
   const tx = useTranslations("store.products");
+  const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [columnPinning] = useState<ColumnPinningState>({
@@ -286,6 +289,7 @@ export function ProductsTable({
     onToggleAll,
     products.map((p) => p.id),
     tx,
+    router,
   );
 
   const table = useReactTable({

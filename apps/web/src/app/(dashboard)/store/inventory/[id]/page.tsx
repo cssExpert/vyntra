@@ -7,6 +7,7 @@ const InventoryItemView = dynamic(() =>
 
 export const metadata: Metadata = { title: "Inventory Item — Store" };
 
-export default function InventoryItemPage({ params }: { params: { id: string } }) {
-  return <InventoryItemView inventoryId={params.id} />;
+export default async function InventoryItemPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return <InventoryItemView inventoryId={id} />;
 }

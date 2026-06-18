@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { useState, useMemo, useEffect } from "react";
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -63,7 +64,7 @@ const SEGMENT_BADGE: Record<
   inactive: { variant: "muted", label: "Inactive" },
 };
 
-const getColumns = (t: any) => [
+const getColumns = (t: any, router: any) => [
   columnHelper.accessor("name", {
     header: () => t("customerHeader", { defaultValue: "Customer" }),
     size: 220,
@@ -177,7 +178,7 @@ const getColumns = (t: any) => [
           {
             label: t("viewProfile", { defaultValue: "View Profile" }),
             icon: <Eye size={14} />,
-            onClick: () => {},
+            onClick: () => router.push(`/store/customers/${row.original.id}`),
           },
           {
             label: t("sendEmail", { defaultValue: "Send Email" }),
@@ -203,7 +204,8 @@ const getColumns = (t: any) => [
 ];
 
 function Inner() {
-  const t = useTranslations("admin.store.customers");
+  const t = useTranslations("store.customers");
+  const router = useRouter();
   const isLoaded = usePageLoad(700);
   const [search, setSearch] = useState("");
   const [segment, setSegment] = useState("");
@@ -236,7 +238,7 @@ function Inner() {
 
   const table = useReactTable({
     data: filtered,
-    columns: getColumns(t),
+    columns: getColumns(t, router),
     state: { sorting, columnPinning, pagination },
     onSortingChange: setSorting,
     onPaginationChange: setPagination,

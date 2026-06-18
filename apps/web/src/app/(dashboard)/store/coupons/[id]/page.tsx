@@ -7,6 +7,7 @@ const CouponDetailsView = dynamic(() =>
 
 export const metadata: Metadata = { title: "Coupon Details — Store" };
 
-export default function CouponDetailsPage({ params }: { params: { id: string } }) {
-  return <CouponDetailsView couponId={params.id} />;
+export default async function CouponDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return <CouponDetailsView couponId={id} />;
 }

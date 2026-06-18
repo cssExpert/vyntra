@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
@@ -16,6 +17,7 @@ import { STOCK_STATUS_BADGES } from "../store.constants";
 
 export function InventoryView() {
   const t = useTranslations("store.inventory");
+  const router = useRouter();
   const isLoaded = usePageLoad(600);
   const [search,      setSearch]      = useState("");
   const [stockFilter, setStockFilter] = useState("");
@@ -159,7 +161,8 @@ export function InventoryView() {
                       <td className="py-4 px-4 text-right">
                         <TableActionMenu
                           items={[
-                            { label: t("editStock", { defaultValue: "Edit Stock" }),  icon: <Pencil size={14} />,  onClick: () => {} },
+                            { label: t("view"), icon: <Package size={14} />, onClick: () => router.push(`/store/inventory/${item.id}`) },
+                            { label: t("edit"), icon: <Pencil size={14} />, onClick: () => router.push(`/store/inventory/${item.id}`) },
                           ]}
                         />
                       </td>

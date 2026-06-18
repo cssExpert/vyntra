@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Save, X } from "lucide-react";
+import { Save, X, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import type { StoreProduct } from "../store.types";
+import { SAMPLE_PRODUCTS } from "../store.data";
 
 interface EditProductViewProps {
   productId: string;
@@ -15,17 +17,56 @@ interface EditProductViewProps {
 export function EditProductView({ productId }: EditProductViewProps) {
   const t = useTranslations("store.products");
   const router = useRouter();
+  const [product, setProduct] = useState<StoreProduct | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // TODO: Fetch product details from API using productId
-  // TODO: Initialize form with product data
-  // TODO: Setup form validation with React Hook Form + Zod
+  useEffect(() => {
+    const fetchProduct = async () => {
+      setIsLoading(true);
+      try {
+        const found = SAMPLE_PRODUCTS.find((p) => p.id === productId);
+        setProduct(found || null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [productId]);
 
   const handleSave = async () => {
     setIsSaving(true);
-    // TODO: Update product via API
-    setIsSaving(false);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex items-center justify-center min-h-96"
+      >
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </motion.div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex flex-col items-center justify-center gap-4 min-h-96"
+      >
+        <p className="text-muted-foreground">{t("noProducts")}</p>
+        <Button onClick={() => router.back()}>Go Back</Button>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
@@ -35,12 +76,12 @@ export function EditProductView({ productId }: EditProductViewProps) {
       className="flex flex-col gap-6"
     >
       <PageHeader
-        title="Edit Product"
-        description="Update product information"
+        title={`${t("edit")} - ${product.name}`}
+        description={t("updateInformation")}
         breadcrumbs={[
-          { label: "Store", href: "/store" },
-          { label: "Products", href: "/store/products" },
-          { label: "Edit" },
+          { label: t("store"), href: "/store" },
+          { label: t("title"), href: "/store/products" },
+          { label: t("edit") },
         ]}
       >
         <div className="flex gap-2">
@@ -50,7 +91,7 @@ export function EditProductView({ productId }: EditProductViewProps) {
             onClick={() => router.back()}
           >
             <X size={16} />
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             size="lg"
@@ -58,7 +99,7 @@ export function EditProductView({ productId }: EditProductViewProps) {
             disabled={isSaving}
           >
             <Save size={16} />
-            {isSaving ? "Saving..." : "Save"}
+            {isSaving ? "Saving..." : t("save")}
           </Button>
         </div>
       </PageHeader>
@@ -66,15 +107,15 @@ export function EditProductView({ productId }: EditProductViewProps) {
       <div className="grid grid-cols-3 gap-6">
         <div className="col-span-2 space-y-6">
           <div className="glass-card p-6 rounded-xl space-y-4">
-            <p className="text-muted-foreground">Product edit form</p>
+            <p className="text-sm text-muted-foreground">{t("formInstructions")}</p>
           </div>
         </div>
 
         <div className="space-y-4">
           <div className="glass-card p-4 rounded-xl">
-            <p className="text-sm font-medium mb-4">Options</p>
-            <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">Visibility & Status</p>
+            <p className="text-sm font-medium mb-4">{t("visibility")}</p>
+            <div className="space-y-2 text-xs text-muted-foreground">
+              <p>{t("statusLabel")}</p>
             </div>
           </div>
         </div>

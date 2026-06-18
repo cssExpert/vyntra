@@ -66,13 +66,13 @@ export function RewardPointsView() {
 
           {/* Tier thresholds legend */}
           <div className="glass-card p-4">
-            <p className="text-xs font-semibold text-foreground mb-3">Tier Thresholds</p>
+            <p className="text-xs font-semibold text-foreground mb-3">{t("tierThresholds")}</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-              {Object.entries(TIER_THRESHOLDS).map(([tier, pts]) => (
+              {Object.entries(REWARD_TIER_THRESHOLDS).map(([tier, pts]) => (
                 <div key={tier} className="flex items-center gap-2">
                   <Trophy size={12} className="text-muted-foreground shrink-0" />
                   <span className="font-semibold capitalize text-foreground">{tier}</span>
-                  <span className="text-muted-foreground">{pts}+ pts</span>
+                  <span className="text-muted-foreground">{pts}+ {t("points")}</span>
                 </div>
               ))}
             </div>
@@ -84,17 +84,17 @@ export function RewardPointsView() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="text-[13px] font-semibold text-muted-foreground">
-                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">Customer</th>
-                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">Points</th>
-                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">Tier</th>
-                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">To Next Tier</th>
-                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">Last Earned</th>
+                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("customer")}</th>
+                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("points")}</th>
+                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("tier")}</th>
+                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("toNextTier")}</th>
+                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("lastEarned")}</th>
                   <th className="sticky top-0 bg-muted border-b border-border py-4 px-4 text-right" />
                 </tr>
               </thead>
               <tbody className="divide-y divide-border text-[14px]">
                 {paginatedRows.map((r) => {
-                  const badge = TIER_BADGE[r.tier];
+                  const badge = REWARD_TIER_BADGES[r.tier];
                   return (
                     <tr key={r.customerId} className="group hover:bg-muted/40 transition-colors">
                       <td className="py-4 px-4">
@@ -112,17 +112,17 @@ export function RewardPointsView() {
                         <span className="font-bold text-warning tabular-nums">{r.points.toLocaleString()}</span>
                       </td>
                       <td className="py-4 px-4">
-                        <StatusBadge variant={badge.variant} label={badge.label} size="sm" />
+                        <StatusBadge variant={badge.variant} label={t(badge.label)} size="sm" />
                       </td>
                       <td className="py-4 px-4 text-xs text-muted-foreground tabular-nums">
-                        {r.pointsToNextTier > 0 ? `${r.pointsToNextTier} pts` : "Max tier"}
+                        {r.pointsToNextTier > 0 ? `${r.pointsToNextTier} ${t("points")}` : t("maxTier")}
                       </td>
                       <td className="py-4 px-4 text-xs text-muted-foreground">{r.lastEarnedAt}</td>
                       <td className="py-4 px-4 text-right">
                         <TableActionMenu
                           items={[
-                            { label: "View History", icon: <Eye size={14} />,    onClick: () => {} },
-                            { label: "Adjust",       icon: <Pencil size={14} />, onClick: () => {} },
+                            { label: t("viewHistory"), icon: <Eye size={14} />,    onClick: () => {} },
+                            { label: t("adjust"),       icon: <Pencil size={14} />, onClick: () => {} },
                           ]}
                         />
                       </td>

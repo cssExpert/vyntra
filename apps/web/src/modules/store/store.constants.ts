@@ -288,22 +288,22 @@ export const AUTOMATION_STATUS_BADGES: Record<
 // ─── Automation Triggers ──────────────────────────────────────────────────
 
 export const AUTOMATION_TRIGGER_LABELS: Record<AutomationTrigger, string> = {
-  order_created: "store.automations.triggerOrderCreated",
-  order_paid: "store.automations.triggerOrderPaid",
-  order_shipped: "store.automations.triggerOrderShipped",
-  order_delivered: "store.automations.triggerOrderDelivered",
-  order_cancelled: "store.automations.triggerOrderCancelled",
-  order_refunded: "store.automations.triggerOrderRefunded",
-  abandoned_cart: "store.automations.triggerAbandonedCart",
-  customer_registered: "store.automations.triggerCustomerRegistered",
-  customer_first_purchase: "store.automations.triggerFirstPurchase",
-  product_low_stock: "store.automations.triggerProductLowStock",
-  product_out_of_stock: "store.automations.triggerProductOutOfStock",
-  review_received: "store.automations.triggerReviewReceived",
-  subscription_renewed: "store.automations.triggerSubscriptionRenewed",
-  subscription_cancelled: "store.automations.triggerSubscriptionCancelled",
-  reward_milestone: "store.automations.triggerRewardMilestone",
-  customer_birthday: "store.automations.triggerCustomerBirthday",
+  order_created: "triggerOrderCreated",
+  order_paid: "triggerOrderPaid",
+  order_shipped: "triggerOrderShipped",
+  order_delivered: "triggerOrderDelivered",
+  order_cancelled: "triggerOrderCancelled",
+  order_refunded: "triggerOrderRefunded",
+  abandoned_cart: "triggerAbandonedCart",
+  customer_registered: "triggerCustomerRegistered",
+  customer_first_purchase: "triggerFirstPurchase",
+  product_low_stock: "triggerProductLowStock",
+  product_out_of_stock: "triggerProductOutOfStock",
+  review_received: "triggerReviewReceived",
+  subscription_renewed: "triggerSubscriptionRenewed",
+  subscription_cancelled: "triggerSubscriptionCancelled",
+  reward_milestone: "triggerRewardMilestone",
+  customer_birthday: "triggerCustomerBirthday",
 };
 
 export const AUTOMATION_TRIGGER_ICONS: Record<AutomationTrigger, string> = {

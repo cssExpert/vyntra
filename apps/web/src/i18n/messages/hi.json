@@ -1266,7 +1266,11 @@
       "description": "सभी आदेश",
       "searchPlaceholder": "Search orders, customer...",
       "allPayments": "All Payments",
-      "failedPayment": "Failed Payment"
+      "failedPayment": "Failed Payment",
+      "customer": "ग्राहक",
+      "details": "विवरण",
+      "items": "वस्तुएं",
+      "send": "भेजें"
     },
     "categories": {
       "view": "देखें",
@@ -1314,7 +1318,11 @@
       "title": "स्टोर क्रेडिट",
       "description": "ग्राहक स्टोर क्रेडिट और लेनदेन प्रबंधित करें",
       "store": "स्टोर",
-      "addCredit": "क्रेडिट जोड़ें"
+      "addCredit": "क्रेडिट जोड़ें",
+      "customer": "ग्राहक",
+      "email": "ईमेल",
+      "balance": "शेष",
+      "lastTransaction": "अंतिम लेनदेन"
     },
     "products": {
       "title": "उत्पाद",
@@ -1403,7 +1411,18 @@
       "statusInStock": "In Stock",
       "statusLowStock": "Low Stock",
       "statusOutOfStock": "Out of Stock",
-      "statusBackorder": "Backorder"
+      "statusBackorder": "Backorder",
+      "price": "कीमत",
+      "sku": "SKU",
+      "status": "स्थिति",
+      "type": "प्रकार",
+      "tags": "टैग",
+      "share": "साझा करें",
+      "store": "स्टोर",
+      "formInstructions": "नीचे उत्पाद विवरण अपडेट करें",
+      "statusLabel": "स्थिति",
+      "updateInformation": "उत्पाद जानकारी अपडेट करें",
+      "visibility": "दृश्यमानता"
     },
     "rewards": {
       "title": "पुरस्कार अंक",
@@ -1412,7 +1431,16 @@
       "tierGold": "सोना",
       "tierPlatinum": "प्लेटिनम",
       "description": "वफादारी पुरस्कार और बिंदु स्तर प्रबंधित करें",
-      "store": "स्टोर"
+      "store": "स्टोर",
+      "customer": "ग्राहक",
+      "points": "अंक",
+      "tier": "स्तर",
+      "toNextTier": "अगले स्तर तक",
+      "lastEarned": "अंतिम कमाई",
+      "tierThresholds": "स्तर सीमाएं",
+      "maxTier": "अधिकतम स्तर",
+      "viewHistory": "इतिहास देखें",
+      "adjust": "समायोजित करें"
     },
     "settings": {
       "generalTab": "सामान्य",
@@ -1474,7 +1502,20 @@
       "statusLowStock": "कम स्टॉक",
       "statusOutOfStock": "स्टॉक समाप्त",
       "statusBackorder": "बैकऑर्डर",
-      "store": "स्टोर"
+      "store": "स्टोर",
+      "addStock": "स्टॉक जोड़ें",
+      "currentStock": "वर्तमान स्टॉक",
+      "lastUpdated": "अंतिम अपडेट",
+      "location": "स्थान",
+      "maximumStock": "अधिकतम स्टॉक",
+      "minimumStock": "न्यूनतम स्टॉक",
+      "noInventory": "कोई इन्वेंटरी आइटम नहीं मिला",
+      "notes": "नोट्स",
+      "reorderPoint": "पुन: ऑर्डर बिंदु",
+      "status": "स्थिति",
+      "stockLevels": "स्टॉक स्तर",
+      "trends": "प्रवृत्तियां देखें",
+      "warehouse": "गोदाम"
     },
     "automations": {
       "title": "ऑटोमेशन",
@@ -1540,7 +1581,23 @@
       "expiresHeader": "Expires",
       "noExpiry": "No expiry",
       "discountTypeHeader": "Discount Type",
-      "discountValueHeader": "Discount Value"
+      "discountValueHeader": "Discount Value",
+      "code": "कोड",
+      "createdDate": "बनाया गया",
+      "discount": "छूट",
+      "duplicate": "डुप्लिकेट",
+      "minPurchase": "न्यूनतम खरीद",
+      "noMinimum": "कोई न्यूनतम नहीं",
+      "performance": "प्रदर्शन",
+      "status": "स्थिति",
+      "totalRedemptions": "कुल प्रतिदेय",
+      "unlimited": "असीमित",
+      "usageLimit": "उपयोग सीमा",
+      "validFrom": "मान्य से",
+      "formInstructions": "नीचे कूपन सेटिंग अपडेट करें",
+      "updateRules": "कूपन नियम और सीमाएं अपडेट करें",
+      "active": "सक्रिय",
+      "inactive": "निष्क्रिय"
     },
     "customers": {
       "title": "ग्राहक",
@@ -1557,7 +1614,15 @@
       "searchPlaceholder": "Search customers...",
       "addCustomer": "Add Customer",
       "noCustomers": "No customers found",
-      "lifetimeValue": "Lifetime Value"
+      "lifetimeValue": "Lifetime Value",
+      "details": "विवरण",
+      "joinedDate": "शामिल हुए",
+      "lastOrder": "आखरी आदेश",
+      "message": "संदेश",
+      "status": "स्थिति",
+      "totalOrders": "कुल आदेश",
+      "viewProfile": "प्रोफाइल देखें",
+      "sendEmail": "ईमेल भेजें"
     },
     "reports": {
       "title": "स्टोर रिपोर्ट",

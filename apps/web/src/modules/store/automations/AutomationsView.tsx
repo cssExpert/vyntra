@@ -25,6 +25,7 @@ import { SAMPLE_AUTOMATIONS } from "../store.data";
 import type { AutomationTrigger } from "../store.types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { AUTOMATION_TRIGGER_LABELS } from "../store.constants";
 
 const TRIGGER_ICONS: Partial<Record<AutomationTrigger, React.ReactNode>> = {
   customer_registered: <UserPlus size={14} />,
@@ -35,20 +36,8 @@ const TRIGGER_ICONS: Partial<Record<AutomationTrigger, React.ReactNode>> = {
   order_paid: <RefreshCw size={14} />,
 };
 
-const TRIGGER_LABELS: Partial<Record<AutomationTrigger, string>> = {
-  customer_registered: "Customer Registered",
-  customer_first_purchase: "First Purchase",
-  abandoned_cart: "Abandoned Cart",
-  product_low_stock: "Product Low Stock",
-  order_delivered: "Order Delivered",
-  order_paid: "Order Paid",
-  order_cancelled: "Order Cancelled",
-  subscription_renewed: "Subscription Renewed",
-  reward_milestone: "Reward Milestone",
-};
-
 export function AutomationsView() {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   const t = useTranslations("store.automations");
   const isLoaded = usePageLoad(600);
   const [rules, setRules] = useState(SAMPLE_AUTOMATIONS);
@@ -177,7 +166,7 @@ export function AutomationsView() {
                     <span className="text-[11px] text-muted-foreground">
                       Trigger:{" "}
                       <span className="text-foreground font-medium">
-                        {TRIGGER_LABELS[rule.trigger] ?? rule.trigger}
+                        {t(AUTOMATION_TRIGGER_LABELS[rule.trigger] ?? rule.trigger)}
                       </span>
                     </span>
                     <span className="text-[11px] text-muted-foreground">

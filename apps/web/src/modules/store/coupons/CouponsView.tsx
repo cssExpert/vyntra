@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -17,6 +18,7 @@ import { COUPON_STATUS_BADGES } from "../store.constants";
 
 export function CouponsView() {
   const t = useTranslations("store.coupons");
+  const router = useRouter();
   const isLoaded = usePageLoad(600);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
@@ -193,7 +195,7 @@ export function CouponsView() {
                         </div>
                       </td>
                       <td className="py-4 px-4 font-semibold text-primary">
-                        {formatDiscount(coupon)}
+                        {formatCouponDiscount(coupon)}
                       </td>
                       <td className="py-4 px-4 text-xs text-muted-foreground">
                         {coupon.minimumSpend ? `$${coupon.minimumSpend}` : "—"}
@@ -234,12 +236,23 @@ export function CouponsView() {
                         <TableActionMenu
                           items={[
                             {
-                              label: "Edit",
-                              icon: <Pencil size={14} />,
-                              onClick: () => {},
+                              label: t("view"),
+                              icon: <Tag size={14} />,
+                              onClick: () => router.push(`/store/coupons/${coupon.id}`),
                             },
                             {
-                              label: "Delete",
+                              label: t("edit"),
+                              icon: <Pencil size={14} />,
+                              onClick: () => router.push(`/store/coupons/${coupon.id}/edit`),
+                            },
+                            {
+                              label: t("duplicate"),
+                              icon: <Copy size={14} />,
+                              onClick: () => {},
+                              separator: true,
+                            },
+                            {
+                              label: t("delete"),
                               icon: <Trash2 size={14} />,
                               onClick: () => {},
                               variant: "danger",

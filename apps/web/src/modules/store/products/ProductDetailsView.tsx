@@ -1,12 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Pencil, Share2, Archive } from "lucide-react";
+import { Pencil, Share2, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import type { StoreProduct } from "../store.types";
+import { SAMPLE_PRODUCTS } from "../store.data";
+import { PRODUCT_STATUS_BADGES, PRODUCT_TYPE_LABELS } from "../store.constants";
+import { formatStorePrice } from "../store.utils";
 
 interface ProductDetailsViewProps {
   productId: string;
@@ -15,9 +19,49 @@ interface ProductDetailsViewProps {
 export function ProductDetailsView({ productId }: ProductDetailsViewProps) {
   const t = useTranslations("store.products");
   const router = useRouter();
-  const [isLoading] = useState(false);
+  const [product, setProduct] = useState<StoreProduct | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // TODO: Fetch product details from API using productId
+  useEffect(() => {
+    const fetchProduct = async () => {
+      setIsLoading(true);
+      try {
+        const found = SAMPLE_PRODUCTS.find((p) => p.id === productId);
+        setProduct(found || null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [productId]);
+
+  if (isLoading) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex items-center justify-center min-h-96"
+      >
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </motion.div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex flex-col items-center justify-center gap-4 min-h-96"
+      >
+        <p className="text-muted-foreground">{t("noProducts")}</p>
+        <Button onClick={() => router.back()}>Go Back</Button>
+      </motion.div>
+    );
+  }
+
+  const statusBadge = PRODUCT_STATUS_BADGES[product.status];
+  const typeLabel = PRODUCT_TYPE_LABELS[product.type];
 
   return (
     <motion.div
@@ -27,12 +71,12 @@ export function ProductDetailsView({ productId }: ProductDetailsViewProps) {
       className="flex flex-col gap-6"
     >
       <PageHeader
-        title="Product Details"
-        description="View and manage product information"
+        title={product.name}
+        description={product.shortDescription}
         breadcrumbs={[
-          { label: "Store", href: "/store" },
-          { label: "Products", href: "/store/products" },
-          { label: "Details" },
+          { label: t("store"), href: "/store" },
+          { label: t("title"), href: "/store/products" },
+          { label: product.name },
         ]}
       >
         <div className="flex gap-2">
@@ -42,11 +86,11 @@ export function ProductDetailsView({ productId }: ProductDetailsViewProps) {
             onClick={() => router.push(`/store/products/${productId}/edit`)}
           >
             <Pencil size={16} />
-            Edit
+            {t("edit")}
           </Button>
           <Button variant="outline" size="lg">
             <Share2 size={16} />
-            Share
+            {t("share")}
           </Button>
         </div>
       </PageHeader>
@@ -55,7 +99,11 @@ export function ProductDetailsView({ productId }: ProductDetailsViewProps) {
         {/* Product Image */}
         <div className="col-span-2 space-y-6">
           <div className="glass-card p-8 rounded-xl aspect-square bg-muted flex items-center justify-center">
-            <span className="text-muted-foreground">Product Image</span>
+            {product.image ? (
+              <img src={product.image} alt={product.name} className="h-full w-full object-cover rounded-lg" />
+            ) : (
+              <span className="text-muted-foreground">No image</span>
+            )}
           </div>
         </div>
 
@@ -63,24 +111,43 @@ export function ProductDetailsView({ productId }: ProductDetailsViewProps) {
         <div className="space-y-4">
           <div className="glass-card p-4 rounded-xl space-y-4">
             <div>
-              <p className="text-xs text-muted-foreground mb-1">SKU</p>
-              <p className="font-mono">Loading...</p>
+              <p className="text-xs text-muted-foreground mb-1">{t("sku")}</p>
+              <p className="font-mono text-sm">{product.sku}</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground mb-1">Price</p>
-              <p className="text-xl font-bold">Loading...</p>
+              <p className="text-xs text-muted-foreground mb-1">{t("price")}</p>
+              <p className="text-xl font-bold">{formatStorePrice(product.price)}</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground mb-1">Stock</p>
-              <p>Loading...</p>
+              <p className="text-xs text-muted-foreground mb-1">{t("type")}</p>
+              <p className="text-sm capitalize">{t(typeLabel)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">{t("status")}</p>
+              <span className="text-sm">{t(statusBadge.label)}</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Tabs: Details, Variants, Reviews */}
-      <div className="glass-card p-6 rounded-xl">
-        <p className="text-muted-foreground">Product details content</p>
+      {/* Product Details */}
+      <div className="glass-card p-6 rounded-xl space-y-6">
+        <div>
+          <h3 className="font-semibold mb-2">{t("description")}</h3>
+          <p className="text-sm text-muted-foreground">{product.description || product.shortDescription}</p>
+        </div>
+        {product.tags && product.tags.length > 0 && (
+          <div>
+            <h3 className="font-semibold mb-2">{t("tags")}</h3>
+            <div className="flex flex-wrap gap-2">
+              {product.tags.map((tag) => (
+                <span key={tag} className="px-2.5 py-1 text-xs bg-muted rounded-md">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </motion.div>
   );

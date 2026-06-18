@@ -7,6 +7,7 @@ const EditProductView = dynamic(() =>
 
 export const metadata: Metadata = { title: "Edit Product — Store" };
 
-export default function EditProductPage({ params }: { params: { id: string } }) {
-  return <EditProductView productId={params.id} />;
+export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return <EditProductView productId={id} />;
 }
