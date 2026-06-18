@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { Search, X, Inbox } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import type { Email, MailFolder } from "./mail.types";
 import { MailListItem } from "./MailListItem";
-import { FOLDER_LABELS } from "./mail.data";
 import { Input } from "@/components/ui/input";
 
 interface MailListProps {
@@ -25,7 +25,16 @@ export function MailList({
   onToggleStar,
   titleOverride,
 }: MailListProps) {
+  const t = useTranslations("mail");
   const [search, setSearch] = useState("");
+
+  const folderLabels: Record<MailFolder, string> = {
+    inbox: t("folders.inbox"),
+    sent: t("folders.sent"),
+    drafts: t("folders.drafts"),
+    starred: t("folders.starred"),
+    deleted: t("folders.deleted"),
+  };
 
   const filtered = emails.filter((e) => {
     const q = search.toLowerCase();
@@ -43,10 +52,10 @@ export function MailList({
       <div className="px-4 py-4 border-b border-border">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-bold text-foreground">
-            {titleOverride ?? FOLDER_LABELS[folder]}
+            {titleOverride ?? folderLabels[folder]}
           </h2>
           <span className="text-[11px] text-muted-foreground font-mono">
-            {emails.length} {emails.length === 1 ? "message" : "messages"}
+            {t("list.messageCount", { count: emails.length })}
           </span>
         </div>
 
@@ -60,7 +69,7 @@ export function MailList({
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search messages..."
+            placeholder={t("list.searchPlaceholder")}
             size="xl" className="w-full pl-9 pr-8 bg-background border border-border rounded-sm text-xs text-foreground placeholder:text-muted-foreground/40 outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200 shadow-sm"
           />
           {search && (
@@ -85,14 +94,14 @@ export function MailList({
             >
               <Inbox className="w-10 h-10 text-muted-foreground/30" />
               <p className="text-sm font-semibold text-muted-foreground">
-                {search ? "No results found" : "Nothing here"}
+                {search ? t("list.noResults") : t("list.nothingHere")}
               </p>
               {search && (
                 <button
                   onClick={() => setSearch("")}
                   className="text-xs text-primary hover:text-primary/80 underline"
                 >
-                  Clear search
+                  {t("list.clearSearch")}
                 </button>
               )}
             </motion.div>

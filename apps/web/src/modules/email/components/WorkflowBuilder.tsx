@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { Sparkles, Trash2, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { WorkflowStep, SimLog, Branch } from "../types";
 import { Input } from "@/components/ui/input";
@@ -58,6 +59,7 @@ function AddMenu({
   types: ReadonlyArray<WorkflowStep["type"]>;
   onAdd: (t: WorkflowStep["type"]) => void;
 }) {
+  const t = useTranslations("email.builder");
   if (!show) return null;
   return (
     <div className="absolute z-20 left-1/2 -translate-x-1/2 top-8 w-44 rounded-xl bg-card border border-border p-1 shadow-2xl">
@@ -67,7 +69,7 @@ function AddMenu({
           onClick={() => onAdd(type)}
           className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold capitalize text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         >
-          Add {type}
+          {t("addType", { type })}
         </button>
       ))}
     </div>
@@ -140,6 +142,7 @@ function PropertiesPanel({
   handleGenerateStepEmail: (s: WorkflowStep) => void;
   isAiGenerating: boolean;
 }) {
+  const tp = useTranslations("email.builder.props");
   return (
     <motion.div
       key="props"
@@ -152,7 +155,7 @@ function PropertiesPanel({
       <div className="flex items-center justify-between pb-4 border-b border-border">
         <div>
           <span className="text-[10px] font-bold text-primary tracking-wider uppercase">
-            Properties
+            {tp("label")}
           </span>
           <h3 className="font-bold text-base text-foreground mt-0.5">
             {step.label}
@@ -162,14 +165,14 @@ function PropertiesPanel({
           onClick={onClose}
           className="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-muted text-muted-foreground hover:text-foreground transition-colors"
         >
-          Close
+          {tp("close")}
         </button>
       </div>
 
       <div className="space-y-4">
         <div>
           <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-2">
-            Display Name
+            {tp("displayName")}
           </label>
           <Input
             type="text"
@@ -183,7 +186,7 @@ function PropertiesPanel({
         </div>
         <div>
           <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-2">
-            Description
+            {tp("description")}
           </label>
           <textarea
             rows={2}
@@ -199,7 +202,7 @@ function PropertiesPanel({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-2">
-                Duration
+                {tp("duration")}
               </label>
               <Input
                 type="number"
@@ -217,7 +220,7 @@ function PropertiesPanel({
             </div>
             <div>
               <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-2">
-                Interval
+                {tp("interval")}
               </label>
               <select
                 value={step.config.unit ?? "days"}
@@ -226,9 +229,9 @@ function PropertiesPanel({
                 }
                 className="w-full rounded-md bg-background border border-border px-4 py-2.5 text-sm font-medium text-foreground shadow-sm outline-none transition-[border-color,box-shadow] placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/20 focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <option value="hours">Hours</option>
-                <option value="days">Days</option>
-                <option value="weeks">Weeks</option>
+                <option value="hours">{tp("hours")}</option>
+                <option value="days">{tp("days")}</option>
+                <option value="weeks">{tp("weeks")}</option>
               </select>
             </div>
           </div>
@@ -238,7 +241,7 @@ function PropertiesPanel({
           <div className="space-y-4 pt-2 border-t border-border">
             <div>
               <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-2">
-                Subject Line
+                {tp("subjectLine")}
               </label>
               <Input
                 type="text"
@@ -256,16 +259,15 @@ function PropertiesPanel({
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-purple-500 dark:text-purple-400" />
                 <span className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest">
-                  Gemini Copilot
+                  {tp("geminiCopilot")}
                 </span>
               </div>
               <p className="text-[11px] text-muted-foreground">
-                Describe what should be in the email and Gemini will generate
-                optimized, persuasive copy.
+                {tp("geminiDesc")}
               </p>
               <textarea
                 rows={4}
-                placeholder="Tell Gemini who you're targeting, the core offer, and the tone…"
+                placeholder={tp("geminiPlaceholder")}
                 value={step.config.aiPrompt ?? ""}
                 onChange={(e) =>
                   handleUpdateStepConfig(step.id, "aiPrompt", e.target.value)
@@ -280,12 +282,12 @@ function PropertiesPanel({
                 {isAiGenerating ? (
                   <>
                     <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>Compiling…</span>
+                    <span>{tp("compiling")}</span>
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4" />
-                    <span>Write Email with Gemini</span>
+                    <span>{tp("writeWithGemini")}</span>
                   </>
                 )}
               </button>
@@ -294,7 +296,7 @@ function PropertiesPanel({
             {step.config.generatedBody && (
               <div>
                 <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-2">
-                  Compiled Email
+                  {tp("compiledEmail")}
                 </span>
                 <div className="max-h-56 overflow-y-auto bg-background border border-border p-4 rounded-xl text-xs font-mono text-foreground/80 leading-relaxed whitespace-pre-wrap">
                   {step.config.generatedBody}
@@ -328,6 +330,7 @@ export function WorkflowBuilder({
   handleGenerateStepEmail,
   isAiGenerating,
 }: WorkflowBuilderProps) {
+  const t = useTranslations("email.builder");
   const [showAddMenuIdx, setShowAddMenuIdx] = useState<number | null>(null);
   const [addingToBranch, setAddingToBranch] = useState<Branch | null>(null);
   const consoleEndRef = useRef<HTMLDivElement | null>(null);
@@ -345,8 +348,7 @@ export function WorkflowBuilder({
         <div className="p-4 rounded-xl bg-primary/5 border border-primary/10 flex items-center gap-3">
           <Sparkles className="w-4 h-4 text-primary flex-shrink-0" />
           <p className="text-xs text-primary/80">
-            <strong>Protip:</strong> Click any block to open its properties and
-            use Gemini AI to compose email copy.
+            <strong>{t("protip")}</strong> {t("protipText")}
           </p>
         </div>
 
@@ -446,7 +448,7 @@ export function WorkflowBuilder({
                       {/* YES */}
                       <div className="flex-1 flex flex-col items-center">
                         <div className="text-[10px] font-bold text-emerald-500 dark:text-emerald-400 px-3 py-1 bg-emerald-500/10 border border-emerald-500/25 rounded-full mb-4">
-                          YES Branch
+                          {t("yesBranch")}
                         </div>
                         {yesSteps.map((yStep, yIdx) => (
                           <React.Fragment key={yStep.id}>
@@ -499,7 +501,7 @@ export function WorkflowBuilder({
                       {/* NO */}
                       <div className="flex-1 flex flex-col items-center">
                         <div className="text-[10px] font-bold text-error px-3 py-1 bg-error/10 border border-error/25 rounded-full mb-4">
-                          NO Branch
+                          {t("noBranch")}
                         </div>
                         {noSteps.map((nStep, nIdx) => (
                           <React.Fragment key={nStep.id}>
@@ -557,16 +559,16 @@ export function WorkflowBuilder({
           <div className="flex items-center justify-between mb-3 pb-3 border-b border-border">
             <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-success" />
-              Campaign Simulator Log
+              {t("simLog")}
             </h4>
             <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest">
-              Live Feed
+              {t("liveFeed")}
             </span>
           </div>
           <div className="h-44 overflow-y-auto bg-background rounded-xl p-4 font-mono text-xs space-y-2 border border-border">
             {simReport.length === 0 ? (
               <p className="text-muted-foreground italic text-center py-10">
-                Click &ldquo;Simulate&rdquo; to watch the automation run.
+                {t("simEmpty")}
               </p>
             ) : (
               simReport.map((log, i) => (
@@ -628,11 +630,10 @@ export function WorkflowBuilder({
                 </svg>
               </div>
               <h4 className="font-bold text-sm text-foreground">
-                No node selected
+                {t("noNodeTitle")}
               </h4>
               <p className="text-xs text-muted-foreground max-w-[200px] mt-1">
-                Select any workflow block on the canvas to configure parameters
-                and prompt the AI writer.
+                {t("noNodeDesc")}
               </p>
             </motion.div>
           )}

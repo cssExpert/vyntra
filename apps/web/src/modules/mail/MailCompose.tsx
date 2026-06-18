@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   X,
@@ -56,17 +57,17 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-const FONT_FAMILIES = [
-  { label: "Sans Serif", value: "ui-sans-serif, system-ui, sans-serif" },
-  { label: "Serif", value: "Georgia, Cambria, serif" },
-  { label: "Monospace", value: "ui-monospace, monospace" },
+const FONT_FAMILY_VALUES = [
+  { key: "fontSans", value: "ui-sans-serif, system-ui, sans-serif" },
+  { key: "fontSerif", value: "Georgia, Cambria, serif" },
+  { key: "fontMono", value: "ui-monospace, monospace" },
 ];
 
-const FONT_SIZES = [
-  { label: "Small", value: "12px" },
-  { label: "Normal", value: "14px" },
-  { label: "Large", value: "18px" },
-  { label: "Huge", value: "24px" },
+const FONT_SIZE_VALUES = [
+  { key: "sizeSmall", value: "12px" },
+  { key: "sizeNormal", value: "14px" },
+  { key: "sizeLarge", value: "18px" },
+  { key: "sizeHuge", value: "24px" },
 ];
 
 const TEXT_COLORS = [
@@ -125,6 +126,21 @@ export function MailCompose({
   initialTo = "",
   initialSubject = "",
 }: MailComposeProps) {
+  const t = useTranslations("mail.compose");
+
+  const FONT_FAMILIES = [
+    { label: t("fontSans"), value: FONT_FAMILY_VALUES[0].value },
+    { label: t("fontSerif"), value: FONT_FAMILY_VALUES[1].value },
+    { label: t("fontMono"), value: FONT_FAMILY_VALUES[2].value },
+  ];
+
+  const FONT_SIZES = [
+    { label: t("sizeSmall"), value: FONT_SIZE_VALUES[0].value },
+    { label: t("sizeNormal"), value: FONT_SIZE_VALUES[1].value },
+    { label: t("sizeLarge"), value: FONT_SIZE_VALUES[2].value },
+    { label: t("sizeHuge"), value: FONT_SIZE_VALUES[3].value },
+  ];
+
   const [minimized, setMinimized] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [to, setTo] = useState(initialTo);
@@ -273,7 +289,7 @@ export function MailCompose({
             {/* ── Header ───────────────────────────────────────────── */}
             <div className="flex items-center justify-between px-4 py-3 bg-foreground/5 border-b border-border shrink-0">
               <span className="text-sm font-bold text-foreground">
-                {initialSubject ? `Re: ${initialSubject}` : "New Message"}
+                {initialSubject ? `${t("rePrefix")} ${initialSubject}` : t("newMessage")}
               </span>
               <div className="flex items-center gap-1">
                 <button
@@ -281,14 +297,14 @@ export function MailCompose({
                     if (!minimized && fullscreen) setFullscreen(false);
                     setMinimized(!minimized);
                   }}
-                  title="Minimize"
+                  title={t("minimize")}
                   className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-[#000]/5 transition-colors"
                 >
                   <Minus size={14} />
                 </button>
                 <button
                   onClick={() => setFullscreen(!fullscreen)}
-                  title={fullscreen ? "Restore" : "Fullscreen"}
+                  title={fullscreen ? t("restore") : t("fullscreen")}
                   className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-[#000]/5 transition-colors"
                 >
                   {fullscreen ? (
@@ -322,7 +338,7 @@ export function MailCompose({
                     {/* To */}
                     <div className="flex items-center px-4 border-b border-border/50">
                       <span className="text-xs text-muted-foreground w-12 shrink-0">
-                        To
+                        {t("to")}
                       </span>
                       <Input
                         type="email"
@@ -337,7 +353,7 @@ export function MailCompose({
                             onClick={() => setShowCc(true)}
                             className="text-[10px] font-medium text-muted-foreground hover:text-primary px-1.5 py-0.5 rounded hover:bg-primary/10 transition-colors"
                           >
-                            Cc
+                            {t("cc")}
                           </button>
                         )}
                         {!showBcc && (
@@ -345,7 +361,7 @@ export function MailCompose({
                             onClick={() => setShowBcc(true)}
                             className="text-[10px] font-medium text-muted-foreground hover:text-primary px-1.5 py-0.5 rounded hover:bg-primary/10 transition-colors"
                           >
-                            Bcc
+                            {t("bcc")}
                           </button>
                         )}
                       </div>
@@ -362,7 +378,7 @@ export function MailCompose({
                           className="flex items-center px-4 border-b border-border/50 overflow-hidden"
                         >
                           <span className="text-xs text-muted-foreground w-12 shrink-0">
-                            Cc
+                            {t("cc")}
                           </span>
                           <Input
                             type="email"
@@ -396,7 +412,7 @@ export function MailCompose({
                           className="flex items-center px-4 border-b border-border/50 overflow-hidden"
                         >
                           <span className="text-xs text-muted-foreground w-12 shrink-0">
-                            Bcc
+                            {t("bcc")}
                           </span>
                           <Input
                             type="email"
@@ -422,13 +438,13 @@ export function MailCompose({
                     {/* Subject */}
                     <div className="flex items-center px-4">
                       <span className="text-xs text-muted-foreground w-12 shrink-0">
-                        Subject
+                        {t("subject")}
                       </span>
                       <Input
                         type="text"
                         value={subject}
                         onChange={(e) => setSubject(e.target.value)}
-                        placeholder="Subject"
+                        placeholder={t("subject")}
                         className={cn(inputCls, "flex-1")}
                       />
                     </div>
@@ -485,7 +501,7 @@ export function MailCompose({
                           closeAllDropdowns();
                           setShowFontSize(!showFontSize);
                         }}
-                        title="Font size"
+                        title={t("fontSize")}
                         className="flex items-center gap-0.5 px-1.5 py-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                       >
                         <Type size={14} /> <ChevronDown size={10} />
@@ -524,7 +540,7 @@ export function MailCompose({
                     <TBtn
                       onClick={() => editor?.chain().focus().toggleBold().run()}
                       active={editor?.isActive("bold")}
-                      title="Bold"
+                      title={t("bold")}
                     >
                       <Bold size={14} />
                     </TBtn>
@@ -533,7 +549,7 @@ export function MailCompose({
                         editor?.chain().focus().toggleItalic().run()
                       }
                       active={editor?.isActive("italic")}
-                      title="Italic"
+                      title={t("italic")}
                     >
                       <Italic size={14} />
                     </TBtn>
@@ -542,7 +558,7 @@ export function MailCompose({
                         editor?.chain().focus().toggleUnderline().run()
                       }
                       active={editor?.isActive("underline")}
-                      title="Underline"
+                      title={t("underline")}
                     >
                       <Underline size={14} />
                     </TBtn>
@@ -556,7 +572,7 @@ export function MailCompose({
                           closeAllDropdowns();
                           setShowColor(!showColor);
                         }}
-                        title="Text color"
+                        title={t("textColor")}
                         className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                       >
                         <Baseline size={14} />
@@ -594,7 +610,7 @@ export function MailCompose({
                           closeAllDropdowns();
                           setShowAlign(!showAlign);
                         }}
-                        title="Text alignment"
+                        title={t("textAlign")}
                         className="flex items-center gap-0.5 p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                       >
                         <AlignIcon size={14} /> <ChevronDown size={10} />
@@ -602,26 +618,10 @@ export function MailCompose({
                       {showAlign && (
                         <div className="absolute top-full left-0 z-20 mt-1 bg-popover border border-border rounded-lg shadow-xl overflow-hidden min-w-[130px]">
                           {[
-                            {
-                              Icon: AlignLeft,
-                              value: "left",
-                              label: "Align left",
-                            },
-                            {
-                              Icon: AlignCenter,
-                              value: "center",
-                              label: "Align center",
-                            },
-                            {
-                              Icon: AlignRight,
-                              value: "right",
-                              label: "Align right",
-                            },
-                            {
-                              Icon: AlignJustify,
-                              value: "justify",
-                              label: "Justify",
-                            },
+                            { Icon: AlignLeft, value: "left", label: t("alignLeft") },
+                            { Icon: AlignCenter, value: "center", label: t("alignCenter") },
+                            { Icon: AlignRight, value: "right", label: t("alignRight") },
+                            { Icon: AlignJustify, value: "justify", label: t("justify") },
                           ].map(({ Icon, value, label }) => (
                             <button
                               key={value}
@@ -652,7 +652,7 @@ export function MailCompose({
                         editor?.chain().focus().toggleOrderedList().run()
                       }
                       active={editor?.isActive("orderedList")}
-                      title="Numbered list"
+                      title={t("numberedList")}
                     >
                       <ListOrdered size={14} />
                     </TBtn>
@@ -661,7 +661,7 @@ export function MailCompose({
                         editor?.chain().focus().toggleBulletList().run()
                       }
                       active={editor?.isActive("bulletList")}
-                      title="Bullet list"
+                      title={t("bulletList")}
                     >
                       <List size={14} />
                     </TBtn>
@@ -669,7 +669,7 @@ export function MailCompose({
                       onClick={() =>
                         editor?.chain().focus().liftListItem("listItem").run()
                       }
-                      title="Decrease indent"
+                      title={t("decreaseIndent")}
                     >
                       <Outdent size={14} />
                     </TBtn>
@@ -677,7 +677,7 @@ export function MailCompose({
                       onClick={() =>
                         editor?.chain().focus().sinkListItem("listItem").run()
                       }
-                      title="Increase indent"
+                      title={t("increaseIndent")}
                     >
                       <Indent size={14} />
                     </TBtn>
@@ -689,7 +689,7 @@ export function MailCompose({
                         editor?.chain().focus().toggleBlockquote().run()
                       }
                       active={editor?.isActive("blockquote")}
-                      title="Blockquote"
+                      title={t("blockquote")}
                     >
                       <Quote size={14} />
                     </TBtn>
@@ -698,7 +698,7 @@ export function MailCompose({
                         editor?.chain().focus().toggleStrike().run()
                       }
                       active={editor?.isActive("strike")}
-                      title="Strikethrough"
+                      title={t("strikethrough")}
                     >
                       <Strikethrough size={14} />
                     </TBtn>
@@ -754,7 +754,7 @@ export function MailCompose({
                       />
                       <button
                         onClick={() => fileInputRef.current?.click()}
-                        title="Attach files"
+                        title={t("attachFiles")}
                         className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                       >
                         <Paperclip size={15} />
@@ -765,7 +765,7 @@ export function MailCompose({
                       disabled={!to.trim()}
                       className="flex items-center gap-1.5 px-4 py-2 rounded-sm bg-primary hover:bg-primary-600 text-primary-foreground text-xs font-semibold transition-all disabled:opacity-50 active:scale-[0.98]"
                     >
-                      <Send size={13} /> Send
+                      <Send size={13} /> {t("send")}
                     </button>
                   </div>
                 </motion.div>

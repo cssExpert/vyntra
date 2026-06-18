@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import {
   Star, Trash2, Reply, Forward, Paperclip, X,
   MoreVertical, FileText, Image as ImageIcon, FileCode,
@@ -42,6 +43,7 @@ function AttachmentIcon({ type }: { type: string }) {
 export function MailDetail({
   email, onClose, onToggleStar, onMarkUnread, onMarkImportant, onDelete, onReply, onForward,
 }: MailDetailProps) {
+  const t = useTranslations("mail.detail");
   const emailLabels = LABELS.filter((l) => email.labels.includes(l.id));
   const isImportant = email.labels.includes("important");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -61,12 +63,12 @@ export function MailDetail({
   const menuItems = [
     {
       icon: <Star size={16} className={email.starred ? "fill-amber-400 text-amber-400" : ""} />,
-      label: email.starred ? "Remove star" : "Add star",
+      label: email.starred ? t("removeStar") : t("addStar"),
       onClick: () => { onToggleStar(email.id); setMenuOpen(false); },
     },
     {
       icon: <MailOpen size={16} />,
-      label: "Mark as unread",
+      label: t("markUnread"),
       onClick: () => { onMarkUnread(email.id); setMenuOpen(false); },
     },
     {
@@ -76,12 +78,12 @@ export function MailDetail({
           className={isImportant ? "fill-primary text-primary" : ""}
         />
       ),
-      label: isImportant ? "Remove important" : "Mark as important",
+      label: isImportant ? t("removeImportant") : t("markImportant"),
       onClick: () => { onMarkImportant(email.id); setMenuOpen(false); },
     },
     {
       icon: <Forward size={16} />,
-      label: "Forward all",
+      label: t("forwardAll"),
       onClick: () => { onForward(email); setMenuOpen(false); },
     },
   ];
@@ -95,13 +97,13 @@ export function MailDetail({
             onClick={() => onReply(email)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           >
-            <Reply size={14} /> Reply
+            <Reply size={14} /> {t("reply")}
           </button>
           <button
             onClick={() => onForward(email)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           >
-            <Forward size={14} /> Forward
+            <Forward size={14} /> {t("forward")}
           </button>
         </div>
 
@@ -199,7 +201,7 @@ export function MailDetail({
               </span>
             </div>
             <div className="text-xs text-muted-foreground mt-0.5">
-              To: {email.to.map((t) => t.name || t.email).join(", ") || "—"}
+              {t("to")} {email.to.map((r) => r.name || r.email).join(", ") || "—"}
             </div>
           </div>
         </div>
@@ -214,7 +216,7 @@ export function MailDetail({
           <div className="mt-8 pt-6 border-t border-border">
             <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-1.5">
               <Paperclip size={12} />
-              Attachments ({email.attachments.length})
+              {t("attachments", { count: email.attachments.length })}
             </p>
             <div className="flex flex-wrap gap-2">
               {email.attachments.map((att, i) => (
@@ -240,7 +242,7 @@ export function MailDetail({
           onClick={() => onReply(email)}
           className="w-full text-left px-4 py-3 rounded-sm border border-border bg-background hover:border-primary/40 text-sm text-muted-foreground transition-colors"
         >
-          Reply to {email.from.name}…
+          {t("replyTo", { name: email.from.name })}
         </button>
       </div>
     </div>

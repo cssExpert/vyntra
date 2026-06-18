@@ -1,6 +1,7 @@
 "use client";
 
 import { Star, Paperclip } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { Email } from "./mail.types";
 import { LABELS } from "./mail.data";
@@ -30,8 +31,9 @@ function getInitials(name: string): string {
 }
 
 export function MailListItem({ email, isSelected, onSelect, onToggleStar }: MailListItemProps) {
+  const t = useTranslations("mail");
   const senderName = email.folder === "sent" || email.folder === "drafts"
-    ? (email.to[0]?.name || "Draft")
+    ? (email.to[0]?.name || t("list.draft"))
     : email.from.name;
 
   const emailLabels = LABELS.filter((l) => email.labels.includes(l.id));

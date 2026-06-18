@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { Toast } from "../types";
 
@@ -25,6 +26,7 @@ interface TemplatesLibraryProps {
 }
 
 export function TemplatesLibrary({ notify }: TemplatesLibraryProps) {
+  const t = useTranslations("email.templates");
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {LAYOUTS.map((layout, i) => (
@@ -56,14 +58,14 @@ export function TemplatesLibrary({ notify }: TemplatesLibraryProps) {
                 <span className="text-[11px] font-bold text-success">{layout.rate}</span>
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Perfect for driving engagement with highly curated aesthetic patterns.
+                {t("cardDesc")}
               </p>
             </div>
             <button
               onClick={() => notify(`Loaded "${layout.name}" layout context`)}
               className="w-full py-2 bg-primary/10 border border-primary/20 text-primary text-xs font-bold rounded-xl hover:bg-primary/20 transition-all"
             >
-              Configure Template Layout
+              {t("configureBtn")}
             </button>
           </div>
         </motion.div>

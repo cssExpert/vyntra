@@ -25,25 +25,6 @@ import SectionTitle from "@/components/common/SectionTitle";
 
 type TabId = "builder" | "copilot" | "templates";
 
-const TABS: MotionTabItem<TabId>[] = [
-  { id: "builder",   label: "Builder" },
-  { id: "copilot",   label: "AI Copilot" },
-  { id: "templates", label: "Templates" },
-];
-
-const TAB_TITLE: Record<TabId, string> = {
-  builder: "Automation Blueprint Canvas",
-  copilot: "AI Copywriting Assistant",
-  templates: "Visual Email Layouts",
-};
-const TAB_SUBTITLE: Record<TabId, string> = {
-  builder:
-    "Assemble automated triggers, timed logic branches, and custom copy blocks.",
-  copilot: "Harness the elite capabilities of Gemini AI for converting copy.",
-  templates:
-    "Handcrafted design systems calibrated for perfect dark/light inbox rendering.",
-};
-
 const tabVariants = {
   enter: { opacity: 0, y: 14 },
   center: {
@@ -59,9 +40,25 @@ const tabVariants = {
 };
 
 export function EmailView() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("email");
   const [activeTab, setActiveTab] = useState<TabId>("builder");
+
+  const TABS: MotionTabItem<TabId>[] = [
+    { id: "builder",   label: t("tabs.builder") },
+    { id: "copilot",   label: t("tabs.copilot") },
+    { id: "templates", label: t("tabs.templates") },
+  ];
+
+  const TAB_TITLE: Record<TabId, string> = {
+    builder: t("tabTitle.builder"),
+    copilot: t("tabTitle.copilot"),
+    templates: t("tabTitle.templates"),
+  };
+  const TAB_SUBTITLE: Record<TabId, string> = {
+    builder: t("tabSubtitle.builder"),
+    copilot: t("tabSubtitle.copilot"),
+    templates: t("tabSubtitle.templates"),
+  };
 
   const { toasts: notifications, addToast: notify, dismiss: dismissNotification } = useToaster();
 
@@ -274,7 +271,7 @@ export function EmailView() {
           <div className="flex items-center gap-2 mb-1">
             <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
             <p className="text-xs text-primary font-semibold uppercase tracking-wider">
-              Live Marketing Node Connected
+              {t("liveNode")}
             </p>
           </div>
           <SectionTitle
@@ -305,7 +302,7 @@ export function EmailView() {
               )}
             >
               <Play className="w-4 h-4" />
-              <span>{simulationActive ? "Simulating…" : "Simulate"}</span>
+              <span>{simulationActive ? t("simulating") : t("simulate")}</span>
             </motion.button>
           )}
         </div>

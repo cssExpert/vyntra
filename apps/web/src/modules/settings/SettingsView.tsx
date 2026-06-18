@@ -205,8 +205,7 @@ function ColorPickerField({
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function SettingsView() {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const t = useTranslations("settings.settings.tsx");
+  const t = useTranslations("settings.view");
   const {
     settings: savedSettings,
     loading: contextLoading,
@@ -283,16 +282,16 @@ export function SettingsView() {
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save settings");
+      setError(err instanceof Error ? err.message : t("failedToSave"));
     } finally {
       setLoading(false);
     }
   };
 
   const tabs: MotionTabItem<"branding" | "notifications" | "security">[] = [
-    { id: "branding", label: "Branding", icon: ImagePlus },
-    { id: "notifications", label: "Notifications", icon: Bell },
-    { id: "security", label: "Security", icon: Lock },
+    { id: "branding", label: t("tabBranding"), icon: ImagePlus },
+    { id: "notifications", label: t("tabNotifications"), icon: Bell },
+    { id: "security", label: t("tabSecurity"), icon: Lock },
   ];
 
   // ── Loading / no-org states ──────────────────────────────────────────────
@@ -301,7 +300,7 @@ export function SettingsView() {
       <div className="flex items-center justify-center min-h-[40vh]">
         <div className="flex flex-col items-center gap-3 text-muted-foreground">
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <p className="text-sm">Loading settings…</p>
+          <p className="text-sm">{t("loading")}</p>
         </div>
       </div>
     );
@@ -311,17 +310,16 @@ export function SettingsView() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Settings"
-          description="Manage your workspace, branding, and preferences."
+          title={t("title")}
+          description={t("description")}
         />
         <div className="rounded-2xl border border-warning/20 bg-warning/5 px-8 py-10 text-center max-w-md mx-auto">
           <ShieldAlert className="mx-auto h-8 w-8 text-warning mb-3" />
           <p className="text-sm font-semibold text-foreground mb-1">
-            Organization Settings Not Available
+            {t("noOrgTitle")}
           </p>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Organization settings are only available for members of an
-            organization. Super admins can manage settings via the admin panel.
+            {t("noOrgDesc")}
           </p>
         </div>
       </div>
@@ -334,8 +332,8 @@ export function SettingsView() {
        bottom even when the active tab's content is short. */
     <div className="flex flex-col gap-6 pb-0 min-h-[calc(100vh-6rem)] sm:min-h-[calc(100vh-7rem)]">
       <PageHeader
-        title="Settings"
-        description="Manage your workspace, branding, and preferences."
+        title={t("title")}
+        description={t("description")}
       />
 
       {/* Alert banners */}
@@ -348,7 +346,7 @@ export function SettingsView() {
       {saved && (
         <div className="flex items-center gap-2.5 rounded-xl border border-success/20 bg-success/5 px-4 py-3 text-sm text-success">
           <CheckCircle2 className="h-4 w-4 shrink-0" />
-          Settings saved successfully!
+          {t("savedBanner")}
         </div>
       )}
 
@@ -375,11 +373,11 @@ export function SettingsView() {
               {/* Organization Info */}
               <SectionCard
                 icon={Building2}
-                title="Organization"
-                description="Your organization's identity and contact details."
+                title={t("orgTitle")}
+                description={t("orgDesc")}
               >
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <FieldGroup label="Organization Name">
+                  <FieldGroup label={t("orgName")}>
                     <Input
                       type="text"
                       value={settings.organizationName}
@@ -391,7 +389,7 @@ export function SettingsView() {
                     />
                   </FieldGroup>
 
-                  <FieldGroup label="Organization Email">
+                  <FieldGroup label={t("orgEmail")}>
                     <Input
                       type="email"
                       value={settings.organizationEmail}
@@ -404,8 +402,8 @@ export function SettingsView() {
                   </FieldGroup>
 
                   <FieldGroup
-                    label="Workspace Slug"
-                    hint="Used in your workspace URL · e.g. app.ervflow.com/my-org"
+                    label={t("orgSlug")}
+                    hint={t("orgSlugHint")}
                   >
                     <div className="relative">
                       <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
@@ -429,19 +427,18 @@ export function SettingsView() {
               {/* Logo & Icon */}
               <SectionCard
                 icon={ImagePlus}
-                title="Logo & Icon"
-                description="Upload your brand logo and favicon. Recommended: PNG or SVG with transparent background."
+                title={t("logoTitle")}
+                description={t("logoDesc")}
               >
                 <div className="grid gap-8 sm:grid-cols-2">
                   {/* Logo */}
                   <div className="space-y-3">
                     <div>
                       <p className="text-sm font-medium text-foreground">
-                        Logo
+                        {t("logoLabel")}
                       </p>
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        Shown in the sidebar and emails. Landscape format works
-                        best.
+                        {t("logoSubDesc")}
                       </p>
                     </div>
                     <ImageUploadWithStorage
@@ -452,7 +449,7 @@ export function SettingsView() {
                       accept="image/png,image/jpeg,image/svg+xml,image/webp"
                       maxSizeMB={5}
                       previewShape="wide"
-                      label="Upload Logo"
+                      label={t("uploadLogo")}
                     />
                   </div>
 
@@ -460,11 +457,10 @@ export function SettingsView() {
                   <div className="space-y-3">
                     <div>
                       <p className="text-sm font-medium text-foreground">
-                        Favicon / App Icon
+                        {t("faviconLabel")}
                       </p>
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        Shown in browser tabs and app launchers. Square 512×512
-                        recommended.
+                        {t("faviconSubDesc")}
                       </p>
                     </div>
                     <ImageUploadWithStorage
@@ -475,7 +471,7 @@ export function SettingsView() {
                       accept="image/png,image/x-icon,image/svg+xml"
                       maxSizeMB={2}
                       previewShape="circle"
-                      label="Upload Icon"
+                      label={t("uploadIcon")}
                     />
                   </div>
                 </div>
@@ -484,25 +480,25 @@ export function SettingsView() {
               {/* Brand Colors */}
               <SectionCard
                 icon={Palette}
-                title="Brand Colors"
-                description="Customize colors used across buttons, links, and highlights."
+                title={t("colorsTitle")}
+                description={t("colorsDesc")}
               >
                 <div className="space-y-3">
                   <ColorPickerField
-                    label="Primary"
-                    description="Main CTA color — buttons, active states, links"
+                    label={t("colorPrimary")}
+                    description={t("colorPrimaryDesc")}
                     value={settings.primaryColor}
                     onChange={(hex) => handleChange("primaryColor", hex)}
                   />
                   <ColorPickerField
-                    label="Secondary"
-                    description="Supporting color — badges, secondary actions"
+                    label={t("colorSecondary")}
+                    description={t("colorSecondaryDesc")}
                     value={settings.secondaryColor}
                     onChange={(hex) => handleChange("secondaryColor", hex)}
                   />
                   <ColorPickerField
-                    label="Accent"
-                    description="Highlight color — tags, decorative elements"
+                    label={t("colorAccent")}
+                    description={t("colorAccentDesc")}
                     value={settings.accentColor}
                     onChange={(hex) => handleChange("accentColor", hex)}
                   />
@@ -510,13 +506,13 @@ export function SettingsView() {
                   {/* Live preview strip */}
                   <div className="mt-2 pt-5 border-t border-border">
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-                      Preview
+                      {t("colorPreview")}
                     </p>
                     <div className="flex gap-3">
                       {[
-                        { label: "Primary", color: settings.primaryColor },
-                        { label: "Secondary", color: settings.secondaryColor },
-                        { label: "Accent", color: settings.accentColor },
+                        { label: t("colorPrimary"), color: settings.primaryColor },
+                        { label: t("colorSecondary"), color: settings.secondaryColor },
+                        { label: t("colorAccent"), color: settings.accentColor },
                       ].map(({ label, color }) => (
                         <div
                           key={label}
@@ -546,22 +542,22 @@ export function SettingsView() {
             <div className="space-y-5">
               <SectionCard
                 icon={Bell}
-                title="Notification Channels"
-                description="Choose how you receive alerts and updates from ERVFlow."
+                title={t("notifTitle")}
+                description={t("notifDesc")}
               >
                 <div className="space-y-1">
                   {[
                     {
                       field: "emailNotifications" as const,
                       icon: Mail,
-                      label: "Email Notifications",
-                      desc: "Receive activity updates, summaries, and alerts via email.",
+                      label: t("notifEmail"),
+                      desc: t("notifEmailDesc"),
                     },
                     {
                       field: "slackNotifications" as const,
                       icon: MessageSquare,
-                      label: "Slack Notifications",
-                      desc: "Push real-time alerts directly to your connected Slack workspace.",
+                      label: t("notifSlack"),
+                      desc: t("notifSlackDesc"),
                     },
                   ].map(({ field, icon: Icon, label, desc }) => (
                     <label
@@ -619,22 +615,22 @@ export function SettingsView() {
             <div className="space-y-5">
               <SectionCard
                 icon={Key}
-                title="Authentication"
-                description="Manage password policies and login methods."
+                title={t("authTitle")}
+                description={t("authDesc")}
               >
                 <div className="space-y-4">
                   {[
                     {
                       icon: Smartphone,
-                      label: "Two-Factor Authentication",
-                      desc: "Require 2FA for all members of this workspace.",
-                      badge: "Coming soon",
+                      label: t("twoFALabel"),
+                      desc: t("twoFADesc"),
+                      badge: t("comingSoon"),
                     },
                     {
                       icon: Key,
-                      label: "SSO / SAML",
-                      desc: "Connect an identity provider for single sign-on.",
-                      badge: "Coming soon",
+                      label: t("ssoLabel"),
+                      desc: t("ssoDesc"),
+                      badge: t("comingSoon"),
                     },
                   ].map(({ icon: Icon, label, desc, badge }) => (
                     <div
@@ -672,10 +668,10 @@ export function SettingsView() {
                   </div>
                   <div>
                     <h3 className="text-[15px] font-semibold text-error">
-                      Danger Zone
+                      {t("dangerTitle")}
                     </h3>
                     <p className="text-xs text-error/70">
-                      These actions are permanent and cannot be undone.
+                      {t("dangerDesc")}
                     </p>
                   </div>
                 </div>
@@ -683,11 +679,10 @@ export function SettingsView() {
                   <div className="flex items-center justify-between gap-4">
                     <div>
                       <p className="text-sm font-medium text-foreground">
-                        Delete Workspace
+                        {t("deleteWorkspace")}
                       </p>
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        Permanently delete this workspace and all its data,
-                        members, and billing.
+                        {t("deleteWorkspaceDesc")}
                       </p>
                     </div>
                     <Button
@@ -696,7 +691,7 @@ export function SettingsView() {
                       className="shrink-0 border-error/30 bg-error/10 text-error hover:bg-error/20 hover:text-error"
                       startIcon={<Trash2 className="h-4 w-4" />}
                     >
-                      Delete
+                      {t("deleteBtn")}
                     </Button>
                   </div>
                 </div>
@@ -711,10 +706,10 @@ export function SettingsView() {
         <p className="text-xs text-muted-foreground">
           {saved ? (
             <span className="flex items-center gap-1.5 text-success">
-              <CheckCircle2 className="h-3.5 w-3.5" /> Saved
+              <CheckCircle2 className="h-3.5 w-3.5" /> {t("savedLabel")}
             </span>
           ) : (
-            "Unsaved changes will be lost if you navigate away."
+            t("unsavedWarning")
           )}
         </p>
         <Button
@@ -722,11 +717,11 @@ export function SettingsView() {
           radius="xl"
           onClick={handleSave}
           loading={loading}
-          loadingText="Saving…"
+          loadingText={t("saving")}
           startIcon={<Save className="h-4 w-4" />}
           className="px-5 font-semibold shadow-md shadow-primary/20"
         >
-          Save Changes
+          {t("saveChanges")}
         </Button>
       </div>
     </div>

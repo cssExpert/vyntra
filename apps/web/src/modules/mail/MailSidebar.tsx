@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Inbox, Send, FileText, Star, Trash2, Pencil } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { MailFolder, Email } from "./mail.types";
 import { LABELS } from "./mail.data";
@@ -15,14 +16,6 @@ interface MailSidebarProps {
   onCompose: () => void;
 }
 
-const FOLDERS: { id: MailFolder; label: string; icon: React.ElementType }[] = [
-  { id: "inbox", label: "Inbox", icon: Inbox },
-  { id: "sent", label: "Sent", icon: Send },
-  { id: "drafts", label: "Drafts", icon: FileText },
-  { id: "starred", label: "Starred", icon: Star },
-  { id: "deleted", label: "Deleted", icon: Trash2 },
-];
-
 export function MailSidebar({
   activeFolder,
   setActiveFolder,
@@ -31,6 +24,16 @@ export function MailSidebar({
   emails,
   onCompose,
 }: MailSidebarProps) {
+  const t = useTranslations("mail");
+
+  const FOLDERS: { id: MailFolder; label: string; icon: React.ElementType }[] = [
+    { id: "inbox", label: t("folders.inbox"), icon: Inbox },
+    { id: "sent", label: t("folders.sent"), icon: Send },
+    { id: "drafts", label: t("folders.drafts"), icon: FileText },
+    { id: "starred", label: t("folders.starred"), icon: Star },
+    { id: "deleted", label: t("folders.deleted"), icon: Trash2 },
+  ];
+
   const countUnread = (folder: MailFolder) => {
     if (folder === "starred")
       return emails.filter((e) => e.starred && !e.read).length;
@@ -48,7 +51,7 @@ export function MailSidebar({
         className="inline-flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all active:scale-[0.98] group shadow-glow-brand w-full justify-center"
       >
         <Pencil size={15} className="stroke-[2.5]" />
-        Compose
+        {t("composeBtn")}
       </button>
 
       {/* Folders */}
@@ -96,7 +99,7 @@ export function MailSidebar({
       {/* Labels */}
       <div>
         <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 px-3 mb-2">
-          Labels
+          {t("labelsHeading")}
         </p>
         <div className="space-y-0.5">
           {LABELS.map((label) => {

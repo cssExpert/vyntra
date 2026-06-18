@@ -12,7 +12,6 @@ import { MailDetail } from "./MailDetail";
 import { MailCompose } from "./MailCompose";
 
 export function MailView() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("mail");
   const [emails, setEmails] = useState<Email[]>(INITIAL_EMAILS);
   const [activeFolder, setActiveFolder] = useState<MailFolder>("inbox");
@@ -196,8 +195,8 @@ export function MailView() {
                 <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto">
                   <span className="text-2xl">✉️</span>
                 </div>
-                <p className="text-sm font-semibold text-muted-foreground">Select a message</p>
-                <p className="text-xs text-muted-foreground/60">Click an email to read it here</p>
+                <p className="text-sm font-semibold text-muted-foreground">{t("selectMessage")}</p>
+                <p className="text-xs text-muted-foreground/60">{t("selectMessageHint")}</p>
               </div>
             </motion.div>
           )}
