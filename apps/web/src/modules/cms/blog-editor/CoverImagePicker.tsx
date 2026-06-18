@@ -56,7 +56,7 @@ function formatBytes(bytes: number | null) {
 const FILTERS = ["all", "blogs", "pages", "general"] as const;
 type FilterType = (typeof FILTERS)[number];
 
-interface LibraryModalProps {
+export interface LibraryModalProps {
   currentValue: string;
   uploadCompanyId: string;
   currentSubtype: string;
@@ -68,7 +68,7 @@ interface LibraryModalProps {
   ) => void;
 }
 
-function LibraryModal({
+export function LibraryModal({
   currentValue,
   uploadCompanyId,
   currentSubtype,

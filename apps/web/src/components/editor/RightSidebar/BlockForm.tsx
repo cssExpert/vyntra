@@ -3,7 +3,8 @@
 // Schema-driven form rendered by BlockDataEditor when a typed-block is selected.
 // Sections + fields are defined in BLOCK_SCHEMAS[blockType].
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   ChevronDown,
   ChevronRight,
@@ -25,6 +26,7 @@ import type {
 } from "@/lib/themes/blockFieldSchemas";
 import { ImageUploadWithStorage } from "@/components/common/ImageUploadWithStorage";
 import { useAuth } from "@/providers/AuthProvider";
+import { LibraryModal } from "@/modules/cms/blog-editor/CoverImagePicker";
 
 export const fieldCls = [
   "w-full rounded-lg px-3 py-2 text-xs transition-colors",
@@ -92,6 +94,76 @@ function Label({
   );
 }
 
+// ── Image field with Library picker ──────────────────────────────────────────
+
+function ImageField({
+  def,
+  value,
+  onChange,
+  companyId,
+}: {
+  def: ScalarFieldDef;
+  value: unknown;
+  onChange: (v: unknown) => void;
+  companyId: string | undefined;
+}) {
+  const str = String(value ?? "");
+  const [libraryOpen, setLibraryOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1.5 [&>label]:mb-0">
+        <Label text={def.label} icon={ImageIcon} />
+        <button
+          type="button"
+          onClick={() => setLibraryOpen(true)}
+          className="flex items-center gap-1 px-2 py-1 text-[10px] font-bold rounded-md border border-border bg-background hover:bg-muted text-muted-foreground hover:text-foreground transition-all"
+        >
+          <ImageIcon className="w-3 h-3" />
+          Library
+        </button>
+      </div>
+      <ImageUploadWithStorage
+        value={str || null}
+        onChange={(url) => onChange(url ?? "")}
+        companyId={companyId}
+        module="cms"
+        accept="image/png,image/jpeg,image/webp,image/gif"
+        maxSizeMB={5}
+        previewShape="wide"
+      />
+      <div className="mt-2">
+        <p className="text-[9px] text-muted-foreground mb-1">Or paste a URL:</p>
+        <input
+          type="url"
+          value={str}
+          placeholder="https://…"
+          onChange={(e) => onChange(e.target.value)}
+          className={fieldCls}
+        />
+      </div>
+      {mounted &&
+        libraryOpen &&
+        createPortal(
+          <LibraryModal
+            currentValue={str}
+            uploadCompanyId={companyId ?? "superadmin"}
+            currentSubtype="pages"
+            onSelect={(url) => {
+              onChange(url);
+              setLibraryOpen(false);
+            }}
+            onClose={() => setLibraryOpen(false)}
+          />,
+          document.body,
+        )}
+    </div>
+  );
+}
+
 // ── Scalar field ──────────────────────────────────────────────────────────────
 
 export function ScalarField({
@@ -109,28 +181,12 @@ export function ScalarField({
 
   if (def.type === "image") {
     return (
-      <div>
-        <Label text={def.label} icon={ImageIcon} />
-        <ImageUploadWithStorage
-          value={str || null}
-          onChange={(url) => onChange(url ?? "")}
-          companyId={companyId}
-          module="cms"
-          accept="image/png,image/jpeg,image/webp,image/gif"
-          maxSizeMB={5}
-          previewShape="wide"
-        />
-        <div className="mt-2">
-          <p className="text-[9px] text-muted-foreground mb-1">Or paste a URL:</p>
-          <input
-            type="url"
-            value={str}
-            placeholder="https://…"
-            onChange={(e) => onChange(e.target.value)}
-            className={fieldCls}
-          />
-        </div>
-      </div>
+      <ImageField
+        def={def}
+        value={value}
+        onChange={onChange}
+        companyId={companyId}
+      />
     );
   }
 
