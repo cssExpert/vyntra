@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import {
   Sparkles,
   Map,
@@ -17,6 +18,7 @@ import { callGemini } from "./seo.utils";
 import { Input } from "@/components/ui/input";
 
 export function SeoSitemaps({ showNotification, handleCopy }: ViewProps) {
+  const t = useTranslations("seo.sitemaps");
   const [domain, setDomain] = useState("https://mysite.com");
   const [pages, setPages] = useState<SitemapPage[]>([
     { path: "/", priority: "1.0", changefreq: "daily" },
@@ -51,28 +53,28 @@ export function SeoSitemaps({ showNotification, handleCopy }: ViewProps) {
 
   const handleAddPage = () => {
     if (!newPage.path.trim()) {
-      showNotification("Please provide a valid page route path", "error");
+      showNotification(t("errorNoRoute"), "error");
       return;
     }
     const cleanPath = newPage.path.startsWith("/")
       ? newPage.path
       : "/" + newPage.path;
     if (pages.some((p) => p.path === cleanPath)) {
-      showNotification("This route path already exists", "error");
+      showNotification(t("errorDuplicate"), "error");
       return;
     }
     setPages((prev) => [...prev, { ...newPage, path: cleanPath }]);
     setNewPage({ path: "", priority: "0.5", changefreq: "weekly" });
-    showNotification("Added page to URL listing.", "success");
+    showNotification(t("addedPage"), "success");
   };
 
   const handleDeletePage = (index: number) => {
     if (pages.length <= 1) {
-      showNotification("At least one indexable route is required", "error");
+      showNotification(t("errorMinPages"), "error");
       return;
     }
     setPages((prev) => prev.filter((_, idx) => idx !== index));
-    showNotification("Removed route.", "success");
+    showNotification(t("removedRoute"), "success");
   };
 
   const validateSitemap = () => {
@@ -95,16 +97,13 @@ export function SeoSitemaps({ showNotification, handleCopy }: ViewProps) {
     });
     setValidationErrors(errors);
     if (errors.length === 0)
-      showNotification(
-        "Sitemap completely valid! 0 errors detected.",
-        "success",
-      );
-    else showNotification("Sitemap has validation warnings.", "error");
+      showNotification(t("sitemapValid"), "success");
+    else showNotification(t("sitemapWarnings"), "error");
   };
 
   const handleAiSitemap = async () => {
     if (!siteDesc.trim()) {
-      showNotification("Describe your business profile first", "error");
+      showNotification(t("describeFirst"), "error");
       return;
     }
     setAiGenerating(true);
@@ -117,10 +116,10 @@ export function SeoSitemaps({ showNotification, handleCopy }: ViewProps) {
       )) as { pages?: SitemapPage[] };
       if (response.pages && Array.isArray(response.pages)) {
         setPages(response.pages);
-        showNotification("AI Sitemap Structure Generated!", "success");
+        showNotification(t("aiGenerated"), "success");
       }
     } catch {
-      showNotification("AI generator had trouble. Modify manually.", "error");
+      showNotification(t("aiTrouble"), "error");
     } finally {
       setAiGenerating(false);
     }
@@ -133,11 +132,10 @@ export function SeoSitemaps({ showNotification, handleCopy }: ViewProps) {
     <div className="space-y-8">
       <div className="bg-card/50 p-6 rounded-2xl border border-border backdrop-blur-md">
         <h2 className="text-2xl font-extrabold text-foreground tracking-tight flex items-center gap-2">
-          <Map className="w-6 h-6 text-primary" /> Sitemap Architect & Validator
+          <Map className="w-6 h-6 text-primary" /> {t("title")}
         </h2>
         <p className="text-muted-foreground text-sm mt-1">
-          Configure automated indexing structures and execute real-time syntax
-          validations.
+          {t("subtitle")}
         </p>
       </div>
 
@@ -146,11 +144,11 @@ export function SeoSitemaps({ showNotification, handleCopy }: ViewProps) {
         <div className="lg:col-span-5 space-y-6">
           <div className="bg-card border border-border p-6 rounded-2xl space-y-4">
             <h3 className="font-bold text-foreground text-base">
-              Domain Context
+              {t("domainContext")}
             </h3>
             <div>
               <label className="text-xs text-muted-foreground font-semibold block mb-1">
-                Target Website Domain
+                {t("labelDomain")}
               </label>
               <Input
                 type="text"
@@ -164,10 +162,10 @@ export function SeoSitemaps({ showNotification, handleCopy }: ViewProps) {
 
           <div className="bg-card border border-border p-6 rounded-2xl space-y-4">
             <h3 className="font-bold text-foreground text-base flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-primary" /> AI Sitemap Builder
+              <Sparkles className="w-5 h-5 text-primary" /> {t("aiBuilder")}
             </h3>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Let AI design your entire URL directory mapping.
+              {t("aiBuilderDesc")}
             </p>
             <div className="space-y-3">
               <textarea
@@ -185,11 +183,11 @@ export function SeoSitemaps({ showNotification, handleCopy }: ViewProps) {
                 {aiGenerating ? (
                   <>
                     <RefreshCw className="w-3.5 h-3.5 animate-spin" />{" "}
-                    Structuring...
+                    {t("structuring")}
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-3.5 h-3.5" /> Auto-Map URLs
+                    <Sparkles className="w-3.5 h-3.5" /> {t("autoMapUrls")}
                   </>
                 )}
               </button>
@@ -197,11 +195,11 @@ export function SeoSitemaps({ showNotification, handleCopy }: ViewProps) {
           </div>
 
           <div className="bg-card border border-border p-6 rounded-2xl space-y-4">
-            <h3 className="font-bold text-foreground text-base">Add New URL</h3>
+            <h3 className="font-bold text-foreground text-base">{t("addNewUrl")}</h3>
             <div className="space-y-3.5">
               <div>
                 <label className="text-xs text-muted-foreground font-semibold block mb-1">
-                  Route Path
+                  {t("labelRoute")}
                 </label>
                 <Input
                   type="text"
@@ -216,7 +214,7 @@ export function SeoSitemaps({ showNotification, handleCopy }: ViewProps) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-muted-foreground font-semibold block mb-1">
-                    Change Frequency
+                    {t("labelChangeFreq")}
                   </label>
                   <select
                     value={newPage.changefreq}
@@ -242,7 +240,7 @@ export function SeoSitemaps({ showNotification, handleCopy }: ViewProps) {
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground font-semibold block mb-1">
-                    Priority ({newPage.priority})
+                    {t("labelPriority", { value: newPage.priority })}
                   </label>
                   <input
                     type="range"
@@ -262,7 +260,7 @@ export function SeoSitemaps({ showNotification, handleCopy }: ViewProps) {
                 className="group w-full py-2.5 rounded-xl bg-background border border-border hover:border-border/80 text-foreground font-semibold text-xs transition-all flex items-center justify-center gap-1.5"
               >
                 <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4" />{" "}
-                Add Page
+                {t("addPage")}
               </button>
             </div>
           </div>
@@ -273,7 +271,7 @@ export function SeoSitemaps({ showNotification, handleCopy }: ViewProps) {
           <div className="bg-card border border-border rounded-2xl overflow-hidden">
             <div className="p-5 border-b border-border flex items-center justify-between">
               <h3 className="font-bold text-foreground text-base">
-                Crawled Site Directories
+                {t("crawledDirs")}
               </h3>
               <span className="text-xs px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-bold">
                 {pages.length} Pages
@@ -315,20 +313,20 @@ export function SeoSitemaps({ showNotification, handleCopy }: ViewProps) {
           <div className="bg-card border border-border rounded-2xl overflow-hidden">
             <div className="p-5 border-b border-border flex items-center justify-between">
               <h3 className="font-bold text-foreground text-base">
-                XML Sitemap Output
+                {t("xmlOutput")}
               </h3>
               <div className="flex gap-2">
                 <button
                   onClick={validateSitemap}
                   className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500 border border-emerald-500/20 text-emerald-500 hover:text-white text-xs font-semibold transition-all"
                 >
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Validate
+                  <CheckCircle2 className="w-3.5 h-3.5" /> {t("validate")}
                 </button>
                 <button
-                  onClick={() => handleCopy(xmlResult, "Copied sitemap XML!")}
+                  onClick={() => handleCopy(xmlResult, t("copiedSitemap"))}
                   className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-background hover:bg-muted text-muted-foreground hover:text-foreground text-xs font-semibold transition-all border border-border"
                 >
-                  <Copy className="w-3.5 h-3.5" /> Copy
+                  <Copy className="w-3.5 h-3.5" /> {t("copy")}
                 </button>
               </div>
             </div>
@@ -336,7 +334,7 @@ export function SeoSitemaps({ showNotification, handleCopy }: ViewProps) {
             {validationErrors.length > 0 && (
               <div className="p-4 bg-destructive/10 border-b border-destructive/20 space-y-2">
                 <div className="text-xs text-destructive font-bold flex items-center gap-1.5">
-                  <AlertTriangle className="w-4 h-4" /> Warnings Found:
+                  <AlertTriangle className="w-4 h-4" /> {t("warningsFound")}
                 </div>
                 <ul className="list-disc list-inside text-[11px] text-destructive/80 pl-1">
                   {validationErrors.map((err, idx) => (
@@ -352,8 +350,7 @@ export function SeoSitemaps({ showNotification, handleCopy }: ViewProps) {
               </pre>
             </div>
             <div className="p-4 border-t border-border bg-background/30 text-xs text-muted-foreground">
-              Include sitemap index declarations in your{" "}
-              <strong className="text-foreground">robots.txt</strong> file.
+              {t("footer")}
             </div>
           </div>
         </div>

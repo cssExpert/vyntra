@@ -15,7 +15,6 @@ import { LighthouseDashboard } from "./LighthouseDashboard";
 import { LighthouseAIOptimizer } from "./LighthouseAIOptimizer";
 
 export function LighthouseView() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("lighthouse");
   // Audit state
   const [device, setDevice] = useState<DeviceType>("desktop");
@@ -127,12 +126,12 @@ export function LighthouseView() {
       <div className="w-full pb-5 space-y-0">
         {/* Header */}
         <header className="flex flex-col md:flex-row md:items-center md:justify-between pb-5 mb-5 gap-4">
-          <SectionTitle mb="0" title="Lighthouse Keeper" paragraph="Next-gen performance diagnostic suite & optimizer" className="max-w-full" width="100%" />
+          <SectionTitle mb="0" title={t("title")} paragraph={t("subtitle")} className="max-w-full" width="100%" />
 
           <MotionTabs
             tabs={[
-              { id: "dashboard" as TabId, label: "Dashboard" },
-              { id: "ai-optimizer" as TabId, label: "AI Optimizer", icon: Sparkles },
+              { id: "dashboard" as TabId, label: t("tabDashboard") },
+              { id: "ai-optimizer" as TabId, label: t("tabAiOptimizer"), icon: Sparkles },
             ] satisfies MotionTabItem<TabId>[]}
             active={activeTab}
             onChange={setActiveTab}

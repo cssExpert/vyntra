@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Sparkles, FileCode, RefreshCw, Copy, Eye, Share2, Monitor, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ViewProps } from "./seo.types";
@@ -8,6 +9,7 @@ import { callGemini } from "./seo.utils";
 import { Input } from "@/components/ui/input";
 
 export function SeoMetaTags({ showNotification, handleCopy }: ViewProps) {
+  const t = useTranslations("seo.metatags");
   const [form, setForm] = useState({
     title: "Acme Premium Coffee - Handcrafted Organic Brews & Accessories",
     description: "Discover the world of responsibly sourced handcrafted organic coffee. Explore specialty beans, premium accessories, and direct trade subscriptions.",
@@ -27,10 +29,10 @@ export function SeoMetaTags({ showNotification, handleCopy }: ViewProps) {
       const response = (await callGemini(prompt, "You are an expert CTR marketing copywriter. Reply ONLY in valid JSON.", true)) as { title?: string; description?: string };
       if (response.title && response.description) {
         setForm((prev) => ({ ...prev, title: response.title!, description: response.description! }));
-        showNotification("AI Meta Optimization Applied Successfully!", "success");
+        showNotification(t("aiSuccess"), "success");
       }
     } catch {
-      showNotification("AI optimizations timed out. Please review manually.", "error");
+      showNotification(t("aiTimeout"), "error");
     } finally {
       setAiOptimizing(false);
     }
@@ -68,10 +70,10 @@ export function SeoMetaTags({ showNotification, handleCopy }: ViewProps) {
     <div className="space-y-8">
       <div className="bg-card/50 p-6 rounded-2xl border border-border backdrop-blur-md">
         <h2 className="text-2xl font-extrabold text-foreground tracking-tight flex items-center gap-2">
-          <FileCode className="w-6 h-6 text-primary" /> Meta Tag Architect
+          <FileCode className="w-6 h-6 text-primary" /> {t("title")}
         </h2>
         <p className="text-muted-foreground text-sm mt-1">
-          Design, preview, and optimize search and social graph parameters.
+          {t("subtitle")}
         </p>
       </div>
 
@@ -79,28 +81,28 @@ export function SeoMetaTags({ showNotification, handleCopy }: ViewProps) {
         {/* Editor */}
         <div className="bg-card border border-border p-6 rounded-2xl space-y-4">
           <div className="flex items-center justify-between border-b border-border pb-3">
-            <h3 className="font-bold text-foreground text-base">Meta Parameters</h3>
+            <h3 className="font-bold text-foreground text-base">{t("metaParameters")}</h3>
             <button
               onClick={handleAiOptimize}
               disabled={aiOptimizing}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary text-primary hover:text-primary-foreground border border-primary/30 text-xs font-semibold transition-all disabled:opacity-50"
             >
               {aiOptimizing ? (
-                <><RefreshCw className="w-3 h-3 animate-spin" /> Rewriting...</>
+                <><RefreshCw className="w-3 h-3 animate-spin" /> {t("rewriting")}</>
               ) : (
-                <><Sparkles className="w-3 h-3" /> AI Optimise</>
+                <><Sparkles className="w-3 h-3" /> {t("aiOptimise")}</>
               )}
             </button>
           </div>
 
           <div className="space-y-3.5">
             <div>
-              <label className="text-xs text-muted-foreground font-semibold block mb-1">Target URL</label>
+              <label className="text-xs text-muted-foreground font-semibold block mb-1">{t("labelTargetUrl")}</label>
               <Input type="text" value={form.url} onChange={(e) => setForm((p) => ({ ...p, url: e.target.value }))} className={inputCls} />
             </div>
             <div>
               <div className="flex justify-between items-center text-xs text-muted-foreground mb-1">
-                <label className="font-semibold">Page Title</label>
+                <label className="font-semibold">{t("labelPageTitle")}</label>
                 <span className={cn("text-[10px] font-bold", form.title.length > 60 ? "text-amber-500" : "text-muted-foreground/60")}>
                   {form.title.length} / 60
                 </span>
@@ -109,7 +111,7 @@ export function SeoMetaTags({ showNotification, handleCopy }: ViewProps) {
             </div>
             <div>
               <div className="flex justify-between items-center text-xs text-muted-foreground mb-1">
-                <label className="font-semibold">Meta Description</label>
+                <label className="font-semibold">{t("labelDescription")}</label>
                 <span className={cn("text-[10px] font-bold", form.description.length > 155 ? "text-amber-500" : "text-muted-foreground/60")}>
                   {form.description.length} / 155
                 </span>
@@ -118,21 +120,21 @@ export function SeoMetaTags({ showNotification, handleCopy }: ViewProps) {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs text-muted-foreground font-semibold block mb-1">Primary Keywords</label>
-                <Input type="text" value={form.keywords} onChange={(e) => setForm((p) => ({ ...p, keywords: e.target.value }))} className={inputCls} placeholder="Separated with commas" />
+                <label className="text-xs text-muted-foreground font-semibold block mb-1">{t("labelKeywords")}</label>
+                <Input type="text" value={form.keywords} onChange={(e) => setForm((p) => ({ ...p, keywords: e.target.value }))} className={inputCls} placeholder={t("keywordsSeparator")} />
               </div>
               <div>
-                <label className="text-xs text-muted-foreground font-semibold block mb-1">Author</label>
+                <label className="text-xs text-muted-foreground font-semibold block mb-1">{t("labelAuthor")}</label>
                 <Input type="text" value={form.author} onChange={(e) => setForm((p) => ({ ...p, author: e.target.value }))} className={inputCls} />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs text-muted-foreground font-semibold block mb-1">OG Image URL</label>
+                <label className="text-xs text-muted-foreground font-semibold block mb-1">{t("labelOgImage")}</label>
                 <Input type="text" value={form.ogImage} onChange={(e) => setForm((p) => ({ ...p, ogImage: e.target.value }))} className={inputCls} />
               </div>
               <div>
-                <label className="text-xs text-muted-foreground font-semibold block mb-1">Robots</label>
+                <label className="text-xs text-muted-foreground font-semibold block mb-1">{t("labelRobots")}</label>
                 <select value={form.robots} onChange={(e) => setForm((p) => ({ ...p, robots: e.target.value }))} className={cn(inputCls, "text-foreground")}>
                   <option value="index, follow">index, follow</option>
                   <option value="noindex, follow">noindex, follow</option>
@@ -149,9 +151,9 @@ export function SeoMetaTags({ showNotification, handleCopy }: ViewProps) {
           <div className="p-4 bg-background/40 border-b border-border flex items-center justify-between gap-2">
             <div className="flex gap-1.5">
               {([
-                { id: "google" as const, label: "Google SERP", icon: Eye },
-                { id: "facebook" as const, label: "Facebook OG", icon: Share2 },
-                { id: "code" as const, label: "Export Code", icon: FileCode },
+                { id: "google" as const, label: t("tabGoogle"), icon: Eye },
+                { id: "facebook" as const, label: t("tabFacebook"), icon: Share2 },
+                { id: "code" as const, label: t("tabCode"), icon: FileCode },
               ]).map((view) => (
                 <button
                   key={view.id}
@@ -169,10 +171,10 @@ export function SeoMetaTags({ showNotification, handleCopy }: ViewProps) {
               ))}
             </div>
             <button
-              onClick={() => handleCopy(getHtmlCode(), "Copied complete Meta markup!")}
+              onClick={() => handleCopy(getHtmlCode(), t("copiedMarkup"))}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-primary hover:text-primary/80"
             >
-              <Copy className="w-3.5 h-3.5" /> Copy
+              <Copy className="w-3.5 h-3.5" /> {t("copy")}
             </button>
           </div>
 
@@ -180,7 +182,7 @@ export function SeoMetaTags({ showNotification, handleCopy }: ViewProps) {
             {previewMode === "google" && (
               <div className="space-y-4">
                 <div className="text-[11px] text-muted-foreground font-semibold flex items-center gap-1.5">
-                  <Monitor className="w-3.5 h-3.5" /> Desktop Search Mockup
+                  <Monitor className="w-3.5 h-3.5" /> {t("desktopMockup")}
                 </div>
                 <div className="p-5 bg-white border border-slate-200 rounded-xl text-left select-text max-w-lg shadow-sm">
                   <div className="text-[12px] text-slate-800 flex items-center gap-1.5">
@@ -199,7 +201,7 @@ export function SeoMetaTags({ showNotification, handleCopy }: ViewProps) {
                 {form.title.length > 60 && (
                   <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-600 text-xs">
                     <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                    <span><strong>Warning:</strong> Title exceeds 60 characters and may get truncated by Google.</span>
+                    <span><strong>{t("warningLabel")}</strong> {t("titleTruncateWarning")}</span>
                   </div>
                 )}
               </div>
@@ -208,7 +210,7 @@ export function SeoMetaTags({ showNotification, handleCopy }: ViewProps) {
             {previewMode === "facebook" && (
               <div className="space-y-4">
                 <div className="text-[11px] text-muted-foreground font-semibold flex items-center gap-1.5">
-                  <Share2 className="w-3.5 h-3.5" /> Social Graph Appearance
+                  <Share2 className="w-3.5 h-3.5" /> {t("socialGraph")}
                 </div>
                 <div className="border border-border rounded-xl overflow-hidden max-w-sm bg-card">
                   <div className="h-44 bg-muted relative">
@@ -231,7 +233,7 @@ export function SeoMetaTags({ showNotification, handleCopy }: ViewProps) {
             {previewMode === "code" && (
               <div className="space-y-3 select-text">
                 <div className="text-[11px] text-muted-foreground font-semibold">
-                  Copy and paste inside your website&apos;s &lt;head&gt; tags:
+                  {t("codeInstruction")}
                 </div>
                 <pre className="p-4 bg-neutral-950 border border-border rounded-xl overflow-x-auto text-[11px] leading-relaxed text-primary font-mono">
                   {getHtmlCode()}
@@ -241,7 +243,7 @@ export function SeoMetaTags({ showNotification, handleCopy }: ViewProps) {
           </div>
 
           <div className="p-4 border-t border-border bg-background/30 text-xs text-muted-foreground leading-relaxed">
-            Ensure correct viewport settings & meta UTF-8 markers exist globally.
+            {t("footer")}
           </div>
         </div>
       </div>

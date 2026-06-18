@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import {
   Sparkles,
   RefreshCw,
@@ -23,6 +24,7 @@ export function LighthouseAIOptimizer({
   onPromptChange,
   handleCopy,
 }: LighthouseAIOptimizerProps) {
+  const t = useTranslations("lighthouse.aiOptimizer");
   const [aiPrompt, setAiPrompt] = useState(initialPrompt);
   const [aiResponse, setAiResponse] = useState("");
   const [isAiLoading, setIsAiLoading] = useState(false);
@@ -74,9 +76,7 @@ Provide clean, production-ready optimizations with comparative code diffs or exp
         throw new Error("Empty response payload from Gemini API.");
       } catch {
         if (attempt === 5) {
-          setAiError(
-            "Optimizations currently offline. Please verify network access or try again shortly.",
-          );
+          setAiError(t("offlineError"));
           setIsAiLoading(false);
           break;
         }
@@ -110,7 +110,7 @@ Provide clean, production-ready optimizations with comparative code diffs or exp
                   onClick={() =>
                     handleCopy(
                       currentCodeLines.join("\n"),
-                      "Code block copied!",
+                      t("codeBlockCopied"),
                     )
                   }
                   className="p-1 hover:bg-neutral-800 rounded transition-colors text-neutral-400 hover:text-neutral-200"
@@ -202,7 +202,7 @@ Provide clean, production-ready optimizations with comparative code diffs or exp
     });
 
     return <div className="space-y-1 text-muted-foreground">{elements}</div>;
-  }, [aiResponse, handleCopy]);
+  }, [aiResponse, handleCopy, t]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -214,19 +214,17 @@ Provide clean, production-ready optimizations with comparative code diffs or exp
               <Sparkles size={16} />
             </div>
             <h3 className="text-base font-extrabold text-foreground">
-              Ask the Lighthouse Keeper
+              {t("title")}
             </h3>
           </div>
           <p className="text-xs text-muted-foreground mb-6">
-            Paste sluggish components, layout bottlenecks, or audit feedback
-            below. The Gemini engine will instantly refactor code for high
-            performance.
+            {t("description")}
           </p>
 
           <div className="space-y-4">
             <div>
               <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">
-                Performance Bottleneck / Issue
+                {t("labelBottleneck")}
               </label>
               <textarea
                 rows={5}
@@ -239,7 +237,7 @@ Provide clean, production-ready optimizations with comparative code diffs or exp
 
             <div>
               <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">
-                Quick Tuning Presets
+                {t("labelPresets")}
               </label>
               <div className="space-y-2">
                 {[
@@ -270,12 +268,12 @@ Provide clean, production-ready optimizations with comparative code diffs or exp
               {isAiLoading ? (
                 <>
                   <RefreshCw size={14} className="animate-spin" />
-                  <span>AI Generating Fixes...</span>
+                  <span>{t("generating")}</span>
                 </>
               ) : (
                 <>
                   <Sparkles size={14} />
-                  <span>Generate Instant Fix</span>
+                  <span>{t("generateFix")}</span>
                 </>
               )}
             </button>
@@ -284,12 +282,10 @@ Provide clean, production-ready optimizations with comparative code diffs or exp
 
         <div className="p-5 rounded-2xl border border-border/60 bg-card/30 text-xs text-muted-foreground space-y-3">
           <h4 className="font-bold text-foreground flex items-center gap-1.5">
-            <Award size={14} className="text-emerald-400" /> Keeper&rsquo;s
-            Guarantee
+            <Award size={14} className="text-emerald-400" /> {t("guaranteeTitle")}
           </h4>
           <p className="leading-relaxed">
-            All optimized blocks generated contain best-practice patterns
-            compliant with current Google Lighthouse core rules.
+            {t("guaranteeBody")}
           </p>
         </div>
       </div>
@@ -300,10 +296,10 @@ Provide clean, production-ready optimizations with comparative code diffs or exp
           <div className="flex items-center justify-between pb-4 border-b border-border mb-6">
             <div>
               <h3 className="text-base font-extrabold text-foreground">
-                Lighthouse Code Refactoring
+                {t("refactoringTitle")}
               </h3>
               <p className="text-xs text-muted-foreground">
-                Automated performance optimizations directly generated by AI
+                {t("refactoringSubtitle")}
               </p>
             </div>
             {aiResponse && (
@@ -311,7 +307,7 @@ Provide clean, production-ready optimizations with comparative code diffs or exp
                 onClick={() => handleCopy(aiResponse)}
                 className="text-xs text-primary hover:text-primary/80 font-semibold flex items-center gap-1.5 transition"
               >
-                <Copy size={13} /> Copy Report
+                <Copy size={13} /> {t("copyReport")}
               </button>
             )}
           </div>
@@ -325,10 +321,10 @@ Provide clean, production-ready optimizations with comparative code diffs or exp
                   <Sparkles size={32} className="text-primary animate-bounce" />
                 </div>
                 <p className="text-sm font-semibold text-foreground animate-pulse text-center">
-                  Analyzing bottleneck patterns...
+                  {t("loadingText")}
                   <br />
                   <span className="text-xs font-normal text-muted-foreground font-mono">
-                    Generating perfect score implementations
+                    {t("loadingSubtext")}
                   </span>
                 </p>
               </div>
@@ -348,11 +344,10 @@ Provide clean, production-ready optimizations with comparative code diffs or exp
                 <Code size={40} className="text-border" />
                 <div>
                   <p className="text-sm font-semibold text-muted-foreground">
-                    Ready for Optimization Input
+                    {t("emptyTitle")}
                   </p>
                   <p className="text-xs text-muted-foreground/60 max-w-sm mt-1">
-                    Click any preset on the left or type your dynamic audit
-                    issue to receive optimized refactor instructions.
+                    {t("emptyDesc")}
                   </p>
                 </div>
               </div>
@@ -360,10 +355,9 @@ Provide clean, production-ready optimizations with comparative code diffs or exp
 
             {aiResponse && !isAiLoading && (
               <div className="mt-6 pt-4 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
-                <span>Engine: Gemini-2.5-Flash</span>
+                <span>{t("engineLabel")}</span>
                 <span className="flex items-center gap-1 text-emerald-400">
-                  <CheckCircle2 size={13} strokeWidth={2.5} /> Double Checked
-                  Optimizations
+                  <CheckCircle2 size={13} strokeWidth={2.5} /> {t("doubleChecked")}
                 </span>
               </div>
             )}

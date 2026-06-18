@@ -15,7 +15,6 @@ interface LighthouseScanModalProps {
 export function LighthouseScanModal({
   isScanning, url, scanStep, networkThrottling,
 }: LighthouseScanModalProps) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("lighthouse");
   return (
     <AnimatePresence>
@@ -53,7 +52,7 @@ export function LighthouseScanModal({
                 <div className="absolute top-24 right-4 w-2.5 h-2.5 rounded-full bg-primary/70 animate-pulse" />
                 <div className="absolute bottom-16 left-6 w-3.5 h-3.5 rounded-full bg-emerald-500 animate-ping" />
               </div>
-              <h3 className="text-lg font-extrabold text-foreground mb-1">Scanning Target Page</h3>
+              <h3 className="text-lg font-extrabold text-foreground mb-1">{t("scanModal.scanning")}</h3>
               <p className="text-xs text-primary font-mono tracking-wider">{url}</p>
             </div>
 
@@ -62,9 +61,9 @@ export function LighthouseScanModal({
               <div className="flex items-center justify-between border-b border-neutral-900 pb-3 mb-4">
                 <span className="flex items-center gap-2">
                   <Terminal size={14} className="animate-pulse" />
-                  <span>Diagnostics Console</span>
+                  <span>{t("scanModal.console")}</span>
                 </span>
-                <span className="text-[10px] text-neutral-500">Thread: worker-01</span>
+                <span className="text-[10px] text-neutral-500">{t("scanModal.thread")}</span>
               </div>
 
               <div className="space-y-2 max-h-72 overflow-y-auto pr-2">
@@ -84,8 +83,8 @@ export function LighthouseScanModal({
               </div>
 
               <div className="mt-6 border-t border-neutral-900 pt-3 flex items-center justify-between text-neutral-500 text-[10px]">
-                <span>Emulated latency: {networkThrottling === "none" ? "0ms" : "150ms"}</span>
-                <span>CPU: Intel Threaded Emulation</span>
+                <span>{t("scanModal.emulatedLatency", { latency: networkThrottling === "none" ? "0ms" : "150ms" })}</span>
+                <span>{t("scanModal.cpu")}</span>
               </div>
             </div>
           </div>

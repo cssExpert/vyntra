@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { AlertTriangle, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Opportunity } from "./lighthouse.types";
@@ -12,6 +13,7 @@ interface OpportunityCardProps {
 }
 
 export function LighthouseOpportunityCard({ opt, onSolveClick }: OpportunityCardProps) {
+  const t = useTranslations("lighthouse.opportunityCard");
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -40,7 +42,7 @@ export function LighthouseOpportunityCard({ opt, onSolveClick }: OpportunityCard
         <div className="flex items-center gap-4 flex-shrink-0">
           {opt.savings !== "0 ms" && (
             <span className="text-xs font-mono font-bold text-rose-400 bg-rose-500/5 px-2.5 py-1 rounded border border-rose-500/10">
-              Est Savings: {opt.savings}
+              {t("estSavings", { savings: opt.savings })}
             </span>
           )}
           {isOpen ? (
@@ -62,14 +64,14 @@ export function LighthouseOpportunityCard({ opt, onSolveClick }: OpportunityCard
             <div className="space-y-4">
               <div>
                 <span className="block text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider mb-1">
-                  Issue Context
+                  {t("issueContext")}
                 </span>
                 <p className="text-foreground/80 leading-relaxed font-sans">{opt.description}</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
                 <div>
                   <span className="block text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider mb-1">
-                    Recommended Fix
+                    {t("recommendedFix")}
                   </span>
                   <p className="text-muted-foreground leading-relaxed font-sans">{opt.nextSteps}</p>
                 </div>
@@ -79,7 +81,7 @@ export function LighthouseOpportunityCard({ opt, onSolveClick }: OpportunityCard
                     className="px-4 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold transition flex items-center gap-1.5 border border-primary/25"
                   >
                     <Sparkles size={13} />
-                    Auto-Generate Optimized Code with AI
+                    {t("solveWithAi")}
                   </button>
                 </div>
               </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { Activity, FileText, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { AuditResults } from "./lighthouse.types";
@@ -18,19 +19,21 @@ interface LighthouseDashboardProps {
 export function LighthouseDashboard({
   auditResults, selectedCategory, setSelectedCategory, handleCopy, onSolveWithAI,
 }: LighthouseDashboardProps) {
+  const t = useTranslations("lighthouse.dashboard");
+
   const categories = [
-    { id: "perf", label: "Performance", score: auditResults.scores.perf },
-    { id: "a11y", label: "Accessibility", score: auditResults.scores.a11y },
-    { id: "best", label: "Best Practices", score: auditResults.scores.best },
-    { id: "seo", label: "SEO", score: auditResults.scores.seo },
+    { id: "perf", label: t("catPerformance"), score: auditResults.scores.perf },
+    { id: "a11y", label: t("catAccessibility"), score: auditResults.scores.a11y },
+    { id: "best", label: t("catBestPractices"), score: auditResults.scores.best },
+    { id: "seo", label: t("catSeo"), score: auditResults.scores.seo },
   ];
 
   const metrics = [
-    { id: "fcp", label: "First Contentful Paint", value: auditResults.metrics.fcp, weight: "10%", desc: "FCP marks the time at which the first text or image is painted." },
-    { id: "si", label: "Speed Index", value: auditResults.metrics.si, weight: "10%", desc: "Speed Index shows how quickly the contents of a page are visibly populated." },
-    { id: "lcp", label: "Largest Contentful Paint", value: auditResults.metrics.lcp, weight: "25%", desc: "LCP marks the time at which the main content of a page has likely loaded." },
-    { id: "tbt", label: "Total Blocking Time", value: auditResults.metrics.tbt, weight: "30%", desc: "Sum of all time periods between FCP and Time to Interactive." },
-    { id: "cls", label: "Cumulative Layout Shift", value: auditResults.metrics.cls, weight: "25%", desc: "CLS measures the movement of visible elements in the viewport." },
+    { id: "fcp", label: t("fcpLabel"), value: auditResults.metrics.fcp, weight: "10%", desc: t("fcpDesc") },
+    { id: "si", label: t("siLabel"), value: auditResults.metrics.si, weight: "10%", desc: t("siDesc") },
+    { id: "lcp", label: t("lcpLabel"), value: auditResults.metrics.lcp, weight: "25%", desc: t("lcpDesc") },
+    { id: "tbt", label: t("tbtLabel"), value: auditResults.metrics.tbt, weight: "30%", desc: t("tbtDesc") },
+    { id: "cls", label: t("clsLabel"), value: auditResults.metrics.cls, weight: "25%", desc: t("clsDesc") },
   ];
 
   return (
@@ -38,15 +41,15 @@ export function LighthouseDashboard({
       {/* Meta context bar */}
       <div className="p-4 rounded-xl border border-border bg-card/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-muted-foreground font-mono">
-          <div><span className="text-muted-foreground/60">AUDIT TIME:</span>{" "}<span className="text-foreground">{auditResults.info.timestamp}</span></div>
-          <div><span className="text-muted-foreground/60">ENVIRONMENT:</span>{" "}<span className="text-foreground">{auditResults.info.device.toUpperCase()} EMULATION</span></div>
-          <div><span className="text-muted-foreground/60">THROTTLING:</span>{" "}<span className="text-foreground">{auditResults.info.throttling}</span></div>
+          <div><span className="text-muted-foreground/60">{t("auditTime")}</span>{" "}<span className="text-foreground">{auditResults.info.timestamp}</span></div>
+          <div><span className="text-muted-foreground/60">{t("environment")}</span>{" "}<span className="text-foreground">{auditResults.info.device.toUpperCase()} EMULATION</span></div>
+          <div><span className="text-muted-foreground/60">{t("throttling")}</span>{" "}<span className="text-foreground">{auditResults.info.throttling}</span></div>
         </div>
         <button
-          onClick={() => handleCopy(JSON.stringify(auditResults, null, 2), "Audit data JSON copied!")}
+          onClick={() => handleCopy(JSON.stringify(auditResults, null, 2), t("auditDataCopied"))}
           className="text-xs text-primary hover:text-primary/80 font-semibold flex items-center gap-1 transition"
         >
-          <FileText size={13} /> Export Raw Report JSON
+          <FileText size={13} /> {t("exportJson")}
         </button>
       </div>
 
@@ -90,7 +93,7 @@ export function LighthouseDashboard({
               </div>
               <h3 className="font-extrabold text-sm mb-1 text-foreground">{category.label}</h3>
               <span className={cn("text-[10px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-full border", scoreColors.text, scoreColors.bg, scoreColors.border)}>
-                {category.score >= 90 ? "Excellent" : category.score >= 50 ? "Fair" : "Poor"}
+                {category.score >= 90 ? t("scoreExcellent") : category.score >= 50 ? t("scoreFair") : t("scorePoor")}
               </span>
             </button>
           );
@@ -102,8 +105,8 @@ export function LighthouseDashboard({
         <div className="lg:col-span-2 p-6 rounded-2xl border border-border bg-card/30">
           <div className="flex items-center justify-between pb-4 border-b border-border mb-6">
             <div>
-              <h3 className="text-base font-extrabold text-foreground">Performance Metrics</h3>
-              <p className="text-xs text-muted-foreground">Core Web Vitals analyzed during current page generation cycle</p>
+              <h3 className="text-base font-extrabold text-foreground">{t("perfMetricsTitle")}</h3>
+              <p className="text-xs text-muted-foreground">{t("perfMetricsSubtitle")}</p>
             </div>
             <HelpCircle size={16} className="text-muted-foreground/60 cursor-pointer" aria-label="Lighthouse performance calculations are based on weighting" />
           </div>
@@ -115,7 +118,7 @@ export function LighthouseDashboard({
                 <div key={m.id} className="p-4 rounded-xl border border-border bg-background/50 overflow-hidden">
                   <div className="flex items-start justify-between mb-2">
                     <div>
-                      <span className="text-[10px] text-muted-foreground/60 font-mono tracking-wider uppercase">Weight: {m.weight}</span>
+                      <span className="text-[10px] text-muted-foreground/60 font-mono tracking-wider uppercase">{t("metricWeight", { weight: m.weight })}</span>
                       <h4 className="text-sm font-extrabold text-foreground mt-0.5">{m.label}</h4>
                     </div>
                     <div className="flex items-center gap-1.5">
@@ -130,9 +133,9 @@ export function LighthouseDashboard({
           </div>
 
           <div className="mt-6 pt-4 border-t border-border flex flex-wrap items-center justify-end gap-4 text-xs font-mono text-muted-foreground">
-            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Good (0–2.5s)</span>
-            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-amber-500" /> Needs Improvement</span>
-            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-rose-500" /> Poor</span>
+            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500" /> {t("legendGood")}</span>
+            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-amber-500" /> {t("legendNeedsImprovement")}</span>
+            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-rose-500" /> {t("legendPoor")}</span>
           </div>
         </div>
 
@@ -141,9 +144,9 @@ export function LighthouseDashboard({
           <div>
             <div className="flex items-center gap-2 mb-4">
               <Activity className="text-primary" size={18} />
-              <h3 className="text-base font-extrabold text-foreground">Audit Health Timeline</h3>
+              <h3 className="text-base font-extrabold text-foreground">{t("healthTitle")}</h3>
             </div>
-            <p className="text-xs text-muted-foreground mb-6">Historical trends and consistency records for the monitored environment</p>
+            <p className="text-xs text-muted-foreground mb-6">{t("healthDesc")}</p>
             <div className="space-y-4">
               <div className="flex items-center justify-between text-xs font-mono">
                 <span className="text-muted-foreground">Average Performance Trend</span>
@@ -161,8 +164,8 @@ export function LighthouseDashboard({
           </div>
           <div className="pt-6 border-t border-border text-xs text-muted-foreground">
             <div className="flex items-center justify-between">
-              <span>Performance Target:</span>
-              <span className="font-mono text-emerald-400 font-bold">Lighthouse Perfect 100</span>
+              <span>{t("perfTarget")}</span>
+              <span className="font-mono text-emerald-400 font-bold">{t("perfTargetValue")}</span>
             </div>
           </div>
         </div>
@@ -172,11 +175,11 @@ export function LighthouseDashboard({
       <div className="p-6 rounded-2xl border border-border bg-card/30">
         <div className="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-border mb-6 gap-4">
           <div>
-            <h3 className="text-base font-extrabold text-foreground">Opportunities & Diagnostics</h3>
-            <p className="text-xs text-muted-foreground">Actionable advice to accelerate page loading and performance</p>
+            <h3 className="text-base font-extrabold text-foreground">{t("opportunitiesTitle")}</h3>
+            <p className="text-xs text-muted-foreground">{t("opportunitiesDesc")}</p>
           </div>
           <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20 w-fit">
-            High Priority Fixes
+            {t("highPriorityFixes")}
           </span>
         </div>
 

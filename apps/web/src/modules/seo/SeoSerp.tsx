@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Sparkles, Sliders, RefreshCw, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ViewProps, AuditReport } from "./seo.types";
@@ -10,6 +11,7 @@ import { Input } from "@/components/ui/input";
 export function SeoSerp({
   showNotification,
 }: Pick<ViewProps, "showNotification">) {
+  const t = useTranslations("seo.serp");
   const [domain, setDomain] = useState("https://growthstats.io");
   const [keyword, setKeyword] = useState("xml sitemap indexing guide");
   const [country, setCountry] = useState("US");
@@ -21,7 +23,7 @@ export function SeoSerp({
 
   const startSerpSimulation = async () => {
     if (!domain.trim() || !keyword.trim()) {
-      showNotification("Please provide both a domain and keyword.", "error");
+      showNotification(t("errorNoDomainKeyword"), "error");
       return;
     }
     setLoading(true);
@@ -70,14 +72,11 @@ export function SeoSerp({
       )) as AuditReport;
       setSimulatedRank(response.estimated_rank || 4);
       setAuditReport(response);
-      showNotification("SERP Scan Completed Successfully!", "success");
+      showNotification(t("auditCompleted"), "success");
     } catch {
       setSimulatedRank(3);
       setAuditReport(fallback);
-      showNotification(
-        "Generated fallback technical diagnostic checklist.",
-        "success",
-      );
+      showNotification(t("auditFallback"), "success");
     } finally {
       setLoading(false);
     }
@@ -90,23 +89,21 @@ export function SeoSerp({
     <div className="space-y-8">
       <div className="bg-card/50 p-6 rounded-2xl border border-border backdrop-blur-md">
         <h2 className="text-2xl font-extrabold text-foreground tracking-tight flex items-center gap-2">
-          <Sliders className="w-6 h-6 text-primary" /> SERP Rank Simulator &
-          Audit
+          <Sliders className="w-6 h-6 text-primary" /> {t("title")}
         </h2>
         <p className="text-muted-foreground text-sm mt-1">
-          Simulate landing page positions globally and inspect your semantic
-          footprint.
+          {t("subtitle")}
         </p>
       </div>
 
       <div className="bg-card border border-border p-6 rounded-2xl space-y-4">
         <h3 className="font-bold text-foreground text-base">
-          Diagnostic Configuration
+          {t("diagnosticConfig")}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="md:col-span-2">
             <label className="text-xs text-muted-foreground font-semibold block mb-1">
-              Target Website URL
+              {t("labelTargetUrl")}
             </label>
             <Input
               type="text"
@@ -118,7 +115,7 @@ export function SeoSerp({
           </div>
           <div>
             <label className="text-xs text-muted-foreground font-semibold block mb-1">
-              Target Keyword
+              {t("labelKeyword")}
             </label>
             <Input
               type="text"
@@ -130,7 +127,7 @@ export function SeoSerp({
           </div>
           <div>
             <label className="text-xs text-muted-foreground font-semibold block mb-1">
-              Search Region
+              {t("labelRegion")}
             </label>
             <select
               value={country}
@@ -152,11 +149,11 @@ export function SeoSerp({
         >
           {loading ? (
             <>
-              <RefreshCw className="w-4 h-4 animate-spin" /> Crawling...
+              <RefreshCw className="w-4 h-4 animate-spin" /> {t("crawling")}
             </>
           ) : (
             <>
-              <Sparkles className="w-4 h-4" /> Run Comprehensive SEO Audit
+              <Sparkles className="w-4 h-4" /> {t("runAudit")}
             </>
           )}
         </button>
@@ -241,13 +238,12 @@ export function SeoSerp({
 
           <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
             <h3 className="font-bold text-foreground text-base flex items-center gap-1.5">
-              <Sparkles className="w-5 h-5 text-primary" /> AI Technical Audit
-              Report
+              <Sparkles className="w-5 h-5 text-primary" /> {t("aiAuditReport")}
             </h3>
             <div className="space-y-4">
               <div className="space-y-1">
                 <span className="text-[10px] text-primary font-bold uppercase tracking-wider block">
-                  AI Overview Eligibility
+                  {t("aiOverviewLabel")}
                 </span>
                 <p className="text-xs text-foreground/80 leading-relaxed bg-background p-3 rounded-lg border border-border">
                   {auditReport.recommendations.ai_overview_readiness}
@@ -255,7 +251,7 @@ export function SeoSerp({
               </div>
               <div className="space-y-1">
                 <span className="text-[10px] text-primary font-bold uppercase tracking-wider block">
-                  Content Gap Action Items
+                  {t("contentGapLabel")}
                 </span>
                 <ul className="space-y-2">
                   {auditReport.recommendations.topical_depth_checklist.map(
@@ -273,7 +269,7 @@ export function SeoSerp({
               </div>
               <div className="space-y-1">
                 <span className="text-[10px] text-primary font-bold uppercase tracking-wider block">
-                  Recommended Schema
+                  {t("schemaLabel")}
                 </span>
                 <p className="text-xs text-foreground/80 leading-relaxed bg-background p-3 rounded-lg border border-border font-mono text-[10px]">
                   {auditReport.recommendations.schema_markup_needed}
@@ -281,7 +277,7 @@ export function SeoSerp({
               </div>
               <div className="space-y-1">
                 <span className="text-[10px] text-primary font-bold uppercase tracking-wider block">
-                  Core Web Vitals Focus
+                  {t("coreVitalsLabel")}
                 </span>
                 <p className="text-xs text-foreground/80 leading-relaxed">
                   {auditReport.recommendations.technical_optimization_priority}

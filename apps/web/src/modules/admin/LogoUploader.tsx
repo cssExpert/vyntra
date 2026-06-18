@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { ImagePlus, Link2, Trash2, UploadCloud } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { adminInput } from "./AdminGuard";
 import { storageService } from "@/lib/storage";
@@ -26,6 +27,7 @@ export function LogoUploader({
   companyId = "superadmin",
   module = "branding",
 }: LogoUploaderProps) {
+  const t = useTranslations("admin.logoUploader");
   const inputRef = useRef<HTMLInputElement>(null);
   const [mode, setMode] = useState<"upload" | "url">("upload");
   const [dragging, setDragging] = useState(false);
@@ -35,11 +37,11 @@ export function LogoUploader({
   const processFile = async (file: File) => {
     setFileError(null);
     if (!ACCEPTED.includes(file.type)) {
-      setFileError("Only PNG, JPG, SVG, WebP, or GIF files are accepted.");
+      setFileError(t("invalidType"));
       return;
     }
     if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-      setFileError(`File must be under ${MAX_SIZE_MB} MB.`);
+      setFileError(t("tooLarge", { maxMB: MAX_SIZE_MB }));
       return;
     }
     setUploading(true);
@@ -47,7 +49,7 @@ export function LogoUploader({
       const result = await storageService.upload({ file, companyId, module });
       onChange(result.url);
     } catch (e) {
-      setFileError(e instanceof Error ? e.message : "Upload failed");
+      setFileError(e instanceof Error ? e.message : t("uploadFailed"));
     } finally {
       setUploading(false);
     }
@@ -89,7 +91,7 @@ export function LogoUploader({
           )}
         >
           <UploadCloud className="h-3.5 w-3.5" />
-          Upload File
+          {t("uploadFile")}
         </button>
         <button
           type="button"
@@ -102,7 +104,7 @@ export function LogoUploader({
           )}
         >
           <Link2 className="h-3.5 w-3.5" />
-          Enter URL
+          {t("enterUrl")}
         </button>
       </div>
 
@@ -131,13 +133,13 @@ export function LogoUploader({
           <div>
             <p className="text-sm font-medium text-foreground">
               {uploading
-                ? "Uploading…"
+                ? t("uploading")
                 : dragging
-                  ? "Drop it here"
-                  : "Click or drag to upload"}
+                  ? t("dropHere")
+                  : t("clickOrDrag")}
             </p>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              PNG, JPG, SVG, WebP — max {MAX_SIZE_MB} MB
+              {t("typeHint", { maxMB: MAX_SIZE_MB })}
             </p>
           </div>
           <input
@@ -170,14 +172,14 @@ export function LogoUploader({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={value}
-            alt="Logo preview"
+            alt={t("preview")}
             className="h-12 w-12 rounded-lg object-contain border border-border bg-muted"
           />
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium text-foreground">Preview</p>
+            <p className="text-sm font-medium text-foreground">{t("preview")}</p>
             <p className="truncate text-xs text-muted-foreground">
               {value.startsWith("data:")
-                ? `Uploaded image (${Math.round(value.length * 0.75 / 1024)} KB)`
+                ? t("uploadedImage", { kb: Math.round(value.length * 0.75 / 1024) })
                 : value}
             </p>
           </div>
@@ -185,7 +187,7 @@ export function LogoUploader({
             type="button"
             onClick={clear}
             className="shrink-0 rounded-lg p-1.5 text-muted-foreground hover:bg-error/10 hover:text-error transition cursor-pointer"
-            aria-label="Remove logo"
+            aria-label={t("removeAriaLabel")}
           >
             <Trash2 className="h-4 w-4" />
           </button>

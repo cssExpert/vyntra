@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import {
   Compass,
   Monitor,
@@ -44,6 +45,20 @@ export function LighthouseAuditBar({
   setShowSettings,
   onRunAudit,
 }: LighthouseAuditBarProps) {
+  const t = useTranslations("lighthouse.auditBar");
+
+  const networkOptions = [
+    { id: "none", label: t("netNoneLabel"), desc: t("netNoneDesc") },
+    { id: "fast3g", label: t("netFast3gLabel"), desc: t("netFast3gDesc") },
+    { id: "slow4g", label: t("netSlow4gLabel"), desc: t("netSlow4gDesc") },
+  ];
+
+  const cpuOptions = [
+    { id: "none", label: t("cpuNoneLabel"), desc: t("cpuNoneDesc") },
+    { id: "4x", label: t("cpu4xLabel"), desc: t("cpu4xDesc") },
+    { id: "6x", label: t("cpu6xLabel"), desc: t("cpu6xDesc") },
+  ];
+
   return (
     <section className="mb-10 p-6 rounded-2xl border border-border bg-card/50 backdrop-blur-md relative overflow-hidden">
       <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
@@ -53,7 +68,7 @@ export function LighthouseAuditBar({
         {/* URL input */}
         <div className="flex-1">
           <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">
-            Audit Target URL
+            {t("targetUrl")}
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground/60">
@@ -78,7 +93,7 @@ export function LighthouseAuditBar({
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:text-foreground",
                 )}
-                title="Emulate Desktop"
+                title={t("emulateDesktop")}
               >
                 <Monitor size={15} />
               </button>
@@ -91,7 +106,7 @@ export function LighthouseAuditBar({
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:text-foreground",
                 )}
-                title="Emulate Mobile"
+                title={t("emulateMobile")}
               >
                 <Smartphone size={15} />
               </button>
@@ -109,7 +124,7 @@ export function LighthouseAuditBar({
             )}
           >
             <Settings size={16} />
-            <span>Emulation Settings</span>
+            <span>{t("emulationSettings")}</span>
           </button>
 
           <button
@@ -120,12 +135,12 @@ export function LighthouseAuditBar({
             {isScanning ? (
               <>
                 <RefreshCw size={16} className="animate-spin" />
-                <span>Auditing...</span>
+                <span>{t("auditing")}</span>
               </>
             ) : (
               <>
                 <Play size={16} className="fill-current" />
-                <span>Generate Audit Report</span>
+                <span>{t("generateAudit")}</span>
               </>
             )}
           </button>
@@ -144,26 +159,10 @@ export function LighthouseAuditBar({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-2">
               <div>
                 <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">
-                  <Wifi size={14} className="text-primary" /> Network Throttling
+                  <Wifi size={14} className="text-primary" /> {t("networkThrottling")}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
-                  {[
-                    {
-                      id: "none",
-                      label: "No Throttling",
-                      desc: "Raw Connection",
-                    },
-                    {
-                      id: "fast3g",
-                      label: "Fast 3G",
-                      desc: "1.6 Mbps, 150ms RTT",
-                    },
-                    {
-                      id: "slow4g",
-                      label: "Slow 4G",
-                      desc: "4 Mbps, 40ms RTT",
-                    },
-                  ].map((n) => (
+                  {networkOptions.map((n) => (
                     <button
                       key={n.id}
                       onClick={() => setNetworkThrottling(n.id)}
@@ -185,22 +184,10 @@ export function LighthouseAuditBar({
 
               <div>
                 <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">
-                  <Cpu size={14} className="text-primary" /> CPU Throttling
+                  <Cpu size={14} className="text-primary" /> {t("cpuThrottling")}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
-                  {[
-                    {
-                      id: "none",
-                      label: "No Throttling",
-                      desc: "Host CPU Speed",
-                    },
-                    {
-                      id: "4x",
-                      label: "4x Slowdown",
-                      desc: "Mid-range Mobile",
-                    },
-                    { id: "6x", label: "6x Slowdown", desc: "Low-end Mobile" },
-                  ].map((c) => (
+                  {cpuOptions.map((c) => (
                     <button
                       key={c.id}
                       onClick={() => setCpuThrottling(c.id)}

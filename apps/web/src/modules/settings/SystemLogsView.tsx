@@ -23,6 +23,7 @@ import {
   type FilterFn,
   type PaginationState,
 } from "@tanstack/react-table";
+import { useTranslations } from "next-intl";
 
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -113,61 +114,8 @@ const logFilter: FilterFn<ApiActivityLog> = (
   );
 };
 
-const COLUMNS = [
-  columnHelper.accessor("action", {
-    header: "Action",
-    size: 260,
-    cell: ({ row, getValue }) => (
-      <div className="min-w-0">
-        <p className="font-medium text-foreground truncate">{getValue()}</p>
-        {row.original.resourceType && (
-          <p className="text-xs text-muted-foreground truncate">
-            {row.original.resourceType}
-          </p>
-        )}
-      </div>
-    ),
-  }),
-  columnHelper.accessor((log) => log.user?.name ?? log.user?.email ?? "", {
-    id: "user",
-    header: "User",
-    size: 220,
-    cell: ({ row }) => {
-      const user = row.original.user;
-      if (!user) return <span className="text-muted-foreground">—</span>;
-      return (
-        <div className="min-w-0">
-          <p className="text-foreground truncate">{user.name ?? user.email}</p>
-          {user.name && (
-            <p className="text-xs text-muted-foreground truncate">
-              {user.email}
-            </p>
-          )}
-        </div>
-      );
-    },
-  }),
-  columnHelper.accessor("statusCode", {
-    header: "Status",
-    size: 110,
-    cell: ({ getValue }) => (
-      <StatusBadge
-        variant={statusVariant(getValue())}
-        label={getValue() != null ? String(getValue()) : "—"}
-        size="sm"
-      />
-    ),
-  }),
-  columnHelper.accessor("createdAt", {
-    header: "When",
-    size: 150,
-    cell: ({ getValue }) => (
-      <span className="text-muted-foreground">{formatWhen(getValue())}</span>
-    ),
-  }),
-];
-
 export function SystemLogsView() {
+  const t = useTranslations("settings.logs");
   const [logs, setLogs] = useState<ApiActivityLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -184,17 +132,72 @@ export function SystemLogsView() {
     try {
       setLogs(await apiGetActivity());
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load activity.");
+      setError(e instanceof Error ? e.message : t("failedToLoad"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     load();
   }, [load]);
 
-  const columns = useMemo(() => COLUMNS, []);
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor("action", {
+        header: t("colAction"),
+        size: 260,
+        cell: ({ row, getValue }) => (
+          <div className="min-w-0">
+            <p className="font-medium text-foreground truncate">{getValue()}</p>
+            {row.original.resourceType && (
+              <p className="text-xs text-muted-foreground truncate">
+                {row.original.resourceType}
+              </p>
+            )}
+          </div>
+        ),
+      }),
+      columnHelper.accessor((log) => log.user?.name ?? log.user?.email ?? "", {
+        id: "user",
+        header: t("colUser"),
+        size: 220,
+        cell: ({ row }) => {
+          const user = row.original.user;
+          if (!user) return <span className="text-muted-foreground">—</span>;
+          return (
+            <div className="min-w-0">
+              <p className="text-foreground truncate">{user.name ?? user.email}</p>
+              {user.name && (
+                <p className="text-xs text-muted-foreground truncate">
+                  {user.email}
+                </p>
+              )}
+            </div>
+          );
+        },
+      }),
+      columnHelper.accessor("statusCode", {
+        header: t("colStatus"),
+        size: 110,
+        cell: ({ getValue }) => (
+          <StatusBadge
+            variant={statusVariant(getValue())}
+            label={getValue() != null ? String(getValue()) : "—"}
+            size="sm"
+          />
+        ),
+      }),
+      columnHelper.accessor("createdAt", {
+        header: t("colWhen"),
+        size: 150,
+        cell: ({ getValue }) => (
+          <span className="text-muted-foreground">{formatWhen(getValue())}</span>
+        ),
+      }),
+    ],
+    [t],
+  );
 
   const table = useReactTable({
     data: logs,
@@ -219,8 +222,8 @@ export function SystemLogsView() {
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <PageHeader
-        title="System Logs"
-        description="Recent activity recorded for your organization."
+        title={t("title")}
+        description={t("description")}
       >
         <div className="flex items-center gap-2">
           {/* Search */}
@@ -232,7 +235,7 @@ export function SystemLogsView() {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search logs…"
+              placeholder={t("searchPlaceholder")}
               size="xl" className="pl-9 pr-8 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all w-48"
             />
             {searchTerm && (
@@ -251,11 +254,11 @@ export function SystemLogsView() {
             radius="sm"
             onClick={load}
             loading={loading}
-            loadingText="Refreshing…"
+            loadingText={t("refreshing")}
             className="px-4 active:scale-[0.98]"
             startIcon={<RefreshCw size={15} />}
           >
-            Refresh
+            {t("refresh")}
           </Button>
         </div>
       </PageHeader>
@@ -368,13 +371,13 @@ export function SystemLogsView() {
                           <div>
                             <p className="font-semibold text-foreground">
                               {searchTerm
-                                ? "No matching logs"
-                                : "No activity recorded yet"}
+                                ? t("noMatchingLogs")
+                                : t("noActivityYet")}
                             </p>
                             <p className="text-xs text-muted-foreground mt-0.5">
                               {searchTerm
-                                ? "Try adjusting your search."
-                                : "Activity will appear here as your team uses the platform."}
+                                ? t("tryAdjustingSearch")
+                                : t("activityWillAppear")}
                             </p>
                           </div>
                         </div>
@@ -389,7 +392,7 @@ export function SystemLogsView() {
           {/* ── Footer: entries selector + pagination ─────────────────── */}
           <div className="px-6 py-4 border-t border-border bg-muted/30 flex items-center justify-between gap-4 flex-wrap text-sm">
             <div className="flex items-center gap-2 text-muted-foreground">
-              <span>Show</span>
+              <span>{t("show")}</span>
               <select
                 value={pageSize}
                 onChange={(e) => table.setPageSize(Number(e.target.value))}
@@ -401,12 +404,12 @@ export function SystemLogsView() {
                   </option>
                 ))}
               </select>
-              <span>entries</span>
+              <span>{t("entries")}</span>
             </div>
 
             <div className="flex items-center gap-3">
               <span className="text-muted-foreground">
-                Showing {fromEntry} to {toEntry} of {filteredCount} entries
+                {t("showingEntries", { from: fromEntry, to: toEntry, total: filteredCount })}
               </span>
 
               <div className="flex items-center gap-1">
@@ -417,7 +420,7 @@ export function SystemLogsView() {
                   disabled={!table.getCanPreviousPage()}
                   className="h-8 px-3 text-muted-foreground"
                 >
-                  ← Previous
+                  {t("previous")}
                 </Button>
 
                 {pageWindow(pageIndex, pageCount).map((p, idx) =>
@@ -451,7 +454,7 @@ export function SystemLogsView() {
                   disabled={!table.getCanNextPage()}
                   className="h-8 px-3 text-muted-foreground"
                 >
-                  Next →
+                  {t("next")}
                 </Button>
               </div>
             </div>
