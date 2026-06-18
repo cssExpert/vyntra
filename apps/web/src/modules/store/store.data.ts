@@ -5,6 +5,7 @@ import type {
   StoreCoupon,
   InventoryItem,
   StoreCategory,
+  StoreAttribute,
   AutomationRule,
   CustomerReward,
   CustomerCredit,
@@ -604,11 +605,30 @@ export const SAMPLE_CUSTOMERS: StoreCustomer[] = [
 // ─── Categories ───────────────────────────────────────────────────────────────
 
 export const SAMPLE_CATEGORIES: StoreCategory[] = [
-  { id: "cat1", name: "Templates", slug: "templates", productCount: 18, status: "active", sortOrder: 1, createdAt: "2024-01-01", description: "Digital templates for designers and developers." },
-  { id: "cat2", name: "Subscriptions", slug: "subscriptions", productCount: 4, status: "active", sortOrder: 2, createdAt: "2024-01-01", description: "Monthly and annual SaaS plans." },
+  // Top-level
+  { id: "cat1", name: "Templates",        slug: "templates",        productCount: 18, status: "active", sortOrder: 1, createdAt: "2024-01-01", description: "Digital templates for designers and developers." },
+  { id: "cat2", name: "Subscriptions",    slug: "subscriptions",    productCount: 4,  status: "active", sortOrder: 2, createdAt: "2024-01-01", description: "Monthly and annual SaaS plans." },
   { id: "cat3", name: "Digital Downloads", slug: "digital-downloads", productCount: 32, status: "active", sortOrder: 3, createdAt: "2024-01-01", description: "Ebooks, PDFs, and downloadable assets." },
-  { id: "cat4", name: "Merchandise", slug: "merchandise", productCount: 11, status: "active", sortOrder: 4, createdAt: "2024-03-15", description: "Branded apparel and physical goods." },
-  { id: "cat5", name: "Services", slug: "services", productCount: 6, status: "active", sortOrder: 5, createdAt: "2024-03-15", description: "Consulting and expert services." },
+  { id: "cat4", name: "Merchandise",      slug: "merchandise",      productCount: 11, status: "active", sortOrder: 4, createdAt: "2024-03-15", description: "Branded apparel and physical goods." },
+  { id: "cat5", name: "Services",         slug: "services",         productCount: 6,  status: "active", sortOrder: 5, createdAt: "2024-03-15", description: "Consulting and expert services." },
+  // Templates → children
+  { id: "cat1a", name: "Dashboard UI",    slug: "dashboard-ui",     productCount: 6,  status: "active", sortOrder: 1, createdAt: "2024-01-01", parentId: "cat1" },
+  { id: "cat1b", name: "Landing Pages",   slug: "landing-pages",    productCount: 5,  status: "active", sortOrder: 2, createdAt: "2024-01-01", parentId: "cat1" },
+  { id: "cat1c", name: "Email Templates", slug: "email-templates",  productCount: 7,  status: "active", sortOrder: 3, createdAt: "2024-01-01", parentId: "cat1" },
+  // Digital Downloads → children
+  { id: "cat3a", name: "Ebooks",          slug: "ebooks",           productCount: 14, status: "active", sortOrder: 1, createdAt: "2024-01-01", parentId: "cat3" },
+  { id: "cat3b", name: "Design Assets",   slug: "design-assets",    productCount: 10, status: "active", sortOrder: 2, createdAt: "2024-01-01", parentId: "cat3" },
+  { id: "cat3c", name: "Audio & Video",   slug: "audio-video",      productCount: 8,  status: "active", sortOrder: 3, createdAt: "2024-01-01", parentId: "cat3" },
+  // Ebooks → grandchildren
+  { id: "cat3a1", name: "Marketing",       slug: "ebooks-marketing",  productCount: 5,  status: "active", sortOrder: 1, createdAt: "2024-01-01", parentId: "cat3a" },
+  { id: "cat3a2", name: "Development",     slug: "ebooks-dev",        productCount: 6,  status: "active", sortOrder: 2, createdAt: "2024-01-01", parentId: "cat3a" },
+  { id: "cat3a3", name: "Design",          slug: "ebooks-design",     productCount: 3,  status: "active", sortOrder: 3, createdAt: "2024-01-01", parentId: "cat3a" },
+  // Merchandise → children
+  { id: "cat4a", name: "Apparel",          slug: "apparel",          productCount: 7,  status: "active", sortOrder: 1, createdAt: "2024-03-15", parentId: "cat4" },
+  { id: "cat4b", name: "Accessories",      slug: "accessories",      productCount: 4,  status: "active", sortOrder: 2, createdAt: "2024-03-15", parentId: "cat4" },
+  // Services → children
+  { id: "cat5a", name: "Consulting",       slug: "consulting",       productCount: 3,  status: "active", sortOrder: 1, createdAt: "2024-03-15", parentId: "cat5" },
+  { id: "cat5b", name: "Development",      slug: "dev-services",     productCount: 3,  status: "active", sortOrder: 2, createdAt: "2024-03-15", parentId: "cat5" },
 ];
 
 // ─── Coupons ──────────────────────────────────────────────────────────────────
@@ -731,4 +751,100 @@ export const SAMPLE_CREDITS: CustomerCredit[] = [
   { customerId: "cu3", customerName: "Priya Nair", customerEmail: "priya@example.com", balance: 50.0, lastTransactionAt: "2026-04-10", transactions: [] },
   { customerId: "cu5", customerName: "Emma Davis", customerEmail: "emma@example.com", balance: 20.71, lastTransactionAt: "2026-05-23", transactions: [] },
   { customerId: "cu7", customerName: "Aisha Johnson", customerEmail: "aisha@example.com", balance: 10.0, lastTransactionAt: "2026-03-15", transactions: [] },
+];
+
+// ─── Attributes ───────────────────────────────────────────────────────────────
+
+export const SAMPLE_ATTRIBUTES: StoreAttribute[] = [
+  {
+    id: "attr_1",
+    name: "Color",
+    attributeType: "color",
+    fieldType: "buttons",
+    usedInVariation: true,
+    options: [
+      { id: "opt_1", name: "Red",   colorHex: "#ef4444" },
+      { id: "opt_2", name: "Blue",  colorHex: "#3b82f6" },
+      { id: "opt_3", name: "Green", colorHex: "#22c55e" },
+      { id: "opt_4", name: "Black", colorHex: "#0f172a" },
+      { id: "opt_5", name: "White", colorHex: "#f8fafc" },
+    ],
+    createdAt: "2026-01-10",
+    updatedAt: "2026-05-15",
+  },
+  {
+    id: "attr_2",
+    name: "Size",
+    attributeType: "selection",
+    fieldType: "buttons",
+    usedInVariation: true,
+    options: [
+      { id: "opt_6",  name: "XS" },
+      { id: "opt_7",  name: "S"  },
+      { id: "opt_8",  name: "M"  },
+      { id: "opt_9",  name: "L"  },
+      { id: "opt_10", name: "XL" },
+      { id: "opt_11", name: "XXL" },
+    ],
+    createdAt: "2026-01-10",
+    updatedAt: "2026-04-20",
+  },
+  {
+    id: "attr_3",
+    name: "Material",
+    attributeType: "selection",
+    fieldType: "dropdown",
+    usedInVariation: false,
+    options: [
+      { id: "opt_12", name: "Cotton" },
+      { id: "opt_13", name: "Polyester" },
+      { id: "opt_14", name: "Wool" },
+      { id: "opt_15", name: "Linen" },
+    ],
+    createdAt: "2026-02-01",
+    updatedAt: "2026-02-01",
+  },
+  {
+    id: "attr_4",
+    name: "Storage",
+    attributeType: "selection",
+    fieldType: "buttons",
+    usedInVariation: true,
+    options: [
+      { id: "opt_16", name: "64GB"  },
+      { id: "opt_17", name: "128GB" },
+      { id: "opt_18", name: "256GB" },
+      { id: "opt_19", name: "512GB" },
+    ],
+    createdAt: "2026-03-05",
+    updatedAt: "2026-03-05",
+  },
+  {
+    id: "attr_5",
+    name: "Warranty",
+    attributeType: "selection",
+    fieldType: "dropdown",
+    usedInVariation: false,
+    options: [
+      { id: "opt_20", name: "1 Year"  },
+      { id: "opt_21", name: "2 Years" },
+      { id: "opt_22", name: "3 Years" },
+    ],
+    createdAt: "2026-03-10",
+    updatedAt: "2026-03-10",
+  },
+  {
+    id: "attr_6",
+    name: "Finish",
+    attributeType: "selection",
+    fieldType: "dropdown",
+    usedInVariation: false,
+    options: [
+      { id: "opt_23", name: "Matte"  },
+      { id: "opt_24", name: "Glossy" },
+      { id: "opt_25", name: "Satin"  },
+    ],
+    createdAt: "2026-04-01",
+    updatedAt: "2026-04-01",
+  },
 ];

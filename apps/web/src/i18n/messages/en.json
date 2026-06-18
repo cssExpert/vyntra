@@ -1211,7 +1211,9 @@
       "activateSuccess": "Theme activated successfully.",
       "activateError": "Failed to activate theme.",
       "deleteError": "Failed to delete theme."
-    }
+    },
+    "save": "Save",
+    "cancel": "Cancel"
   },
   "store": {
     "store": {
@@ -1419,10 +1421,14 @@
       "tags": "Tags",
       "share": "Share",
       "store": "Store",
+      "add": "Add Product",
       "formInstructions": "Update the product details below",
       "statusLabel": "Status",
       "updateInformation": "Update product information",
-      "visibility": "Visibility"
+      "visibility": "Visibility",
+      "cancel": "Cancel",
+      "save": "Save",
+      "phone": "Phone"
     },
     "rewards": {
       "title": "Reward Points",
@@ -1622,12 +1628,38 @@
       "status": "Status",
       "totalOrders": "Total Orders",
       "viewProfile": "View Profile",
-      "sendEmail": "Send Email"
+      "sendEmail": "Send Email",
+      "phone": "Phone",
+      "vip": "VIP"
     },
     "reports": {
       "title": "Store Reports",
       "description": "Sales, inventory, and performance analytics",
       "store": "Store"
+    },
+    "editor": {
+      "alignCenter": "Align Center",
+      "alignLeft": "Align Left",
+      "alignRight": "Align Right",
+      "bold": "Bold",
+      "bulletList": "Bullet List",
+      "dividerLine": "Divider Line",
+      "heading2": "Heading 2",
+      "heading3": "Heading 3",
+      "heading4": "Heading 4",
+      "highlight": "Highlight",
+      "highlightTitle": "Highlight Color",
+      "italic": "Italic",
+      "justify": "Justify",
+      "left": "Left",
+      "normalText": "Normal Text",
+      "orderedList": "Ordered List",
+      "redo": "Redo",
+      "strikethrough": "Strikethrough",
+      "textColor": "Text Color",
+      "textColorTitle": "Text Color",
+      "underline": "Underline",
+      "undo": "Undo"
     }
   },
   "messages": {

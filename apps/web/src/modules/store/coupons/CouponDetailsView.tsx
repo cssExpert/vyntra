@@ -26,8 +26,10 @@ export function CouponDetailsView({ couponId }: CouponDetailsViewProps) {
     const fetchCoupon = async () => {
       setIsLoading(true);
       try {
+        const savedEdits = JSON.parse(typeof window !== "undefined" ? localStorage.getItem("store_coupons_edited") || "{}" : "{}");
         const found = SAMPLE_COUPONS.find((c) => c.id === couponId);
-        setCoupon(found || null);
+        const coupon = found ? { ...found, ...savedEdits[couponId] } : null;
+        setCoupon(coupon || null);
       } finally {
         setIsLoading(false);
       }

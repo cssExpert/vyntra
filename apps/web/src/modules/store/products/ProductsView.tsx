@@ -26,7 +26,9 @@ export function ProductsView() {
   const [selectedIds,  setSelectedIds]  = useState<Set<string>>(new Set());
 
   const filtered = useMemo(() => {
-    let result = SAMPLE_PRODUCTS;
+    // Merge saved edits from localStorage with SAMPLE_PRODUCTS
+    const savedEdits = JSON.parse(typeof window !== "undefined" ? localStorage.getItem("store_products_edited") || "{}" : "{}");
+    let result = SAMPLE_PRODUCTS.map((p) => savedEdits[p.id] || p);
 
     if (activeTab === "active")   result = result.filter((p) => p.status === "active");
     if (activeTab === "draft")    result = result.filter((p) => p.status === "draft");

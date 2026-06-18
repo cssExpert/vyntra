@@ -10,11 +10,9 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
 import { Plus, Search, Tag, Pencil, Trash2, Copy } from "lucide-react";
 import { SAMPLE_COUPONS } from "../store.data";
-import type { StoreCoupon } from "../store.types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatCouponDiscount, pageWindow } from "../store.utils";
-import { COUPON_STATUS_BADGES } from "../store.constants";
 
 export function CouponsView() {
   const t = useTranslations("store.coupons");
@@ -26,7 +24,9 @@ export function CouponsView() {
   const [pageSize, setPageSize] = useState(10);
 
   const filtered = useMemo(() => {
-    let r = SAMPLE_COUPONS;
+    // Merge saved edits from localStorage with SAMPLE_COUPONS
+    const savedEdits = JSON.parse(typeof window !== "undefined" ? localStorage.getItem("store_coupons_edited") || "{}" : "{}");
+    let r = SAMPLE_COUPONS.map((c) => savedEdits[c.id] || c);
     if (status) r = r.filter((c) => c.status === status);
     if (search.trim()) {
       const q = search.toLowerCase();

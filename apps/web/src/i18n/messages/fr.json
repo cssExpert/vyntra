@@ -1211,7 +1211,9 @@
       "activateSuccess": "Thème activé avec succès.",
       "activateError": "Échec de l'activation du thème.",
       "deleteError": "Échec de la suppression du thème."
-    }
+    },
+    "save": "Enregistrer",
+    "cancel": "Annuler"
   },
   "store": {
     "store": {
@@ -1419,10 +1421,14 @@
       "tags": "Tags",
       "share": "Partager",
       "store": "Magasin",
+      "add": "Ajouter un produit",
       "formInstructions": "Mettez à jour les détails du produit ci-dessous",
       "statusLabel": "Statut",
       "updateInformation": "Mettre à jour les informations produit",
-      "visibility": "Visibilité"
+      "visibility": "Visibilité",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "phone": "Téléphone"
     },
     "rewards": {
       "title": "Points de récompense",
@@ -1622,12 +1628,38 @@
       "status": "Statut",
       "totalOrders": "Nombre de commandes",
       "viewProfile": "Voir le profil",
-      "sendEmail": "Envoyer un email"
+      "sendEmail": "Envoyer un email",
+      "phone": "Téléphone",
+      "vip": "VIP"
     },
     "reports": {
       "title": "Rapports magasin",
       "description": "Analytique des ventes, stocks et performances",
       "store": "Magasin"
+    },
+    "editor": {
+      "alignCenter": "Aligner au centre",
+      "alignLeft": "Aligner à gauche",
+      "alignRight": "Aligner à droite",
+      "bold": "Gras",
+      "bulletList": "Liste à puces",
+      "dividerLine": "Ligne de séparation",
+      "heading2": "Titre 2",
+      "heading3": "Titre 3",
+      "heading4": "Titre 4",
+      "highlight": "Surligner",
+      "highlightTitle": "Couleur de surbrillance",
+      "italic": "Italique",
+      "justify": "Justifier",
+      "left": "Gauche",
+      "normalText": "Texte normal",
+      "orderedList": "Liste ordonnée",
+      "redo": "Refaire",
+      "strikethrough": "Barré",
+      "textColor": "Couleur du texte",
+      "textColorTitle": "Couleur du texte",
+      "underline": "Souligné",
+      "undo": "Annuler"
     }
   },
   "messages": {

@@ -106,6 +106,7 @@ export interface StoreProduct {
   categoryIds: string[];
   tags: string[];
   brand?: string;
+  specification?: string;
   variants?: ProductVariant[];
   seoTitle?: string;
   seoDescription?: string;
@@ -115,6 +116,29 @@ export interface StoreProduct {
   totalSales?: number;
   rating?: number;
   reviewCount?: number;
+}
+
+// ─── Attribute ───────────────────────────────────────────────────────────────
+
+export type AttributeType = "selection" | "color";
+export type AttributeFieldType = "dropdown" | "multiselect" | "buttons" | "text" | "textarea";
+
+export interface AttributeOption {
+  id: string;
+  name: string;
+  colorHex?: string;
+  sortOrder?: number;
+}
+
+export interface StoreAttribute {
+  id: string;
+  name: string;
+  attributeType: AttributeType;
+  fieldType: AttributeFieldType;
+  usedInVariation: boolean;
+  options: AttributeOption[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 // ─── Category ────────────────────────────────────────────────────────────────

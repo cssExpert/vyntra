@@ -122,6 +122,12 @@ export const NAV_SECTIONS: NavSection[] = [
             icon: "",
           },
           {
+            id: "store-attributes",
+            label: "Attributes",
+            href: "/store/attributes",
+            icon: "",
+          },
+          {
             id: "store-inventory",
             label: "Inventory",
             href: "/store/inventory",

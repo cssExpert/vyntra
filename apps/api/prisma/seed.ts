@@ -794,6 +794,243 @@ async function main() {
   }
   console.log("   Seeded admin settings (SMTP + Uploadthing storage)");
 
+  // ── Store: Product Categories ──────────────────────────────────────────────
+  console.log("🏪 Seeding store data for Acme Corp…");
+
+  const catMap: Record<string, string> = {};
+
+  const topLevelCats = [
+    { key: "cat1", name: "Templates",        slug: "templates",        desc: "Digital templates for designers and developers.", sortOrder: 1 },
+    { key: "cat2", name: "Subscriptions",    slug: "subscriptions",    desc: "Monthly and annual SaaS plans.",                  sortOrder: 2 },
+    { key: "cat3", name: "Digital Downloads", slug: "digital-downloads", desc: "Ebooks, PDFs, and downloadable assets.",         sortOrder: 3 },
+    { key: "cat4", name: "Merchandise",      slug: "merchandise",      desc: "Branded apparel and physical goods.",             sortOrder: 4 },
+    { key: "cat5", name: "Services",         slug: "services",         desc: "Consulting and expert services.",                 sortOrder: 5 },
+  ];
+
+  for (const c of topLevelCats) {
+    const rec = await prisma.productCategory.upsert({
+      where: { organizationId_slug: { organizationId: org.id, slug: c.slug } },
+      update: { name: c.name, description: c.desc, sortOrder: c.sortOrder },
+      create: { organizationId: org.id, name: c.name, slug: c.slug, description: c.desc, sortOrder: c.sortOrder, status: "active" },
+    });
+    catMap[c.key] = rec.id;
+  }
+
+  const childCats = [
+    { key: "cat1a", parent: "cat1", name: "Dashboard UI",    slug: "dashboard-ui",    sortOrder: 1 },
+    { key: "cat1b", parent: "cat1", name: "Landing Pages",   slug: "landing-pages",   sortOrder: 2 },
+    { key: "cat1c", parent: "cat1", name: "Email Templates", slug: "email-templates-cat", sortOrder: 3 },
+    { key: "cat3a", parent: "cat3", name: "Ebooks",          slug: "ebooks",          sortOrder: 1 },
+    { key: "cat3b", parent: "cat3", name: "Design Assets",   slug: "design-assets",   sortOrder: 2 },
+    { key: "cat3c", parent: "cat3", name: "Audio & Video",   slug: "audio-video",     sortOrder: 3 },
+    { key: "cat4a", parent: "cat4", name: "Apparel",         slug: "apparel",         sortOrder: 1 },
+    { key: "cat4b", parent: "cat4", name: "Accessories",     slug: "accessories",     sortOrder: 2 },
+    { key: "cat5a", parent: "cat5", name: "Consulting",      slug: "consulting",      sortOrder: 1 },
+    { key: "cat5b", parent: "cat5", name: "Development",     slug: "dev-services",    sortOrder: 2 },
+  ];
+
+  for (const c of childCats) {
+    const rec = await prisma.productCategory.upsert({
+      where: { organizationId_slug: { organizationId: org.id, slug: c.slug } },
+      update: { name: c.name, sortOrder: c.sortOrder, parentId: catMap[c.parent] },
+      create: { organizationId: org.id, name: c.name, slug: c.slug, parentId: catMap[c.parent], sortOrder: c.sortOrder, status: "active" },
+    });
+    catMap[c.key] = rec.id;
+  }
+
+  const grandchildCats = [
+    { key: "cat3a1", parent: "cat3a", name: "Marketing",   slug: "ebooks-marketing", sortOrder: 1 },
+    { key: "cat3a2", parent: "cat3a", name: "Development", slug: "ebooks-dev",       sortOrder: 2 },
+    { key: "cat3a3", parent: "cat3a", name: "Design",      slug: "ebooks-design",    sortOrder: 3 },
+  ];
+
+  for (const c of grandchildCats) {
+    const rec = await prisma.productCategory.upsert({
+      where: { organizationId_slug: { organizationId: org.id, slug: c.slug } },
+      update: { name: c.name, sortOrder: c.sortOrder, parentId: catMap[c.parent] },
+      create: { organizationId: org.id, name: c.name, slug: c.slug, parentId: catMap[c.parent], sortOrder: c.sortOrder, status: "active" },
+    });
+    catMap[c.key] = rec.id;
+  }
+
+  console.log("   ✓ Product categories (18 records, 3-level tree)");
+
+  // ── Store: Attributes ────────────────────────────────────────────────────
+  const attrDefs = [
+    {
+      name: "Color", type: "color",
+      values: ["Red", "Blue", "Black", "White", "Green", "Yellow"],
+    },
+    {
+      name: "Size", type: "select",
+      values: ["XS", "S", "M", "L", "XL", "XXL"],
+    },
+    {
+      name: "Material", type: "select",
+      values: ["Cotton", "Polyester", "Wool", "Silk", "Linen"],
+    },
+    {
+      name: "Storage", type: "select",
+      values: ["64GB", "128GB", "256GB", "512GB", "1TB"],
+    },
+    {
+      name: "Warranty", type: "select",
+      values: ["6 Months", "1 Year", "2 Years", "3 Years"],
+    },
+    {
+      name: "Finish", type: "select",
+      values: ["Matte", "Gloss", "Satin", "Brushed"],
+    },
+  ];
+
+  for (const attr of attrDefs) {
+    const existing = await prisma.storeAttribute.findFirst({
+      where: { organizationId: org.id, name: attr.name },
+    });
+    let attrId: string;
+    if (existing) {
+      attrId = existing.id;
+    } else {
+      const created = await prisma.storeAttribute.create({
+        data: { organizationId: org.id, name: attr.name, type: attr.type },
+      });
+      attrId = created.id;
+    }
+    for (let i = 0; i < attr.values.length; i++) {
+      await prisma.storeAttributeValue.upsert({
+        where: { attributeId_value: { attributeId: attrId, value: attr.values[i] } },
+        update: { sortOrder: i },
+        create: { attributeId: attrId, value: attr.values[i], sortOrder: i },
+      });
+    }
+  }
+
+  console.log("   ✓ Store attributes (6 attributes, 30+ values)");
+
+  // ── Store: Products ───────────────────────────────────────────────────────
+  const products = [
+    {
+      name: "Premium SaaS Dashboard Template",
+      slug: "premium-saas-dashboard-template",
+      sku: "TMPL-001",
+      type: "digital",
+      status: "active",
+      shortDescription: "Production-ready Next.js 14 dashboard with analytics, auth, and dark mode.",
+      price: 79.0,
+      compareAtPrice: 129.0,
+      costPrice: 0,
+      stockStatus: "in_stock",
+      stock: 9999,
+      lowStockThreshold: 0,
+      categoryIds: [catMap["cat1a"]],
+      tags: ["nextjs", "dashboard", "template", "saas"],
+    },
+    {
+      name: "Annual Growth Plan",
+      slug: "annual-growth-plan",
+      sku: "SUB-GROWTH-Y",
+      type: "subscription",
+      status: "active",
+      shortDescription: "Full access to all features. Billed annually.",
+      price: 199.0,
+      compareAtPrice: 240.0,
+      costPrice: 20,
+      stockStatus: "in_stock",
+      stock: 9999,
+      lowStockThreshold: 0,
+      categoryIds: [catMap["cat2"]],
+      tags: ["subscription", "saas", "annual"],
+    },
+    {
+      name: "UI Component Bundle",
+      slug: "ui-component-bundle",
+      sku: "TMPL-COMP-001",
+      type: "bundle",
+      status: "active",
+      shortDescription: "50+ reusable React components for building modern UIs faster.",
+      price: 149.0,
+      compareAtPrice: 249.0,
+      costPrice: 0,
+      stockStatus: "in_stock",
+      stock: 9999,
+      lowStockThreshold: 0,
+      categoryIds: [catMap["cat1"]],
+      tags: ["react", "components", "ui", "bundle"],
+    },
+    {
+      name: "SEO Audit Checklist PDF",
+      slug: "seo-audit-checklist-pdf",
+      sku: "DL-SEO-001",
+      type: "digital",
+      status: "active",
+      shortDescription: "150-point SEO checklist used by agencies. Instant download.",
+      price: 19.0,
+      compareAtPrice: 29.0,
+      costPrice: 0,
+      stockStatus: "in_stock",
+      stock: 9999,
+      lowStockThreshold: 0,
+      categoryIds: [catMap["cat3a1"]],
+      tags: ["seo", "pdf", "checklist", "marketing"],
+    },
+    {
+      name: "Pro T-Shirt (Branded)",
+      slug: "pro-t-shirt-branded",
+      sku: "MERCH-TS-001",
+      type: "variable",
+      status: "active",
+      shortDescription: "Soft cotton t-shirt with ERVFlow branding. Available in S–XXL.",
+      price: 29.0,
+      compareAtPrice: 39.0,
+      costPrice: 8.5,
+      stockStatus: "low_stock",
+      stock: 14,
+      lowStockThreshold: 20,
+      categoryIds: [catMap["cat4a"]],
+      tags: ["merch", "apparel", "branded"],
+    },
+    {
+      name: "1-on-1 Consulting Session",
+      slug: "1-on-1-consulting-session",
+      sku: "SVC-CONSULT-01",
+      type: "service",
+      status: "active",
+      shortDescription: "60-minute Zoom strategy session with our team.",
+      price: 199.0,
+      costPrice: 30,
+      stockStatus: "in_stock",
+      stock: 9999,
+      lowStockThreshold: 0,
+      categoryIds: [catMap["cat5a"]],
+      tags: ["consulting", "service", "strategy"],
+    },
+  ];
+
+  for (const p of products) {
+    await prisma.product.upsert({
+      where: { organizationId_slug: { organizationId: org.id, slug: p.slug } },
+      update: {
+        name: p.name, sku: p.sku, type: p.type, status: p.status,
+        shortDescription: p.shortDescription, price: p.price,
+        compareAtPrice: p.compareAtPrice, costPrice: p.costPrice,
+        stockStatus: p.stockStatus, stock: p.stock,
+        lowStockThreshold: p.lowStockThreshold,
+        categoryIds: p.categoryIds, tags: p.tags,
+      },
+      create: {
+        organizationId: org.id,
+        name: p.name, slug: p.slug, sku: p.sku, type: p.type, status: p.status,
+        shortDescription: p.shortDescription, price: p.price,
+        compareAtPrice: p.compareAtPrice ?? null, costPrice: p.costPrice ?? null,
+        stockStatus: p.stockStatus, stock: p.stock,
+        lowStockThreshold: p.lowStockThreshold,
+        categoryIds: p.categoryIds, tags: p.tags,
+      },
+    });
+  }
+
+  console.log("   ✓ Products (6 sample products across all types)");
+
   const platformDomain = process.env.PLATFORM_DOMAIN ?? "lvh.me";
   console.log(`✅ Seed complete  (password for all accounts: ${PASSWORD})`);
   console.log("   SUPER_ADMIN : superadmin@vyntra.com");

@@ -1211,7 +1211,9 @@
       "activateSuccess": "थीम सफलतापूर्वक सक्रिय किया गया।",
       "activateError": "थीम सक्रिय करने में विफल।",
       "deleteError": "थीम हटाने में विफल।"
-    }
+    },
+    "save": "सहेजें",
+    "cancel": "रद्द करें"
   },
   "store": {
     "store": {
@@ -1419,10 +1421,14 @@
       "tags": "टैग",
       "share": "साझा करें",
       "store": "स्टोर",
+      "add": "उत्पाद जोड़ें",
       "formInstructions": "नीचे उत्पाद विवरण अपडेट करें",
       "statusLabel": "स्थिति",
       "updateInformation": "उत्पाद जानकारी अपडेट करें",
-      "visibility": "दृश्यमानता"
+      "visibility": "दृश्यमानता",
+      "cancel": "रद्द करें",
+      "save": "सहेजें",
+      "phone": "फोन"
     },
     "rewards": {
       "title": "पुरस्कार अंक",
@@ -1622,12 +1628,38 @@
       "status": "स्थिति",
       "totalOrders": "कुल आदेश",
       "viewProfile": "प्रोफाइल देखें",
-      "sendEmail": "ईमेल भेजें"
+      "sendEmail": "ईमेल भेजें",
+      "phone": "फोन",
+      "vip": "वीआईपी"
     },
     "reports": {
       "title": "स्टोर रिपोर्ट",
       "description": "बिक्री, इन्वेंटरी और प्रदर्शन विश्लेषण",
       "store": "स्टोर"
+    },
+    "editor": {
+      "alignCenter": "केंद्र में संरेखित करें",
+      "alignLeft": "बाएं में संरेखित करें",
+      "alignRight": "दाईं ओर संरेखित करें",
+      "bold": "बोल्ड",
+      "bulletList": "बुलेट सूची",
+      "dividerLine": "विभाजन लाइन",
+      "heading2": "शीर्षक 2",
+      "heading3": "शीर्षक 3",
+      "heading4": "शीर्षक 4",
+      "highlight": "हाइलाइट करें",
+      "highlightTitle": "हाइलाइट रंग",
+      "italic": "इटैलिक",
+      "justify": "न्यायसंगत करें",
+      "left": "बाएं",
+      "normalText": "सामान्य पाठ",
+      "orderedList": "क्रमांकित सूची",
+      "redo": "फिर से करें",
+      "strikethrough": "स्ट्राइकथ्रू",
+      "textColor": "पाठ रंग",
+      "textColorTitle": "पाठ रंग",
+      "underline": "रेखांकित",
+      "undo": "पूर्ववत करें"
     }
   },
   "messages": {
