@@ -29,8 +29,8 @@ const buttonVariants = cva(
         sm: "h-8 px-3 text-xs [&_svg]:size-3.5",
         md: "h-[2.5rem] px-3.5 text-sm [&_svg]:size-4",
         default: "h-10 px-4 py-2.5",
-        lg: "h-10 px-6",
-        xl: "h-11 px-7 text-base",
+        lg: "h-10 px-4",
+        xl: "h-11 px-5 text-base",
         icon: "h-9 w-9",
       },
       // ── Radius — controlled by the parent ────────────────────────────
@@ -139,7 +139,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
-        className={classes}
+        className={`${classes}`}
         disabled={disabled || loading}
         aria-busy={loading || undefined}
         aria-pressed={active || undefined}

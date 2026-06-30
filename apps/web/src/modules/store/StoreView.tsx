@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
@@ -68,13 +68,13 @@ function SectionCard({
           )}
         </div>
         {action && (
-          <a
+          <Link
             href={action.href}
             className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer"
           >
             {action.label}
             <MoveRight className="h-3 w-3" />
-          </a>
+          </Link>
         )}
       </div>
       {children}
@@ -183,16 +183,16 @@ export function StoreView() {
                     {t("refresh", { defaultValue: "Refresh" })}
                   </span>
                 </button>
-                <a
+                <Link
                   href="/store/products/add"
-                  className="flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all duration-200 cursor-pointer"
+                  className="group flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all duration-200 cursor-pointer"
                 >
                   <Plus
                     size={16}
                     className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4"
                   />
                   {t("addProduct")}
-                </a>
+                </Link>
               </PageHeader>
             </motion.div>
 

@@ -16,26 +16,36 @@ export function ProductsView() {
 
   useEffect(() => {
     document.documentElement.style.overflow = "hidden";
-    return () => { document.documentElement.style.overflow = ""; };
+    return () => {
+      document.documentElement.style.overflow = "";
+    };
   }, []);
 
-  const [activeTab,    setActiveTab]    = useState<ProductTabId>("all");
-  const [search,       setSearch]       = useState("");
-  const [typeFilter,   setTypeFilter]   = useState("");
-  const [stockFilter,  setStockFilter]  = useState("");
-  const [selectedIds,  setSelectedIds]  = useState<Set<string>>(new Set());
+  const [activeTab, setActiveTab] = useState<ProductTabId>("all");
+  const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
+  const [stockFilter, setStockFilter] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const filtered = useMemo(() => {
     // Merge saved edits from localStorage with SAMPLE_PRODUCTS
-    const savedEdits = JSON.parse(typeof window !== "undefined" ? localStorage.getItem("store_products_edited") || "{}" : "{}");
+    const savedEdits = JSON.parse(
+      typeof window !== "undefined"
+        ? localStorage.getItem("store_products_edited") || "{}"
+        : "{}",
+    );
     let result = SAMPLE_PRODUCTS.map((p) => savedEdits[p.id] || p);
 
-    if (activeTab === "active")   result = result.filter((p) => p.status === "active");
-    if (activeTab === "draft")    result = result.filter((p) => p.status === "draft");
-    if (activeTab === "archived") result = result.filter((p) => p.status === "archived");
+    if (activeTab === "active")
+      result = result.filter((p) => p.status === "active");
+    if (activeTab === "draft")
+      result = result.filter((p) => p.status === "draft");
+    if (activeTab === "archived")
+      result = result.filter((p) => p.status === "archived");
 
-    if (typeFilter)  result = result.filter((p) => p.type === typeFilter);
-    if (stockFilter) result = result.filter((p) => p.stockStatus === stockFilter);
+    if (typeFilter) result = result.filter((p) => p.type === typeFilter);
+    if (stockFilter)
+      result = result.filter((p) => p.stockStatus === stockFilter);
 
     if (search.trim()) {
       const q = search.toLowerCase();
@@ -43,7 +53,7 @@ export function ProductsView() {
         (p) =>
           p.name.toLowerCase().includes(q) ||
           p.sku.toLowerCase().includes(q) ||
-          p.tags.some((t) => t.toLowerCase().includes(q)),
+          p.tags.some((tag: string) => tag.toLowerCase().includes(q)),
       );
     }
 
@@ -53,7 +63,11 @@ export function ProductsView() {
   const handleToggleSelect = (id: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
       return next;
     });
   };
@@ -65,7 +79,12 @@ export function ProductsView() {
   return (
     <AnimatePresence mode="wait" initial={false}>
       {!isLoaded ? (
-        <motion.div key="skeleton" exit={{ opacity: 0 }} transition={{ duration: 0.12 }} className="space-y-4">
+        <motion.div
+          key="skeleton"
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.12 }}
+          className="space-y-4"
+        >
           <div className="h-9 w-96 rounded-sm bg-muted animate-pulse" />
           <div className="h-8 w-full rounded-sm bg-muted animate-pulse" />
           <div className="h-64 w-full rounded-xl bg-muted animate-pulse" />
@@ -81,14 +100,22 @@ export function ProductsView() {
           <PageHeader
             title={t("title")}
             description={t("description")}
-            breadcrumbs={[{ label: "Store", href: "/store" }, { label: t("title") }]}
+            breadcrumbs={[
+              { label: "Store", href: "/store" },
+              { label: t("title") },
+            ]}
           />
 
           <ProductsHeader
             total={SAMPLE_PRODUCTS.length}
             activeTab={activeTab}
-            onTabChange={(t) => { setActiveTab(t); setSelectedIds(new Set()); }}
-            onAdd={() => { window.location.href = "/store/products/add"; }}
+            onTabChange={(t) => {
+              setActiveTab(t);
+              setSelectedIds(new Set());
+            }}
+            onAdd={() => {
+              window.location.href = "/store/products/add";
+            }}
           />
 
           <ProductsToolbar
@@ -99,7 +126,9 @@ export function ProductsView() {
             stockFilter={stockFilter}
             onStockFilterChange={setStockFilter}
             selectedCount={selectedIds.size}
-            onBulkDelete={() => { setSelectedIds(new Set()); }}
+            onBulkDelete={() => {
+              setSelectedIds(new Set());
+            }}
             onClearSelection={() => setSelectedIds(new Set())}
           />
 
@@ -109,7 +138,6 @@ export function ProductsView() {
             onToggleSelect={handleToggleSelect}
             onToggleAll={handleToggleAll}
           />
-
         </motion.div>
       )}
     </AnimatePresence>

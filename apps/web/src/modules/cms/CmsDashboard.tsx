@@ -180,14 +180,14 @@ export function CmsDashboard() {
         <div className="flex items-center gap-2">
           <button
             onClick={load}
-            className="w-8 h-8 flex items-center justify-center rounded-lg border border-border bg-card hover:bg-muted text-muted-foreground transition-all"
+            className="w-10 h-10 flex items-center justify-center rounded-lg border border-border bg-card hover:bg-muted text-muted-foreground transition-all"
             title="Refresh"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
           <Link
             href="/cms/blogs/new"
-            className="group flex items-center gap-1.5 px-3.5 py-2 bg-primary hover:bg-primary-600 text-primary-foreground text-xs font-bold rounded-lg transition-all"
+            className="group flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 h-10 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all duration-200 cursor-pointer"
           >
             <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4" />
             New Blog Post
