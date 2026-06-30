@@ -11,7 +11,7 @@ import { WebhookService } from '../services/webhook.service';
 import { OrdersService } from '../services/orders.service';
 import { EmailService } from '../services/email.service';
 
-@Controller('api/store/webhooks')
+@Controller('store/webhooks')
 export class WebhooksController {
   private readonly logger = new Logger(WebhooksController.name);
 

@@ -54,6 +54,7 @@ const buildColumns = (
   allIds: string[],
   tx: (key: string) => string,
   router: any,
+  onDelete?: (id: string) => void,
 ) => {
   return [
   columnHelper.display({
@@ -225,7 +226,7 @@ const buildColumns = (
             {
               label: tx("delete"),
               icon: <Trash2 size={14} />,
-              onClick: () => {},
+              onClick: () => onDelete?.(p.id),
               variant: "danger",
               separator: true,
             },
@@ -244,6 +245,7 @@ interface Props {
   selectedIds: Set<string>;
   onToggleSelect: (id: string) => void;
   onToggleAll: (ids: string[]) => void;
+  onDelete?: (id: string) => void;
 }
 
 export function ProductsTable({
@@ -251,6 +253,7 @@ export function ProductsTable({
   selectedIds,
   onToggleSelect,
   onToggleAll,
+  onDelete,
 }: Props) {
   const tx = useTranslations("store.products");
   const router = useRouter();
@@ -290,6 +293,7 @@ export function ProductsTable({
     products.map((p) => p.id),
     tx,
     router,
+    onDelete,
   );
 
   const table = useReactTable({
@@ -461,7 +465,7 @@ export function ProductsTable({
                 ) : (
                   <button
                     key={p}
-                    onClick={() => table.setPageIndex(p)}
+                    onClick={() => table.setPageIndex(p as number)}
                     className={`w-8 h-8 text-sm font-semibold rounded-sm transition-all cursor-pointer ${
                       pageIndex === p
                         ? "bg-primary text-primary-foreground"

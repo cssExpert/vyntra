@@ -15,7 +15,7 @@ import { CurrentOrg } from '../../common/decorators/current-org.decorator';
 import { CouponsService } from '../services/coupons.service';
 import { CreateCouponCodeDto, UpdateCouponCodeDto } from '../dto';
 
-@Controller('api/store/coupons')
+@Controller('store/coupons')
 @UseGuards(JwtAuthGuard)
 export class CouponsController {
   constructor(private couponsService: CouponsService) {}

@@ -14,7 +14,7 @@ import { CurrentOrg } from '../../common/decorators/current-org.decorator';
 import { OrdersService } from '../services/orders.service';
 import { CreateOrderDto, UpdateOrderDto } from '../dto';
 
-@Controller('api/store/orders')
+@Controller('store/orders')
 @UseGuards(JwtAuthGuard)
 export class OrdersController {
   constructor(private ordersService: OrdersService) {}

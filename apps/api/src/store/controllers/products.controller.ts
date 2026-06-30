@@ -17,7 +17,7 @@ import { CurrentOrg } from '../../common/decorators/current-org.decorator';
 import { ProductsService } from '../services/products.service';
 import { CreateProductDto, UpdateProductDto } from '../dto';
 
-@Controller('api/store/products')
+@Controller('store/products')
 @UseGuards(JwtAuthGuard)
 export class ProductsController {
   constructor(private productsService: ProductsService) {}

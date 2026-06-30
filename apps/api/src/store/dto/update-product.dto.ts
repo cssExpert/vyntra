@@ -49,6 +49,10 @@ export class UpdateProductDto {
 
   @IsOptional()
   @IsString()
+  specification?: string;
+
+  @IsOptional()
+  @IsString()
   seoTitle?: string;
 
   @IsOptional()

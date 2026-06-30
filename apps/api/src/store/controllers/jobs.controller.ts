@@ -3,7 +3,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { JobQueueService } from '../services/job-queue.service';
 import { StoreJobsService } from '../services/store-jobs.service';
 
-@Controller('api/store/jobs')
+@Controller('store/jobs')
 @UseGuards(JwtAuthGuard)
 export class JobsController {
   constructor(

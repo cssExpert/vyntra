@@ -5,10 +5,9 @@ import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import type { StoreProduct } from "../store.types";
-import { SAMPLE_PRODUCTS } from "../store.data";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { ProductForm, type ProductFormData } from "./components/ProductForm";
+import { storeProducts } from "@/lib/api";
 
 interface EditProductViewProps {
   productId: string;
@@ -19,118 +18,106 @@ export function EditProductView({ productId }: EditProductViewProps) {
   const isLoaded = usePageLoad(500);
   const router = useRouter();
 
-  const [product,   setProduct]   = useState<StoreProduct | null>(null);
-  const [initData,  setInitData]  = useState<Partial<ProductFormData> | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving,  setIsSaving]  = useState(false);
+  const [productName, setProductName] = useState<string>("");
+  const [initData,    setInitData]    = useState<Partial<ProductFormData> | null>(null);
+  const [isLoading,   setIsLoading]   = useState(true);
+  const [isSaving,    setIsSaving]    = useState(false);
+  const [error,       setError]       = useState<string | null>(null);
 
   useEffect(() => {
+    let active = true;
     setIsLoading(true);
-    try {
-      // Merge SAMPLE_PRODUCTS with any localStorage edits
-      const saved = JSON.parse(
-        typeof window !== "undefined"
-          ? localStorage.getItem("store_products_edited") || "{}"
-          : "{}",
-      );
-      const base = SAMPLE_PRODUCTS.find((p) => p.id === productId);
-      if (!base) { setIsLoading(false); return; }
+    setError(null);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const merged: Record<string, any> = { ...base, ...saved[productId] };
-      setProduct(base);
+    storeProducts.get(productId)
+      .then((p) => {
+        if (!active) return;
+        setProductName(p.name);
+        setInitData({
+          name:              p.name              ?? "",
+          slug:              p.slug              ?? "",
+          shortDescription:  p.shortDescription  ?? "",
+          description:       p.description       ?? "",
+          specification:     p.specification     ?? "",
+          featuredImage:     p.featuredImage      ?? null,
+          type:              (p.type             ?? "simple") as ProductFormData["type"],
+          status:            (p.status           ?? "draft")  as ProductFormData["status"],
+          publishedAt:       p.publishedAt        ?? "",
+          price:             String(p.price       ?? ""),
+          compareAtPrice:    String(p.compareAtPrice ?? ""),
+          costPrice:         String(p.costPrice   ?? ""),
+          taxClass:          p.taxClass           ?? "standard",
+          sku:               p.sku               ?? "",
+          stock:             String(p.stock       ?? ""),
+          stockStatus:       (p.stockStatus       ?? "in_stock") as ProductFormData["stockStatus"],
+          lowStockThreshold: String(p.lowStockThreshold ?? "5"),
+          weight:            String(p.weight      ?? ""),
+          trackInventory:    true,
+          backorderEnabled:  false,
+          downloadFiles:     [],
+          downloadLimit:     "",
+          downloadExpiry:    "",
+          attributes:        [],
+          variants:          (p.variants ?? []).map((v) => ({
+            id:      v.id,
+            sku:     v.sku,
+            attrs:   v.attributes ?? {},
+            price:   String(v.price),
+            stock:   String(v.stock),
+            enabled: true,
+          })),
+          billingPeriod:     "month",
+          billingInterval:   "1",
+          trialPeriod:       "",
+          signupFee:         "",
+          bundleItems:       [],
+          giftCardAmounts:   ["25", "50", "100"],
+          allowCustomAmount: false,
+          giftCardExpiry:    "365",
+          categoryIds:       p.categoryIds ?? [],
+          tags:              p.tags ?? [],
+          seoTitle:          p.seoTitle          ?? "",
+          seoDescription:    p.seoDescription    ?? "",
+        });
+      })
+      .catch((err: unknown) => {
+        if (!active) return;
+        setError(err instanceof Error ? err.message : "Failed to load product");
+      })
+      .finally(() => { if (active) setIsLoading(false); });
 
-      setInitData({
-        name:               merged.name               ?? "",
-        slug:               merged.slug               ?? "",
-        shortDescription:   merged.shortDescription   ?? "",
-        description:        merged.description        ?? "",
-        specification:      merged.specification      ?? "",
-        featuredImage:      merged.featuredImage       ?? null,
-        type:               merged.type               ?? "simple",
-        status:             merged.status             ?? "draft",
-        publishedAt:        merged.publishedAt        ?? "",
-        price:              String(merged.price       ?? ""),
-        compareAtPrice:     String(merged.compareAtPrice ?? ""),
-        costPrice:          String(merged.costPrice   ?? ""),
-        taxClass:           merged.taxClass           ?? "standard",
-        sku:                merged.sku                ?? "",
-        stock:              String(merged.stock       ?? ""),
-        stockStatus:        merged.stockStatus        ?? "in_stock",
-        lowStockThreshold:  String(merged.lowStockThreshold ?? "5"),
-        weight:             String(merged.weight      ?? ""),
-        trackInventory:     merged.trackInventory     !== false,
-        backorderEnabled:   merged.backorderEnabled   === true,
-        downloadFiles:      merged.downloadFiles      ?? [],
-        downloadLimit:      String(merged.downloadLimit   ?? ""),
-        downloadExpiry:     String(merged.downloadExpiry  ?? ""),
-        attributes:         merged.attributes         ?? [],
-        variants:           merged.variants           ?? [],
-        billingPeriod:      merged.billingPeriod      ?? "month",
-        billingInterval:    String(merged.billingInterval ?? "1"),
-        trialPeriod:        String(merged.trialPeriod    ?? ""),
-        signupFee:          String(merged.signupFee      ?? ""),
-        bundleItems:        merged.bundleItems        ?? [],
-        giftCardAmounts:    merged.giftCardAmounts    ?? ["25", "50", "100"],
-        allowCustomAmount:  merged.allowCustomAmount  ?? false,
-        giftCardExpiry:     String(merged.giftCardExpiry ?? "365"),
-        categoryIds:        merged.categoryIds        ?? [],
-        tags:               merged.tags               ?? [],
-        seoTitle:           merged.seoTitle           ?? "",
-        seoDescription:     merged.seoDescription     ?? "",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    return () => { active = false; };
   }, [productId]);
 
   const handleSave = async (data: ProductFormData) => {
     setIsSaving(true);
     try {
-      const saved = JSON.parse(localStorage.getItem("store_products_edited") || "{}");
-      saved[productId] = {
-        id:                productId,
-        name:              data.name,
-        slug:              data.slug,
-        shortDescription:  data.shortDescription,
-        description:       data.description,
-        specification:     data.specification,
-        featuredImage:     data.featuredImage,
-        type:              data.type,
-        status:            data.status,
-        publishedAt:       data.publishedAt,
-        price:             parseFloat(data.price)           || 0,
-        compareAtPrice:    parseFloat(data.compareAtPrice)  || 0,
-        costPrice:         parseFloat(data.costPrice)       || 0,
-        taxClass:          data.taxClass,
-        sku:               data.sku,
-        stock:             parseInt(data.stock)             || 0,
-        stockStatus:       data.stockStatus,
-        lowStockThreshold: parseInt(data.lowStockThreshold) || 5,
-        weight:            parseFloat(data.weight)          || 0,
-        trackInventory:    data.trackInventory,
-        backorderEnabled:  data.backorderEnabled,
-        downloadFiles:     data.downloadFiles,
-        downloadLimit:     data.downloadLimit,
-        downloadExpiry:    data.downloadExpiry,
-        attributes:        data.attributes,
-        variants:          data.variants,
-        billingPeriod:     data.billingPeriod,
-        billingInterval:   data.billingInterval,
-        trialPeriod:       data.trialPeriod,
-        signupFee:         data.signupFee,
-        bundleItems:       data.bundleItems,
-        giftCardAmounts:   data.giftCardAmounts,
-        allowCustomAmount: data.allowCustomAmount,
-        giftCardExpiry:    data.giftCardExpiry,
-        categoryIds:       data.categoryIds,
-        tags:              data.tags,
-        seoTitle:          data.seoTitle,
-        seoDescription:    data.seoDescription,
-      };
-      localStorage.setItem("store_products_edited", JSON.stringify(saved));
-      await new Promise((r) => setTimeout(r, 400));
+      await storeProducts.update(productId, {
+        name:             data.name,
+        slug:             data.slug,
+        shortDescription: data.shortDescription || undefined,
+        description:      data.description      || undefined,
+        seoTitle:         data.seoTitle         || undefined,
+        seoDescription:   data.seoDescription   || undefined,
+        featuredImage:    data.featuredImage     || undefined,
+        type:             data.type,
+        status:           data.status,
+        publishedAt:      data.publishedAt       || undefined,
+        price:            parseFloat(data.price)           || 0,
+        compareAtPrice:   parseFloat(data.compareAtPrice)  || undefined,
+        costPrice:        parseFloat(data.costPrice)       || undefined,
+        taxClass:         data.taxClass          || undefined,
+        sku:              data.sku,
+        stock:            parseInt(data.stock)             || 0,
+        stockStatus:      data.stockStatus,
+        weight:           parseFloat(data.weight)          || undefined,
+        categoryIds:      data.categoryIds,
+        tags:             data.tags,
+      });
       router.push("/store/products");
+    } catch (err) {
+      console.error("Save failed:", err);
+      alert(err instanceof Error ? err.message : "Failed to save product");
     } finally {
       setIsSaving(false);
     }
@@ -156,10 +143,10 @@ export function EditProductView({ productId }: EditProductViewProps) {
     );
   }
 
-  if (!product) {
+  if (error || !initData) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center gap-4 min-h-96">
-        <p className="text-muted-foreground">{t("noProducts")}</p>
+        <p className="text-muted-foreground">{error ?? t("noProducts")}</p>
         <Button onClick={() => router.back()}>Go Back</Button>
       </motion.div>
     );
@@ -168,8 +155,8 @@ export function EditProductView({ productId }: EditProductViewProps) {
   return (
     <ProductForm
       mode="edit"
-      initialData={initData ?? {}}
-      productName={product.name}
+      initialData={initData}
+      productName={productName}
       breadcrumbs={[
         { label: t("store"), href: "/store" },
         { label: t("title"), href: "/store/products" },

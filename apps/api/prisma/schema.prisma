@@ -737,6 +737,7 @@ model Product {
   // Descriptions & SEO
   shortDescription String?
   description      String?
+  specification    String?
   seoTitle         String?
   seoDescription   String?
 

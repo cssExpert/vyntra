@@ -9,7 +9,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentOrg } from '../../common/decorators/current-org.decorator';
 import { AnalyticsService } from '../services/analytics.service';
 
-@Controller('api/store/analytics')
+@Controller('store/analytics')
 @UseGuards(JwtAuthGuard)
 export class AnalyticsController {
   constructor(private analyticsService: AnalyticsService) {}

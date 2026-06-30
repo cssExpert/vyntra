@@ -14,7 +14,7 @@ import { CurrentOrg } from '../../common/decorators/current-org.decorator';
 import { InventoryService } from '../services/inventory.service';
 import { UpdateInventoryDto } from '../dto';
 
-@Controller('api/store/inventory')
+@Controller('store/inventory')
 @UseGuards(JwtAuthGuard)
 export class InventoryController {
   constructor(private inventoryService: InventoryService) {}

@@ -993,6 +993,174 @@ export const cmsForms = {
     }),
 };
 
+// ─── Store: Products ─────────────────────────────────────────────────────────
+
+export interface ApiProductVariant {
+  id: string;
+  productId: string;
+  sku: string;
+  attributes: Record<string, string>;
+  price: number;
+  compareAtPrice?: number | null;
+  costPrice?: number | null;
+  stock: number;
+  weight?: number | null;
+  imageUrl?: string | null;
+}
+
+export interface ApiProductMedia {
+  id: string;
+  url: string;
+  alt?: string | null;
+  type: "image" | "video";
+  isPrimary: boolean;
+}
+
+export interface ApiProduct {
+  id: string;
+  name: string;
+  slug: string;
+  sku: string;
+  type: string;
+  status: string;
+  shortDescription?: string | null;
+  description?: string | null;
+  specification?: string | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  featuredImage?: string | null;
+  price: number;
+  compareAtPrice?: number | null;
+  costPrice?: number | null;
+  stock: number;
+  stockStatus: string;
+  lowStockThreshold: number;
+  weight?: number | null;
+  taxClass?: string | null;
+  brand?: string | null;
+  categoryIds: string[];
+  tags: string[];
+  publishedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  variants?: ApiProductVariant[];
+  media?: ApiProductMedia[];
+  _count?: { orderItems: number; reviews: number };
+}
+
+export interface ApiProductsPage {
+  data: ApiProduct[];
+  total: number;
+  skip: number;
+  take: number;
+}
+
+export interface CreateProductPayload {
+  name: string;
+  slug: string;
+  sku: string;
+  type: string;
+  status?: string;
+  shortDescription?: string;
+  description?: string;
+  specification?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  price: number;
+  compareAtPrice?: number;
+  costPrice?: number;
+  stock?: number;
+  stockStatus?: string;
+  weight?: number;
+  taxClass?: string;
+  brand?: string;
+  featuredImage?: string;
+  categoryIds?: string[];
+  tags?: string[];
+  publishedAt?: string;
+}
+
+export const storeProducts = {
+  list: (params?: { skip?: number; take?: number; status?: string }) => {
+    const qs = new URLSearchParams();
+    if (params?.skip !== undefined) qs.set("skip", String(params.skip));
+    if (params?.take !== undefined) qs.set("take", String(params.take));
+    if (params?.status) qs.set("status", params.status);
+    const q = qs.toString();
+    return apiFetch<ApiProductsPage>(`/store/products${q ? `?${q}` : ""}`);
+  },
+  get: (id: string) => apiFetch<ApiProduct>(`/store/products/${id}`),
+  create: (dto: CreateProductPayload) =>
+    apiFetch<ApiProduct>("/store/products", {
+      method: "POST",
+      body: JSON.stringify(dto),
+    }),
+  update: (id: string, dto: Partial<CreateProductPayload>) =>
+    apiFetch<ApiProduct>(`/store/products/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(dto),
+    }),
+  remove: (id: string) =>
+    apiFetch<{ id: string }>(`/store/products/${id}`, { method: "DELETE" }),
+};
+
+// ─── Store: Categories ────────────────────────────────────────────────────────
+
+export interface ApiProductCategory {
+  id: string;
+  name: string;
+  slug: string;
+  parentId?: string | null;
+  description?: string | null;
+  imageUrl?: string | null;
+  status: string;
+  sortOrder: number;
+  featured?: boolean;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCategoryPayload {
+  name: string;
+  slug: string;
+  parentId?: string;
+  description?: string;
+  imageUrl?: string;
+  status?: string;
+  sortOrder?: number;
+  featured?: boolean;
+  seoTitle?: string;
+  seoDescription?: string;
+}
+
+export const storeCategories = {
+  list: (params?: { skip?: number; take?: number; status?: string }) => {
+    const qs = new URLSearchParams();
+    if (params?.skip !== undefined) qs.set("skip", String(params.skip));
+    if (params?.take !== undefined) qs.set("take", String(params.take));
+    if (params?.status) qs.set("status", params.status);
+    const q = qs.toString();
+    return apiFetch<{ data: ApiProductCategory[]; total: number }>(
+      `/store/categories${q ? `?${q}` : ""}`,
+    );
+  },
+  get: (id: string) => apiFetch<ApiProductCategory>(`/store/categories/${id}`),
+  create: (dto: CreateCategoryPayload) =>
+    apiFetch<ApiProductCategory>("/store/categories", {
+      method: "POST",
+      body: JSON.stringify(dto),
+    }),
+  update: (id: string, dto: Partial<CreateCategoryPayload>) =>
+    apiFetch<ApiProductCategory>(`/store/categories/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(dto),
+    }),
+  remove: (id: string) =>
+    apiFetch<{ id: string }>(`/store/categories/${id}`, { method: "DELETE" }),
+};
+
 export const cmsMenus = {
   list: () => apiFetch<CmsMenu[]>("/cms/menus"),
   create: (data: { name: string; slug: string; visibility: string[]; menuType?: string }) =>

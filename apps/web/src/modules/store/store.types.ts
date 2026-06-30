@@ -152,8 +152,12 @@ export interface StoreCategory {
   imageUrl?: string;
   productCount: number;
   status: "active" | "inactive";
+  featured?: boolean;
   sortOrder: number;
+  seoTitle?: string;
+  seoDescription?: string;
   createdAt: string;
+  updatedAt?: string;
 }
 
 // ─── Order ───────────────────────────────────────────────────────────────────

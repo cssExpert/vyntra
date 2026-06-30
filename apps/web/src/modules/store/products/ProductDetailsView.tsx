@@ -13,7 +13,6 @@ import {
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import type { StoreProduct } from "../store.types";
-import { SAMPLE_PRODUCTS, SAMPLE_CATEGORIES } from "../store.data";
 import {
   PRODUCT_STATUS_BADGES,
   PRODUCT_TYPE_LABELS,
@@ -21,6 +20,7 @@ import {
   STOCK_STATUS_BADGES,
 } from "../store.constants";
 import { formatStorePrice } from "../store.utils";
+import { storeProducts, storeCategories } from "@/lib/api";
 
 interface ProductDetailsViewProps {
   productId: string;
@@ -74,13 +74,71 @@ export function ProductDetailsView({ productId }: ProductDetailsViewProps) {
   const t = useTranslations("store.products");
   const router = useRouter();
   const [product, setProduct] = useState<StoreProduct | null>(null);
+  const [categoryMap, setCategoryMap] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const savedEdits = JSON.parse(typeof window !== "undefined" ? localStorage.getItem("store_products_edited") || "{}" : "{}");
-    const found = SAMPLE_PRODUCTS.find((p) => p.id === productId);
-    setProduct(found ? { ...found, ...savedEdits[productId] } : null);
-    setIsLoading(false);
+    let active = true;
+    setIsLoading(true);
+    setError(null);
+
+    Promise.all([
+      storeProducts.get(productId),
+      storeCategories.list({ take: 200 }),
+    ])
+      .then(([p, cats]) => {
+        if (!active) return;
+        const map: Record<string, string> = {};
+        cats.data.forEach((c) => { map[c.id] = c.name; });
+        setCategoryMap(map);
+        setProduct({
+          id: p.id,
+          name: p.name,
+          slug: p.slug,
+          sku: p.sku,
+          type: p.type as StoreProduct["type"],
+          status: p.status as StoreProduct["status"],
+          shortDescription: p.shortDescription ?? undefined,
+          description: p.description ?? undefined,
+          specification: p.specification ?? undefined,
+          featuredImage: p.featuredImage ?? undefined,
+          media: p.media?.map((m) => ({ ...m, alt: m.alt ?? undefined })) ?? [],
+          price: p.price,
+          compareAtPrice: p.compareAtPrice ?? undefined,
+          costPrice: p.costPrice ?? undefined,
+          taxClass: p.taxClass ?? undefined,
+          stockStatus: p.stockStatus as StoreProduct["stockStatus"],
+          stock: p.stock,
+          lowStockThreshold: p.lowStockThreshold ?? 5,
+          weight: p.weight ?? undefined,
+          categoryIds: p.categoryIds ?? [],
+          tags: p.tags ?? [],
+          brand: p.brand ?? undefined,
+          variants: p.variants?.map((v) => ({
+            ...v,
+            compareAtPrice: v.compareAtPrice ?? undefined,
+            costPrice: v.costPrice ?? undefined,
+            weight: v.weight ?? undefined,
+            imageUrl: v.imageUrl ?? undefined,
+            attributes: v.attributes ?? {},
+          })) ?? [],
+          seoTitle: p.seoTitle ?? undefined,
+          seoDescription: p.seoDescription ?? undefined,
+          publishedAt: p.publishedAt ?? undefined,
+          createdAt: p.createdAt,
+          updatedAt: p.updatedAt,
+          totalSales: p._count?.orderItems,
+          reviewCount: p._count?.reviews,
+        });
+      })
+      .catch((err) => {
+        if (!active) return;
+        setError(err instanceof Error ? err.message : "Failed to load product");
+      })
+      .finally(() => { if (active) setIsLoading(false); });
+
+    return () => { active = false; };
   }, [productId]);
 
   if (isLoading) {
@@ -91,10 +149,10 @@ export function ProductDetailsView({ productId }: ProductDetailsViewProps) {
     );
   }
 
-  if (!product) {
+  if (error || !product) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center gap-4 min-h-96">
-        <p className="text-muted-foreground">{t("noProducts")}</p>
+        <p className="text-muted-foreground">{error ?? t("noProducts")}</p>
         <Button onClick={() => router.back()}>Go Back</Button>
       </motion.div>
     );
@@ -111,9 +169,9 @@ export function ProductDetailsView({ productId }: ProductDetailsViewProps) {
     ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
     : null;
 
-  const categoryNames = SAMPLE_CATEGORIES
-    .filter((c) => product.categoryIds?.includes(c.id))
-    .map((c) => c.name);
+  const categoryNames = (product.categoryIds ?? [])
+    .map((id) => categoryMap[id])
+    .filter(Boolean) as string[];
 
   const statusColors: Record<string, string> = {
     success:     "bg-emerald-500/10 text-emerald-600",
@@ -198,8 +256,8 @@ export function ProductDetailsView({ productId }: ProductDetailsViewProps) {
                   )}
                   <div className="flex flex-wrap gap-3 mt-3 text-[12px] text-muted-foreground">
                     <span className="flex items-center gap-1"><Hash size={11} /> {product.sku}</span>
-                    <span className="flex items-center gap-1"><Calendar size={11} /> Created {product.createdAt}</span>
-                    <span className="flex items-center gap-1"><Clock size={11} /> Updated {product.updatedAt}</span>
+                    <span className="flex items-center gap-1"><Calendar size={11} /> Created {product.createdAt.slice(0, 10)}</span>
+                    <span className="flex items-center gap-1"><Clock size={11} /> Updated {product.updatedAt.slice(0, 10)}</span>
                   </div>
                 </div>
               </div>
@@ -369,8 +427,8 @@ export function ProductDetailsView({ productId }: ProductDetailsViewProps) {
               {product.publishedAt && (
                 <DataRow label="Published" value={product.publishedAt.replace("T", " ").slice(0, 16)} />
               )}
-              <DataRow label="Created" value={product.createdAt} />
-              <DataRow label="Updated" value={product.updatedAt} />
+              <DataRow label="Created" value={product.createdAt.slice(0, 10)} />
+              <DataRow label="Updated" value={product.updatedAt.slice(0, 10)} />
               <DataRow label="Slug" value={<span className="font-mono text-[11px] text-muted-foreground">/{product.slug}</span>} />
             </Section>
           </motion.div>
