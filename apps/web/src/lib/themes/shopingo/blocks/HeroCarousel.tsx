@@ -23,7 +23,7 @@ export default function HeroCarousel({ data }: { data: HeroCarouselData }) {
   const slide = slides[current];
 
   return (
-    <section className="relative overflow-hidden bg-gray-100" style={{ minHeight: 480 }}>
+    <section className="relative overflow-hidden bg-[#212529]" style={{ minHeight: 480 }}>
       {/* Slide image */}
       {slide.image && (
         <img
@@ -32,7 +32,8 @@ export default function HeroCarousel({ data }: { data: HeroCarouselData }) {
           className="absolute inset-0 w-full h-full object-cover"
         />
       )}
-      <div className="absolute inset-0 bg-black/35" />
+      {/* Overlay — darkens image; also ensures white text stays readable with no image */}
+      <div className="absolute inset-0 bg-black/40" />
 
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 flex items-center h-full" style={{ minHeight: 480 }}>
