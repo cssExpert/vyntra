@@ -20,6 +20,7 @@ import {
   Pin,
   Puzzle,
   LayoutTemplate,
+  Pencil,
 } from "lucide-react";
 import type { EditorNode } from "@/types/editor";
 import { useEditorStore } from "@/store/editorStore";
@@ -105,6 +106,7 @@ export default function CanvasNode({
     removeNode,
     duplicateNode,
     updateNode,
+    saveHistory,
     showOutlines,
     nodes,
   } = useEditorStore();
@@ -135,9 +137,9 @@ export default function CanvasNode({
   const resolvedTag = node.tag || "div";
   const Tag = resolvedTag as React.ElementType;
   const isVoid = VOID_TAGS.has(resolvedTag);
-  const hasChildren = !isVoid && node.children !== undefined;
-  // Only leaf nodes with text content are editable
-  const canEdit = !isVoid && !hasChildren && node.content !== undefined;
+  const hasChildren = !isVoid && !!node.children?.length;
+  // Leaf nodes with text content are editable (empty children array still counts as leaf)
+  const canEdit = !isVoid && (!node.children || node.children.length === 0) && node.content !== undefined;
 
   // All hooks must run unconditionally before any early return.
 
@@ -181,6 +183,19 @@ export default function CanvasNode({
       // ignore selection errors on void-like elements
     }
   }, [isEditing]);
+
+  // F2 shortcut: enter edit mode when this node is selected and editable
+  useEffect(() => {
+    if (!isSelected || isEditing || !canEdit) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "F2") {
+        e.preventDefault();
+        setIsEditing(true);
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [isSelected, isEditing, canEdit]);
 
   // Compute root-level move info and toolbar positions here so both
   // typed-block and regular branches can use them (must be before early returns).
@@ -434,6 +449,7 @@ export default function CanvasNode({
     if (!isEditing || !contentRef.current) return;
     const content = contentRef.current.textContent ?? "";
     updateNode(node.id, { content });
+    saveHistory();
     setIsEditing(false);
   };
 
@@ -443,7 +459,7 @@ export default function CanvasNode({
       "relative focus:outline-none",
       isDragging && "opacity-30",
       outlineClass,
-      isEditing && "select-text cursor-text",
+      isEditing ? "select-text cursor-text" : canEdit && "cursor-text",
     ),
     onClick: (e: React.MouseEvent) => {
       e.stopPropagation();
@@ -517,9 +533,17 @@ export default function CanvasNode({
       )}
 
       {/* Tag label badge */}
-      {(isHovered || isSelected) && !isDragging && (
-        <div className="absolute -top-5 left-0 text-[10px] px-1.5 py-0.5 rounded-sm z-40 pointer-events-none font-mono leading-tight bg-primary dark:bg-primary text-white dark:text-primary-foreground">
-          {node.tag}
+      {(isHovered || isSelected) && !isDragging && !isEditing && (
+        <div className="absolute -top-5 left-0 flex items-center gap-1 z-40 pointer-events-none">
+          <div className="text-[10px] px-1.5 py-0.5 rounded-sm font-mono leading-tight bg-primary dark:bg-primary text-white dark:text-primary-foreground">
+            {node.tag}
+          </div>
+          {canEdit && (
+            <div className="text-[10px] px-1.5 py-0.5 rounded-sm font-mono leading-tight bg-primary/70 dark:bg-primary/70 text-white flex items-center gap-0.5">
+              <Pencil className="w-2.5 h-2.5" />
+              dbl-click
+            </div>
+          )}
         </div>
       )}
 
@@ -542,6 +566,20 @@ export default function CanvasNode({
         <Tag {...(nodeProps as React.HTMLAttributes<HTMLElement>)}>
           {childContent}
         </Tag>
+      )}
+
+      {/* Editing status hint */}
+      {isEditing && (
+        <div className="absolute -bottom-6 left-0 z-50 pointer-events-none">
+          <div className="flex items-center gap-1.5 text-[10px] px-2 py-1 rounded-md bg-neutral-900 dark:bg-neutral-800 text-white font-mono whitespace-nowrap shadow-lg">
+            <Pencil className="w-2.5 h-2.5 text-primary" />
+            <span>Editing —</span>
+            <kbd className="px-1 py-0.5 rounded bg-white/15 text-[9px]">Enter</kbd>
+            <span className="opacity-60">or</span>
+            <kbd className="px-1 py-0.5 rounded bg-white/15 text-[9px]">Esc</kbd>
+            <span>to save</span>
+          </div>
+        </div>
       )}
 
       {/* ── Portalled overlays (escape any interactive parent in the DOM) ── */}
@@ -610,6 +648,18 @@ export default function CanvasNode({
               >
                 <Copy className="w-3 h-3" />
               </button>
+              {canEdit && (
+                <>
+                  <div className="w-px h-3 bg-white/20 mx-0.5" />
+                  <button
+                    className="p-1.5 transition-opacity hover:opacity-70 text-white dark:text-primary-foreground"
+                    onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
+                    title="Edit text (F2)"
+                  >
+                    <Pencil className="w-3 h-3" />
+                  </button>
+                </>
+              )}
               <button
                 className="p-1.5 transition-opacity hover:opacity-70 text-white dark:text-primary-foreground"
                 onClick={(e) => { e.stopPropagation(); setPendingSave(node, "component"); }}
@@ -628,7 +678,6 @@ export default function CanvasNode({
                 className="p-1.5 transition-opacity hover:opacity-70 text-white dark:text-primary-foreground"
                 onClick={(e) => {
                   e.stopPropagation();
-                  removeNode(node.id);
                 }}
                 title="Pin"
               >

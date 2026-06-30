@@ -20,11 +20,10 @@ import {
   Plus,
 } from "lucide-react";
 import Link from "next/link";
-import { COMPONENT_BLOCKS, CATEGORIES } from "@/lib/componentBlocks";
+import { COMPONENT_BLOCKS } from "@/lib/componentBlocks";
 import {
   BLOCK_META,
   BLOCK_DEFAULTS,
-  BLOCK_CATEGORIES,
 } from "@/lib/themes/shopingo/blockDefaults";
 import type { BlockType } from "@/lib/themes/types";
 import { useEditorStore } from "@/store/editorStore";
@@ -72,9 +71,6 @@ function DraggableBlock({ block }: { block: ComponentBlock }) {
     data: { type: "BLOCK", blockId: block.id, template: block.template },
   });
 
-  const isThemed = block.category in THEME_CATEGORIES;
-  const theme = THEME_CATEGORIES[block.category];
-
   return (
     <div
       ref={setNodeRef}
@@ -83,20 +79,11 @@ function DraggableBlock({ block }: { block: ComponentBlock }) {
       className={cn(
         "group relative flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-grab active:cursor-grabbing select-none",
         "border border-transparent transition-all duration-150",
-        isThemed
-          ? "hover:bg-[#ff2c2c]/10 hover:border-[#ff2c2c]/30"
-          : "hover:bg-primary/10 hover:border-primary dark:hover:bg-primary/10 dark:hover:border-primary/25",
+        "hover:bg-primary/10 hover:border-primary dark:hover:bg-primary/10 dark:hover:border-primary/25",
         isDragging && "opacity-30 scale-95",
       )}
     >
-      <div
-        className={cn(
-          "w-7 h-7 rounded-md flex items-center justify-center shrink-0 transition-colors",
-          isThemed
-            ? `${theme.bg} ${theme.text}`
-            : "bg-muted dark:bg-muted text-muted-foreground dark:text-muted-foreground",
-        )}
-      >
+      <div className="w-7 h-7 rounded-md flex items-center justify-center shrink-0 transition-colors bg-muted dark:bg-muted text-muted-foreground dark:text-muted-foreground">
         <Grid3x3 className="w-3.5 h-3.5" />
       </div>
       <span className="text-sm font-medium truncate text-muted-foreground dark:text-muted-foreground">
@@ -106,62 +93,56 @@ function DraggableBlock({ block }: { block: ComponentBlock }) {
   );
 }
 
-// Categories that get a coloured accent pill instead of plain text
-const THEME_CATEGORIES: Record<
-  string,
-  { bg: string; text: string; dot: string }
-> = {
-  Shopingo: {
-    bg: "bg-[#ff2c2c]/10",
-    text: "text-[#ff2c2c]",
-    dot: "bg-[#ff2c2c]",
-  },
-};
+const UNIFIED_GROUPS: {
+  label: string;
+  themeBlocks: BlockType[];
+  htmlCategories: string[];
+}[] = [
+  { label: "Hero", themeBlocks: ["hero-carousel", "promo-banner", "page-header"], htmlCategories: ["Hero"] },
+  { label: "Navigation", themeBlocks: [], htmlCategories: ["Navbar"] },
+  { label: "Product List", themeBlocks: ["product-grid", "product-tabs"], htmlCategories: [] },
+  { label: "Discovery", themeBlocks: ["category-grid", "brand-carousel"], htmlCategories: [] },
+  { label: "Blogs", themeBlocks: ["blog-section", "text-image"], htmlCategories: [] },
+  { label: "Features", themeBlocks: ["features-banner"], htmlCategories: ["Features"] },
+  { label: "Pricing", themeBlocks: [], htmlCategories: ["Pricing"] },
+  { label: "Testimonials", themeBlocks: [], htmlCategories: ["Testimonials"] },
+  { label: "FAQ", themeBlocks: [], htmlCategories: ["FAQ"] },
+  { label: "Team", themeBlocks: [], htmlCategories: ["Team"] },
+  { label: "Footer", themeBlocks: [], htmlCategories: ["Footer"] },
+  { label: "Contact & Forms", themeBlocks: ["newsletter", "contact-form"], htmlCategories: ["Contact", "Forms"] },
+  { label: "Portfolio", themeBlocks: [], htmlCategories: ["Portfolio"] },
+  { label: "Cards", themeBlocks: [], htmlCategories: ["Cards"] },
+  { label: "Typography", themeBlocks: [], htmlCategories: ["Typography"] },
+  { label: "Buttons", themeBlocks: [], htmlCategories: ["Buttons"] },
+  { label: "Layout", themeBlocks: [], htmlCategories: ["Containers"] },
+  { label: "Images", themeBlocks: [], htmlCategories: ["Images"] },
+  { label: "Custom", themeBlocks: ["custom-html"], htmlCategories: [] },
+];
 
-function CategorySection({
-  category,
-  blocks,
+function UnifiedCategorySection({
+  label,
+  themeBlocks,
+  htmlBlocks,
 }: {
-  category: string;
-  blocks: ComponentBlock[];
+  label: string;
+  themeBlocks: BlockType[];
+  htmlBlocks: ComponentBlock[];
 }) {
   const [open, setOpen] = useState(true);
-  const theme = THEME_CATEGORIES[category];
+  const total = themeBlocks.length + htmlBlocks.length;
+  if (total === 0) return null;
 
   return (
-    <div className={cn("mb-0.5", theme && "mt-1")}>
-      {/* Divider above themed categories */}
-      {theme && <div className="border-t border-border mb-1.5 mx-2" />}
-
+    <div className="mb-0.5">
       <button
         onClick={() => setOpen(!open)}
-        className={cn(
-          "w-full flex items-center justify-between px-2.5 py-1.5 rounded-md transition-colors",
-          theme
-            ? `${theme.bg} hover:opacity-90`
-            : "text-muted-foreground hover:text-foreground",
-        )}
+        className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-md transition-colors text-muted-foreground hover:text-foreground"
       >
-        <span
-          className={cn(
-            "flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest",
-            theme ? theme.text : "text-muted-foreground",
-          )}
-        >
-          {theme && (
-            <span
-              className={cn("w-1.5 h-1.5 rounded-full shrink-0", theme.dot)}
-            />
-          )}
-          {category}
+        <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+          {label}
         </span>
-        <span
-          className={cn(
-            "flex items-center gap-1.5",
-            theme ? theme.text : "text-muted-foreground",
-          )}
-        >
-          <span className="text-[10px] opacity-60">{blocks.length}</span>
+        <span className="flex items-center gap-1.5 text-muted-foreground">
+          <span className="text-[10px] opacity-60">{total}</span>
           {open ? (
             <ChevronDown className="w-3 h-3" />
           ) : (
@@ -179,13 +160,11 @@ function CategorySection({
             transition={{ duration: 0.14 }}
             className="overflow-hidden"
           >
-            <div
-              className={cn(
-                "pb-1",
-                theme && "border-l-2 ml-2.5 pl-1 border-[#ff2c2c]/25",
-              )}
-            >
-              {blocks.map((b) => (
+            <div className="pb-1">
+              {themeBlocks.map((bt) => (
+                <DraggableThemeBlock key={bt} blockType={bt} />
+              ))}
+              {htmlBlocks.map((b) => (
                 <DraggableBlock key={b.id} block={b} />
               ))}
             </div>
@@ -251,13 +230,21 @@ export default function LeftSidebar() {
     setDebouncedSearch("");
   }
 
-  const filtered = debouncedSearch.trim()
+  const filteredHtml = debouncedSearch.trim()
     ? COMPONENT_BLOCKS.filter(
         (b) =>
           b.label.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
           b.category.toLowerCase().includes(debouncedSearch.toLowerCase()),
       )
     : null;
+
+  const filteredTheme = debouncedSearch.trim()
+    ? (Object.keys(BLOCK_META) as BlockType[]).filter((bt) =>
+        BLOCK_META[bt].label.toLowerCase().includes(debouncedSearch.toLowerCase()),
+      )
+    : null;
+
+  const isFiltered = filteredHtml !== null;
 
   return (
     <aside className="w-65 flex flex-col h-full overflow-hidden border-r bg-card border-border dark:border-border">
@@ -363,9 +350,9 @@ export default function LeftSidebar() {
                 Searching…
               </p>
             </div>
-          ) : filtered ? (
+          ) : isFiltered ? (
             <div className="px-1">
-              {filtered.length === 0 ? (
+              {filteredHtml!.length === 0 && filteredTheme!.length === 0 ? (
                 <div className="flex flex-col items-center py-10 gap-1.5 px-3 text-center">
                   <p className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                     No blocks found
@@ -378,19 +365,26 @@ export default function LeftSidebar() {
                   </button>
                 </div>
               ) : (
-                filtered.map((b) => <DraggableBlock key={b.id} block={b} />)
+                <>
+                  {filteredTheme!.map((bt) => (
+                    <DraggableThemeBlock key={bt} blockType={bt} />
+                  ))}
+                  {filteredHtml!.map((b) => (
+                    <DraggableBlock key={b.id} block={b} />
+                  ))}
+                </>
               )}
             </div>
           ) : (
-            <div className="px-1">
-              {/* ── Theme Blocks (typed, theme-aware) ── */}
-              <ThemeBlocksSection />
-              {/* ── Raw HTML component blocks (exclude categories covered by theme) ── */}
-              {CATEGORIES.filter((cat) => cat !== "Hero" && cat !== "Shopingo").map((cat) => (
-                <CategorySection
-                  key={cat}
-                  category={cat}
-                  blocks={COMPONENT_BLOCKS.filter((b) => b.category === cat)}
+            <div className="px-1 pt-1">
+              {UNIFIED_GROUPS.map((group) => (
+                <UnifiedCategorySection
+                  key={group.label}
+                  label={group.label}
+                  themeBlocks={group.themeBlocks}
+                  htmlBlocks={COMPONENT_BLOCKS.filter((b) =>
+                    group.htmlCategories.includes(b.category),
+                  )}
                 />
               ))}
             </div>
@@ -405,99 +399,6 @@ export default function LeftSidebar() {
   );
 }
 
-function ThemeBlockCategorySection({
-  label,
-  blocks,
-}: {
-  label: string;
-  blocks: BlockType[];
-}) {
-  const [open, setOpen] = useState(true);
-  return (
-    <div className="mb-0.5">
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between px-2.5 py-1 rounded-md transition-colors hover:bg-[#ff2c2c]/5"
-      >
-        <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-[#ff2c2c]/80">
-          {label}
-        </span>
-        <span className="flex items-center gap-1.5 text-[#ff2c2c]/60">
-          <span className="text-[10px]">{blocks.length}</span>
-          {open ? (
-            <ChevronDown className="w-3 h-3" />
-          ) : (
-            <ChevronRight className="w-3 h-3" />
-          )}
-        </span>
-      </button>
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.12 }}
-            className="overflow-hidden"
-          >
-            <div className="border-l-2 ml-2.5 pl-1 border-[#ff2c2c]/20 pb-0.5">
-              {blocks.map((bt) => (
-                <DraggableThemeBlock key={bt} blockType={bt} />
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-function ThemeBlocksSection() {
-  const [open, setOpen] = useState(true);
-  const totalBlocks = Object.keys(BLOCK_META).length;
-
-  return (
-    <div className="mb-0.5 mt-1">
-      <div className="border-t border-border mb-1.5 mx-2" />
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-md transition-colors bg-[#ff2c2c]/10 hover:opacity-90"
-      >
-        <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-[#ff2c2c]">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#ff2c2c] shrink-0" />
-          Theme Blocks
-        </span>
-        <span className="flex items-center gap-1.5 text-[#ff2c2c]">
-          <span className="text-[10px] opacity-60">{totalBlocks}</span>
-          {open ? (
-            <ChevronDown className="w-3 h-3" />
-          ) : (
-            <ChevronRight className="w-3 h-3" />
-          )}
-        </span>
-      </button>
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.14 }}
-            className="overflow-hidden pl-1"
-          >
-            {BLOCK_CATEGORIES.map((cat) => (
-              <ThemeBlockCategorySection
-                key={cat.label}
-                label={cat.label}
-                blocks={cat.blocks}
-              />
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
 
 // ── Library Panel (Figma Assets-style) ────────────────────────────────────────
 

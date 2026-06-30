@@ -84,7 +84,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "section",
       "section",
-      "bg-white py-20 px-6",
+      "bg-background py-20 px-6",
       undefined,
       [
         makeNode(
@@ -103,13 +103,13 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
               makeNode(
                 "h1",
                 "h1",
-                "text-4xl font-bold text-gray-900 mb-5 leading-tight",
+                "text-4xl font-bold text-foreground mb-5 leading-tight",
                 "The future of web design is here",
               ),
               makeNode(
                 "p",
                 "p",
-                "text-gray-500 text-lg mb-8 leading-relaxed",
+                "text-muted-foreground text-lg mb-8 leading-relaxed",
                 "Create stunning pages visually with our next-generation editor.",
               ),
               makeNode(
@@ -150,7 +150,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "nav",
       "nav",
-      "bg-white border-b border-gray-200 px-6 py-4",
+      "bg-background border-b border-border px-6 py-4",
       undefined,
       [
         makeNode(
@@ -162,7 +162,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
             makeNode(
               "a",
               "a",
-              "text-xl font-bold text-gray-900",
+              "text-xl font-bold text-foreground",
               "Brand",
               undefined,
               { href: "#" },
@@ -176,7 +176,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
                 makeNode(
                   "a",
                   "a",
-                  "text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors",
+                  "text-muted-foreground hover:text-foreground text-sm font-medium transition-colors",
                   "Features",
                   undefined,
                   { href: "#" },
@@ -184,7 +184,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
                 makeNode(
                   "a",
                   "a",
-                  "text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors",
+                  "text-muted-foreground hover:text-foreground text-sm font-medium transition-colors",
                   "Pricing",
                   undefined,
                   { href: "#" },
@@ -192,7 +192,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
                 makeNode(
                   "a",
                   "a",
-                  "text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors",
+                  "text-muted-foreground hover:text-foreground text-sm font-medium transition-colors",
                   "About",
                   undefined,
                   { href: "#" },
@@ -278,7 +278,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "section",
       "section",
-      "py-20 px-6 bg-gray-50",
+      "py-20 px-6 bg-muted",
       undefined,
       [
         makeNode("div", "div", "max-w-6xl mx-auto", undefined, [
@@ -286,13 +286,13 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
             makeNode(
               "h2",
               "h2",
-              "text-4xl font-bold text-gray-900 mb-4",
+              "text-4xl font-bold text-foreground mb-4",
               "Everything you need",
             ),
             makeNode(
               "p",
               "p",
-              "text-gray-500 max-w-xl mx-auto text-lg",
+              "text-muted-foreground max-w-xl mx-auto text-lg",
               "Powerful features to help you build, ship, and scale your website.",
             ),
           ]),
@@ -313,20 +313,20 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
                 makeNode(
                   "div",
                   "div",
-                  "bg-white rounded-2xl p-6 border border-gray-100 shadow-sm",
+                  "bg-card rounded-2xl p-6 border border-border shadow-sm",
                   undefined,
                   [
                     makeNode("div", "div", "text-3xl mb-4", icon as string),
                     makeNode(
                       "h3",
                       "h3",
-                      "text-lg font-semibold text-gray-900 mb-2",
+                      "text-lg font-semibold text-foreground mb-2",
                       title as string,
                     ),
                     makeNode(
                       "p",
                       "p",
-                      "text-gray-500 text-sm leading-relaxed",
+                      "text-muted-foreground text-sm leading-relaxed",
                       desc as string,
                     ),
                   ],
@@ -348,7 +348,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "section",
       "section",
-      "py-20 px-6 bg-white",
+      "py-20 px-6 bg-background",
       undefined,
       [
         makeNode("div", "div", "max-w-5xl mx-auto", undefined, [
@@ -356,13 +356,13 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
             makeNode(
               "h2",
               "h2",
-              "text-4xl font-bold text-gray-900 mb-3",
+              "text-4xl font-bold text-foreground mb-3",
               "Simple, transparent pricing",
             ),
             makeNode(
               "p",
               "p",
-              "text-gray-500 text-lg",
+              "text-muted-foreground text-lg",
               "Choose the plan that works best for you.",
             ),
           ]),
@@ -401,27 +401,27 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
                   `rounded-2xl p-8 border flex flex-col ${
                     plan.highlighted
                       ? "bg-indigo-600 border-indigo-600"
-                      : "bg-gray-50 border-gray-200"
+                      : "bg-muted border-border"
                   }`,
                   undefined,
                   [
                     makeNode(
                       "h3",
                       "h3",
-                      `text-lg font-semibold mb-1 ${plan.highlighted ? "text-indigo-100" : "text-gray-500"}`,
+                      `text-lg font-semibold mb-1 ${plan.highlighted ? "text-indigo-100" : "text-muted-foreground"}`,
                       plan.name,
                     ),
                     makeNode("div", "div", "flex items-end gap-1 mb-6", undefined, [
                       makeNode(
                         "span",
                         "span",
-                        `text-4xl font-bold ${plan.highlighted ? "text-white" : "text-gray-900"}`,
+                        `text-4xl font-bold ${plan.highlighted ? "text-white" : "text-foreground"}`,
                         plan.price,
                       ),
                       makeNode(
                         "span",
                         "span",
-                        `text-sm pb-1 ${plan.highlighted ? "text-indigo-200" : "text-gray-400"}`,
+                        `text-sm pb-1 ${plan.highlighted ? "text-indigo-200" : "text-muted-foreground"}`,
                         plan.period,
                       ),
                     ]),
@@ -434,7 +434,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
                         makeNode(
                           "li",
                           "li",
-                          `flex items-center gap-2 text-sm ${plan.highlighted ? "text-indigo-100" : "text-gray-600"}`,
+                          `flex items-center gap-2 text-sm ${plan.highlighted ? "text-indigo-100" : "text-muted-foreground"}`,
                           `✓ ${f}`,
                         ),
                       ),
@@ -466,7 +466,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "section",
       "section",
-      "py-20 px-6 bg-slate-50",
+      "py-20 px-6 bg-muted",
       undefined,
       [
         makeNode("div", "div", "max-w-6xl mx-auto", undefined, [
@@ -474,13 +474,13 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
             makeNode(
               "h2",
               "h2",
-              "text-4xl font-bold text-gray-900 mb-3",
+              "text-4xl font-bold text-foreground mb-3",
               "What people are saying",
             ),
             makeNode(
               "p",
               "p",
-              "text-gray-500 text-lg",
+              "text-muted-foreground text-lg",
               "Trusted by thousands of teams worldwide.",
             ),
           ]),
@@ -513,19 +513,19 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
                 makeNode(
                   "div",
                   "div",
-                  "bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col gap-4",
+                  "bg-card rounded-2xl p-6 shadow-sm border border-border flex flex-col gap-4",
                   undefined,
                   [
                     makeNode(
                       "p",
                       "p",
-                      "text-gray-600 text-sm leading-relaxed italic",
+                      "text-muted-foreground text-sm leading-relaxed italic",
                       `"${t.text}"`,
                     ),
                     makeNode(
                       "div",
                       "div",
-                      "flex items-center gap-3 pt-2 border-t border-gray-100",
+                      "flex items-center gap-3 pt-2 border-t border-border",
                       undefined,
                       [
                         makeNode(
@@ -538,13 +538,13 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
                           makeNode(
                             "div",
                             "div",
-                            "text-sm font-semibold text-gray-900",
+                            "text-sm font-semibold text-foreground",
                             t.name,
                           ),
                           makeNode(
                             "div",
                             "div",
-                            "text-xs text-gray-400",
+                            "text-xs text-muted-foreground",
                             t.role,
                           ),
                         ]),
@@ -569,7 +569,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "section",
       "section",
-      "py-20 px-6 bg-white",
+      "py-20 px-6 bg-background",
       undefined,
       [
         makeNode("div", "div", "max-w-3xl mx-auto", undefined, [
@@ -577,17 +577,17 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
             makeNode(
               "h2",
               "h2",
-              "text-4xl font-bold text-gray-900 mb-3",
+              "text-4xl font-bold text-foreground mb-3",
               "Frequently Asked Questions",
             ),
             makeNode(
               "p",
               "p",
-              "text-gray-500 text-lg",
+              "text-muted-foreground text-lg",
               "Everything you need to know.",
             ),
           ]),
-          makeNode("div", "div", "divide-y divide-gray-200 border border-gray-200 rounded-2xl overflow-hidden", undefined, [
+          makeNode("div", "div", "divide-y divide-border border border-border rounded-2xl overflow-hidden", undefined, [
             ...[
               ["Is there a free plan?", "Yes! We offer a free plan with 5 projects and basic features."],
               ["Can I export my code?", "Absolutely. Export clean HTML, CSS, and React code at any time."],
@@ -597,7 +597,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
               makeNode(
                 "div",
                 "div",
-                "px-6 py-5 bg-white",
+                "px-6 py-5 bg-card",
                 undefined,
                 [
                   makeNode(
@@ -609,13 +609,13 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
                       makeNode(
                         "span",
                         "span",
-                        "font-semibold text-gray-900 text-sm",
+                        "font-semibold text-foreground text-sm",
                         q as string,
                       ),
                       makeNode(
                         "span",
                         "span",
-                        "text-gray-400 text-lg leading-none shrink-0",
+                        "text-muted-foreground text-lg leading-none shrink-0",
                         "＋",
                       ),
                     ],
@@ -623,7 +623,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
                   makeNode(
                     "p",
                     "p",
-                    "text-gray-500 text-sm leading-relaxed",
+                    "text-muted-foreground text-sm leading-relaxed",
                     a as string,
                   ),
                 ],
@@ -644,7 +644,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "section",
       "section",
-      "py-20 px-6 bg-white",
+      "py-20 px-6 bg-background",
       undefined,
       [
         makeNode("div", "div", "max-w-6xl mx-auto", undefined, [
@@ -652,13 +652,13 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
             makeNode(
               "h2",
               "h2",
-              "text-4xl font-bold text-gray-900 mb-3",
+              "text-4xl font-bold text-foreground mb-3",
               "Meet the team",
             ),
             makeNode(
               "p",
               "p",
-              "text-gray-500 text-lg",
+              "text-muted-foreground text-lg",
               "The talented people building great things.",
             ),
           ]),
@@ -681,8 +681,8 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
                     `w-24 h-24 rounded-full bg-gradient-to-br ${m.color} mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold shadow-sm`,
                     m.name[0],
                   ),
-                  makeNode("h3", "h3", "font-semibold text-gray-900 text-sm", m.name),
-                  makeNode("p", "p", "text-gray-400 text-xs mt-0.5", m.role),
+                  makeNode("h3", "h3", "font-semibold text-foreground text-sm", m.name),
+                  makeNode("p", "p", "text-muted-foreground text-xs mt-0.5", m.role),
                 ]),
               ),
             ],
@@ -774,7 +774,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "section",
       "section",
-      "py-20 px-6 bg-gray-50",
+      "py-20 px-6 bg-muted",
       undefined,
       [
         makeNode("div", "div", "max-w-2xl mx-auto", undefined, [
@@ -782,17 +782,17 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
             makeNode(
               "h2",
               "h2",
-              "text-4xl font-bold text-gray-900 mb-3",
+              "text-4xl font-bold text-foreground mb-3",
               "Get in touch",
             ),
             makeNode(
               "p",
               "p",
-              "text-gray-500 text-lg",
+              "text-muted-foreground text-lg",
               "We'd love to hear from you. Send us a message!",
             ),
           ]),
-          makeNode("div", "div", "bg-white rounded-2xl shadow-sm border border-gray-100 p-8", undefined, [
+          makeNode("div", "div", "bg-card rounded-2xl shadow-sm border border-border p-8", undefined, [
             makeNode("form", "form", "space-y-4", undefined, [
               makeNode(
                 "div",
@@ -801,22 +801,22 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
                 undefined,
                 [
                   makeNode("div", "div", "flex flex-col gap-1.5", undefined, [
-                    makeNode("label", "label", "text-sm font-medium text-gray-700", "First name"),
+                    makeNode("label", "label", "text-sm font-medium text-foreground", "First name"),
                     makeNode(
                       "input",
                       "input",
-                      "w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all",
+                      "w-full border border-border rounded-lg px-4 py-2.5 text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all",
                       undefined,
                       undefined,
                       { type: "text", placeholder: "John" },
                     ),
                   ]),
                   makeNode("div", "div", "flex flex-col gap-1.5", undefined, [
-                    makeNode("label", "label", "text-sm font-medium text-gray-700", "Last name"),
+                    makeNode("label", "label", "text-sm font-medium text-foreground", "Last name"),
                     makeNode(
                       "input",
                       "input",
-                      "w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all",
+                      "w-full border border-border rounded-lg px-4 py-2.5 text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all",
                       undefined,
                       undefined,
                       { type: "text", placeholder: "Doe" },
@@ -825,22 +825,22 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
                 ],
               ),
               makeNode("div", "div", "flex flex-col gap-1.5", undefined, [
-                makeNode("label", "label", "text-sm font-medium text-gray-700", "Email"),
+                makeNode("label", "label", "text-sm font-medium text-foreground", "Email"),
                 makeNode(
                   "input",
                   "input",
-                  "w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all",
+                  "w-full border border-border rounded-lg px-4 py-2.5 text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all",
                   undefined,
                   undefined,
                   { type: "email", placeholder: "john@example.com" },
                 ),
               ]),
               makeNode("div", "div", "flex flex-col gap-1.5", undefined, [
-                makeNode("label", "label", "text-sm font-medium text-gray-700", "Message"),
+                makeNode("label", "label", "text-sm font-medium text-foreground", "Message"),
                 makeNode(
                   "textarea",
                   "textarea",
-                  "w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[120px] resize-none transition-all",
+                  "w-full border border-border rounded-lg px-4 py-2.5 text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[120px] resize-none transition-all",
                   "Write your message here...",
                   undefined,
                   {},
@@ -870,7 +870,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "section",
       "section",
-      "py-20 px-6 bg-white",
+      "py-20 px-6 bg-background",
       undefined,
       [
         makeNode("div", "div", "max-w-6xl mx-auto", undefined, [
@@ -878,13 +878,13 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
             makeNode(
               "h2",
               "h2",
-              "text-4xl font-bold text-gray-900 mb-3",
+              "text-4xl font-bold text-foreground mb-3",
               "Our Work",
             ),
             makeNode(
               "p",
               "p",
-              "text-gray-500 text-lg",
+              "text-muted-foreground text-lg",
               "A selection of our best projects.",
             ),
           ]),
@@ -946,7 +946,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "div",
       "div",
-      "bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden max-w-sm",
+      "bg-card rounded-2xl border border-border shadow-sm overflow-hidden max-w-sm",
       undefined,
       [
         makeNode(
@@ -968,13 +968,13 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
           makeNode(
             "h3",
             "h3",
-            "text-xl font-bold text-gray-900 mt-1.5 mb-2",
+            "text-xl font-bold text-foreground mt-1.5 mb-2",
             "Card Title",
           ),
           makeNode(
             "p",
             "p",
-            "text-gray-500 text-sm mb-5 leading-relaxed",
+            "text-muted-foreground text-sm mb-5 leading-relaxed",
             "A short description of the card content goes here.",
           ),
           makeNode(
@@ -999,7 +999,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "h1",
       "h1",
-      "text-6xl font-extrabold text-gray-900 tracking-tight leading-tight",
+      "text-6xl font-extrabold text-foreground tracking-tight leading-tight",
       "Your Headline Here",
     ),
   },
@@ -1011,7 +1011,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "h2",
       "h2",
-      "text-4xl font-bold text-gray-900 leading-snug",
+      "text-4xl font-bold text-foreground leading-snug",
       "Section Heading",
     ),
   },
@@ -1023,7 +1023,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "h3",
       "h3",
-      "text-2xl font-semibold text-gray-900",
+      "text-2xl font-semibold text-foreground",
       "Sub Heading",
     ),
   },
@@ -1035,7 +1035,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "p",
       "p",
-      "text-gray-600 text-base leading-relaxed max-w-2xl",
+      "text-muted-foreground text-base leading-relaxed max-w-2xl",
       "This is a paragraph of text. You can edit this content to match your needs.",
     ),
   },
@@ -1059,7 +1059,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "hr",
       "hr",
-      "border-0 border-t border-gray-200 my-8",
+      "border-0 border-t border-border my-8",
     ),
   },
 
@@ -1084,7 +1084,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "button",
       "button",
-      "border-2 border-gray-800 text-gray-800 hover:bg-gray-800 hover:text-white font-semibold px-6 py-2.5 rounded-lg transition-all cursor-pointer",
+      "border-2 border-foreground text-foreground hover:bg-foreground hover:text-background font-semibold px-6 py-2.5 rounded-lg transition-all cursor-pointer",
       "Click Me",
     ),
   },
@@ -1096,7 +1096,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "button",
       "button",
-      "text-gray-700 bg-gray-100 hover:bg-gray-200 font-semibold px-6 py-2.5 rounded-lg transition-colors cursor-pointer",
+      "text-foreground bg-muted hover:bg-muted/70 font-semibold px-6 py-2.5 rounded-lg transition-colors cursor-pointer",
       "Click Me",
     ),
   },
@@ -1122,7 +1122,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "section",
       "section",
-      "py-16 px-6 bg-white",
+      "py-16 px-6 bg-background",
       undefined,
       [],
     ),
@@ -1154,16 +1154,16 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
         makeNode(
           "div",
           "div",
-          "bg-gray-50 border border-gray-200 rounded-xl p-6 min-h-[120px] flex items-center justify-center",
+          "bg-muted border border-border rounded-xl p-6 min-h-[120px] flex items-center justify-center",
           undefined,
-          [makeNode("span", "span", "text-gray-400 text-sm", "Column 1")],
+          [makeNode("span", "span", "text-muted-foreground text-sm", "Column 1")],
         ),
         makeNode(
           "div",
           "div",
-          "bg-gray-50 border border-gray-200 rounded-xl p-6 min-h-[120px] flex items-center justify-center",
+          "bg-muted border border-border rounded-xl p-6 min-h-[120px] flex items-center justify-center",
           undefined,
-          [makeNode("span", "span", "text-gray-400 text-sm", "Column 2")],
+          [makeNode("span", "span", "text-muted-foreground text-sm", "Column 2")],
         ),
       ],
     ),
@@ -1182,23 +1182,23 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
         makeNode(
           "div",
           "div",
-          "bg-gray-50 border border-gray-200 rounded-xl p-6 min-h-[120px] flex items-center justify-center",
+          "bg-muted border border-border rounded-xl p-6 min-h-[120px] flex items-center justify-center",
           undefined,
-          [makeNode("span", "span", "text-gray-400 text-sm", "Column 1")],
+          [makeNode("span", "span", "text-muted-foreground text-sm", "Column 1")],
         ),
         makeNode(
           "div",
           "div",
-          "bg-gray-50 border border-gray-200 rounded-xl p-6 min-h-[120px] flex items-center justify-center",
+          "bg-muted border border-border rounded-xl p-6 min-h-[120px] flex items-center justify-center",
           undefined,
-          [makeNode("span", "span", "text-gray-400 text-sm", "Column 2")],
+          [makeNode("span", "span", "text-muted-foreground text-sm", "Column 2")],
         ),
         makeNode(
           "div",
           "div",
-          "bg-gray-50 border border-gray-200 rounded-xl p-6 min-h-[120px] flex items-center justify-center",
+          "bg-muted border border-border rounded-xl p-6 min-h-[120px] flex items-center justify-center",
           undefined,
-          [makeNode("span", "span", "text-gray-400 text-sm", "Column 3")],
+          [makeNode("span", "span", "text-muted-foreground text-sm", "Column 3")],
         ),
       ],
     ),
@@ -1226,7 +1226,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "div",
       "div",
-      "bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl aspect-video flex items-center justify-center border border-gray-200",
+      "bg-muted rounded-xl aspect-video flex items-center justify-center border border-border",
       undefined,
       [
         makeNode("span", "span", "text-4xl", "🖼️"),
@@ -1256,11 +1256,11 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     category: "Forms",
     icon: "edit-2",
     template: makeNode("div", "div", "flex flex-col gap-1.5 max-w-sm", undefined, [
-      makeNode("label", "label", "text-sm font-medium text-gray-700", "Label"),
+      makeNode("label", "label", "text-sm font-medium text-foreground", "Label"),
       makeNode(
         "input",
         "input",
-        "border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full transition-all",
+        "border border-border rounded-lg px-4 py-2.5 text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full transition-all",
         undefined,
         undefined,
         { type: "text", placeholder: "Enter text..." },
@@ -1275,16 +1275,16 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     template: makeNode(
       "div",
       "div",
-      "bg-gray-50 border border-gray-200 rounded-2xl p-8 max-w-md text-center",
+      "bg-muted border border-border rounded-2xl p-8 max-w-md text-center",
       undefined,
       [
-        makeNode("h3", "h3", "text-xl font-bold text-gray-900 mb-2", "Stay in the loop"),
-        makeNode("p", "p", "text-gray-500 text-sm mb-6", "Get the latest updates delivered to your inbox."),
+        makeNode("h3", "h3", "text-xl font-bold text-foreground mb-2", "Stay in the loop"),
+        makeNode("p", "p", "text-muted-foreground text-sm mb-6", "Get the latest updates delivered to your inbox."),
         makeNode("div", "div", "flex gap-3", undefined, [
           makeNode(
             "input",
             "input",
-            "flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all",
+            "flex-1 border border-border rounded-lg px-4 py-2.5 text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all",
             undefined,
             undefined,
             { type: "email", placeholder: "Enter your email" },
@@ -1328,7 +1328,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     label: "Featured Products",
     category: "Shopingo",
     icon: "grid",
-    template: makeNode("section", "section", "bg-white py-16 px-4", undefined, [
+    template: makeNode("section", "section", "bg-background py-16 px-4", undefined, [
       makeNode("div", "div", "max-w-6xl mx-auto", undefined, [
         makeNode("div", "div", "text-center mb-10", undefined, [
           makeNode("h2", "h2", "text-3xl font-extrabold text-[#212529] mb-2", "Featured Products"),
@@ -1386,7 +1386,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
             ["↩️", "Free Returns", "Not happy? Return within 30 days — no questions asked."],
             ["💬", "24/7 Support", "Our team is always ready to assist you any time of the day."],
           ].map(([icon, title, desc]) =>
-            makeNode("div", "div", "flex flex-col items-center text-center p-6 bg-white border border-[#e1e1e1]", undefined, [
+            makeNode("div", "div", "flex flex-col items-center text-center p-6 bg-card border border-[#e1e1e1]", undefined, [
               makeNode("span", "span", "text-4xl mb-4", icon),
               makeNode("h4", "h4", "text-base font-bold text-[#212529] mb-2", title),
               makeNode("p", "p", "text-sm text-[#797979] leading-relaxed", desc),
@@ -1403,7 +1403,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     label: "Promo Banner",
     category: "Shopingo",
     icon: "image",
-    template: makeNode("section", "section", "bg-white py-16 px-4", undefined, [
+    template: makeNode("section", "section", "bg-background py-16 px-4", undefined, [
       makeNode("div", "div", "max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center", undefined, [
         makeNode("div", "div", "", undefined, [
           makeNode("span", "span", "inline-block text-xs font-bold uppercase tracking-[0.18em] text-[#ff2c2c] mb-3", "Exclusive Deal"),
@@ -1445,7 +1445,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
         ]),
         makeNode("div", "div", "grid grid-cols-3 md:grid-cols-5 gap-4", undefined, [
           ...["01","02","03","04","05","06","07","08","09","10"].map((n) =>
-            makeNode("div", "div", "bg-white border border-[#e1e1e1] flex items-center justify-center p-5 hover:border-[#ff2c2c] transition-colors cursor-pointer", undefined, [
+            makeNode("div", "div", "bg-card border border-[#e1e1e1] flex items-center justify-center p-5 hover:border-[#ff2c2c] transition-colors cursor-pointer", undefined, [
               makeNode("img", "img", "h-10 object-contain grayscale hover:grayscale-0 transition-all", undefined, undefined, {
                 src: `https://codervent.com/shopingo/demo/shopingo_V1/assets/images/brands/${n}.webp`,
                 alt: `Brand ${n}`,
@@ -1463,7 +1463,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
     label: "Top Categories",
     category: "Shopingo",
     icon: "grid",
-    template: makeNode("section", "section", "bg-white py-16 px-4", undefined, [
+    template: makeNode("section", "section", "bg-background py-16 px-4", undefined, [
       makeNode("div", "div", "max-w-6xl mx-auto", undefined, [
         makeNode("div", "div", "text-center mb-10", undefined, [
           makeNode("h2", "h2", "text-3xl font-extrabold text-[#212529] mb-2", "Top Categories"),

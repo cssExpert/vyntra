@@ -23,8 +23,7 @@ import {
   apiGetOrgSettings,
   apiUpdateOrgSettings,
 } from "@/lib/api";
-import { ImageUploadWithStorage } from "@/components/common/ImageUploadWithStorage";
-import { useAuth } from "@/providers/AuthProvider";
+import { StoreImagePicker } from "@/modules/store/products/components/StoreImagePicker";
 import { SITE_LANGUAGES } from "@/lib/site-languages";
 import { Input } from "@/components/ui/input";
 
@@ -381,10 +380,9 @@ function Toggle({
   );
 }
 
-function BrandingTab() {
-  const { user } = useAuth();
-  const uploadCompanyId = user?.organizationId || "superadmin";
+const BRANDING_FILTERS = ["all", "branding"] as const;
 
+function BrandingTab() {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [darkLogoUrl, setDarkLogoUrl] = useState<string | null>(null);
   const [faviconUrl, setFaviconUrl] = useState<string | null>(null);
@@ -471,13 +469,13 @@ function BrandingTab() {
             <p className="text-xs text-muted-foreground">
               PNG, SVG, JPEG — max 5 MB. Landscape format recommended.
             </p>
-            <ImageUploadWithStorage
+            <StoreImagePicker
               value={logoUrl}
               onChange={setLogoUrl}
-              companyId={uploadCompanyId}
               module="branding"
+              subtype="logo-light"
+              filterOptions={BRANDING_FILTERS}
               accept="image/png,image/jpeg,image/svg+xml,image/webp"
-              maxSizeMB={5}
             />
           </div>
 
@@ -491,13 +489,13 @@ function BrandingTab() {
               Shown when visitors switch to dark mode. Falls back to light logo
               if not set.
             </p>
-            <ImageUploadWithStorage
+            <StoreImagePicker
               value={darkLogoUrl}
               onChange={setDarkLogoUrl}
-              companyId={uploadCompanyId}
               module="branding"
+              subtype="logo-dark"
+              filterOptions={BRANDING_FILTERS}
               accept="image/png,image/jpeg,image/svg+xml,image/webp"
-              maxSizeMB={5}
             />
           </div>
 
@@ -510,13 +508,13 @@ function BrandingTab() {
             <p className="text-xs text-muted-foreground">
               512×512 PNG, ICO, or SVG. Shown in browser tab and bookmarks.
             </p>
-            <ImageUploadWithStorage
+            <StoreImagePicker
               value={faviconUrl}
               onChange={setFaviconUrl}
-              companyId={uploadCompanyId}
               module="branding"
+              subtype="favicon"
+              filterOptions={BRANDING_FILTERS}
               accept="image/png,image/x-icon,image/svg+xml"
-              maxSizeMB={2}
             />
           </div>
         </div>

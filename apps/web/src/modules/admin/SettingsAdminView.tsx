@@ -17,7 +17,7 @@ import {
 import { Sketch } from "@uiw/react-color";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
-import { ImageUploadWithStorage } from "@/components/common/ImageUploadWithStorage";
+import { StoreImagePicker } from "@/modules/store/products/components/StoreImagePicker";
 import { AdminGuard, adminInput } from "./AdminGuard";
 import { cn } from "@/lib/utils";
 import { TIMEZONES } from "@/lib/timezones";
@@ -311,15 +311,14 @@ function Inner() {
                   {t("logo", { defaultValue: "Logo" })}
                 </h4>
               </div>
-              <ImageUploadWithStorage
+              <StoreImagePicker
                 value={settings.logoUrl ?? null}
                 onChange={(url) => handleChange("logoUrl", url)}
-                accept="image/png,image/jpeg,image/svg+xml,image/webp"
-                maxSizeMB={5}
-                previewShape="wide"
-                label="Upload Logo"
-                companyId="superadmin"
                 module="branding"
+                subtype="logo"
+                companyId="superadmin"
+                filterOptions={["all", "branding"]}
+                accept="image/png,image/jpeg,image/svg+xml,image/webp"
               />
               <p className="text-xs text-muted-foreground mt-0.5">
                 {t("logoHelp", {
@@ -335,15 +334,14 @@ function Inner() {
                   {t("favicon", { defaultValue: "Favicon / App Icon" })}
                 </h4>
               </div>
-              <ImageUploadWithStorage
+              <StoreImagePicker
                 value={settings.faviconUrl ?? null}
                 onChange={(url) => handleChange("faviconUrl", url)}
-                accept="image/png,image/x-icon,image/svg+xml"
-                maxSizeMB={2}
-                previewShape="circle"
-                label="Upload Icon"
-                companyId="superadmin"
                 module="branding"
+                subtype="favicon"
+                companyId="superadmin"
+                filterOptions={["all", "branding"]}
+                accept="image/png,image/x-icon,image/svg+xml"
               />
               <p className="text-xs text-muted-foreground mt-0.5">
                 {t("faviconHelp", {

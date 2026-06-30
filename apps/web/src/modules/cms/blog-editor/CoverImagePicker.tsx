@@ -60,6 +60,10 @@ export interface LibraryModalProps {
   currentValue: string;
   uploadCompanyId: string;
   currentSubtype: string;
+  /** Storage module — e.g. "cms" (default) or "store" */
+  module?: string;
+  /** Filter tabs shown in the header. Defaults to CMS tabs. */
+  filterOptions?: readonly string[];
   onSelect: (url: string) => void;
   onClose: () => void;
   onToast?: (
@@ -72,11 +76,14 @@ export function LibraryModal({
   currentValue,
   uploadCompanyId,
   currentSubtype,
+  module: assetModule = "cms",
+  filterOptions,
   onSelect,
   onClose,
   onToast,
 }: LibraryModalProps) {
-  const [filter, setFilter] = useState<FilterType>("all");
+  const activeFilters = filterOptions ?? FILTERS;
+  const [filter, setFilter] = useState<string>("all");
   const [items, setItems] = useState<MediaAsset[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -90,12 +97,12 @@ export function LibraryModal({
 
   // Load a page of assets
   const load = useCallback(
-    async (pageNum: number, sub: FilterType, replace: boolean) => {
+    async (pageNum: number, sub: string, replace: boolean) => {
       if (pageNum === 1) setLoading(true);
       else setLoadingMore(true);
       try {
         const res = await mediaAssets.list({
-          module: "cms",
+          module: assetModule,
           subtype: sub === "all" ? undefined : sub,
           page: pageNum,
           limit: 20,
@@ -111,7 +118,7 @@ export function LibraryModal({
         setLoadingMore(false);
       }
     },
-    [onToast],
+    [assetModule, onToast],
   );
 
   // Reload when filter changes
@@ -159,7 +166,7 @@ export function LibraryModal({
       await storageService.upload({
         file,
         companyId: uploadCompanyId,
-        module: "cms",
+        module: assetModule,
         subtype: currentSubtype,
       });
       onToast?.("Uploaded!", "success");
@@ -193,7 +200,7 @@ export function LibraryModal({
       description={
         loading
           ? "Loading…"
-          : `${total} asset${total !== 1 ? "s" : ""} · CMS module`
+          : `${total} asset${total !== 1 ? "s" : ""} · ${assetModule} module`
       }
       icon={<ImageIcon size={18} />}
       maxWidth="xxl"
@@ -202,8 +209,8 @@ export function LibraryModal({
         <>
           {/* Subtype filter tabs */}
           <div className="hidden md:block">
-            <MotionTabs<FilterType>
-              tabs={FILTERS.map((f) => ({
+            <MotionTabs<string>
+              tabs={activeFilters.map((f) => ({
                 id: f,
                 label:
                   f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1),
@@ -267,7 +274,7 @@ export function LibraryModal({
               </p>
               <p className="text-[11px] text-muted-foreground mt-0.5">
                 {filter !== "all"
-                  ? `No "${filter}" images uploaded.`
+                  ? `No "${filter}" images in the library yet.`
                   : "Upload your first image to get started."}
               </p>
             </div>

@@ -7,8 +7,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { ImageUploadWithStorage } from "@/components/common/ImageUploadWithStorage";
-import { useAuth } from "@/providers/AuthProvider";
+import { StoreImagePicker } from "./StoreImagePicker";
 import { ProductDescriptionEditor } from "./ProductDescriptionEditor";
 import Link from "next/link";
 import {
@@ -320,8 +319,6 @@ interface ProductFormProps {
 export function ProductForm({
   mode, initialData, productName, breadcrumbs, onSave, onCancel, isSaving,
 }: ProductFormProps) {
-  const { user } = useAuth();
-  const uploadCompanyId = user?.organizationId || "superadmin";
   const t = useTranslations("store.products");
 
   // Core
@@ -967,15 +964,11 @@ export function ProductForm({
           {/* 5. Media */}
           <Card title="Media">
             <label className={lbl}>Featured Image</label>
-            <ImageUploadWithStorage
+            <StoreImagePicker
               value={featuredImg}
               onChange={setFeaturedImg}
-              companyId={uploadCompanyId}
-              module="store"
-              accept="image/png,image/jpeg,image/webp"
-              maxSizeMB={5}
-              previewShape="wide"
-              hint="PNG, JPG, WebP up to 5 MB"
+              subtype="products"
+              hint="PNG, JPG, WebP · Stored via configured provider"
             />
           </Card>
 

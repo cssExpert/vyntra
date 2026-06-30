@@ -29,6 +29,7 @@ import { ExternalLink, ChevronLeft, Eye, EyeOff } from "lucide-react";
 import { useEditorStore } from "@/store/editorStore";
 import { useSitePreviewUrl } from "@/hooks/useSitePreviewUrl";
 import { cmsPages } from "@/lib/api";
+import { EditorSaveContext } from "./EditorSaveContext";
 import { COMPONENT_BLOCKS } from "@/lib/componentBlocks";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
 import Canvas from "./Canvas";
@@ -435,6 +436,16 @@ export default function EditorLayout() {
   };
 
   return (
+    <EditorSaveContext.Provider
+      value={{
+        pageSlug,
+        publishState,
+        draftState,
+        isLandingPage,
+        onPublish: handlePublish,
+        onSaveDraft: handleSaveDraft,
+      }}
+    >
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <div className="flex flex-col h-screen overflow-hidden bg-muted dark:bg-background">
         <div className="flex flex-1 min-h-0 overflow-hidden select-none">
@@ -483,5 +494,6 @@ export default function EditorLayout() {
         </motion.div>
       </DragOverlay>
     </DndContext>
+    </EditorSaveContext.Provider>
   );
 }

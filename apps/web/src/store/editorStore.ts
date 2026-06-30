@@ -77,6 +77,18 @@ interface EditorState {
   // Preview mode — renders canvas as the public site would
   previewMode: boolean
   setPreviewMode: (v: boolean) => void
+
+  // Canvas dark-mode preview — independent of the editor's own UI theme
+  canvasPreviewDark: boolean
+  setCanvasPreviewDark: (v: boolean) => void
+
+  // Canvas viewport width in px; null = full width (desktop default)
+  canvasWidth: number | null
+  setCanvasWidth: (v: number | null) => void
+
+  // Canvas zoom level (1 = 100%)
+  canvasZoom: number
+  setCanvasZoom: (v: number) => void
 }
 
 function findNodeById(nodes: EditorNode[], id: string): EditorNode | null {
@@ -146,6 +158,9 @@ export const useEditorStore = create<EditorState>()(
     pendingNodes: null,
     themeIdentifier: 'shopingo',
     previewMode: false,
+    canvasPreviewDark: false,
+    canvasWidth: null,
+    canvasZoom: 1,
     // history[historyIndex] always reflects the current canvas state
     history: [[]],
     historyIndex: 0,
@@ -330,5 +345,8 @@ export const useEditorStore = create<EditorState>()(
     setPendingNodes: (nodes) => set((state) => { state.pendingNodes = nodes }),
     setThemeIdentifier: (v) => set((state) => { state.themeIdentifier = v }),
     setPreviewMode: (v) => set((state) => { state.previewMode = v }),
+    setCanvasPreviewDark: (v) => set((state) => { state.canvasPreviewDark = v }),
+    setCanvasWidth: (v) => set((state) => { state.canvasWidth = v }),
+    setCanvasZoom: (v) => set((state) => { state.canvasZoom = Math.min(2, Math.max(0.25, v)) }),
   }))
 )

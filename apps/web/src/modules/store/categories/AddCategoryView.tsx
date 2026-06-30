@@ -6,8 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Switch } from "@/components/ui/switch";
-import { ImageUploadWithStorage } from "@/components/common/ImageUploadWithStorage";
-import { useAuth } from "@/providers/AuthProvider";
+import { StoreImagePicker } from "../products/components/StoreImagePicker";
 import { Save, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -145,8 +144,6 @@ export function AddCategoryView({
 }: AddCategoryViewProps) {
   const t = useTranslations("store.categories");
   const isLoaded = usePageLoad(500);
-  const { user } = useAuth();
-  const uploadCompanyId = user?.organizationId || "superadmin";
   const router = useRouter();
 
   // Form state
@@ -379,15 +376,11 @@ export function AddCategoryView({
             </Card>
 
             <Card title={t("thumbnailImage")}>
-              <ImageUploadWithStorage
+              <StoreImagePicker
                 value={image}
                 onChange={setImage}
-                companyId={uploadCompanyId}
-                module="store"
-                accept="image/png,image/jpeg,image/webp"
-                maxSizeMB={3}
-                previewShape="wide"
-                hint="PNG, JPG, WebP up to 3 MB"
+                subtype="categories"
+                hint="PNG, JPG, WebP · Stored via configured provider"
               />
             </Card>
 

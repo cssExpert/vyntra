@@ -191,6 +191,34 @@
   }
 }
 
+/* ─── Canvas preview isolation ──────────────────────────────────────────────
+   Forces the semantic CSS variables to either the light or dark palette
+   regardless of the editor's own theme class on <html>.
+   Apply one of these to the canvas scroll wrapper; also add `dark` to the
+   wrapper when using canvas-preview-dark so Tailwind's `dark:` variants fire.
+   ─────────────────────────────────────────────────────────────────────────── */
+.canvas-preview-light {
+  --background: 210 40% 98%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 20% 38%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+}
+
+.canvas-preview-dark {
+  --background: 0 0% 6%;
+  --foreground: 0 0% 93%;
+  --card: 0 0% 8%;
+  --card-foreground: 0 0% 93%;
+  --muted: 0 0% 10%;
+  --muted-foreground: 0 0% 53%;
+  --border: 0 0% 22%;
+  --input: 0 0% 22%;
+}
+
 /* ─── Base Styles ───────────────────────────────────────── */
 @layer base {
   * {
@@ -875,4 +903,19 @@ select {
 
 .categ-container {
   border-bottom: 1px solid hsl(var(--border)) !important;
+}
+
+/* ── Canvas grid overlay ──────────────────────────────────────────────────── */
+.bg-grid-pattern {
+  background-color: hsl(var(--background));
+  background-image:
+    linear-gradient(hsl(var(--border) / 0.5) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--border) / 0.5) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.dark .bg-grid-pattern {
+  background-image:
+    linear-gradient(hsl(var(--border) / 0.6) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--border) / 0.6) 1px, transparent 1px);
 }
