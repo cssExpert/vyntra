@@ -346,6 +346,12 @@ function ItemRow({
   onDelete,
   onMoveUp,
   onMoveDown,
+  dragging,
+  dropTarget,
+  onDragStart,
+  onDragEnter,
+  onDragEnd,
+  onDrop,
 }: {
   item: DraftItem;
   index: number;
@@ -356,11 +362,24 @@ function ItemRow({
   onDelete: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
+  dragging: boolean;
+  dropTarget: boolean;
+  onDragStart: () => void;
+  onDragEnter: () => void;
+  onDragEnd: () => void;
+  onDrop: () => void;
 }) {
   const iCls =
     "w-full rounded-md px-2.5 py-1.5 text-xs border border-border bg-background text-foreground focus:outline-none focus:border-primary transition-colors";
   const linkType = detectLinkType(item.url);
   const ref = extractRef(item.url);
+  const [expanded, setExpanded] = useState(!item.label);
+  // Native DnD: item is only draggable while the grip handle is held.
+  const [grabbing, setGrabbing] = useState(false);
+
+  const linkTypeLabel =
+    LINK_TYPES.find((l) => l.value === linkType)?.label ?? "Link";
+  const summary = item.url ? `${linkTypeLabel} · ${item.url}` : "No link set";
 
   function setLinkType(type: LinkType) {
     if (type === "url") onChange("url", "");
@@ -388,11 +407,53 @@ function ItemRow({
     linkType === "blog" ? blogs.find((b) => b.id === ref) : null;
 
   return (
-    <div className="p-3 rounded-lg border border-border bg-muted/20 space-y-3">
-      {/* Top row: grip + label + move/delete */}
+    <div
+      draggable={grabbing}
+      onDragStart={(e) => {
+        e.dataTransfer.effectAllowed = "move";
+        onDragStart();
+      }}
+      onDragEnter={onDragEnter}
+      onDragOver={(e) => e.preventDefault()}
+      onDrop={(e) => {
+        e.preventDefault();
+        onDrop();
+        setGrabbing(false);
+      }}
+      onDragEnd={() => {
+        setGrabbing(false);
+        onDragEnd();
+      }}
+      className={`px-3 py-2 rounded-lg border bg-muted/20 space-y-2 transition-[border-color,box-shadow,opacity] ${
+        dragging
+          ? "opacity-50 border-primary shadow-lg"
+          : dropTarget
+            ? "border-primary ring-2 ring-primary/30"
+            : "border-border"
+      }`}
+    >
+      {/* Top row: grip + collapse + label + move/delete */}
       <div className="flex items-center gap-2">
-        <GripVertical className="w-4 h-4 text-muted-foreground/40 flex-shrink-0" />
-        <div className="flex-1">
+        <span
+          onMouseDown={() => setGrabbing(true)}
+          onMouseUp={() => setGrabbing(false)}
+          title="Drag to reorder"
+          className="flex-shrink-0 cursor-grab active:cursor-grabbing touch-none text-muted-foreground/40 hover:text-muted-foreground transition-colors"
+        >
+          <GripVertical className="w-4 h-4" />
+        </span>
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          aria-expanded={expanded}
+          title={expanded ? "Collapse" : "Expand"}
+          className="p-1 rounded text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
+        >
+          <ChevronDown
+            className={`w-4 h-4 transition-transform ${expanded ? "" : "-rotate-90"}`}
+          />
+        </button>
+        <div className="flex-1 min-w-0">
           <p className="text-[10px] font-medium text-muted-foreground mb-1">
             Label
           </p>
@@ -402,13 +463,18 @@ function ItemRow({
             value={item.label}
             onChange={(e) => onChange("label", e.target.value)}
           />
+          {!expanded && (
+            <p className="mt-1 text-[10px] text-muted-foreground truncate">
+              {summary}
+            </p>
+          )}
         </div>
         <div className="flex flex-col gap-0.5 flex-shrink-0 mt-4">
           <button
             type="button"
             onClick={onMoveUp}
             disabled={index === 0}
-            className="p-1 rounded text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"
+            className="p-1 rounded text-muted-foreground hover:text-primary disabled:opacity-30 transition-colors"
           >
             <ChevronUp className="w-3.5 h-3.5" />
           </button>
@@ -416,7 +482,7 @@ function ItemRow({
             type="button"
             onClick={onMoveDown}
             disabled={index === total - 1}
-            className="p-1 rounded text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"
+            className="p-1 rounded text-muted-foreground hover:text-primary disabled:opacity-30 transition-colors"
           >
             <ChevronDown className="w-3.5 h-3.5" />
           </button>
@@ -430,168 +496,173 @@ function ItemRow({
         </div>
       </div>
 
-      {/* Link type selector */}
-      <div>
-        <p className="text-[10px] font-medium text-muted-foreground mb-1.5">
-          Link to
-        </p>
-        <div className="flex gap-1">
-          {LINK_TYPES.map(({ value, label, icon: Icon }) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => setLinkType(value)}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-medium border transition-colors flex-1 justify-center
+      {expanded && (
+        <>
+          {/* Link type selector */}
+          <div>
+            <p className="text-[10px] font-medium text-muted-foreground mb-1.5">
+              Link to
+            </p>
+            <div className="flex gap-1">
+              {LINK_TYPES.map(({ value, label, icon: Icon }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setLinkType(value)}
+                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-medium border transition-colors flex-1 justify-center
                 ${
                   linkType === value
                     ? "border-primary bg-primary/10 text-primary"
                     : "border-border text-muted-foreground hover:border-border hover:text-foreground hover:bg-muted/50"
                 }`}
+                >
+                  <Icon className="w-3 h-3" />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Link content based on type */}
+          {linkType === "url" && (
+            <div>
+              <p className="text-[10px] font-medium text-muted-foreground mb-1">
+                URL
+              </p>
+              <Input
+                className={iCls}
+                placeholder="e.g. /contact or https://example.com"
+                value={item.url}
+                onChange={(e) => onChange("url", e.target.value)}
+              />
+            </div>
+          )}
+
+          {linkType === "page" && (
+            <div>
+              <p className="text-[10px] font-medium text-muted-foreground mb-1.5">
+                Select page
+                {selectedPage && (
+                  <span className="ml-2 font-normal text-muted-foreground">
+                    → <span className="font-mono">/{selectedPage.slug}</span>
+                  </span>
+                )}
+              </p>
+              {pages.length === 0 ? (
+                <p className="text-xs text-muted-foreground italic">
+                  No pages found.
+                </p>
+              ) : (
+                <PickerList
+                  items={pages}
+                  selectedId={ref}
+                  onSelect={selectPage}
+                  placeholder="Search pages…"
+                />
+              )}
+            </div>
+          )}
+
+          {linkType === "blog" && (
+            <div>
+              <p className="text-[10px] font-medium text-muted-foreground mb-1.5">
+                Select blog post
+                {selectedBlog && (
+                  <span className="ml-2 font-normal text-muted-foreground">
+                    →{" "}
+                    <span className="font-mono">/blog/{selectedBlog.slug}</span>
+                  </span>
+                )}
+              </p>
+              {blogs.length === 0 ? (
+                <p className="text-xs text-muted-foreground italic">
+                  No blog posts found.
+                </p>
+              ) : (
+                <PickerList
+                  items={blogs}
+                  selectedId={ref}
+                  onSelect={selectBlog}
+                  placeholder="Search blog posts…"
+                />
+              )}
+            </div>
+          )}
+
+          {linkType === "anchor" && (
+            <div>
+              <p className="text-[10px] font-medium text-muted-foreground mb-1">
+                Section ID
+              </p>
+              <div className="flex items-center rounded-md border border-border bg-background overflow-hidden focus-within:border-primary transition-colors">
+                <span className="px-2.5 py-1.5 text-xs text-muted-foreground border-r border-border bg-muted/50 select-none">
+                  #
+                </span>
+                <input
+                  className="flex-1 px-2.5 py-1.5 text-xs text-foreground bg-transparent outline-none"
+                  placeholder="section-id"
+                  value={ref}
+                  onChange={(e) =>
+                    onChange(
+                      "url",
+                      `#${e.target.value.replace(/\s+/g, "-").toLowerCase()}`,
+                    )
+                  }
+                />
+              </div>
+              <p className="mt-1 text-[10px] text-muted-foreground">
+                Scrolls to an element with this ID on the page.
+              </p>
+            </div>
+          )}
+
+          {linkType === "email" && (
+            <div>
+              <p className="text-[10px] font-medium text-muted-foreground mb-1">
+                Email address
+              </p>
+              <div className="flex items-center rounded-md border border-border bg-background overflow-hidden focus-within:border-primary transition-colors">
+                <span className="px-2.5 py-1.5 text-xs text-muted-foreground border-r border-border bg-muted/50 select-none">
+                  mailto:
+                </span>
+                <input
+                  className="flex-1 px-2.5 py-1.5 text-xs text-foreground bg-transparent outline-none"
+                  placeholder="hello@example.com"
+                  type="email"
+                  value={ref}
+                  onChange={(e) => onChange("url", `mailto:${e.target.value}`)}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Open in */}
+          <div>
+            <p className="text-[10px] font-medium text-muted-foreground mb-1">
+              Open in
+            </p>
+            <select
+              className={iCls}
+              value={item.target}
+              onChange={(e) => onChange("target", e.target.value)}
             >
-              <Icon className="w-3 h-3" />
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
+              <option value="_self">Same tab</option>
+              <option value="_blank">New tab</option>
+            </select>
+          </div>
 
-      {/* Link content based on type */}
-      {linkType === "url" && (
-        <div>
-          <p className="text-[10px] font-medium text-muted-foreground mb-1">
-            URL
-          </p>
-          <Input
-            className={iCls}
-            placeholder="e.g. /contact or https://example.com"
-            value={item.url}
-            onChange={(e) => onChange("url", e.target.value)}
-          />
-        </div>
-      )}
-
-      {linkType === "page" && (
-        <div>
-          <p className="text-[10px] font-medium text-muted-foreground mb-1.5">
-            Select page
-            {selectedPage && (
-              <span className="ml-2 font-normal text-muted-foreground">
-                → <span className="font-mono">/{selectedPage.slug}</span>
-              </span>
-            )}
-          </p>
-          {pages.length === 0 ? (
-            <p className="text-xs text-muted-foreground italic">
-              No pages found.
+          {/* Show on */}
+          <div>
+            <p className="text-[10px] font-medium text-muted-foreground mb-1.5">
+              Show on
             </p>
-          ) : (
-            <PickerList
-              items={pages}
-              selectedId={ref}
-              onSelect={selectPage}
-              placeholder="Search pages…"
-            />
-          )}
-        </div>
-      )}
-
-      {linkType === "blog" && (
-        <div>
-          <p className="text-[10px] font-medium text-muted-foreground mb-1.5">
-            Select blog post
-            {selectedBlog && (
-              <span className="ml-2 font-normal text-muted-foreground">
-                → <span className="font-mono">/blog/{selectedBlog.slug}</span>
-              </span>
-            )}
-          </p>
-          {blogs.length === 0 ? (
-            <p className="text-xs text-muted-foreground italic">
-              No blog posts found.
-            </p>
-          ) : (
-            <PickerList
-              items={blogs}
-              selectedId={ref}
-              onSelect={selectBlog}
-              placeholder="Search blog posts…"
-            />
-          )}
-        </div>
-      )}
-
-      {linkType === "anchor" && (
-        <div>
-          <p className="text-[10px] font-medium text-muted-foreground mb-1">
-            Section ID
-          </p>
-          <div className="flex items-center rounded-md border border-border bg-background overflow-hidden focus-within:border-primary transition-colors">
-            <span className="px-2.5 py-1.5 text-xs text-muted-foreground border-r border-border bg-muted/50 select-none">
-              #
-            </span>
-            <input
-              className="flex-1 px-2.5 py-1.5 text-xs text-foreground bg-transparent outline-none"
-              placeholder="section-id"
-              value={ref}
-              onChange={(e) =>
-                onChange(
-                  "url",
-                  `#${e.target.value.replace(/\s+/g, "-").toLowerCase()}`,
-                )
-              }
+            <VisibilityMultiSelect
+              value={item.visibility}
+              onChange={(v) => onChange("visibility", v)}
             />
           </div>
-          <p className="mt-1 text-[10px] text-muted-foreground">
-            Scrolls to an element with this ID on the page.
-          </p>
-        </div>
+        </>
       )}
-
-      {linkType === "email" && (
-        <div>
-          <p className="text-[10px] font-medium text-muted-foreground mb-1">
-            Email address
-          </p>
-          <div className="flex items-center rounded-md border border-border bg-background overflow-hidden focus-within:border-primary transition-colors">
-            <span className="px-2.5 py-1.5 text-xs text-muted-foreground border-r border-border bg-muted/50 select-none">
-              mailto:
-            </span>
-            <input
-              className="flex-1 px-2.5 py-1.5 text-xs text-foreground bg-transparent outline-none"
-              placeholder="hello@example.com"
-              type="email"
-              value={ref}
-              onChange={(e) => onChange("url", `mailto:${e.target.value}`)}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Open in */}
-      <div>
-        <p className="text-[10px] font-medium text-muted-foreground mb-1">
-          Open in
-        </p>
-        <select
-          className={iCls}
-          value={item.target}
-          onChange={(e) => onChange("target", e.target.value)}
-        >
-          <option value="_self">Same tab</option>
-          <option value="_blank">New tab</option>
-        </select>
-      </div>
-
-      {/* Show on */}
-      <div>
-        <p className="text-[10px] font-medium text-muted-foreground mb-1.5">
-          Show on
-        </p>
-        <VisibilityMultiSelect
-          value={item.visibility}
-          onChange={(v) => onChange("visibility", v)}
-        />
-      </div>
     </div>
   );
 }
@@ -631,6 +702,9 @@ function MenuModal({
   );
   const [pages, setPages] = useState<CmsPageListItem[]>([]);
   const [blogs, setBlogs] = useState<CmsBlogListItem[]>([]);
+  // Drag-to-reorder state for menu items
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [overIndex, setOverIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -823,7 +897,7 @@ function MenuModal({
               </p>
             </div>
           ) : (
-            <div className="space-y-2 max-h-[420px] overflow-y-auto pr-0.5">
+            <div className="space-y-2">
               {form.items.map((item, i) => (
                 <ItemRow
                   key={i}
@@ -836,6 +910,27 @@ function MenuModal({
                   onDelete={() => deleteItem(i)}
                   onMoveUp={() => moveItem(i, i - 1)}
                   onMoveDown={() => moveItem(i, i + 1)}
+                  dragging={dragIndex === i}
+                  dropTarget={
+                    dragIndex !== null && overIndex === i && dragIndex !== i
+                  }
+                  onDragStart={() => setDragIndex(i)}
+                  onDragEnter={() => setOverIndex(i)}
+                  onDragEnd={() => {
+                    setDragIndex(null);
+                    setOverIndex(null);
+                  }}
+                  onDrop={() => {
+                    if (
+                      dragIndex !== null &&
+                      overIndex !== null &&
+                      dragIndex !== overIndex
+                    ) {
+                      moveItem(dragIndex, overIndex);
+                    }
+                    setDragIndex(null);
+                    setOverIndex(null);
+                  }}
                 />
               ))}
             </div>

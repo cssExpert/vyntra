@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -44,6 +44,39 @@ export function Modal({
   maxWidth = "lg",
   bodyMaxHeight,
 }: ModalProps) {
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [showTopFade, setShowTopFade] = useState(false);
+  const [showBottomFade, setShowBottomFade] = useState(false);
+
+  const updateFades = useCallback(() => {
+    const el = bodyRef.current;
+    if (!el) return;
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    const scrollable = scrollHeight - clientHeight > 1;
+    setShowTopFade(scrollable && scrollTop > 1);
+    setShowBottomFade(scrollable && scrollTop < scrollHeight - clientHeight - 1);
+  }, []);
+
+  // Recompute fades on open, scroll, viewport resize, and content changes
+  // (e.g. an accordion expanding inside the body).
+  useEffect(() => {
+    if (!isOpen) return;
+    updateFades();
+    const raf = requestAnimationFrame(updateFades);
+    const observed = [bodyRef.current, contentRef.current].filter(
+      Boolean,
+    ) as Element[];
+    const ro = new ResizeObserver(updateFades);
+    observed.forEach((el) => ro.observe(el));
+    window.addEventListener("resize", updateFades);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      window.removeEventListener("resize", updateFades);
+    };
+  }, [isOpen, updateFades]);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -112,11 +145,30 @@ export function Modal({
             </div>
 
             {/* Body */}
-            <div
-              className="flex-1 overflow-y-auto min-h-0"
-              style={{ maxHeight: bodyMaxHeight ?? "calc(100vh - 200px)" }}
-            >
-              {children}
+            <div className="relative flex-1 min-h-0 flex flex-col">
+              <div
+                ref={bodyRef}
+                onScroll={updateFades}
+                className="flex-1 overflow-y-auto min-h-0"
+                style={{ maxHeight: bodyMaxHeight ?? "calc(100vh - 200px)" }}
+              >
+                <div ref={contentRef}>{children}</div>
+              </div>
+
+              {/* Top scroll fade */}
+              <div
+                aria-hidden
+                className={`pointer-events-none absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-card to-transparent transition-opacity duration-200 ${
+                  showTopFade ? "opacity-100" : "opacity-0"
+                }`}
+              />
+              {/* Bottom scroll fade */}
+              <div
+                aria-hidden
+                className={`pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-card to-transparent transition-opacity duration-200 ${
+                  showBottomFade ? "opacity-100" : "opacity-0"
+                }`}
+              />
             </div>
 
             {/* Footer */}
