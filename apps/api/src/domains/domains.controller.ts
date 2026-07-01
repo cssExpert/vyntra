@@ -9,8 +9,10 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { CurrentOrg } from '../common/decorators/current-org.decorator';
 import { Public } from '../common/decorators/public.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -157,6 +159,23 @@ export class DomainsController {
     @Query('layoutId') layoutId?: string,
   ) {
     return this.domainsService.getPublicLayout(orgId, layoutId || undefined);
+  }
+
+  @Public()
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 30, ttl: 60_000 } })
+  @Get('public/sites/:orgId/products')
+  getPublicProducts(
+    @Param('orgId') orgId: string,
+    @Query('take') take?: string,
+    @Query('categoryId') categoryId?: string,
+    @Query('type') type?: string,
+  ) {
+    return this.domainsService.getPublicProducts(orgId, {
+      take: take ? parseInt(take, 10) : undefined,
+      categoryId,
+      type,
+    });
   }
 
   @Public()

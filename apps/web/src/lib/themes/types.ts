@@ -53,10 +53,19 @@ export interface ProductGridData {
   products: ProductItem[];
 }
 
+export interface ProductTabsSource {
+  categoryId?: string;
+  productType?: string;
+  limit?: number;
+}
+
 export interface ProductTabsData {
   tabs: Array<{
     label: string;
-    products: ProductItem[];
+    /** Live datasource — when set, products are fetched from the catalog instead of `products`. */
+    source?: ProductTabsSource;
+    /** Static fallback, used when `source` isn't configured. */
+    products?: ProductItem[];
   }>;
 }
 

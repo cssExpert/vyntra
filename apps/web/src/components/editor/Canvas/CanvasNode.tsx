@@ -281,16 +281,18 @@ export default function CanvasNode({
           </div>
         )}
 
-        {/* Transparent overlay intercepts clicks so interactive block content doesn't steal selection */}
-        <div className="absolute inset-0 z-10" />
-
-        {BlockComponent ? (
-          <BlockComponent data={node.blockData ?? {}} />
-        ) : (
-          <div className="p-6 text-sm text-muted-foreground text-center border border-dashed border-border rounded">
-            Unknown block: {node.blockType}
-          </div>
-        )}
+        {/* pointer-events-none makes links/buttons inside the block inert while editing,
+            regardless of the block's own internal z-index — clicks/hovers always fall
+            through to this wrapper's onClick/onMouseEnter instead of navigating. */}
+        <div className="pointer-events-none">
+          {BlockComponent ? (
+            <BlockComponent data={node.blockData ?? {}} />
+          ) : (
+            <div className="p-6 text-sm text-muted-foreground text-center border border-dashed border-border rounded">
+              Unknown block: {node.blockType}
+            </div>
+          )}
+        </div>
 
         {/* ── Portalled toolbar (same as regular nodes) ── */}
         {typeof window !== "undefined" &&

@@ -331,7 +331,7 @@ export function AttributeForm({
 
       {/* Sticky footer */}
       <div className="sticky bottom-0 -mx-4 sm:-mx-6 px-4 sm:px-6 py-4 bg-background/80 backdrop-blur-md border-t border-border/60 flex items-center justify-between gap-4 z-10">
-        <p className="text-xs text-muted-foreground hidden sm:block">All changes are saved to local store.</p>
+        <p className="text-xs text-muted-foreground hidden sm:block">All changes are saved to the database.</p>
         <div className="flex items-center gap-2 ml-auto">
           <Button variant="outline" onClick={onCancel}>Cancel</Button>
           <Button onClick={handleSave} disabled={isSaving || !name.trim()}>

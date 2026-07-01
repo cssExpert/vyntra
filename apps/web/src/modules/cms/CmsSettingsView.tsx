@@ -473,10 +473,11 @@ function BrandingTab() {
               <StoreImagePicker
                 value={logoUrl}
                 onChange={setLogoUrl}
-                module="branding"
-                subtype="logo-light"
+                module="cms"
+                subtype="branding"
                 filterOptions={BRANDING_FILTERS}
                 accept="image/png,image/jpeg,image/svg+xml,image/webp"
+                libraryOnly
               />
             </div>
           </div>
@@ -494,10 +495,11 @@ function BrandingTab() {
               <StoreImagePicker
                 value={darkLogoUrl}
                 onChange={setDarkLogoUrl}
-                module="branding"
-                subtype="logo-dark"
+                module="cms"
+                subtype="branding"
                 filterOptions={BRANDING_FILTERS}
                 accept="image/png,image/jpeg,image/svg+xml,image/webp"
+                libraryOnly
               />
             </div>
           </div>
@@ -515,10 +517,11 @@ function BrandingTab() {
               <StoreImagePicker
                 value={faviconUrl}
                 onChange={setFaviconUrl}
-                module="branding"
-                subtype="favicon"
+                module="cms"
+                subtype="branding"
                 filterOptions={BRANDING_FILTERS}
                 accept="image/png,image/x-icon,image/svg+xml"
+                libraryOnly
               />
             </div>
           </div>

@@ -145,6 +145,7 @@ export function NodeRenderer({
             blockType={node.blockType}
             blockData={node.blockData ?? {}}
             themeIdentifier={themeIdentifier}
+            orgId={orgId}
           />
         ) : (
           <RenderNode key={node.id} node={node} orgId={orgId} />

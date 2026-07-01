@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import type { ProductTabsData, ProductItem } from "@/lib/themes/types";
+import { useActiveTabProducts } from "@/lib/themes/useProductTabs";
+import { EmptyState } from "@/lib/themes/shared/EmptyState";
 
 const ORANGE = "#e4611e";
 
@@ -64,11 +66,10 @@ function ProductCard({ product }: { product: ProductItem }) {
   );
 }
 
-export default function ProductTabs({ data }: { data: ProductTabsData }) {
+export default function ProductTabs({ data, orgId }: { data: ProductTabsData; orgId?: string }) {
   const [active, setActive] = useState(0);
+  const { products, loading } = useActiveTabProducts(data.tabs, active, orgId);
   if (!data.tabs.length) return null;
-
-  const products = data.tabs[active]?.products ?? [];
 
   return (
     <section className="py-14 bg-white dark:bg-[#121214]">
@@ -89,9 +90,15 @@ export default function ProductTabs({ data }: { data: ProductTabsData }) {
           ))}
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {products.map((p) => <ProductCard key={p.id} product={p} />)}
-        </div>
+        {loading ? (
+          <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-10">Loading products…</p>
+        ) : products.length === 0 ? (
+          <EmptyState title="No products found" message="Try a different category or product type." />
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {products.map((p) => <ProductCard key={p.id} product={p} />)}
+          </div>
+        )}
       </div>
     </section>
   );

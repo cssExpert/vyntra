@@ -22,6 +22,8 @@ interface StoreImagePickerProps {
   subtype?: string;
   /** File accept string for the hidden input. */
   accept?: string;
+  /** When true, hides the drag-and-drop upload zone — selection is limited to the media Library. */
+  libraryOnly?: boolean;
   hint?: string;
   onToast?: (msg: string, type?: "success" | "error" | "info" | "warning") => void;
 }
@@ -34,6 +36,7 @@ export function StoreImagePicker({
   companyId: companyIdProp,
   subtype = "products",
   accept = "image/png,image/jpeg,image/webp,image/gif",
+  libraryOnly = false,
   hint,
   onToast,
 }: StoreImagePickerProps) {
@@ -83,13 +86,15 @@ export function StoreImagePicker({
   return (
     <div className="space-y-3">
       {/* Hidden file input shared by upload zone + replace button */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept={accept}
-        className="hidden"
-        onChange={handleFileInput}
-      />
+      {!libraryOnly && (
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={accept}
+          className="hidden"
+          onChange={handleFileInput}
+        />
+      )}
 
       {value ? (
         /* ── Image preview with hover controls ── */
@@ -99,11 +104,11 @@ export function StoreImagePicker({
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors duration-200 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
             <button
               type="button"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => (libraryOnly ? setLibraryOpen(true) : fileInputRef.current?.click())}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-gray-900 rounded-lg text-xs font-semibold hover:bg-gray-100 transition-colors shadow-md"
             >
-              <UploadCloud className="w-3.5 h-3.5" />
-              Replace
+              {libraryOnly ? <ImageIcon className="w-3.5 h-3.5" /> : <UploadCloud className="w-3.5 h-3.5" />}
+              {libraryOnly ? "Change" : "Replace"}
             </button>
             <button
               type="button"
@@ -115,6 +120,16 @@ export function StoreImagePicker({
             </button>
           </div>
         </div>
+      ) : libraryOnly ? (
+        /* ── Library-only placeholder — no direct upload ── */
+        <button
+          type="button"
+          onClick={() => setLibraryOpen(true)}
+          className="w-full aspect-video rounded-xl border border-border bg-muted/30 hover:bg-muted/60 transition-colors flex flex-col items-center justify-center gap-2 text-muted-foreground"
+        >
+          <ImageIcon className="w-6 h-6" />
+          <span className="text-xs font-semibold">Choose from Library</span>
+        </button>
       ) : (
         /* ── Upload drop zone ── */
         <div
@@ -148,17 +163,18 @@ export function StoreImagePicker({
         </div>
       )}
 
-      {/* Browse library button */}
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={() => setLibraryOpen(true)}
-        className="w-full gap-1.5 font-semibold"
-      >
-        <ImageIcon className="w-3.5 h-3.5" />
-        Browse Media Library
-      </Button>
+      {!libraryOnly && (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setLibraryOpen(true)}
+          className="w-full gap-1.5 font-semibold"
+        >
+          <ImageIcon className="w-3.5 h-3.5" />
+          Browse Media Library
+        </Button>
+      )}
 
       {hint && <p className="text-[11px] text-muted-foreground">{hint}</p>}
 
@@ -171,6 +187,7 @@ export function StoreImagePicker({
             currentSubtype={subtype}
             module={assetModule}
             filterOptions={filterOptions}
+            accept={accept}
             onSelect={(url) => {
               onChange(url);
               setLibraryOpen(false);

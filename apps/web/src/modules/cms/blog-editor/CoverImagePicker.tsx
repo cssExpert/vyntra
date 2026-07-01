@@ -51,6 +51,16 @@ function formatBytes(bytes: number | null) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+/** Checks a MIME type against a comma-separated `accept` string (supports "image/*" wildcards). */
+function matchesAccept(fileType: string, accept?: string): boolean {
+  if (!accept) return true;
+  return accept.split(",").some((pattern) => {
+    pattern = pattern.trim();
+    if (pattern.endsWith("/*")) return fileType.startsWith(pattern.slice(0, -1));
+    return pattern === fileType;
+  });
+}
+
 // ─── Library modal ────────────────────────────────────────────────────────────
 
 const FILTERS = ["all", "blogs", "pages", "general"] as const;
@@ -64,6 +74,9 @@ export interface LibraryModalProps {
   module?: string;
   /** Filter tabs shown in the header. Defaults to CMS tabs. */
   filterOptions?: readonly string[];
+  /** Comma-separated MIME types (e.g. "image/png,image/svg+xml"). Restricts both
+   *  the "Upload new" file picker and which existing library assets are selectable. */
+  accept?: string;
   onSelect: (url: string) => void;
   onClose: () => void;
   onToast?: (
@@ -78,6 +91,7 @@ export function LibraryModal({
   currentSubtype,
   module: assetModule = "cms",
   filterOptions,
+  accept,
   onSelect,
   onClose,
   onToast,
@@ -160,6 +174,10 @@ export function LibraryModal({
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
+    if (!matchesAccept(file.type, accept)) {
+      onToast?.("That file type isn't allowed here.", "error");
+      return;
+    }
     setIsUploading(true);
     onToast?.("Uploading…", "info");
     try {
@@ -191,6 +209,12 @@ export function LibraryModal({
       onToast?.("Delete failed", "error");
     }
   };
+
+  // Restrict the grid to assets matching `accept`, even if the module/subtype
+  // filter alone wouldn't exclude them.
+  const visibleItems = accept
+    ? items.filter((a) => matchesAccept(a.fileType, accept))
+    : items;
 
   return (
     <Modal
@@ -227,7 +251,7 @@ export function LibraryModal({
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
+              accept={accept ?? "image/*"}
               className="hidden"
               onChange={handleUpload}
             />
@@ -263,7 +287,7 @@ export function LibraryModal({
               />
             ))}
           </div>
-        ) : items.length === 0 ? (
+        ) : visibleItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full gap-3 text-center">
             <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center">
               <ImageIcon className="w-7 h-7 text-muted-foreground/40" />
@@ -291,7 +315,7 @@ export function LibraryModal({
         ) : (
           <>
             <div className="grid grid-cols-5 gap-3">
-              {items.map((asset) => {
+              {visibleItems.map((asset) => {
                 const selected = currentValue === asset.url;
                 return (
                   <div

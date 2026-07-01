@@ -566,28 +566,50 @@ async function main() {
   // ── Store: Attributes ────────────────────────────────────────────────────
   const attrDefs = [
     {
-      name: "Color", type: "color",
-      values: ["Red", "Blue", "Black", "White", "Green", "Yellow"],
+      name: "Color", attributeType: "color", fieldType: "dropdown", usedInVariation: true,
+      values: [
+        { name: "Red",    colorHex: "#EF4444" },
+        { name: "Blue",   colorHex: "#3B82F6" },
+        { name: "Black",  colorHex: "#111827" },
+        { name: "White",  colorHex: "#F9FAFB" },
+        { name: "Green",  colorHex: "#22C55E" },
+        { name: "Yellow", colorHex: "#EAB308" },
+      ],
     },
     {
-      name: "Size", type: "select",
-      values: ["XS", "S", "M", "L", "XL", "XXL"],
+      name: "Size", attributeType: "selection", fieldType: "buttons", usedInVariation: true,
+      values: [
+        { name: "XS" }, { name: "S" }, { name: "M" },
+        { name: "L" },  { name: "XL" }, { name: "XXL" },
+      ],
     },
     {
-      name: "Material", type: "select",
-      values: ["Cotton", "Polyester", "Wool", "Silk", "Linen"],
+      name: "Material", attributeType: "selection", fieldType: "dropdown", usedInVariation: false,
+      values: [
+        { name: "Cotton" }, { name: "Polyester" }, { name: "Wool" },
+        { name: "Silk" },   { name: "Linen" },
+      ],
     },
     {
-      name: "Storage", type: "select",
-      values: ["64GB", "128GB", "256GB", "512GB", "1TB"],
+      name: "Storage", attributeType: "selection", fieldType: "buttons", usedInVariation: true,
+      values: [
+        { name: "64GB" }, { name: "128GB" }, { name: "256GB" },
+        { name: "512GB" }, { name: "1TB" },
+      ],
     },
     {
-      name: "Warranty", type: "select",
-      values: ["6 Months", "1 Year", "2 Years", "3 Years"],
+      name: "Warranty", attributeType: "selection", fieldType: "dropdown", usedInVariation: false,
+      values: [
+        { name: "6 Months" }, { name: "1 Year" },
+        { name: "2 Years" },  { name: "3 Years" },
+      ],
     },
     {
-      name: "Finish", type: "select",
-      values: ["Matte", "Gloss", "Satin", "Brushed"],
+      name: "Finish", attributeType: "selection", fieldType: "dropdown", usedInVariation: false,
+      values: [
+        { name: "Matte" }, { name: "Gloss" },
+        { name: "Satin" }, { name: "Brushed" },
+      ],
     },
   ];
 
@@ -598,17 +620,37 @@ async function main() {
     let attrId: string;
     if (existing) {
       attrId = existing.id;
+      await prisma.storeAttribute.update({
+        where: { id: attrId },
+        data: {
+          attributeType:   attr.attributeType,
+          fieldType:       attr.fieldType,
+          usedInVariation: attr.usedInVariation,
+        },
+      });
     } else {
       const created = await prisma.storeAttribute.create({
-        data: { organizationId: org.id, name: attr.name, type: attr.type },
+        data: {
+          organizationId:  org.id,
+          name:            attr.name,
+          attributeType:   attr.attributeType,
+          fieldType:       attr.fieldType,
+          usedInVariation: attr.usedInVariation,
+        },
       });
       attrId = created.id;
     }
     for (let i = 0; i < attr.values.length; i++) {
+      const v = attr.values[i];
       await prisma.storeAttributeValue.upsert({
-        where: { attributeId_value: { attributeId: attrId, value: attr.values[i] } },
-        update: { sortOrder: i },
-        create: { attributeId: attrId, value: attr.values[i], sortOrder: i },
+        where: { attributeId_name: { attributeId: attrId, name: v.name } },
+        update: { sortOrder: i, colorHex: (v as { name: string; colorHex?: string }).colorHex ?? null },
+        create: {
+          attributeId: attrId,
+          name:        v.name,
+          colorHex:    (v as { name: string; colorHex?: string }).colorHex ?? null,
+          sortOrder:   i,
+        },
       });
     }
   }
@@ -807,6 +849,7 @@ async function main() {
         specification: p.specification,
         seoTitle: p.seoTitle,
         seoDescription: p.seoDescription,
+        seoKeywords: (p as typeof p & { seoKeywords?: string }).seoKeywords ?? null,
         price: p.price,
         compareAtPrice: p.compareAtPrice ?? null,
         costPrice: p.costPrice ?? null,
@@ -822,6 +865,7 @@ async function main() {
         specification: p.specification,
         seoTitle: p.seoTitle ?? null,
         seoDescription: p.seoDescription ?? null,
+        seoKeywords: (p as typeof p & { seoKeywords?: string }).seoKeywords ?? null,
         price: p.price,
         compareAtPrice: p.compareAtPrice ?? null,
         costPrice: p.costPrice ?? null,

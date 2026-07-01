@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AttributeForm, type AttributeFormData } from "./AttributeForm";
+import { storeAttributes } from "@/lib/api";
 
 export function AddAttributeView() {
   const router = useRouter();
@@ -11,23 +12,20 @@ export function AddAttributeView() {
   const handleSave = async (data: AttributeFormData) => {
     setIsSaving(true);
     try {
-      const newId = `attr_new_${Date.now()}`;
-      const added = JSON.parse(
-        typeof window !== "undefined" ? localStorage.getItem("store_attributes_added") || "[]" : "[]",
-      );
-      added.unshift({
-        id:              newId,
+      await storeAttributes.create({
         name:            data.name,
         attributeType:   data.attributeType,
         fieldType:       data.fieldType,
         usedInVariation: data.usedInVariation,
-        options:         data.options,
-        createdAt:       new Date().toISOString().slice(0, 10),
-        updatedAt:       new Date().toISOString().slice(0, 10),
+        options:         data.options.map((o, i) => ({
+          name:      o.name,
+          colorHex:  o.colorHex || undefined,
+          sortOrder: i,
+        })),
       });
-      localStorage.setItem("store_attributes_added", JSON.stringify(added));
-      await new Promise((r) => setTimeout(r, 400));
       router.push("/store/attributes");
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to save attribute");
     } finally {
       setIsSaving(false);
     }

@@ -1,2 +1,2 @@
 -- AlterTable
-ALTER TABLE "Product" ADD COLUMN "specification" TEXT;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "specification" TEXT;

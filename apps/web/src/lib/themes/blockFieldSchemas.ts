@@ -13,7 +13,8 @@ export type ScalarFieldDef =
   | { type: 'textarea';    key: string; label: string; rows?: number; placeholder?: string }
   | { type: 'select';      key: string; label: string; options: { value: string; label: string }[] }
   | { type: 'toggle';      key: string; label: string; description?: string }
-  | { type: 'string-list'; key: string; label: string; placeholder?: string; addLabel?: string };
+  | { type: 'string-list'; key: string; label: string; placeholder?: string; addLabel?: string }
+  | { type: 'product-source'; key: string; label: string; defaultLimit?: number };
 
 export interface ArrayFieldDef {
   type: 'array';
@@ -113,25 +114,11 @@ export const BLOCK_SCHEMAS: Record<string, BlockSection[]> = {
           label: 'Tabs',
           itemLabel: 'Tab',
           addLabel: 'Add Tab',
-          defaultItem: { label: 'New Tab', products: [] },
+          defaultItem: { label: 'New Tab', source: { categoryId: '', productType: '', limit: 8 } },
           fields: [
             { type: 'text', key: 'label', label: 'Tab Label', placeholder: 'New Arrivals' },
+            { type: 'product-source', key: 'source', label: 'Products', defaultLimit: 8 },
           ],
-        },
-      ],
-    },
-    {
-      title: 'Data Source',
-      defaultOpen: false,
-      fields: [
-        {
-          type: 'db-source',
-          key: 'products',
-          table: 'products',
-          label: 'Products per Tab',
-          description: 'Products in each tab are fetched live from your catalog.',
-          limitKey: 'limit',
-          defaultLimit: 8,
         },
       ],
     },

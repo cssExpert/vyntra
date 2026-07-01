@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -16,7 +16,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import type { ProductType, ProductStatus, StockStatus, StoreProduct, StoreAttribute, StoreCategory } from "../../store.types";
-import { SAMPLE_PRODUCTS, SAMPLE_ATTRIBUTES, SAMPLE_CATEGORIES } from "../../store.data";
+import { SAMPLE_PRODUCTS } from "../../store.data";
+import { storeCategories, storeAttributes } from "@/lib/api";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -95,6 +96,7 @@ export type ProductFormData = {
   tags: string[];
   seoTitle: string;
   seoDescription: string;
+  seoKeywords: string;
 };
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
@@ -106,19 +108,6 @@ const lbl = "block text-sm font-medium text-foreground mb-1.5";
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.04 } } };
 const cardAnim  = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.22, ease: "easeOut" } } };
-
-// ─── Get global attributes (SAMPLE + localStorage edits/adds) ────────────────
-
-function getGlobalAttributes(): StoreAttribute[] {
-  if (typeof window === "undefined") return SAMPLE_ATTRIBUTES;
-  const edited  = JSON.parse(localStorage.getItem("store_attributes_edited")  || "{}");
-  const added   = JSON.parse(localStorage.getItem("store_attributes_added")   || "[]") as StoreAttribute[];
-  const deleted = JSON.parse(localStorage.getItem("store_attributes_deleted") || "[]") as string[];
-  const base = SAMPLE_ATTRIBUTES
-    .filter((a) => !deleted.includes(a.id))
-    .map((a) => edited[a.id] ?? a);
-  return [...added, ...base];
-}
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -132,16 +121,6 @@ const PRODUCT_TYPES: { value: ProductType; label: string; desc: string; icon: Re
   { value: "gift_card",    label: "Gift Card",         desc: "Store gift card / voucher",               icon: <Gift      size={14} /> },
 ];
 
-function getCategories(): StoreCategory[] {
-  if (typeof window === "undefined") return SAMPLE_CATEGORIES;
-  const edited  = JSON.parse(localStorage.getItem("store_categories_edited")  || "{}");
-  const added   = JSON.parse(localStorage.getItem("store_categories_added")   || "[]") as StoreCategory[];
-  const deleted = JSON.parse(localStorage.getItem("store_categories_deleted") || "[]") as string[];
-  const base = SAMPLE_CATEGORIES
-    .filter((c) => !deleted.includes(c.id))
-    .map((c) => edited[c.id] ?? c);
-  return [...added, ...base];
-}
 
 function buildCategoryPath(id: string, all: StoreCategory[]): string {
   const cat = all.find((c) => c.id === id);
@@ -156,13 +135,14 @@ function buildCategoryPath(id: string, all: StoreCategory[]): string {
 function CategoryDropdown({
   selectedIds,
   onChange,
+  allCats,
 }: {
   selectedIds: string[];
   onChange: (ids: string[]) => void;
+  allCats: StoreCategory[];
 }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const allCats = getCategories();
 
   const paths = allCats.map((c) => ({ ...c, path: buildCategoryPath(c.id, allCats) }));
   const filtered = search.trim()
@@ -359,8 +339,8 @@ export function ProductForm({
   );
   const [variants, setVariants] = useState<ProductVariantRow[]>(initialData?.variants ?? []);
 
-  // Live list of global attributes (refreshed on mount)
-  const [globalAttrs] = useState<StoreAttribute[]>(() => getGlobalAttributes());
+  // Live list of global attributes (fetched from API on mount)
+  const [globalAttrs, setGlobalAttrs] = useState<StoreAttribute[]>([]);
 
   // Subscription
   const [billingPeriod,   setBillingPeriod]   = useState(initialData?.billingPeriod   ?? "month");
@@ -379,11 +359,50 @@ export function ProductForm({
   const [giftCardExpiry,    setGiftCardExpiry]    = useState(initialData?.giftCardExpiry    ?? "365");
 
   // Organisation & SEO
+  const [allCats,     setAllCats]     = useState<StoreCategory[]>([]);
   const [categoryIds, setCategoryIds] = useState<string[]>(initialData?.categoryIds ?? []);
   const [tagInput,    setTagInput]    = useState("");
   const [tags,        setTags]        = useState<string[]>(initialData?.tags ?? []);
   const [seoTitle,    setSeoTitle]    = useState(initialData?.seoTitle   ?? "");
   const [seoDesc,     setSeoDesc]     = useState(initialData?.seoDescription ?? "");
+  const [seoKeywords, setSeoKeywords] = useState(initialData?.seoKeywords ?? "");
+
+  useEffect(() => {
+    storeCategories.list({ take: 500 }).then((res) => {
+      setAllCats(res.data.map((c) => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+        parentId: c.parentId ?? undefined,
+        description: c.description ?? undefined,
+        imageUrl: c.imageUrl ?? undefined,
+        status: (c.status === "active" ? "active" : "inactive") as "active" | "inactive",
+        featured: c.featured ?? false,
+        sortOrder: c.sortOrder,
+        productCount: 0,
+        createdAt: c.createdAt,
+        updatedAt: c.updatedAt,
+      })));
+    }).catch(() => {});
+
+    storeAttributes.list().then((res) => {
+      setGlobalAttrs(res.data.map((a) => ({
+        id:              a.id,
+        name:            a.name,
+        attributeType:   a.attributeType as StoreAttribute["attributeType"],
+        fieldType:       a.fieldType     as StoreAttribute["fieldType"],
+        usedInVariation: a.usedInVariation,
+        options:         a.values.map((v) => ({
+          id:       v.id,
+          name:     v.name,
+          colorHex: v.colorHex ?? undefined,
+          sortOrder: v.sortOrder,
+        })),
+        createdAt: a.createdAt,
+        updatedAt: a.updatedAt,
+      })));
+    }).catch(() => {});
+  }, []);
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
 
@@ -526,7 +545,7 @@ export function ProductForm({
       billingPeriod, billingInterval, trialPeriod, signupFee,
       bundleItems,
       giftCardAmounts: giftAmounts, allowCustomAmount, giftCardExpiry,
-      categoryIds, tags, seoTitle, seoDescription: seoDesc,
+      categoryIds, tags, seoTitle, seoDescription: seoDesc, seoKeywords,
     });
   };
 
@@ -1068,11 +1087,11 @@ export function ProductForm({
             )}
           </Card>
 
-          {/* Organisation */}
-          <Card title="Organisation">
+          {/* Categories & Tags */}
+          <Card title="Categories & Tags">
             <div>
               <label className={lbl}>Product Categories</label>
-              <CategoryDropdown selectedIds={categoryIds} onChange={setCategoryIds} />
+              <CategoryDropdown selectedIds={categoryIds} onChange={setCategoryIds} allCats={allCats} />
             </div>
             <div>
               <label className={lbl}>Tags</label>
@@ -1097,6 +1116,15 @@ export function ProductForm({
             </Field>
             <Field label="Meta Description" hint={`${seoDesc.length}/160`}>
               <textarea value={seoDesc} onChange={(e) => setSeoDesc(e.target.value)} rows={3} placeholder="Brief description for search engines…" className={ta} maxLength={160} />
+            </Field>
+            <Field label="Meta Keywords" hint="Comma-separated. Used by some search engines.">
+              <textarea
+                value={seoKeywords}
+                onChange={(e) => setSeoKeywords(e.target.value)}
+                rows={2}
+                placeholder="e.g. shoes, running shoes, sports footwear"
+                className={ta}
+              />
             </Field>
             {(seoTitle || name) && (
               <div className="rounded-sm border border-border bg-muted/20 p-3 space-y-1">

@@ -35,12 +35,16 @@ export class ProductsController {
     @CurrentOrg() organizationId: string,
     @Query('skip') skip?: string,
     @Query('take') take?: string,
-    @Query('status') status?: string
+    @Query('status') status?: string,
+    @Query('categoryId') categoryId?: string,
+    @Query('type') type?: string
   ) {
     return this.productsService.findAll(organizationId, {
       skip: skip ? parseInt(skip) : 0,
       take: take ? parseInt(take) : 10,
       status,
+      categoryId,
+      type,
     });
   }
 
