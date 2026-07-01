@@ -700,6 +700,25 @@ function MenuModal({
       onClose={onClose}
       title={isNew ? "Create Menu" : "Edit Menu"}
       maxWidth="lg"
+      footer={
+        <div className="flex items-center justify-end gap-3 pt-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={() => onSave(form)}
+            disabled={saving || !form.name.trim() || !form.slug.trim()}
+            className="px-4 py-2.5 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 disabled:opacity-60 transition-colors"
+          >
+            {saving ? "Saving…" : isNew ? "Create Menu" : "Save Changes"}
+          </button>
+        </div>
+      }
     >
       <div className="px-6 py-5 space-y-5">
         {/* Name + Slug */}
@@ -821,25 +840,6 @@ function MenuModal({
               ))}
             </div>
           )}
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-end gap-3 pt-2 border-t border-border">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={() => onSave(form)}
-            disabled={saving || !form.name.trim() || !form.slug.trim()}
-            className="px-4 py-2.5 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 disabled:opacity-60 transition-colors"
-          >
-            {saving ? "Saving…" : isNew ? "Create Menu" : "Save Changes"}
-          </button>
         </div>
       </div>
     </Modal>

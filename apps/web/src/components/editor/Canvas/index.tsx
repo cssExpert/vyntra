@@ -9,8 +9,6 @@ import {
   Smartphone,
   MousePointer2,
   Plus,
-  Sun,
-  Moon,
   ChevronDown,
   Check,
   ZoomIn,
@@ -18,9 +16,7 @@ import {
   Undo2,
   Redo2,
   Save,
-  Globe,
   Loader2,
-  Eye,
   EyeOff,
   ExternalLink,
   Grid3X3,
@@ -522,14 +518,10 @@ function CanvasToolbar() {
     canvasWidth,
     setCanvasWidth,
     nodes,
-    canvasPreviewDark,
-    setCanvasPreviewDark,
     undo,
     redo,
     canUndo,
     canRedo,
-    previewMode,
-    setPreviewMode,
     showGrid,
     setShowGrid,
     showOutlines,
@@ -538,7 +530,7 @@ function CanvasToolbar() {
     setShowTemplatePicker,
   } = useEditorStore();
 
-  const { publishState, draftState, isLandingPage, onPublish, onSaveDraft } =
+  const { publishState, draftState, isLandingPage, onSaveDraft } =
     useEditorSave();
 
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -718,77 +710,7 @@ function CanvasToolbar() {
           </button>
         )}
 
-        {/* Publish */}
-        <button
-          onClick={onPublish}
-          disabled={publishState === "saving" || draftState === "saving"}
-          title="Publish page"
-          className={cn(
-            "flex items-center gap-1.5 h-7 px-2.5 rounded-md text-xs font-semibold transition-all disabled:opacity-50",
-            publishState === "saved"
-              ? "bg-emerald-600 text-white"
-              : publishState === "error"
-                ? "bg-rose-600 text-white"
-                : "bg-primary hover:bg-primary/90 text-primary-foreground",
-          )}
-        >
-          {publishState === "saving" ? (
-            <Loader2 className="w-3 h-3 animate-spin" />
-          ) : (
-            <Globe className="w-3 h-3" />
-          )}
-          <span className="hidden @lg:inline">
-            {publishState === "saving"
-              ? "Publishing…"
-              : publishState === "saved"
-                ? "Published ✓"
-                : publishState === "error"
-                  ? "Error — retry"
-                  : "Publish"}
-          </span>
-        </button>
-
-        <div className="w-px h-4 mx-1 bg-border" />
-
-        {/* Preview toggle */}
-        <button
-          onClick={() => setPreviewMode(!previewMode)}
-          title="Preview page"
-          className={cn(
-            "flex items-center gap-1.5 h-7 px-2.5 rounded-md text-xs font-semibold transition-all border",
-            previewMode
-              ? "border-primary text-primary bg-primary/10"
-              : "border-border text-muted-foreground hover:text-foreground hover:bg-background bg-transparent",
-          )}
-        >
-          <Eye className="w-3.5 h-3.5" />
-          <span className="hidden @xl:inline">Preview</span>
-        </button>
-
-        <div className="w-px h-4 mx-1 bg-border" />
-
-        {/* Dark / light preview toggle */}
-        <button
-          onClick={() => setCanvasPreviewDark(!canvasPreviewDark)}
-          title={canvasPreviewDark ? "Switch to light preview" : "Switch to dark preview"}
-          className={cn(
-            "flex items-center gap-1.5 h-7 px-2 rounded-md text-xs font-medium transition-all border",
-            canvasPreviewDark
-              ? "bg-[#1a1a1a] border-[#383838] text-[#ededed] hover:bg-[#252525]"
-              : "bg-white border-[#e5e7eb] text-[#374151] hover:bg-gray-50",
-          )}
-        >
-          {canvasPreviewDark ? (
-            <Moon className="w-3.5 h-3.5" />
-          ) : (
-            <Sun className="w-3.5 h-3.5" />
-          )}
-          <span className="hidden @sm:inline">
-            {canvasPreviewDark ? "Dark" : "Light"}
-          </span>
-        </button>
-
-        <div className="w-px h-4 mx-1.5 bg-border" />
+        {!isLandingPage && <div className="w-px h-4 mx-1 bg-border" />}
 
         {/* Device picker */}
         <div ref={pickerRef} className="relative flex items-center gap-0.5">
