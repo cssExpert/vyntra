@@ -43,11 +43,21 @@ export class ProductsService {
       skip = 0,
       take = 10,
       status,
-    }: { skip?: number; take?: number; status?: string } = {}
+      categoryId,
+      type,
+    }: {
+      skip?: number;
+      take?: number;
+      status?: string;
+      categoryId?: string;
+      type?: string;
+    } = {}
   ) {
     const where = {
       organizationId,
       ...(status && { status }),
+      ...(categoryId && { categoryIds: { has: categoryId } }),
+      ...(type && { type }),
     };
 
     const [data, total] = await Promise.all([

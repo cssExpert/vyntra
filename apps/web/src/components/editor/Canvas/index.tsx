@@ -240,38 +240,38 @@ export default function Canvas() {
         <>
           <div className="flex-1 flex overflow-hidden px-5 py-5">
             <div
+              ref={(el) => {
+                setNodeRef(el);
+                canvasRef.current = el;
+              }}
               className={cn(
-                "relative flex flex-col transition-all mx-auto duration-300 w-full rounded-xl overflow-hidden",
-                hasWidthConstraint || responsiveMode !== "desktop" ? "shadow-2xl" : "",
+                "flex-1 flex flex-col bg-card rounded-xl overflow-hidden relative border border-border w-full",
+                showGrid && "bg-grid-pattern",
+                isOver && nodes.length === 0 && "outline outline-primary -outline-offset-2",
               )}
-              style={hasWidthConstraint ? { maxWidth: canvasWidth! } : undefined}
+              onClick={(e) => {
+                if (e.target === canvasRef.current) selectNode(null);
+              }}
             >
-              <div
-                ref={(el) => {
-                  setNodeRef(el);
-                  canvasRef.current = el;
-                }}
-                className={cn(
-                  "flex-1 flex flex-col bg-card rounded-xl overflow-hidden relative border border-border",
-                  showGrid && "bg-grid-pattern",
-                  isOver && nodes.length === 0 && "outline outline-primary -outline-offset-2",
-                )}
-                onClick={(e) => {
-                  if (e.target === canvasRef.current) selectNode(null);
-                }}
-              >
-                {/* Toolbar */}
-                <div className="z-50 shrink-0 bg-muted border-b border-border px-3 py-2">
-                  <CanvasToolbar />
-                </div>
+              {/* Toolbar — always full width, never shrunk by the device preview size */}
+              <div className="z-50 shrink-0 bg-muted border-b border-border px-3 py-2">
+                <CanvasToolbar />
+              </div>
 
-                {/* Canvas scroll area */}
+              {/* Canvas scroll area */}
+              <div
+                data-canvas-scroll
+                className={cn(
+                  "flex-1 overflow-auto relative @container transition-colors duration-300",
+                  canvasPreviewDark ? "canvas-preview-dark dark" : "canvas-preview-light",
+                )}
+              >
                 <div
-                  data-canvas-scroll
                   className={cn(
-                    "flex-1 overflow-auto relative @container transition-colors duration-300",
-                    canvasPreviewDark ? "canvas-preview-dark dark" : "canvas-preview-light",
+                    "relative flex flex-col transition-all mx-auto duration-300 w-full min-h-full",
+                    hasWidthConstraint ? "shadow-2xl" : "",
                   )}
+                  style={hasWidthConstraint ? { maxWidth: canvasWidth! } : undefined}
                 >
                   {widthLabel && (
                     <div className="sticky top-0 left-0 right-0 flex justify-center pointer-events-none z-10">

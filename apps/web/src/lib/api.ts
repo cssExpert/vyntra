@@ -1083,11 +1083,19 @@ export interface CreateProductPayload {
 }
 
 export const storeProducts = {
-  list: (params?: { skip?: number; take?: number; status?: string }) => {
+  list: (params?: {
+    skip?: number;
+    take?: number;
+    status?: string;
+    categoryId?: string;
+    type?: string;
+  }) => {
     const qs = new URLSearchParams();
     if (params?.skip !== undefined) qs.set("skip", String(params.skip));
     if (params?.take !== undefined) qs.set("take", String(params.take));
     if (params?.status) qs.set("status", params.status);
+    if (params?.categoryId) qs.set("categoryId", params.categoryId);
+    if (params?.type) qs.set("type", params.type);
     const q = qs.toString();
     return apiFetch<ApiProductsPage>(`/store/products${q ? `?${q}` : ""}`);
   },

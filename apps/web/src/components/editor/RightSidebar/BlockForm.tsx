@@ -17,6 +17,7 @@ import {
   List,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { storeCategories, type ApiProductCategory } from "@/lib/api";
 import { BLOCK_SCHEMAS } from "@/lib/themes/blockFieldSchemas";
 import type {
   ScalarFieldDef,
@@ -24,7 +25,6 @@ import type {
   DbSourceDef,
   AnyFieldDef,
 } from "@/lib/themes/blockFieldSchemas";
-import { ImageUploadWithStorage } from "@/components/common/ImageUploadWithStorage";
 import { useAuth } from "@/providers/AuthProvider";
 import { LibraryModal } from "@/modules/cms/blog-editor/CoverImagePicker";
 
@@ -126,15 +126,21 @@ function ImageField({
           Library
         </button>
       </div>
-      <ImageUploadWithStorage
-        value={str || null}
-        onChange={(url) => onChange(url ?? "")}
-        companyId={companyId}
-        module="cms"
-        accept="image/png,image/jpeg,image/webp,image/gif"
-        maxSizeMB={5}
-        previewShape="wide"
-      />
+      <button
+        type="button"
+        onClick={() => setLibraryOpen(true)}
+        className="w-full aspect-video rounded-lg border border-border bg-muted/40 hover:bg-muted/70 transition-colors overflow-hidden flex items-center justify-center"
+      >
+        {str ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={str} alt="" className="w-full h-full object-cover" />
+        ) : (
+          <div className="flex flex-col items-center gap-1 text-muted-foreground">
+            <ImageIcon className="w-5 h-5" />
+            <span className="text-[10px] font-medium">Choose from Library</span>
+          </div>
+        )}
+      </button>
       <div className="mt-2">
         <p className="text-[9px] text-muted-foreground mb-1">Or paste a URL:</p>
         <input
@@ -164,6 +170,119 @@ function ImageField({
   );
 }
 
+// ── Product source field (category / type / limit) ─────────────────────────────
+
+const PRODUCT_TYPE_OPTIONS = [
+  { value: "", label: "All types" },
+  { value: "simple", label: "Simple" },
+  { value: "variable", label: "Variable" },
+  { value: "digital", label: "Digital" },
+  { value: "downloadable", label: "Downloadable" },
+  { value: "service", label: "Service" },
+  { value: "subscription", label: "Subscription" },
+  { value: "bundle", label: "Bundle" },
+  { value: "gift_card", label: "Gift Card" },
+];
+
+interface ProductSource {
+  categoryId?: string;
+  productType?: string;
+  limit?: number;
+}
+
+function ProductSourceField({
+  def,
+  value,
+  onChange,
+}: {
+  def: Extract<ScalarFieldDef, { type: "product-source" }>;
+  value: unknown;
+  onChange: (v: unknown) => void;
+}) {
+  const source = (value ?? {}) as ProductSource;
+  const [categories, setCategories] = useState<ApiProductCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    storeCategories
+      .list({ take: 200 })
+      .then((res) => { if (!cancelled) setCategories(res.data); })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
+
+  function set(patch: Partial<ProductSource>) {
+    onChange({ ...source, ...patch });
+  }
+
+  return (
+    <div className="rounded-xl border border-primary/20 bg-primary/5 p-3.5 space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Database className="w-3.5 h-3.5 text-primary shrink-0" />
+          <span className="text-xs font-semibold text-foreground">{def.label}</span>
+        </div>
+        <span className="text-[9px] px-2 py-0.5 rounded-full bg-primary/15 text-primary font-bold uppercase tracking-wide">
+          live
+        </span>
+      </div>
+      <p className="text-[10px] text-muted-foreground leading-relaxed">
+        Latest products first. Combine category and type to narrow the results — leave either on
+        &ldquo;All&rdquo; to skip that filter.
+      </p>
+
+      <div>
+        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide block mb-1">
+          Category
+        </span>
+        <select
+          value={source.categoryId ?? ""}
+          onChange={(e) => set({ categoryId: e.target.value || undefined })}
+          disabled={loading}
+          className={fieldCls}
+        >
+          <option value="">All categories</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide block mb-1">
+          Product Type
+        </span>
+        <select
+          value={source.productType ?? ""}
+          onChange={(e) => set({ productType: e.target.value || undefined })}
+          className={fieldCls}
+        >
+          {PRODUCT_TYPE_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide shrink-0">
+          Limit
+        </span>
+        <input
+          type="number"
+          value={source.limit ?? def.defaultLimit ?? 8}
+          min={1}
+          max={50}
+          onChange={(e) => set({ limit: Number(e.target.value) })}
+          className={cn(fieldCls, "w-16 text-center")}
+        />
+        <span className="text-[10px] text-muted-foreground">items</span>
+      </div>
+    </div>
+  );
+}
+
 // ── Scalar field ──────────────────────────────────────────────────────────────
 
 export function ScalarField({
@@ -188,6 +307,10 @@ export function ScalarField({
         companyId={companyId}
       />
     );
+  }
+
+  if (def.type === "product-source") {
+    return <ProductSourceField def={def} value={value} onChange={onChange} />;
   }
 
   if (def.type === "url") {

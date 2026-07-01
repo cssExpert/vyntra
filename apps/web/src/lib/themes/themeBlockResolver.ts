@@ -32,7 +32,7 @@ import CommonTextImage from "./common/blocks/TextImage";
 import CommonContactForm from "./common/blocks/ContactForm";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyBlockComponent = ComponentType<{ data: any }>;
+type AnyBlockComponent = ComponentType<{ data: any; orgId?: string }>;
 
 const COMMON_BLOCKS: Record<BlockType, AnyBlockComponent> = {
   "hero-carousel": CommonHeroCarousel,

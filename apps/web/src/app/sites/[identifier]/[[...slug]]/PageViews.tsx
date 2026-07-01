@@ -82,7 +82,7 @@ export async function PageView({
     return (
       <div className="min-h-screen" style={pageStyle}>
         <SiteNavbar org={org} layout={layout} themeIdentifier={themeIdentifier} />
-        <BlockRenderer blocks={typedBlocks} themeIdentifier={themeIdentifier} />
+        <BlockRenderer blocks={typedBlocks} themeIdentifier={themeIdentifier} orgId={org.id} />
         <SiteFooter org={org} layout={layout} themeIdentifier={themeIdentifier} />
       </div>
     );

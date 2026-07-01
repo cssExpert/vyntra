@@ -11,8 +11,31 @@ async function bootstrap() {
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+  // Tenant storefronts are served on subdomains of the app's own origin
+  // (e.g. acme.localhost:3000, acme.yourapp.com) — allow any subdomain of a
+  // configured origin in addition to exact matches, so per-org sites aren't
+  // blocked by CORS without needing one entry per tenant.
+  const allowedOrigins = process.env.CORS_ORIGINS?.split(',').map((s) => s.trim()) || [
+    'http://localhost:3000',
+  ];
   app.enableCors({
-    origin: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3000'],
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); // non-browser / server-to-server requests
+      const isAllowed = allowedOrigins.some((allowed) => {
+        if (origin === allowed) return true;
+        try {
+          const allowedUrl = new URL(allowed);
+          const originUrl = new URL(origin);
+          return (
+            originUrl.protocol === allowedUrl.protocol &&
+            originUrl.host.endsWith(`.${allowedUrl.host}`)
+          );
+        } catch {
+          return false;
+        }
+      });
+      callback(isAllowed ? null : new Error('Not allowed by CORS'), isAllowed);
+    },
     credentials: true,
   });
 

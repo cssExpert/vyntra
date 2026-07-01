@@ -344,6 +344,39 @@ export class DomainsService {
     return fallback ?? { id: null, name: 'Default', identifier: 'shopingo' };
   }
 
+  /**
+   * Public product listing for storefront blocks (product-grid, product-tabs).
+   * Only ever returns `active` products, and only fields safe to expose to an
+   * anonymous visitor — no cost price, stock counts, order/review counts, etc.
+   */
+  async getPublicProducts(
+    orgId: string,
+    { categoryId, type, take = 8 }: { categoryId?: string; type?: string; take?: number } = {},
+  ) {
+    const limit = Math.min(Math.max(take, 1), 24);
+    const products = await this.prisma.product.findMany({
+      where: {
+        organizationId: orgId,
+        status: 'active',
+        ...(categoryId && { categoryIds: { has: categoryId } }),
+        ...(type && { type }),
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        price: true,
+        compareAtPrice: true,
+        featuredImage: true,
+        brand: true,
+        stockStatus: true,
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    });
+    return { data: products };
+  }
+
   async getPublicForm(orgId: string, slug: string) {
     const form = await this.prisma.cmsForm.findFirst({
       where: { organizationId: orgId, slug, status: 'Published' },
