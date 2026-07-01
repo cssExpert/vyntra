@@ -31,6 +31,7 @@ import { TableActionMenu } from "@/components/common/TableActionMenu";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import type { StoreProduct } from "../../store.types";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   formatStorePrice,
   pageWindow,
@@ -61,25 +62,32 @@ const buildColumns = (
     id: "select",
     size: 44,
     enableSorting: false,
-    header: () => (
-      <input
-        type="checkbox"
-        checked={allIds.length > 0 && allIds.every((id) => selected.has(id))}
-        onChange={() =>
-          allIds.every((id) => selected.has(id))
-            ? onToggleAll([])
-            : onToggleAll(allIds)
-        }
-        className="rounded border-border cursor-pointer accent-primary"
-      />
-    ),
+    header: () => {
+      const allSelected =
+        allIds.length > 0 && allIds.every((id) => selected.has(id));
+      const someSelected = allIds.some((id) => selected.has(id));
+      return (
+        <div className="flex justify-center">
+          <Checkbox
+            checked={allSelected ? true : someSelected ? "indeterminate" : false}
+            onCheckedChange={() =>
+              allSelected ? onToggleAll([]) : onToggleAll(allIds)
+            }
+            aria-label="Select all"
+            className="cursor-pointer"
+          />
+        </div>
+      );
+    },
     cell: ({ row }) => (
-      <input
-        type="checkbox"
-        checked={selected.has(row.original.id)}
-        onChange={() => onToggle(row.original.id)}
-        className="rounded border-border cursor-pointer accent-primary"
-      />
+      <div className="flex justify-center">
+        <Checkbox
+          checked={selected.has(row.original.id)}
+          onCheckedChange={() => onToggle(row.original.id)}
+          aria-label="Select row"
+          className="cursor-pointer"
+        />
+      </div>
     ),
   }),
   columnHelper.accessor("name", {

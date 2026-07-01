@@ -15,6 +15,7 @@ import { createColumnHelper, type FilterFn } from "@tanstack/react-table";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
 import { type TableSkeletonColumn } from "@/components/common/TableSkeleton";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import type { CmsForm, FormStatus } from "./forms.types";
 
 // Skeleton column layout mirrors the real table columns below.
@@ -124,28 +125,30 @@ export function buildFormColumns({
       enableSorting: false,
       header: ({ table }) => (
         <div className="flex justify-center">
-          <input
-            type="checkbox"
-            checked={table.getIsAllPageRowsSelected()}
-            ref={(el) => {
-              if (el)
-                el.indeterminate =
-                  !table.getIsAllPageRowsSelected() &&
-                  table.getIsSomePageRowsSelected();
-            }}
-            onChange={table.getToggleAllPageRowsSelectedHandler()}
-            className="w-4 h-4 rounded-sm border-border accent-primary cursor-pointer"
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected()
+                ? true
+                : table.getIsSomePageRowsSelected()
+                  ? "indeterminate"
+                  : false
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+            aria-label="Select all"
+            className="cursor-pointer"
           />
         </div>
       ),
       cell: ({ row }) => (
         <div className="flex justify-center">
-          <input
-            type="checkbox"
+          <Checkbox
             checked={row.getIsSelected()}
             disabled={!row.getCanSelect()}
-            onChange={row.getToggleSelectedHandler()}
-            className="w-4 h-4 rounded-sm border-border accent-primary cursor-pointer"
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+            className="cursor-pointer"
           />
         </div>
       ),

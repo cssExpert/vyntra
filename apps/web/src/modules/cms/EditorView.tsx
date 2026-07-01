@@ -45,6 +45,7 @@ import {
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Skeleton column layout mirrors the real table columns below.
 const SKELETON_COLUMNS: TableSkeletonColumn[] = [
@@ -413,28 +414,30 @@ export function EditorView() {
         enableSorting: false,
         header: ({ table }) => (
           <div className="flex justify-center">
-            <input
-              type="checkbox"
-              checked={table.getIsAllPageRowsSelected()}
-              ref={(el) => {
-                if (el)
-                  el.indeterminate =
-                    !table.getIsAllPageRowsSelected() &&
-                    table.getIsSomePageRowsSelected();
-              }}
-              onChange={table.getToggleAllPageRowsSelectedHandler()}
-              className="w-4 h-4 rounded-sm border-border accent-primary cursor-pointer"
+            <Checkbox
+              checked={
+                table.getIsAllPageRowsSelected()
+                  ? true
+                  : table.getIsSomePageRowsSelected()
+                    ? "indeterminate"
+                    : false
+              }
+              onCheckedChange={(value) =>
+                table.toggleAllPageRowsSelected(!!value)
+              }
+              aria-label="Select all"
+              className="cursor-pointer"
             />
           </div>
         ),
         cell: ({ row }) => (
           <div className="flex justify-center">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={row.getIsSelected()}
               disabled={!row.getCanSelect()}
-              onChange={row.getToggleSelectedHandler()}
-              className="w-4 h-4 rounded-sm border-border accent-primary cursor-pointer"
+              onCheckedChange={(value) => row.toggleSelected(!!value)}
+              aria-label="Select row"
+              className="cursor-pointer"
             />
           </div>
         ),
@@ -722,7 +725,7 @@ export function EditorView() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search pages..."
-                  size="xl"
+                  size="lg"
                   className="pl-9 pr-8 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all w-52"
                 />
                 {searchTerm && (

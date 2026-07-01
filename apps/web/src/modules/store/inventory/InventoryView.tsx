@@ -45,7 +45,7 @@ export function InventoryView() {
   const outOfStock = SAMPLE_INVENTORY.filter((i) => i.stockStatus === "out_of_stock").length;
   const lowStock   = SAMPLE_INVENTORY.filter((i) => i.stockStatus === "low_stock").length;
 
-  const selectCls = "rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all cursor-pointer";
+  const selectCls = "h-10 rounded-sm border border-border bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all cursor-pointer";
 
   return (
     <AnimatePresence mode="wait" initial={false}>
@@ -96,7 +96,7 @@ export function InventoryView() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={t("searchPlaceholder")}
-                size="xl" className="w-full pl-10 pr-4 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm"
+                size="lg" className="w-full pl-10 pr-4 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm"
               />
             </div>
             <select value={stockFilter} onChange={(e) => setStockFilter(e.target.value)} className={selectCls}>

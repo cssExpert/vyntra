@@ -24,7 +24,7 @@ const ORDER_TABS: MotionTabItem<"all" | OrderStatus>[] = [
 ];
 
 const selectCls =
-  "rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all cursor-pointer";
+  "h-10 rounded-sm border border-border bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all cursor-pointer";
 
 export function OrdersView() {
   const t = useTranslations("store.orders");
@@ -111,7 +111,7 @@ export function OrdersView() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={t("searchPlaceholder")}
-                size="xl"
+                size="lg"
                 className="w-full pl-10 pr-4 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm"
               />
               {search && (

@@ -54,6 +54,7 @@ import { useSitePreviewUrl } from "@/hooks/useSitePreviewUrl";
 import { cmsPages, cmsLayouts, type CmsLayout } from "@/lib/api";
 import { PageTranslationsModal } from "./PageTranslationsModal";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Skeleton column layout mirrors the real table columns below.
 const SKELETON_COLUMNS: TableSkeletonColumn[] = [
@@ -379,28 +380,30 @@ export function PagesView() {
         enableSorting: false,
         header: ({ table }) => (
           <div className="flex justify-center">
-            <input
-              type="checkbox"
-              checked={table.getIsAllPageRowsSelected()}
-              ref={(el) => {
-                if (el)
-                  el.indeterminate =
-                    !table.getIsAllPageRowsSelected() &&
-                    table.getIsSomePageRowsSelected();
-              }}
-              onChange={table.getToggleAllPageRowsSelectedHandler()}
-              className="w-4 h-4 rounded-sm border-border accent-primary cursor-pointer"
+            <Checkbox
+              checked={
+                table.getIsAllPageRowsSelected()
+                  ? true
+                  : table.getIsSomePageRowsSelected()
+                    ? "indeterminate"
+                    : false
+              }
+              onCheckedChange={(value) =>
+                table.toggleAllPageRowsSelected(!!value)
+              }
+              aria-label="Select all"
+              className="h-5 w-5 cursor-pointer"
             />
           </div>
         ),
         cell: ({ row }) => (
           <div className="flex justify-center">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={row.getIsSelected()}
               disabled={!row.getCanSelect()}
-              onChange={row.getToggleSelectedHandler()}
-              className="w-4 h-4 rounded-sm border-border accent-primary cursor-pointer"
+              onCheckedChange={(value) => row.toggleSelected(!!value)}
+              aria-label="Select row"
+              className="h-5 w-5 cursor-pointer"
             />
           </div>
         ),
@@ -761,7 +764,7 @@ export function PagesView() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search pages..."
-                  size="xl"
+                  size="lg"
                   className="pl-9 pr-8 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15 w-52"
                 />
                 {searchTerm && (

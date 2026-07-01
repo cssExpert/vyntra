@@ -220,7 +220,7 @@ function DomainTab() {
             <div className="flex gap-2">
               <Input
                 type="text"
-                className={cn(inputCls, "flex-1")}
+                className={cn(inputCls, "flex-1 h-10")}
                 placeholder="example.com"
                 value={customInput}
                 onChange={(e) =>

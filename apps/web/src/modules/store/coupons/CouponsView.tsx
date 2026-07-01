@@ -51,7 +51,7 @@ export function CouponsView() {
   const totalUsed = SAMPLE_COUPONS.reduce((s, c) => s + c.usageCount, 0);
 
   const selectCls =
-    "rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all cursor-pointer";
+    "h-10 rounded-sm border border-border bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all cursor-pointer";
 
   return (
     <AnimatePresence mode="wait" initial={false}>
@@ -127,7 +127,7 @@ export function CouponsView() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search coupon code…"
-                size="xl"
+                size="lg"
                 className="w-full pl-10 pr-4 bg-background border border-border rounded-sm text-[14px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all shadow-sm"
               />
             </div>

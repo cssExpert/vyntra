@@ -415,7 +415,7 @@ export function BlogCategoriesView() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search categories..."
-                  size="xl"
+                  size="lg"
                   className="pl-9 pr-8 bg-background border border-border rounded-sm text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15 w-52"
                 />
                 {searchTerm && (

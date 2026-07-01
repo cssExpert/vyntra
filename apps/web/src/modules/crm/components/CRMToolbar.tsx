@@ -45,7 +45,7 @@ export function CRMToolbar({
           placeholder={t("searchPlaceholder")}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          size="xl"
+          size="lg"
           className={cn(
             "w-full rounded-xl border border-border bg-background pl-9 pr-9 py-2.5 text-sm",
             "text-foreground placeholder:text-muted-foreground/50",
@@ -91,7 +91,7 @@ export function CRMToolbar({
         })}
       </div>
 
-      <button className="flex h-9 w-9 items-center justify-center rounded-xl border border-border text-muted-foreground bg-white dark:bg-muted hover:text-foreground hover:bg-muted transition-colors cursor-pointer">
+      <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-border text-muted-foreground bg-white dark:bg-muted hover:text-foreground hover:bg-muted transition-colors cursor-pointer">
         <Settings2 className="h-4 w-4" />
       </button>
 
@@ -108,10 +108,10 @@ export function CRMToolbar({
       {/* Export — real dropdown */}
       <ExportDropdown />
 
-      <button className="hidden lg:flex h-9 w-9 items-center justify-center rounded-xl border border-border text-muted-foreground bg-white dark:bg-muted hover:text-foreground hover:bg-muted transition-colors cursor-pointer">
+      <button className="hidden lg:flex h-10 w-10 items-center justify-center rounded-xl border border-border text-muted-foreground bg-white dark:bg-muted hover:text-foreground hover:bg-muted transition-colors cursor-pointer">
         <Copy className="h-3.5 w-3.5" />
       </button>
-      <button className="hidden lg:flex h-9 items-center justify-center rounded-xl border border-border px-3 text-sm font-medium text-muted-foreground bg-white dark:bg-muted hover:text-foreground hover:bg-muted transition-colors cursor-pointer gap-1.5">
+      <button className="hidden lg:flex h-10 items-center justify-center rounded-xl border border-border px-3 text-sm font-medium text-muted-foreground bg-white dark:bg-muted hover:text-foreground hover:bg-muted transition-colors cursor-pointer gap-1.5">
         <Save className="h-3.5 w-3.5" />
         {t("save")}
       </button>
