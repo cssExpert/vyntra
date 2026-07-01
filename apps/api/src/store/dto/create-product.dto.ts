@@ -55,6 +55,10 @@ export class CreateProductDto {
   @IsString()
   seoDescription?: string;
 
+  @IsOptional()
+  @IsString()
+  seoKeywords?: string;
+
   @IsNumber()
   price: number;
 

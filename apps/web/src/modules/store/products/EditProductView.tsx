@@ -78,6 +78,7 @@ export function EditProductView({ productId }: EditProductViewProps) {
           tags:              p.tags ?? [],
           seoTitle:          p.seoTitle          ?? "",
           seoDescription:    p.seoDescription    ?? "",
+          seoKeywords:       p.seoKeywords       ?? "",
         });
       })
       .catch((err: unknown) => {
@@ -97,8 +98,10 @@ export function EditProductView({ productId }: EditProductViewProps) {
         slug:             data.slug,
         shortDescription: data.shortDescription || undefined,
         description:      data.description      || undefined,
+        specification:    data.specification    || undefined,
         seoTitle:         data.seoTitle         || undefined,
         seoDescription:   data.seoDescription   || undefined,
+        seoKeywords:      data.seoKeywords       || undefined,
         featuredImage:    data.featuredImage     || undefined,
         type:             data.type,
         status:           data.status,

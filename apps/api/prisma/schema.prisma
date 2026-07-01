@@ -699,12 +699,15 @@ model Activity {
 // ════════════════════════════════════════════════════════════════════
 
 model StoreAttribute {
-  id             String   @id @default(cuid())
-  organizationId String
-  name           String
-  type           String   // "select", "text", "color", "size", etc.
-  values         StoreAttributeValue[]
-  createdAt      DateTime @default(now())
+  id              String   @id @default(cuid())
+  organizationId  String
+  name            String
+  attributeType   String   @default("selection") // "selection" | "color"
+  fieldType       String   @default("dropdown")  // "dropdown" | "multiselect" | "buttons" | "text" | "textarea"
+  usedInVariation Boolean  @default(false)
+  values          StoreAttributeValue[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
@@ -714,14 +717,15 @@ model StoreAttribute {
 }
 
 model StoreAttributeValue {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   attributeId String
-  value       String
-  sortOrder   Int      @default(0)
+  name        String
+  colorHex    String?
+  sortOrder   Int     @default(0)
 
   attribute StoreAttribute @relation(fields: [attributeId], references: [id], onDelete: Cascade)
 
-  @@unique([attributeId, value])
+  @@unique([attributeId, name])
   @@map("store_attribute_values")
 }
 
@@ -740,6 +744,7 @@ model Product {
   specification    String?
   seoTitle         String?
   seoDescription   String?
+  seoKeywords      String?
 
   // Pricing & Cost
   price           Float

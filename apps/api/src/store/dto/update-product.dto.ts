@@ -60,6 +60,10 @@ export class UpdateProductDto {
   seoDescription?: string;
 
   @IsOptional()
+  @IsString()
+  seoKeywords?: string;
+
+  @IsOptional()
   @IsNumber()
   price?: number;
 

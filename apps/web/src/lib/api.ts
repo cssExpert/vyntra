@@ -1028,6 +1028,7 @@ export interface ApiProduct {
   specification?: string | null;
   seoTitle?: string | null;
   seoDescription?: string | null;
+  seoKeywords?: string | null;
   featuredImage?: string | null;
   price: number;
   compareAtPrice?: number | null;
@@ -1066,6 +1067,7 @@ export interface CreateProductPayload {
   specification?: string;
   seoTitle?: string;
   seoDescription?: string;
+  seoKeywords?: string;
   price: number;
   compareAtPrice?: number;
   costPrice?: number;
@@ -1159,6 +1161,53 @@ export const storeCategories = {
     }),
   remove: (id: string) =>
     apiFetch<{ id: string }>(`/store/categories/${id}`, { method: "DELETE" }),
+};
+
+// ─── Store: Attributes ───────────────────────────────────────────────────────
+
+export interface ApiAttributeValue {
+  id: string;
+  name: string;
+  colorHex?: string | null;
+  sortOrder: number;
+}
+
+export interface ApiAttribute {
+  id: string;
+  organizationId: string;
+  name: string;
+  attributeType: string;
+  fieldType: string;
+  usedInVariation: boolean;
+  values: ApiAttributeValue[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateAttributePayload {
+  name: string;
+  attributeType?: string;
+  fieldType?: string;
+  usedInVariation?: boolean;
+  options?: { name: string; colorHex?: string; sortOrder?: number }[];
+}
+
+export const storeAttributes = {
+  list: () =>
+    apiFetch<{ data: ApiAttribute[]; total: number }>("/store/attributes"),
+  get: (id: string) => apiFetch<ApiAttribute>(`/store/attributes/${id}`),
+  create: (dto: CreateAttributePayload) =>
+    apiFetch<ApiAttribute>("/store/attributes", {
+      method: "POST",
+      body: JSON.stringify(dto),
+    }),
+  update: (id: string, dto: Partial<CreateAttributePayload>) =>
+    apiFetch<ApiAttribute>(`/store/attributes/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(dto),
+    }),
+  remove: (id: string) =>
+    apiFetch<{ id: string }>(`/store/attributes/${id}`, { method: "DELETE" }),
 };
 
 export const cmsMenus = {
