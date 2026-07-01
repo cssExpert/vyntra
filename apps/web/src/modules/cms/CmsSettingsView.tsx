@@ -461,61 +461,66 @@ function BrandingTab() {
       >
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {/* Light logo */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
               <Sun className="h-4 w-4 text-amber-500" />
               Light Mode Logo
             </div>
             <p className="text-xs text-muted-foreground">
               PNG, SVG, JPEG — max 5 MB. Landscape format recommended.
             </p>
-            <StoreImagePicker
-              value={logoUrl}
-              onChange={setLogoUrl}
-              module="branding"
-              subtype="logo-light"
-              filterOptions={BRANDING_FILTERS}
-              accept="image/png,image/jpeg,image/svg+xml,image/webp"
-            />
+            <div className="mt-auto">
+              <StoreImagePicker
+                value={logoUrl}
+                onChange={setLogoUrl}
+                module="branding"
+                subtype="logo-light"
+                filterOptions={BRANDING_FILTERS}
+                accept="image/png,image/jpeg,image/svg+xml,image/webp"
+              />
+            </div>
           </div>
 
           {/* Dark logo */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
               <Moon className="h-4 w-4 text-indigo-400" />
               Dark Mode Logo
             </div>
             <p className="text-xs text-muted-foreground">
-              Shown when visitors switch to dark mode. Falls back to light logo
-              if not set.
+              Used in dark mode. Falls back to the light logo if not set.
             </p>
-            <StoreImagePicker
-              value={darkLogoUrl}
-              onChange={setDarkLogoUrl}
-              module="branding"
-              subtype="logo-dark"
-              filterOptions={BRANDING_FILTERS}
-              accept="image/png,image/jpeg,image/svg+xml,image/webp"
-            />
+            <div className="mt-auto">
+              <StoreImagePicker
+                value={darkLogoUrl}
+                onChange={setDarkLogoUrl}
+                module="branding"
+                subtype="logo-dark"
+                filterOptions={BRANDING_FILTERS}
+                accept="image/png,image/jpeg,image/svg+xml,image/webp"
+              />
+            </div>
           </div>
 
           {/* Favicon */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
               <Globe className="h-4 w-4 text-primary" />
               Favicon / App Icon
             </div>
             <p className="text-xs text-muted-foreground">
-              512×512 PNG, ICO, or SVG. Shown in browser tab and bookmarks.
+              512x512 PNG, ICO, or SVG. Shown in browser tab and bookmarks.
             </p>
-            <StoreImagePicker
-              value={faviconUrl}
-              onChange={setFaviconUrl}
-              module="branding"
-              subtype="favicon"
-              filterOptions={BRANDING_FILTERS}
-              accept="image/png,image/x-icon,image/svg+xml"
-            />
+            <div className="mt-auto">
+              <StoreImagePicker
+                value={faviconUrl}
+                onChange={setFaviconUrl}
+                module="branding"
+                subtype="favicon"
+                filterOptions={BRANDING_FILTERS}
+                accept="image/png,image/x-icon,image/svg+xml"
+              />
+            </div>
           </div>
         </div>
       </SectionCard>
