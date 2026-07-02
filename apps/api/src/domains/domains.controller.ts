@@ -163,19 +163,45 @@ export class DomainsController {
 
   @Public()
   @UseGuards(ThrottlerGuard)
-  @Throttle({ default: { limit: 30, ttl: 60_000 } })
+  @Throttle({ default: { limit: 60, ttl: 60_000 } })
   @Get('public/sites/:orgId/products')
   getPublicProducts(
     @Param('orgId') orgId: string,
+    @Query('skip') skip?: string,
     @Query('take') take?: string,
     @Query('categoryId') categoryId?: string,
     @Query('type') type?: string,
+    @Query('brand') brand?: string,
+    @Query('minPrice') minPrice?: string,
+    @Query('maxPrice') maxPrice?: string,
+    @Query('sort') sort?: 'newest' | 'price_asc' | 'price_desc',
   ) {
     return this.domainsService.getPublicProducts(orgId, {
+      skip: skip ? parseInt(skip, 10) : undefined,
       take: take ? parseInt(take, 10) : undefined,
       categoryId,
       type,
+      brand,
+      minPrice: minPrice ? Number(minPrice) : undefined,
+      maxPrice: maxPrice ? Number(maxPrice) : undefined,
+      sort,
     });
+  }
+
+  @Public()
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 30, ttl: 60_000 } })
+  @Get('public/sites/:orgId/products/facets')
+  getPublicProductFacets(@Param('orgId') orgId: string) {
+    return this.domainsService.getPublicProductFacets(orgId);
+  }
+
+  @Public()
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 60, ttl: 60_000 } })
+  @Get('public/sites/:orgId/categories')
+  getPublicCategories(@Param('orgId') orgId: string) {
+    return this.domainsService.getPublicCategories(orgId);
   }
 
   @Public()

@@ -511,116 +511,100 @@ async function FooterDark({
   );
 }
 
-/** Shopingo-style: dark utility bar + white/dark main navbar + category nav strip */
+/** Shopingo-style: single white row — stacked wordmark logo · centered links · icon cluster */
 async function NavbarShopingo({ org, items, activeLang }: { org: OrgInfo; items: MenuItem[]; activeLang: string }) {
   return (
-    <header className="sticky top-0 z-50 shadow-sm">
-      {/* ── Utility bar — always dark ────────────────── */}
-      <div className="bg-[#1e2226]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-9 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-5 text-xs text-white/55">
-            <span className="hidden sm:flex items-center gap-1.5">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.7 13.7a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l.81-.81a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
-              1800-000-0000
-            </span>
-            <span className="flex items-center gap-1.5">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
-              Free shipping on orders over $99
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            {[
-              { label: "Facebook", path: "M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" },
-              { label: "Twitter/X", path: "M22 4s-.7 2.1-2 3.4c1.6 17.1-8.6 26.9-18 26.9-4.3 0-8-.3-10.5-1.6 0 0 4.2 1.3 8.7-1.5-3.6-.5-6.3-4.1-7-7.6 1.1.5 2.7.4 3.8-.2C-4.6 22.2-7 17.4-7 12.6v-.3c1 .8 2.4 1.3 3.7 1.3C-7.7 11.1-8 4.6-5 0c3.9 5.7 9.7 9.4 16.3 9.8-.7-4.3 3.8-6.7 6.5-3.8 1.9-.4 3.6-1.4 5.2-2" },
-              { label: "Instagram", path: "M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37zM17.5 6.5h.01M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5z" },
-            ].map((s) => (
-              <a key={s.label} href="#" aria-label={s.label} className="text-white/45 hover:text-white transition-colors">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d={s.path} />
-                </svg>
-              </a>
-            ))}
-            {(org.siteLanguages?.length ?? 0) > 1 && (
-              <SiteLanguageSwitcher orgId={org.id} available={org.siteLanguages!} defaultLang={org.defaultSiteLanguage ?? "en"} activeLang={activeLang} />
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* ── Main navbar ─────────────────────────────── */}
-      <div className="bg-white dark:bg-[#1c1c1e] border-b border-gray-200 dark:border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-[70px] flex items-center gap-6">
-          {/* Logo */}
-          <a href="/" className="shrink-0 text-2xl font-extrabold tracking-tight text-[#212529] dark:text-white" style={{ fontFamily: "'Raleway', sans-serif" }}>
+    <header className="sticky top-0 z-50 bg-white dark:bg-[#1c1c1e] border-b border-gray-200 dark:border-gray-800 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-[76px] flex items-center gap-6">
+        {/* Logo */}
+        <a href="/" className="shrink-0 flex flex-col leading-none">
+          {org.logoUrl ? (
             <OrgLogo org={org} className="h-10" />
-          </a>
+          ) : (
+            <>
+              <span className="text-2xl font-extrabold tracking-tight uppercase text-[#212529] dark:text-white">
+                {org.name}
+              </span>
+              <span className="text-[10px] tracking-[0.3em] uppercase text-gray-400 dark:text-gray-500 mt-0.5">
+                eCommerce
+              </span>
+            </>
+          )}
+        </a>
 
-          {/* Search bar */}
-          <div className="flex-1 hidden md:flex max-w-xl">
-            <div className="flex w-full border border-gray-200 dark:border-gray-700 rounded overflow-hidden">
-              <input
-                type="text"
-                placeholder="Search products…"
-                className="flex-1 px-4 py-2.5 text-sm outline-none text-gray-700 dark:text-gray-200 bg-white dark:bg-[#2a2a2e] placeholder:text-gray-400 dark:placeholder:text-gray-500"
-                readOnly
-              />
-              <button className="px-5 py-2.5 text-white text-sm font-semibold shrink-0 bg-[#e4611e] hover:bg-[#cf5519] transition-colors">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-                </svg>
-              </button>
-            </div>
-          </div>
+        {/* Nav links */}
+        <nav className="hidden lg:flex items-center gap-7 mx-auto">
+          {items.map((item, i) => (
+            <a
+              key={item.id}
+              href={item.url}
+              target={item.target}
+              rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
+              className={[
+                "text-[13px] font-semibold uppercase tracking-wide transition-colors whitespace-nowrap",
+                i === 0
+                  ? "text-[#212529] dark:text-white"
+                  : "text-[#5a5a5a] dark:text-gray-300 hover:text-[#212529] dark:hover:text-white",
+                visClass(item.visibility),
+              ].filter(Boolean).join(" ")}
+            >
+              {item.label}
+            </a>
+          ))}
+        </nav>
 
-          {/* Action icons */}
-          <div className="ml-auto flex items-center gap-0.5 shrink-0 text-[#212529] dark:text-gray-100">
-            {/* Mobile search */}
-            <button className="md:hidden p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="Search">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-              </svg>
-            </button>
-            {/* Wishlist */}
-            <button className="p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors relative" aria-label="Wishlist">
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-              </svg>
-            </button>
-            {/* Cart */}
-            <button className="p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors relative" aria-label="Cart">
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" />
-                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
-              </svg>
-              <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-[#e4611e] text-white flex items-center justify-center text-[9px] font-bold">0</span>
-            </button>
-            {/* Theme switcher */}
-            {org.themeSwitcherEnabled && (
-              <div className="ml-1">
-                <SiteThemeToggle />
-              </div>
-            )}
-          </div>
+        {/* Action icons */}
+        <div className="ml-auto lg:ml-0 flex items-center gap-0.5 shrink-0 text-[#212529] dark:text-gray-100">
+          {org.themeSwitcherEnabled && <SiteThemeToggle />}
+          {(org.siteLanguages?.length ?? 0) > 1 && (
+            <SiteLanguageSwitcher orgId={org.id} available={org.siteLanguages!} defaultLang={org.defaultSiteLanguage ?? "en"} activeLang={activeLang} />
+          )}
+          {/* Search */}
+          <button className="p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="Search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+            </svg>
+          </button>
+          {/* Wishlist */}
+          <button className="p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="Wishlist">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+          </button>
+          {/* Cart */}
+          <button className="p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors relative" aria-label="Cart">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" />
+              <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+            </svg>
+            <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-[#e4611e] text-white flex items-center justify-center text-[9px] font-bold">0</span>
+          </button>
+          {/* Account */}
+          <button className="p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="Account">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" /><circle cx="12" cy="10" r="3" /><path d="M6.5 19.2a6.5 6.5 0 0 1 11 0" />
+            </svg>
+          </button>
         </div>
       </div>
 
-      {/* ── Category nav strip ──────────────────────── */}
+      {/* Mobile nav links — visible below lg where the centered row is hidden */}
       {items.length > 0 && (
-        <div className="bg-white dark:bg-[#1c1c1e] border-b-2 border-gray-200 dark:border-gray-800">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center overflow-x-auto no-scrollbar">
-            <div className="flex items-center gap-2 px-5 py-3.5 text-sm font-semibold text-white shrink-0 mr-2 bg-[#e4611e]">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
-              </svg>
-              All Categories
-            </div>
-            {items.map((item) => (
+        <div className="lg:hidden border-t border-gray-100 dark:border-gray-800">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center gap-5 overflow-x-auto no-scrollbar">
+            {items.map((item, i) => (
               <a
                 key={item.id}
                 href={item.url}
                 target={item.target}
                 rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
-                className={["px-4 py-3.5 text-sm font-medium whitespace-nowrap transition-colors text-[#4a4a4a] dark:text-gray-300 hover:text-[#e4611e] dark:hover:text-[#e4611e]", visClass(item.visibility)].filter(Boolean).join(" ")}
+                className={[
+                  "py-3 text-[13px] font-semibold uppercase tracking-wide whitespace-nowrap transition-colors",
+                  i === 0
+                    ? "text-[#212529] dark:text-white"
+                    : "text-[#5a5a5a] dark:text-gray-300 hover:text-[#212529] dark:hover:text-white",
+                  visClass(item.visibility),
+                ].filter(Boolean).join(" ")}
               >
                 {item.label}
               </a>

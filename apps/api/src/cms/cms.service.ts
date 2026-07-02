@@ -1,6 +1,11 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
+// Slugs reserved for app-driven storefront system pages (kept in sync with
+// apps/web/src/lib/themes/systemPages.ts) — a CMS page can never use these,
+// since the site router resolves them to a system page first.
+const RESERVED_SYSTEM_SLUGS = new Set(['shop']);
+
 interface MenuItemInput {
   label: string;
   url: string;
@@ -353,6 +358,12 @@ export class CmsService {
     slug: string,
     dto: { content: string; publish?: boolean; layoutId?: string | null; themeId?: string | null },
   ) {
+    if (RESERVED_SYSTEM_SLUGS.has(slug)) {
+      throw new BadRequestException(
+        `"/${slug}" is reserved for the storefront's built-in shop page and can't be used for a CMS page.`,
+      );
+    }
+
     const existing = await this.prisma.page.findFirst({
       where: { organizationId: orgId, slug },
       select: { id: true },

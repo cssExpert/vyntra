@@ -71,7 +71,7 @@ export const BLOCK_SCHEMAS: Record<string, BlockSection[]> = {
             { type: 'text',  key: 'subtitle', label: 'Subtitle',   placeholder: 'Shop the latest arrivals…' },
             { type: 'text',  key: 'badge',    label: 'Badge',      placeholder: 'Limited Offer' },
             { type: 'text',  key: 'ctaText',  label: 'Button Text', placeholder: 'Shop Now' },
-            { type: 'url',   key: 'ctaUrl',   label: 'Button URL', placeholder: '/shop' },
+            { type: 'url',   key: 'ctaUrl',   label: 'Button URL', placeholder: '/products' },
             { type: 'image', key: 'image',    label: 'Slide Image' },
           ],
         },
@@ -175,7 +175,7 @@ export const BLOCK_SCHEMAS: Record<string, BlockSection[]> = {
       defaultOpen: false,
       fields: [
         { type: 'text', key: 'primaryCtaText',   label: 'Primary Button',   placeholder: 'Shop Collection' },
-        { type: 'url',  key: 'primaryCtaUrl',    label: 'Primary URL',      placeholder: '/shop' },
+        { type: 'url',  key: 'primaryCtaUrl',    label: 'Primary URL',      placeholder: '/products' },
         { type: 'text', key: 'secondaryCtaText', label: 'Secondary Button', placeholder: 'View Lookbook' },
         { type: 'url',  key: 'secondaryCtaUrl',  label: 'Secondary URL',    placeholder: '/lookbook' },
       ],
@@ -379,7 +379,7 @@ export const BLOCK_SCHEMAS: Record<string, BlockSection[]> = {
       defaultOpen: false,
       fields: [
         { type: 'text', key: 'ctaText', label: 'Button Text', placeholder: 'Shop Now' },
-        { type: 'url',  key: 'ctaUrl',  label: 'Button URL',  placeholder: '/shop' },
+        { type: 'url',  key: 'ctaUrl',  label: 'Button URL',  placeholder: '/products' },
       ],
     },
   ],

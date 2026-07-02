@@ -3,6 +3,8 @@ import { NodeRenderer } from "./NodeRenderer";
 import { SiteNavbar, SiteFooter } from "./SiteLayout";
 import { BlockRenderer } from "./BlockRenderer";
 import { parseTypedBlocks } from "@/lib/themes/parseTypedBlocks";
+import { resolveThemeSystemPage } from "@/lib/themes/themeSystemPageResolver";
+import type { SystemPageType } from "@/lib/themes/systemPages";
 
 export interface OrgInfo {
   id: string;
@@ -178,6 +180,33 @@ export async function PageView({
           © {new Date().getFullYear()} {org.name}
         </footer>
       )}
+    </div>
+  );
+}
+
+/** Renders an app-driven system page (e.g. /products) with the site's normal nav/footer chrome. */
+export async function SystemPageView({
+  org,
+  layout,
+  pageType,
+  themeIdentifier = "shopingo",
+}: {
+  org: OrgInfo;
+  layout: SiteLayoutData;
+  pageType: SystemPageType;
+  themeIdentifier?: string;
+}) {
+  const SystemPage = resolveThemeSystemPage(pageType, themeIdentifier);
+  const pageStyle = {
+    backgroundColor: "var(--background, #ffffff)",
+    color: "var(--foreground, #111827)",
+  };
+
+  return (
+    <div className="min-h-screen" style={pageStyle}>
+      <SiteNavbar org={org} layout={layout} themeIdentifier={themeIdentifier} />
+      <SystemPage orgId={org.id} themeIdentifier={themeIdentifier} />
+      <SiteFooter org={org} layout={layout} themeIdentifier={themeIdentifier} />
     </div>
   );
 }

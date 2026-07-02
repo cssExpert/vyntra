@@ -344,37 +344,117 @@ export class DomainsService {
     return fallback ?? { id: null, name: 'Default', identifier: 'shopingo' };
   }
 
+  private static readonly PUBLIC_PRODUCT_SELECT = {
+    id: true,
+    name: true,
+    slug: true,
+    price: true,
+    compareAtPrice: true,
+    featuredImage: true,
+    brand: true,
+    stockStatus: true,
+  } as const;
+
+  private static readonly PUBLIC_PRODUCT_SORTS = {
+    newest: { createdAt: 'desc' },
+    price_asc: { price: 'asc' },
+    price_desc: { price: 'desc' },
+  } as const;
+
   /**
-   * Public product listing for storefront blocks (product-grid, product-tabs).
-   * Only ever returns `active` products, and only fields safe to expose to an
-   * anonymous visitor — no cost price, stock counts, order/review counts, etc.
+   * Public product listing for storefront pages/blocks (shop grid, product-grid,
+   * product-tabs). Only ever returns `active` products, and only fields safe to
+   * expose to an anonymous visitor — no cost price, stock counts, order/review
+   * counts, etc.
    */
   async getPublicProducts(
     orgId: string,
-    { categoryId, type, take = 8 }: { categoryId?: string; type?: string; take?: number } = {},
+    {
+      categoryId,
+      type,
+      brand,
+      minPrice,
+      maxPrice,
+      skip = 0,
+      take = 8,
+      sort = 'newest',
+    }: {
+      categoryId?: string;
+      type?: string;
+      brand?: string;
+      minPrice?: number;
+      maxPrice?: number;
+      skip?: number;
+      take?: number;
+      sort?: keyof typeof DomainsService.PUBLIC_PRODUCT_SORTS;
+    } = {},
   ) {
-    const limit = Math.min(Math.max(take, 1), 24);
-    const products = await this.prisma.product.findMany({
-      where: {
-        organizationId: orgId,
-        status: 'active',
-        ...(categoryId && { categoryIds: { has: categoryId } }),
-        ...(type && { type }),
-      },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        price: true,
-        compareAtPrice: true,
-        featuredImage: true,
-        brand: true,
-        stockStatus: true,
-      },
-      orderBy: { createdAt: 'desc' },
-      take: limit,
+    const limit = Math.min(Math.max(take, 1), 48);
+    const priceFilter =
+      minPrice !== undefined || maxPrice !== undefined
+        ? {
+            price: {
+              ...(minPrice !== undefined && { gte: minPrice }),
+              ...(maxPrice !== undefined && { lte: maxPrice }),
+            },
+          }
+        : {};
+    const where = {
+      organizationId: orgId,
+      status: 'active',
+      ...(categoryId && { categoryIds: { has: categoryId } }),
+      ...(type && { type }),
+      ...(brand && { brand }),
+      ...priceFilter,
+    };
+    const orderBy =
+      DomainsService.PUBLIC_PRODUCT_SORTS[sort] ??
+      DomainsService.PUBLIC_PRODUCT_SORTS.newest;
+
+    const [data, total] = await Promise.all([
+      this.prisma.product.findMany({
+        where,
+        select: DomainsService.PUBLIC_PRODUCT_SELECT,
+        orderBy,
+        skip: Math.max(skip, 0),
+        take: limit,
+      }),
+      this.prisma.product.count({ where }),
+    ]);
+
+    return { data, total, skip, take: limit, hasMore: skip + data.length < total };
+  }
+
+  /** Distinct brands + price range across an org's active products, for shop-page filter sidebars. */
+  async getPublicProductFacets(orgId: string) {
+    const where = { organizationId: orgId, status: 'active' };
+    const [brandRows, priceAgg] = await Promise.all([
+      this.prisma.product.findMany({
+        where: { ...where, brand: { not: null } },
+        select: { brand: true },
+        distinct: ['brand'],
+        orderBy: { brand: 'asc' },
+      }),
+      this.prisma.product.aggregate({
+        where,
+        _min: { price: true },
+        _max: { price: true },
+      }),
+    ]);
+    return {
+      brands: brandRows.map((r) => r.brand).filter((b): b is string => !!b),
+      priceRange: { min: priceAgg._min.price ?? 0, max: priceAgg._max.price ?? 0 },
+    };
+  }
+
+  /** Public category list for shop-page filter sidebars / category navigation. */
+  async getPublicCategories(orgId: string) {
+    const categories = await this.prisma.productCategory.findMany({
+      where: { organizationId: orgId, status: 'active' },
+      select: { id: true, name: true, slug: true, parentId: true, imageUrl: true },
+      orderBy: { sortOrder: 'asc' },
     });
-    return { data: products };
+    return { data: categories };
   }
 
   async getPublicForm(orgId: string, slug: string) {

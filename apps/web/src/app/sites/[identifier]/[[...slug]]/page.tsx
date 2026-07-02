@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import type { Metadata } from "next";
-import { PageView, SiteHome } from "./PageViews";
+import { PageView, SiteHome, SystemPageView } from "./PageViews";
 import type { OrgInfo, CmsPage, PageListItem, SiteLayoutData } from "./PageViews";
+import { resolveSystemPageType } from "@/lib/themes/systemPages";
 
 // Always fetch fresh — CMS content changes on every publish
 export const dynamic = "force-dynamic";
@@ -121,6 +122,11 @@ export async function generateMetadata({
     };
   }
 
+  const systemPageType = resolveSystemPageType(pageSlug);
+  if (systemPageType) {
+    return { title: `Shop — ${org.name}` };
+  }
+
   const page = await fetchPage(org.id, pageSlug, activeLang);
   return {
     title: page ? `${page.title} — ${org.name}` : org.name,
@@ -176,6 +182,19 @@ export default async function PublicSitePage({
   }
 
   const pageSlug = slug.join("/");
+
+  // System routes (e.g. /products) are app-driven, resolved before any CMS page lookup.
+  const systemPageType = resolveSystemPageType(pageSlug);
+  if (systemPageType) {
+    const layout = await fetchSiteLayout(org.id);
+    return (
+      <>
+        <Head />
+        <SystemPageView org={org} layout={layout} pageType={systemPageType} themeIdentifier={orgThemeIdentifier} />
+      </>
+    );
+  }
+
   const page = await fetchPage(org.id, pageSlug, activeLang);
   if (!page) notFound();
   const themeIdentifier = page.themeIdentifier ?? orgThemeIdentifier;
