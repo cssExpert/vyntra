@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Put,
+  Patch,
   Delete,
   Param,
   Body,
@@ -92,5 +93,43 @@ export class ProductsController {
     }
 
     return this.productsService.updateStock(organizationId, id, quantity);
+  }
+
+  // ─── Product Media ──────────────────────────────────────────────────────────
+
+  @Post(':id/media')
+  async addMedia(
+    @CurrentOrg() organizationId: string,
+    @Param('id') id: string,
+    @Body() dto: { url: string; type?: string; alt?: string; isPrimary?: boolean; sortOrder?: number },
+  ) {
+    return this.productsService.addMedia(organizationId, id, dto);
+  }
+
+  @Delete(':id/media/:mediaId')
+  async removeMedia(
+    @CurrentOrg() organizationId: string,
+    @Param('id') id: string,
+    @Param('mediaId') mediaId: string,
+  ) {
+    return this.productsService.removeMedia(organizationId, id, mediaId);
+  }
+
+  @Patch(':id/media/:mediaId/primary')
+  async setPrimaryMedia(
+    @CurrentOrg() organizationId: string,
+    @Param('id') id: string,
+    @Param('mediaId') mediaId: string,
+  ) {
+    return this.productsService.setPrimaryMedia(organizationId, id, mediaId);
+  }
+
+  @Put(':id/media/reorder')
+  async reorderMedia(
+    @CurrentOrg() organizationId: string,
+    @Param('id') id: string,
+    @Body('orderedIds') orderedIds: string[],
+  ) {
+    return this.productsService.reorderMedia(organizationId, id, orderedIds);
   }
 }

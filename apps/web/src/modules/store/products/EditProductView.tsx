@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { ProductForm, type ProductFormData } from "./components/ProductForm";
-import { storeProducts } from "@/lib/api";
+import { storeProducts, type ApiProductMedia } from "@/lib/api";
 
 interface EditProductViewProps {
   productId: string;
@@ -18,11 +18,12 @@ export function EditProductView({ productId }: EditProductViewProps) {
   const isLoaded = usePageLoad(500);
   const router = useRouter();
 
-  const [productName, setProductName] = useState<string>("");
-  const [initData,    setInitData]    = useState<Partial<ProductFormData> | null>(null);
-  const [isLoading,   setIsLoading]   = useState(true);
-  const [isSaving,    setIsSaving]    = useState(false);
-  const [error,       setError]       = useState<string | null>(null);
+  const [productName,   setProductName]   = useState<string>("");
+  const [initData,      setInitData]      = useState<Partial<ProductFormData> | null>(null);
+  const [initialMedia,  setInitialMedia]  = useState<ApiProductMedia[]>([]);
+  const [isLoading,     setIsLoading]     = useState(true);
+  const [isSaving,      setIsSaving]      = useState(false);
+  const [error,         setError]         = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -80,6 +81,17 @@ export function EditProductView({ productId }: EditProductViewProps) {
           seoDescription:    p.seoDescription    ?? "",
           seoKeywords:       p.seoKeywords       ?? "",
         });
+        // Reconcile: if featuredImage is set, ensure the matching gallery item is primary
+        const rawMedia = (p.media ?? []).map((m) => ({ ...m }));
+        if (p.featuredImage && rawMedia.length > 0) {
+          const hasExplicitPrimary = rawMedia.some((m) => m.isPrimary);
+          if (!hasExplicitPrimary) {
+            const match = rawMedia.find((m) => m.url === p.featuredImage);
+            if (match) match.isPrimary = true;
+            else rawMedia[0].isPrimary = true;
+          }
+        }
+        setInitialMedia(rawMedia);
       })
       .catch((err: unknown) => {
         if (!active) return;
@@ -168,6 +180,8 @@ export function EditProductView({ productId }: EditProductViewProps) {
       onSave={handleSave}
       onCancel={() => router.push("/store/products")}
       isSaving={isSaving}
+      productId={productId}
+      initialMedia={initialMedia}
     />
   );
 }

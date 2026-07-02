@@ -1082,6 +1082,23 @@ export interface CreateProductPayload {
   publishedAt?: string;
 }
 
+export const storeProductMedia = {
+  add: (productId: string, dto: { url: string; type?: string; alt?: string; isPrimary?: boolean; sortOrder?: number }) =>
+    apiFetch<ApiProductMedia>(`/store/products/${productId}/media`, {
+      method: "POST",
+      body: JSON.stringify(dto),
+    }),
+  remove: (productId: string, mediaId: string) =>
+    apiFetch<{ id: string }>(`/store/products/${productId}/media/${mediaId}`, { method: "DELETE" }),
+  setPrimary: (productId: string, mediaId: string) =>
+    apiFetch<ApiProductMedia>(`/store/products/${productId}/media/${mediaId}/primary`, { method: "PATCH" }),
+  reorder: (productId: string, orderedIds: string[]) =>
+    apiFetch<{ ok: boolean }>(`/store/products/${productId}/media/reorder`, {
+      method: "PUT",
+      body: JSON.stringify({ orderedIds }),
+    }),
+};
+
 export const storeProducts = {
   list: (params?: {
     skip?: number;

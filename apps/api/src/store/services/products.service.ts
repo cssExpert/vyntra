@@ -179,13 +179,95 @@ export class ProductsService {
   }
 
   async updateStock(organizationId: string, productId: string, quantity: number) {
-    const product = await this.findById(organizationId, productId);
+    await this.findById(organizationId, productId);
 
     return this.prisma.product.update({
       where: { id: productId },
+      data: { stock: quantity },
+    });
+  }
+
+  // ─── Product Media ──────────────────────────────────────────────────────────
+
+  async addMedia(
+    organizationId: string,
+    productId: string,
+    dto: { url: string; type?: string; alt?: string; isPrimary?: boolean; sortOrder?: number },
+  ) {
+    await this.findById(organizationId, productId);
+
+    const count = await this.prisma.productMedia.count({ where: { productId } });
+    const isFirst = count === 0;
+
+    return this.prisma.productMedia.create({
       data: {
-        stock: quantity,
+        productId,
+        url:       dto.url,
+        type:      dto.type      ?? 'image',
+        alt:       dto.alt       ?? null,
+        isPrimary: dto.isPrimary ?? isFirst,
+        sortOrder: dto.sortOrder ?? count,
       },
     });
+  }
+
+  async removeMedia(organizationId: string, productId: string, mediaId: string) {
+    await this.findById(organizationId, productId);
+
+    const item = await this.prisma.productMedia.findFirst({
+      where: { id: mediaId, productId },
+    });
+    if (!item) throw new NotFoundException('Media not found');
+
+    await this.prisma.productMedia.delete({ where: { id: mediaId } });
+
+    // If the deleted item was primary, promote the first remaining
+    if (item.isPrimary) {
+      const first = await this.prisma.productMedia.findFirst({
+        where:   { productId },
+        orderBy: { sortOrder: 'asc' },
+      });
+      if (first) {
+        await this.prisma.productMedia.update({
+          where: { id: first.id },
+          data:  { isPrimary: true },
+        });
+      }
+    }
+
+    return { id: mediaId };
+  }
+
+  async setPrimaryMedia(organizationId: string, productId: string, mediaId: string) {
+    await this.findById(organizationId, productId);
+
+    const item = await this.prisma.productMedia.findFirst({
+      where: { id: mediaId, productId },
+    });
+    if (!item) throw new NotFoundException('Media not found');
+
+    await this.prisma.productMedia.updateMany({
+      where: { productId },
+      data:  { isPrimary: false },
+    });
+    return this.prisma.productMedia.update({
+      where: { id: mediaId },
+      data:  { isPrimary: true },
+    });
+  }
+
+  async reorderMedia(organizationId: string, productId: string, orderedIds: string[]) {
+    await this.findById(organizationId, productId);
+
+    await Promise.all(
+      orderedIds.map((id, index) =>
+        this.prisma.productMedia.updateMany({
+          where: { id, productId },
+          data:  { sortOrder: index },
+        }),
+      ),
+    );
+
+    return { ok: true };
   }
 }

@@ -7,7 +7,8 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { StoreImagePicker } from "./StoreImagePicker";
+import { ProductGallery } from "./ProductGallery";
+import type { ApiProductMedia } from "@/lib/api";
 import { ProductDescriptionEditor } from "./ProductDescriptionEditor";
 import Link from "next/link";
 import {
@@ -292,12 +293,16 @@ interface ProductFormProps {
   onSave: (data: ProductFormData) => Promise<void>;
   onCancel: () => void;
   isSaving: boolean;
+  /** When provided the gallery makes live API calls to ProductMedia endpoints */
+  productId?: string;
+  initialMedia?: ApiProductMedia[];
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function ProductForm({
   mode, initialData, productName, breadcrumbs, onSave, onCancel, isSaving,
+  productId, initialMedia = [],
 }: ProductFormProps) {
   const t = useTranslations("store.products");
 
@@ -982,12 +987,14 @@ export function ProductForm({
 
           {/* 5. Media */}
           <Card title="Media">
-            <label className={lbl}>Featured Image</label>
-            <StoreImagePicker
-              value={featuredImg}
-              onChange={setFeaturedImg}
-              subtype="products"
-              hint="PNG, JPG, WebP · Stored via configured provider"
+            <p className="text-[11px] text-muted-foreground -mt-1">
+              Mark any image as <strong>Primary</strong> to use it as the featured image in listings.{" "}
+              {productId ? "Changes save immediately. Drag to reorder." : "Saved when you create the product."}
+            </p>
+            <ProductGallery
+              productId={productId}
+              initialMedia={initialMedia}
+              onFeaturedChange={setFeaturedImg}
             />
           </Card>
 
