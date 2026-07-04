@@ -100,7 +100,9 @@ export function LibraryModal({
   modalZIndexClassName,
 }: LibraryModalProps) {
   const activeFilters = filterOptions ?? FILTERS;
-  const [filter, setFilter] = useState<string>("all");
+  const [filter, setFilter] = useState<string>(
+    activeFilters.includes(currentSubtype) ? currentSubtype : "all",
+  );
   const [items, setItems] = useState<MediaAsset[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -414,7 +416,7 @@ export function LibraryModal({
 
 // ─── Main CoverImagePicker ────────────────────────────────────────────────────
 
-type CoverTab = "presets" | "ai" | "upload";
+type CoverTab = "presets" | "ai";
 
 export interface CoverImagePickerProps {
   value: string;
@@ -437,45 +439,10 @@ export function CoverImagePicker({
   const [mounted, setMounted] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
   const uploadCompanyId = user?.organizationId || "superadmin";
 
   useEffect(() => setMounted(true), []);
-
-  const doUpload = async (file: File) => {
-    setIsUploading(true);
-    onToast?.("Uploading cover image…", "info");
-    try {
-      const result = await storageService.upload({
-        file,
-        companyId: uploadCompanyId,
-        module: "cms",
-        subtype,
-      });
-      onChange(result.url);
-      onToast?.("Cover image uploaded!", "success");
-    } catch (err) {
-      onToast?.(err instanceof Error ? err.message : "Upload failed", "error");
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const handleFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) await doUpload(file);
-    e.target.value = "";
-  };
-
-  const handleDrop = async (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file?.type.startsWith("image/")) await doUpload(file);
-  };
 
   const generateAI = () => {
     if (!aiPrompt.trim()) {
@@ -503,7 +470,6 @@ export function CoverImagePicker({
             options={[
               { id: "presets", label: "Presets" },
               { id: "ai", label: "✨ AI" },
-              { id: "upload", label: "Upload" },
             ]}
           />
           <Button
@@ -567,53 +533,6 @@ export function CoverImagePicker({
               Generate
             </button>
           </div>
-        </div>
-      )}
-
-      {/* ── Upload ── */}
-      {tab === "upload" && (
-        <div
-          onDragOver={(e) => {
-            e.preventDefault();
-            setIsDragging(true);
-          }}
-          onDragLeave={() => setIsDragging(false)}
-          onDrop={handleDrop}
-          className={`border-2 border-dashed rounded-xl p-6 text-center transition-all ${
-            isDragging
-              ? "border-primary bg-primary/5"
-              : "border-border bg-muted/30 hover:border-primary/50"
-          }`}
-        >
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleFileInput}
-          />
-          <UploadCloud className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-          {isUploading ? (
-            <p className="text-xs font-semibold text-muted-foreground animate-pulse">
-              Uploading…
-            </p>
-          ) : (
-            <>
-              <p className="text-xs font-semibold text-foreground mb-0.5">
-                Drag & drop an image, or{" "}
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="text-primary hover:underline"
-                >
-                  browse
-                </button>
-              </p>
-              <p className="text-[10px] text-muted-foreground">
-                PNG, JPG, WEBP · Stored via configured provider
-              </p>
-            </>
-          )}
         </div>
       )}
 

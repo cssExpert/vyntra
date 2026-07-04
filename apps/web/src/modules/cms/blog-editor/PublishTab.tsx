@@ -28,6 +28,8 @@ export interface PublishTabProps {
   form: BlogFormState;
   patch: (partial: Partial<BlogFormState>) => void;
   availableAuthors: AuthorProfile[];
+  /** Org-wide feature switches from CMS Settings → Blog — disabled features hide their toggle here. */
+  featureFlags?: { commentsEnabled: boolean; featuredEnabled: boolean; pinToTopEnabled: boolean };
   onBack: () => void;
   onPublish: () => void;
 }
@@ -113,19 +115,21 @@ const VISIBILITY: {
   },
 ];
 
-const TOGGLES: { label: string; prop: keyof BlogFormState }[] = [
-  { label: "Allow interactive user discussions", prop: "allowComments" },
-  { label: "Feature post on ERVFlow home carousel", prop: "isFeatured" },
-  { label: "Pin content to top of index feeds", prop: "pinToTop" },
+const TOGGLES: { label: string; prop: keyof BlogFormState; flag: "commentsEnabled" | "featuredEnabled" | "pinToTopEnabled" }[] = [
+  { label: "Allow interactive user discussions", prop: "allowComments", flag: "commentsEnabled" },
+  { label: "Feature post on ERVFlow home carousel", prop: "isFeatured", flag: "featuredEnabled" },
+  { label: "Pin content to top of index feeds", prop: "pinToTop", flag: "pinToTopEnabled" },
 ];
 
 export function PublishTab({
   form,
   patch,
   availableAuthors,
+  featureFlags = { commentsEnabled: true, featuredEnabled: true, pinToTopEnabled: true },
   onBack,
   onPublish,
 }: PublishTabProps) {
+  const visibleToggles = TOGGLES.filter((opt) => featureFlags[opt.flag]);
   return (
     <EditorCard className="@container space-y-6">
       {/* Title */}
@@ -307,9 +311,9 @@ export function PublishTab({
             )}
           </div>
 
-          <div className="space-y-2.5">
+          <div className={visibleToggles.length > 0 ? "space-y-2.5" : "hidden"}>
             <FieldLabel>Extra Controls</FieldLabel>
-            {TOGGLES.map((opt) => (
+            {visibleToggles.map((opt) => (
               <label
                 key={opt.prop}
                 className="flex items-center justify-between p-2.5 rounded-lg border border-border text-xs cursor-pointer select-none"

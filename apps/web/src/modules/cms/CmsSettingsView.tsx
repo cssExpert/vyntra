@@ -12,6 +12,7 @@ import {
   Moon,
   Image as ImageIcon,
   Languages,
+  Newspaper,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
@@ -750,10 +751,132 @@ function LanguagesTab() {
   );
 }
 
+// ── Blog Tab ──────────────────────────────────────────────────────────────────
+
+function BlogSettingsTab() {
+  const [commentsEnabled, setCommentsEnabled] = useState(true);
+  const [featuredEnabled, setFeaturedEnabled] = useState(true);
+  const [pinToTopEnabled, setPinToTopEnabled] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    apiGetOrgSettings()
+      .then((s) => {
+        setCommentsEnabled(s.blogCommentsEnabled);
+        setFeaturedEnabled(s.blogFeaturedEnabled);
+        setPinToTopEnabled(s.blogPinToTopEnabled);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const flash = (msg: string, isErr = false) => {
+    if (isErr) {
+      setError(msg);
+      setTimeout(() => setError(""), 4000);
+    } else {
+      setSuccess(msg);
+      setTimeout(() => setSuccess(""), 4000);
+    }
+  };
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      await apiUpdateOrgSettings({
+        blogCommentsEnabled: commentsEnabled,
+        blogFeaturedEnabled: featuredEnabled,
+        blogPinToTopEnabled: pinToTopEnabled,
+      });
+      flash("Blog settings saved successfully.");
+    } catch {
+      flash("Failed to save blog settings.", true);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16 text-muted-foreground text-sm">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent mr-2" />
+        Loading…
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      {error && (
+        <div className="flex items-center gap-2.5 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+          <AlertCircle className="h-4 w-4 shrink-0" /> {error}
+        </div>
+      )}
+      {success && (
+        <div className="flex items-center gap-2.5 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 text-sm text-emerald-600">
+          <CheckCircle2 className="h-4 w-4 shrink-0" /> {success}
+        </div>
+      )}
+
+      <SectionCard
+        icon={Newspaper}
+        title="Blog Controls"
+        description="Turn these features on or off for every blog post org-wide. Disabling one hides its control in the post editor and disables it on existing posts — no post data is lost, and it comes back if you re-enable it here."
+      >
+        <div className="space-y-3">
+          <div className="flex items-center justify-between rounded-xl border border-border bg-muted/20 px-4 py-3.5">
+            <div>
+              <p className="text-sm font-medium text-foreground">Allow comments</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Lets authors enable reader comments on individual blog posts.
+              </p>
+            </div>
+            <Toggle enabled={commentsEnabled} onToggle={() => setCommentsEnabled((v) => !v)} />
+          </div>
+
+          <div className="flex items-center justify-between rounded-xl border border-border bg-muted/20 px-4 py-3.5">
+            <div>
+              <p className="text-sm font-medium text-foreground">Allow featured posts</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Lets authors mark a post as featured (e.g. for a homepage carousel).
+              </p>
+            </div>
+            <Toggle enabled={featuredEnabled} onToggle={() => setFeaturedEnabled((v) => !v)} />
+          </div>
+
+          <div className="flex items-center justify-between rounded-xl border border-border bg-muted/20 px-4 py-3.5">
+            <div>
+              <p className="text-sm font-medium text-foreground">Allow pin to top</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Lets authors pin a post to the top of blog index feeds.
+              </p>
+            </div>
+            <Toggle enabled={pinToTopEnabled} onToggle={() => setPinToTopEnabled((v) => !v)} />
+          </div>
+        </div>
+      </SectionCard>
+
+      <div className="flex justify-end">
+        <button
+          onClick={save}
+          disabled={saving}
+          className="px-5 py-2.5 bg-primary text-primary-foreground text-sm font-semibold rounded-xl hover:opacity-90 transition disabled:opacity-50 cursor-pointer"
+        >
+          {saving ? "Saving…" : "Save Blog Settings"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ── CmsSettingsView ───────────────────────────────────────────────────────────
 
 const TABS = [
   { id: "branding", label: "Branding" },
+  { id: "blog", label: "Blog" },
   { id: "languages", label: "Languages" },
   { id: "domain", label: "Domain" },
 ] as const;
@@ -789,6 +912,7 @@ export function CmsSettingsView() {
       </div>
 
       {activeTab === "branding" && <BrandingTab />}
+      {activeTab === "blog" && <BlogSettingsTab />}
       {activeTab === "languages" && <LanguagesTab />}
       {activeTab === "domain" && <DomainTab />}
     </div>

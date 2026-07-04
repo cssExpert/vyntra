@@ -95,6 +95,12 @@ model Organization {
   slackNotifications   Boolean @default(false)
   themeSwitcherEnabled Boolean @default(false)
 
+  // CMS: Blog feature switches — org-wide on/off; disabling one hides the
+  // per-blog control in the editor and clamps existing posts' effective value.
+  blogCommentsEnabled Boolean @default(true)
+  blogFeaturedEnabled Boolean @default(true)
+  blogPinToTopEnabled Boolean @default(true)
+
   // Internationalization & Localization
   defaultLocale String  @default("en") // company-wide default UI language
   timezone      String? // org-specific timezone (nullable)

@@ -148,6 +148,18 @@ export class OrganizationSettingsDto {
   themeSwitcherEnabled?: boolean;
 
   @IsOptional()
+  @IsBoolean()
+  blogCommentsEnabled?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  blogFeaturedEnabled?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  blogPinToTopEnabled?: boolean;
+
+  @IsOptional()
   @IsString()
   primaryColor?: string;
 

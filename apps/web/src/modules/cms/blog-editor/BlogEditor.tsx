@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import type { CmsBlogDetail, CmsBlogSaveDto, OrgMember } from "@/lib/api";
 import {
   apiGetOrgMembers,
+  apiGetOrgSettings,
   cmsBlogs,
   cmsBlogCategories,
   tags as tagsApi,
@@ -107,6 +108,11 @@ export function BlogEditor({ blog }: BlogEditorProps) {
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [availableAuthors, setAvailableAuthors] = useState<AuthorProfile[]>([]);
+  const [blogFeatureFlags, setBlogFeatureFlags] = useState({
+    commentsEnabled: true,
+    featuredEnabled: true,
+    pinToTopEnabled: true,
+  });
 
   const [form, setForm] = useState<BlogFormState>(() =>
     blog ? emptyBlogForm() : emptyBlogForm(),
@@ -124,6 +130,15 @@ export function BlogEditor({ blog }: BlogEditorProps) {
     tagsApi
       .list()
       .then((allTags) => setAvailableTags(allTags.map((t) => t.name)))
+      .catch(() => {});
+    apiGetOrgSettings()
+      .then((s) =>
+        setBlogFeatureFlags({
+          commentsEnabled: s.blogCommentsEnabled,
+          featuredEnabled: s.blogFeaturedEnabled,
+          pinToTopEnabled: s.blogPinToTopEnabled,
+        }),
+      )
       .catch(() => {});
 
     apiGetOrgMembers()
@@ -388,6 +403,7 @@ export function BlogEditor({ blog }: BlogEditorProps) {
                   form={form}
                   patch={patch}
                   availableAuthors={availableAuthors}
+                  featureFlags={blogFeatureFlags}
                   onBack={() => setActiveTab("seo")}
                   onPublish={handlePublish}
                 />

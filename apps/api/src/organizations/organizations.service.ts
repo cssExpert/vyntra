@@ -237,6 +237,9 @@ export class OrganizationsService {
         emailNotifications: true,
         slackNotifications: true,
         themeSwitcherEnabled: true,
+        blogCommentsEnabled: true,
+        blogFeaturedEnabled: true,
+        blogPinToTopEnabled: true,
         siteLanguages: true,
         defaultSiteLanguage: true,
       },
@@ -260,6 +263,9 @@ export class OrganizationsService {
     if (dto.darkLogoUrl !== undefined) data.darkLogoUrl = dto.darkLogoUrl;
     if (dto.faviconUrl !== undefined) data.faviconUrl = dto.faviconUrl;
     if (dto.themeSwitcherEnabled !== undefined) data.themeSwitcherEnabled = dto.themeSwitcherEnabled;
+    if (dto.blogCommentsEnabled !== undefined) data.blogCommentsEnabled = dto.blogCommentsEnabled;
+    if (dto.blogFeaturedEnabled !== undefined) data.blogFeaturedEnabled = dto.blogFeaturedEnabled;
+    if (dto.blogPinToTopEnabled !== undefined) data.blogPinToTopEnabled = dto.blogPinToTopEnabled;
     if (dto.siteLanguages !== undefined) data.siteLanguages = dto.siteLanguages;
     if (dto.defaultSiteLanguage) data.defaultSiteLanguage = dto.defaultSiteLanguage;
     if (dto.primaryColor) data.primaryColor = dto.primaryColor;
@@ -284,6 +290,9 @@ export class OrganizationsService {
         emailNotifications: true,
         slackNotifications: true,
         themeSwitcherEnabled: true,
+        blogCommentsEnabled: true,
+        blogFeaturedEnabled: true,
+        blogPinToTopEnabled: true,
         siteLanguages: true,
         defaultSiteLanguage: true,
       },

@@ -178,12 +178,34 @@ export class CmsService {
     };
   }
 
+  /**
+   * Clamps a blog's comments/featured/pin-to-top fields to the org's current
+   * feature switches (CMS Settings → Blog), without touching the stored
+   * value — so re-enabling a switch restores whatever each post already had.
+   */
+  private async clampBlogFeatures<T extends { allowComments: boolean; isFeatured: boolean; pinToTop: boolean }>(
+    orgId: string,
+    blog: T,
+  ): Promise<T> {
+    const org = await this.prisma.organization.findUnique({
+      where: { id: orgId },
+      select: { blogCommentsEnabled: true, blogFeaturedEnabled: true, blogPinToTopEnabled: true },
+    });
+    return {
+      ...blog,
+      allowComments: blog.allowComments && (org?.blogCommentsEnabled ?? true),
+      isFeatured: blog.isFeatured && (org?.blogFeaturedEnabled ?? true),
+      pinToTop: blog.pinToTop && (org?.blogPinToTopEnabled ?? true),
+    };
+  }
+
   async getBlog(orgId: string, id: string) {
     const blog = await this.prisma.blog.findFirst({
       where: { id, organizationId: orgId },
     });
     if (!blog) throw new NotFoundException('Blog not found');
-    return this.tagsService.attachTagsOne(orgId, 'blog', blog);
+    const withTags = await this.tagsService.attachTagsOne(orgId, 'blog', blog);
+    return this.clampBlogFeatures(orgId, withTags);
   }
 
   async createBlog(orgId: string, dto: BlogDto) {
@@ -219,7 +241,8 @@ export class CmsService {
     });
 
     await this.tagsService.syncAssignments(orgId, 'blog', blog.id, dto.tags ?? []);
-    return this.tagsService.attachTagsOne(orgId, 'blog', blog);
+    const withTags = await this.tagsService.attachTagsOne(orgId, 'blog', blog);
+    return this.clampBlogFeatures(orgId, withTags);
   }
 
   async updateBlog(orgId: string, id: string, dto: Partial<BlogDto>) {
@@ -264,7 +287,8 @@ export class CmsService {
     if (dto.tags !== undefined) {
       await this.tagsService.syncAssignments(orgId, 'blog', id, dto.tags);
     }
-    return this.tagsService.attachTagsOne(orgId, 'blog', updated);
+    const withTags = await this.tagsService.attachTagsOne(orgId, 'blog', updated);
+    return this.clampBlogFeatures(orgId, withTags);
   }
 
   async deleteBlog(orgId: string, id: string) {

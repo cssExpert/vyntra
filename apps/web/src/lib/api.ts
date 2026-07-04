@@ -175,6 +175,9 @@ export interface OrganizationSettings {
   darkLogoUrl: string | null;
   faviconUrl: string | null;
   themeSwitcherEnabled: boolean;
+  blogCommentsEnabled: boolean;
+  blogFeaturedEnabled: boolean;
+  blogPinToTopEnabled: boolean;
   siteLanguages: string[];
   defaultSiteLanguage: string;
   primaryColor: string;
