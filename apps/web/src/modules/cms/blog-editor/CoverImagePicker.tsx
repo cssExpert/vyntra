@@ -77,7 +77,7 @@ export interface LibraryModalProps {
   /** Comma-separated MIME types (e.g. "image/png,image/svg+xml"). Restricts both
    *  the "Upload new" file picker and which existing library assets are selectable. */
   accept?: string;
-  onSelect: (url: string) => void;
+  onSelect?: (url: string) => void;
   onClose: () => void;
   onToast?: (
     msg: string,
@@ -85,6 +85,12 @@ export interface LibraryModalProps {
   ) => void;
   /** Tailwind z-index class passed through to the underlying Modal — raise this when opening from inside another overlay (e.g. a slide-over panel). */
   modalZIndexClassName?: string;
+  /** Enable checkbox-style multi-select + an "Add N" confirm button, instead of click-to-select-one. */
+  multiSelect?: boolean;
+  /** Called with the selected URLs when the user confirms in multi-select mode. */
+  onSelectMultiple?: (urls: string[]) => void;
+  /** URLs to show as already-added/disabled — multi-select mode only. */
+  excludeUrls?: Set<string>;
 }
 
 export function LibraryModal({
@@ -98,6 +104,9 @@ export function LibraryModal({
   onClose,
   onToast,
   modalZIndexClassName,
+  multiSelect = false,
+  onSelectMultiple,
+  excludeUrls,
 }: LibraryModalProps) {
   const activeFilters = filterOptions ?? FILTERS;
   const [filter, setFilter] = useState<string>(
@@ -110,9 +119,24 @@ export function LibraryModal({
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const sentinelRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleItemClick = (url: string) => {
+    if (!multiSelect) {
+      onSelect?.(url);
+      return;
+    }
+    if (excludeUrls?.has(url)) return;
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(url)) next.delete(url);
+      else next.add(url);
+      return next;
+    });
+  };
 
   // Load a page of assets
   const load = useCallback(
@@ -174,32 +198,38 @@ export function LibraryModal({
     };
   }, [onClose]);
 
-  // Upload new file from within the modal
+  // Upload new file(s) from within the modal — multiple files only when multiSelect is on.
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const files = Array.from(e.target.files ?? []);
     e.target.value = "";
-    if (!file) return;
-    if (!matchesAccept(file.type, accept)) {
-      onToast?.("That file type isn't allowed here.", "error");
+    const validFiles = files.filter((f) => matchesAccept(f.type, accept));
+    if (validFiles.length === 0) {
+      if (files.length > 0) onToast?.("That file type isn't allowed here.", "error");
       return;
     }
     setIsUploading(true);
-    onToast?.("Uploading…", "info");
-    try {
-      await storageService.upload({
-        file,
-        companyId: uploadCompanyId,
-        module: assetModule,
-        subtype: currentSubtype,
-      });
-      onToast?.("Uploaded!", "success");
-      // Reload list from top so new file appears
+    onToast?.(validFiles.length > 1 ? `Uploading ${validFiles.length} files…` : "Uploading…", "info");
+    const uploadedUrls: string[] = [];
+    for (const file of validFiles) {
+      try {
+        const result = await storageService.upload({
+          file,
+          companyId: uploadCompanyId,
+          module: assetModule,
+          subtype: currentSubtype,
+        });
+        uploadedUrls.push(result.url);
+      } catch (err) {
+        onToast?.(err instanceof Error ? err.message : "Upload failed", "error");
+      }
+    }
+    setIsUploading(false);
+    if (uploadedUrls.length > 0) {
+      onToast?.(uploadedUrls.length > 1 ? `${uploadedUrls.length} files uploaded!` : "Uploaded!", "success");
+      if (multiSelect) setSelected((prev) => new Set([...prev, ...uploadedUrls]));
+      // Reload list from top so new files appear
       await load(1, filter, true);
       scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-    } catch (err) {
-      onToast?.(err instanceof Error ? err.message : "Upload failed", "error");
-    } finally {
-      setIsUploading(false);
     }
   };
 
@@ -209,6 +239,12 @@ export function LibraryModal({
       await mediaAssets.delete(asset.id);
       setItems((prev) => prev.filter((a) => a.id !== asset.id));
       setTotal((t) => t - 1);
+      setSelected((prev) => {
+        if (!prev.has(asset.url)) return prev;
+        const next = new Set(prev);
+        next.delete(asset.url);
+        return next;
+      });
       onToast?.("Deleted from library", "info");
     } catch {
       onToast?.("Delete failed", "error");
@@ -229,7 +265,9 @@ export function LibraryModal({
       description={
         loading
           ? "Loading…"
-          : `${total} asset${total !== 1 ? "s" : ""} · ${assetModule} module`
+          : multiSelect && selected.size > 0
+            ? `${selected.size} selected · ${total} asset${total !== 1 ? "s" : ""}`
+            : `${total} asset${total !== 1 ? "s" : ""} · ${assetModule} module`
       }
       icon={<ImageIcon size={18} />}
       zIndexClassName={modalZIndexClassName}
@@ -252,12 +290,13 @@ export function LibraryModal({
             />
           </div>
 
-          <div className="hidden md:flex items-center">
+          <div className="hidden md:flex items-center gap-2">
             {/* Upload */}
             <input
               ref={fileInputRef}
               type="file"
               accept={accept ?? "image/*"}
+              multiple={multiSelect}
               className="hidden"
               onChange={handleUpload}
             />
@@ -271,6 +310,17 @@ export function LibraryModal({
             >
               Upload new
             </Button>
+            {multiSelect && selected.size > 0 && (
+              <Button
+                type="button"
+                radius="lg"
+                onClick={() => onSelectMultiple?.(Array.from(selected))}
+                className="gap-1.5 px-3 font-bold h-[34px] max-h-[34px]"
+                startIcon={<Check className="w-4 h-4" />}
+              >
+                Add {selected.size} Image{selected.size !== 1 ? "s" : ""}
+              </Button>
+            )}
           </div>
         </>
       }
@@ -322,21 +372,26 @@ export function LibraryModal({
           <>
             <div className="grid grid-cols-5 gap-3">
               {visibleItems.map((asset) => {
-                const selected = currentValue === asset.url;
+                const alreadyUsed = multiSelect && excludeUrls?.has(asset.url);
+                const isSelected = multiSelect
+                  ? selected.has(asset.url)
+                  : currentValue === asset.url;
                 return (
                   <div
                     key={asset.id}
                     role="button"
-                    tabIndex={0}
-                    onClick={() => onSelect(asset.url)}
+                    tabIndex={alreadyUsed ? -1 : 0}
+                    onClick={() => !alreadyUsed && handleItemClick(asset.url)}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ")
-                        onSelect(asset.url);
+                      if (!alreadyUsed && (e.key === "Enter" || e.key === " "))
+                        handleItemClick(asset.url);
                     }}
                     className={`group relative rounded-xl overflow-hidden border-2 transition-all duration-150 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
-                      selected
-                        ? "border-primary shadow-lg shadow-primary/20 scale-[0.97]"
-                        : "border-primary-500/10 hover:border-primary/40 hover:shadow-md"
+                      alreadyUsed
+                        ? "opacity-40 cursor-not-allowed border-border"
+                        : isSelected
+                          ? "border-primary shadow-lg shadow-primary/20 scale-[0.97]"
+                          : "border-primary-500/10 hover:border-primary/40 hover:shadow-md"
                     }`}
                   >
                     {/* Thumbnail */}
@@ -373,9 +428,18 @@ export function LibraryModal({
                       </button>
 
                       {/* Selected checkmark */}
-                      {selected && (
+                      {isSelected && !alreadyUsed && (
                         <div className="absolute top-1.5 left-1.5 w-5 h-5 bg-primary rounded-full flex items-center justify-center shadow-sm z-10">
                           <Check className="w-3 h-3 text-primary-foreground" />
+                        </div>
+                      )}
+
+                      {/* Already-added overlay — multi-select only */}
+                      {alreadyUsed && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                          <span className="text-[9px] font-semibold text-white bg-black/60 px-1.5 py-0.5 rounded-full">
+                            Added
+                          </span>
                         </div>
                       )}
                     </div>
