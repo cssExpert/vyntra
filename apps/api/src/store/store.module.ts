@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { TagsModule } from '../tags/tags.module';
 import { AttributesService } from './services/attributes.service';
 import { ProductsService } from './services/products.service';
 import { CategoriesService } from './services/categories.service';
@@ -25,7 +26,7 @@ import { AnalyticsController } from './controllers/analytics.controller';
 import { JobsController } from './controllers/jobs.controller';
 
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, TagsModule],
   controllers: [
     AttributesController,
     ProductsController,

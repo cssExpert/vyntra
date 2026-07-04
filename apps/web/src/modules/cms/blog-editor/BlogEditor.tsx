@@ -10,7 +10,7 @@ import {
   apiGetOrgMembers,
   cmsBlogs,
   cmsBlogCategories,
-  cmsBlogTags,
+  tags as tagsApi,
 } from "@/lib/api";
 import { useAuth } from "@/providers/AuthProvider";
 import { EditorStepTabs, type EditorTab } from "./EditorStepTabs";
@@ -121,9 +121,9 @@ export function BlogEditor({ blog }: BlogEditorProps) {
       .list()
       .then((cats) => setAvailableCategories(cats.map((c) => c.name)))
       .catch(() => {});
-    cmsBlogTags
+    tagsApi
       .list()
-      .then((tags) => setAvailableTags(tags.map((t) => t.name)))
+      .then((allTags) => setAvailableTags(allTags.map((t) => t.name)))
       .catch(() => {});
 
     apiGetOrgMembers()
@@ -175,7 +175,7 @@ export function BlogEditor({ blog }: BlogEditorProps) {
 
   const handleTagCreate = async (name: string) => {
     try {
-      await cmsBlogTags.findOrCreate(name);
+      await tagsApi.findOrCreate(name);
       setAvailableTags((prev) =>
         prev.includes(name)
           ? prev

@@ -120,28 +120,7 @@ export class CmsController {
     return this.cmsService.deleteBlogCategory(requireOrg(orgId), id);
   }
 
-  // ── Blog Tags ─────────────────────────────────────────────────────────────
-
-  @Roles(Role.ORG_ADMIN, Role.EDITOR)
-  @Get('blog-tags')
-  listBlogTags(@CurrentOrg() orgId: string | null) {
-    return this.cmsService.listBlogTags(requireOrg(orgId));
-  }
-
-  @Roles(Role.ORG_ADMIN, Role.EDITOR)
-  @Post('blog-tags')
-  findOrCreateBlogTag(
-    @CurrentOrg() orgId: string | null,
-    @Body() body: { name: string },
-  ) {
-    return this.cmsService.findOrCreateBlogTag(requireOrg(orgId), body.name);
-  }
-
-  @Roles(Role.ORG_ADMIN, Role.EDITOR)
-  @Delete('blog-tags/:id')
-  deleteBlogTag(@CurrentOrg() orgId: string | null, @Param('id') id: string) {
-    return this.cmsService.deleteBlogTag(requireOrg(orgId), id);
-  }
+  // Blog Tags: superseded by the shared /tags catalog (see TagsController).
 
   @Roles(Role.ORG_ADMIN, Role.EDITOR)
   @Get('pages/:slug')

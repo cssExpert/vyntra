@@ -124,7 +124,6 @@ model Organization {
   pages              Page[]
   blogs              Blog[]
   blogCategories     BlogCategory[]
-  blogTags           BlogTag[]
   comments           Comment[]
   media              Media[]
   websiteConfigs     WebsiteConfig[]
@@ -132,6 +131,8 @@ model Organization {
   layouts            Layout[]
   cmsForms           CmsForm[]
   systemPageSettings SystemPageSettings[]
+  tags               Tag[]
+  tagAssignments     TagAssignment[]
 
   // CRM (org-scoped)
   leads      Lead[]
@@ -414,7 +415,6 @@ model Blog {
   body           String?
   excerpt        String?
   coverImage     String?
-  tags           String[]  @default([])
   author         String?
   category       String?
   seoTitle       String?
@@ -454,7 +454,10 @@ model BlogCategory {
   @@map("blog_categories")
 }
 
-model BlogTag {
+// Shared, org-scoped tag catalog — used by blogs, products, and (eventually)
+// other taggable entities. Assignment tracked by TagAssignment, not by
+// duplicating tag names onto each entity.
+model Tag {
   id             String   @id @default(cuid())
   name           String
   slug           String
@@ -462,11 +465,34 @@ model BlogTag {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  assignments  TagAssignment[]
 
   @@unique([organizationId, slug])
   @@index([organizationId])
-  @@map("blog_tags")
+  @@map("tags")
+}
+
+// One shared assignment table for every taggable entity, discriminated by
+// entityType ("blog" | "product" | "page" — see TagEntityType in the API).
+// entityId is polymorphic (no FK, since it targets a different table per
+// entityType) — entity delete paths must clean up their own assignments via
+// TagsService.removeAssignmentsFor.
+model TagAssignment {
+  id             String   @id @default(cuid())
+  tagId          String
+  entityType     String
+  entityId       String
+  organizationId String
+  createdAt      DateTime @default(now())
+
+  tag          Tag          @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([tagId, entityType, entityId])
+  @@index([entityType, entityId])
+  @@index([organizationId])
+  @@map("tag_assignments")
 }
 
 model Comment {
@@ -816,7 +842,6 @@ model Product {
 
   // Organization
   categoryIds String[] @default([])
-  tags        String[] @default([])
 
   // Relations
   variants   ProductVariant[]

@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { TagsService } from '../tags/tags.service';
 
 // Slugs reserved for app-driven storefront system pages (kept in sync with
 // apps/web/src/lib/themes/systemPages.ts) — a CMS page can never use these,
@@ -48,7 +49,10 @@ interface LayoutDto {
 
 @Injectable()
 export class CmsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly tagsService: TagsService,
+  ) {}
 
   // ── Pages ────────────────────────────────────────────────────────────────────
 
@@ -88,7 +92,7 @@ export class CmsService {
   async getDashboardStats(orgId: string) {
     const now = new Date();
 
-    const [blogs, categories, tags, pages, media] = await Promise.all([
+    const [blogs, categories, tags, pages, media, blogTagAssignments] = await Promise.all([
       this.prisma.blog.findMany({
         where: { organizationId: orgId },
         select: {
@@ -100,19 +104,22 @@ export class CmsService {
           isFeatured: true,
           coverImage: true,
           category: true,
-          tags: true,
           author: true,
           createdAt: true,
         },
         orderBy: { createdAt: 'desc' },
       }),
       this.prisma.blogCategory.count({ where: { organizationId: orgId } }),
-      this.prisma.blogTag.count({ where: { organizationId: orgId } }),
+      this.prisma.tag.count({ where: { organizationId: orgId } }),
       this.prisma.page.findMany({
         where: { organizationId: orgId },
         select: { published: true },
       }),
       this.prisma.media.count({ where: { organizationId: orgId } }),
+      this.prisma.tagAssignment.findMany({
+        where: { organizationId: orgId, entityType: 'blog' },
+        include: { tag: true },
+      }),
     ]);
 
     const published = blogs.filter((b) => b.published).length;
@@ -135,13 +142,10 @@ export class CmsService {
       .slice(0, 5)
       .map(([name, count]) => ({ name, count }));
 
-    // Tag distribution from blog.tags array field
+    // Tag distribution from the shared tag catalog's blog assignments
     const tagCount: Record<string, number> = {};
-    for (const blog of blogs) {
-      for (const tag of (blog.tags ?? [])) {
-        const t = tag.trim();
-        if (t) tagCount[t] = (tagCount[t] ?? 0) + 1;
-      }
+    for (const { tag } of blogTagAssignments) {
+      tagCount[tag.name] = (tagCount[tag.name] ?? 0) + 1;
     }
     const topTags = Object.entries(tagCount)
       .sort((a, b) => b[1] - a[1])
@@ -179,7 +183,7 @@ export class CmsService {
       where: { id, organizationId: orgId },
     });
     if (!blog) throw new NotFoundException('Blog not found');
-    return blog;
+    return this.tagsService.attachTagsOne(orgId, 'blog', blog);
   }
 
   async createBlog(orgId: string, dto: BlogDto) {
@@ -189,7 +193,7 @@ export class CmsService {
     });
     if (existing) throw new BadRequestException('A blog with this slug already exists');
 
-    return this.prisma.blog.create({
+    const blog = await this.prisma.blog.create({
       data: {
         title: dto.title,
         subtitle: dto.subtitle,
@@ -197,7 +201,6 @@ export class CmsService {
         body: dto.body,
         excerpt: dto.excerpt,
         coverImage: dto.coverImage,
-        tags: dto.tags ?? [],
         author: dto.author,
         category: dto.category,
         seoTitle: dto.seoTitle,
@@ -214,6 +217,9 @@ export class CmsService {
         organizationId: orgId,
       },
     });
+
+    await this.tagsService.syncAssignments(orgId, 'blog', blog.id, dto.tags ?? []);
+    return this.tagsService.attachTagsOne(orgId, 'blog', blog);
   }
 
   async updateBlog(orgId: string, id: string, dto: Partial<BlogDto>) {
@@ -228,7 +234,7 @@ export class CmsService {
       if (conflict) throw new BadRequestException('A blog with this slug already exists');
     }
 
-    return this.prisma.blog.update({
+    const updated = await this.prisma.blog.update({
       where: { id },
       data: {
         ...(dto.title !== undefined && { title: dto.title }),
@@ -237,7 +243,6 @@ export class CmsService {
         ...(dto.body !== undefined && { body: dto.body }),
         ...(dto.excerpt !== undefined && { excerpt: dto.excerpt }),
         ...(dto.coverImage !== undefined && { coverImage: dto.coverImage }),
-        ...(dto.tags !== undefined && { tags: dto.tags }),
         ...(dto.author !== undefined && { author: dto.author }),
         ...(dto.category !== undefined && { category: dto.category }),
         ...(dto.seoTitle !== undefined && { seoTitle: dto.seoTitle }),
@@ -255,11 +260,17 @@ export class CmsService {
         ...(dto.pinToTop !== undefined && { pinToTop: dto.pinToTop }),
       },
     });
+
+    if (dto.tags !== undefined) {
+      await this.tagsService.syncAssignments(orgId, 'blog', id, dto.tags);
+    }
+    return this.tagsService.attachTagsOne(orgId, 'blog', updated);
   }
 
   async deleteBlog(orgId: string, id: string) {
     const blog = await this.prisma.blog.findFirst({ where: { id, organizationId: orgId } });
     if (!blog) throw new NotFoundException('Blog not found');
+    await this.tagsService.removeAssignmentsFor(orgId, 'blog', id);
     await this.prisma.blog.delete({ where: { id } });
     return { ok: true };
   }
@@ -301,33 +312,6 @@ export class CmsService {
     const cat = await this.prisma.blogCategory.findFirst({ where: { id, organizationId: orgId } });
     if (!cat) throw new NotFoundException('Category not found');
     await this.prisma.blogCategory.delete({ where: { id } });
-    return { ok: true };
-  }
-
-  // ── Blog Tags ────────────────────────────────────────────────────────────────
-
-  async listBlogTags(orgId: string) {
-    return this.prisma.blogTag.findMany({
-      where: { organizationId: orgId },
-      orderBy: { name: 'asc' },
-    });
-  }
-
-  async findOrCreateBlogTag(orgId: string, name: string) {
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-    const existing = await this.prisma.blogTag.findFirst({
-      where: { organizationId: orgId, slug },
-    });
-    if (existing) return existing;
-    return this.prisma.blogTag.create({
-      data: { name, slug, organizationId: orgId },
-    });
-  }
-
-  async deleteBlogTag(orgId: string, id: string) {
-    const tag = await this.prisma.blogTag.findFirst({ where: { id, organizationId: orgId } });
-    if (!tag) throw new NotFoundException('Tag not found');
-    await this.prisma.blogTag.delete({ where: { id } });
     return { ok: true };
   }
 
