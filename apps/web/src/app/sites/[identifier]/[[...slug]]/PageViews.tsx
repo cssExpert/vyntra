@@ -44,6 +44,24 @@ export interface SiteLayoutData {
   footerColumns: { title: string; menuId: string }[];
 }
 
+/** SEO/OG/Favicon/Scripts/Styles/page-size for a system page, set via CMS → Page Settings. */
+export interface SystemPageSettingsPublic {
+  metaTitle: string | null;
+  metaDesc: string | null;
+  metaKeywords: string | null;
+  noIndex: boolean;
+  ogTitle: string | null;
+  ogDescription: string | null;
+  ogType: string;
+  ogUrl: string | null;
+  ogImage: string | null;
+  faviconUrl: string | null;
+  headScript: string | null;
+  bodyScript: string | null;
+  customCss: string | null;
+  productsPerPage: number;
+}
+
 function parseLegacyNodes(content: string | null) {
   if (!content) return null;
   // Typed blocks (new format) are handled by BlockRenderer — skip them here
@@ -190,11 +208,13 @@ export async function SystemPageView({
   layout,
   pageType,
   themeIdentifier = "shopingo",
+  pageSettings,
 }: {
   org: OrgInfo;
   layout: SiteLayoutData;
   pageType: SystemPageType;
   themeIdentifier?: string;
+  pageSettings?: SystemPageSettingsPublic | null;
 }) {
   const SystemPage = resolveThemeSystemPage(pageType, themeIdentifier);
   const pageStyle = {
@@ -204,9 +224,12 @@ export async function SystemPageView({
 
   return (
     <div className="min-h-screen" style={pageStyle}>
+      {pageSettings?.customCss && <style dangerouslySetInnerHTML={{ __html: pageSettings.customCss }} />}
+      {pageSettings?.headScript && <script dangerouslySetInnerHTML={{ __html: pageSettings.headScript }} />}
       <SiteNavbar org={org} layout={layout} themeIdentifier={themeIdentifier} />
       <SystemPage orgId={org.id} themeIdentifier={themeIdentifier} />
       <SiteFooter org={org} layout={layout} themeIdentifier={themeIdentifier} />
+      {pageSettings?.bodyScript && <script dangerouslySetInnerHTML={{ __html: pageSettings.bodyScript }} />}
     </div>
   );
 }

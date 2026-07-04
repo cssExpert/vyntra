@@ -207,9 +207,9 @@ export class DomainsController {
   @Public()
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 60, ttl: 60_000 } })
-  @Get('public/sites/:orgId/products/page-size')
-  getPublicProductsPageSize(@Param('orgId') orgId: string) {
-    return this.domainsService.getPublicProductsPageSize(orgId);
+  @Get('public/sites/:orgId/products/page-settings')
+  getPublicProductListingSettings(@Param('orgId') orgId: string) {
+    return this.domainsService.getPublicProductListingSettings(orgId);
   }
 
   @Public()

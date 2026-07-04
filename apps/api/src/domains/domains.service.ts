@@ -457,15 +457,34 @@ export class DomainsService {
     return { data: categories };
   }
 
-  /** Storefront page size for the product listing page, set via CMS → Page Settings → Listing. */
-  async getPublicProductsPageSize(orgId: string) {
+  /**
+   * Everything the storefront /products page needs from CMS → Page Settings:
+   * SEO meta, Open Graph, favicon, injected scripts/CSS, and the configured
+   * page size. One read, one row — mirrors SystemPageSettingsService's own
+   * `toDto`, but only the fields safe to hand to an anonymous visitor.
+   */
+  async getPublicProductListingSettings(orgId: string) {
     const settings = await this.prisma.systemPageSettings.findUnique({
       where: { organizationId_pageType: { organizationId: orgId, pageType: 'product-listing' } },
-      select: { customSettings: true },
     });
     const custom = (settings?.customSettings as Record<string, unknown> | null) ?? {};
     const productsPerPage = Number(custom.productsPerPage);
-    return { pageSize: Number.isFinite(productsPerPage) && productsPerPage > 0 ? productsPerPage : 12 };
+    return {
+      metaTitle: settings?.metaTitle ?? null,
+      metaDesc: settings?.metaDesc ?? null,
+      metaKeywords: settings?.metaKeywords ?? null,
+      noIndex: settings?.noIndex ?? false,
+      ogTitle: settings?.ogTitle ?? null,
+      ogDescription: settings?.ogDescription ?? null,
+      ogType: settings?.ogType ?? 'website',
+      ogUrl: settings?.ogUrl ?? null,
+      ogImage: settings?.ogImage ?? null,
+      faviconUrl: settings?.faviconUrl ?? null,
+      headScript: settings?.headScript ?? null,
+      bodyScript: settings?.bodyScript ?? null,
+      customCss: settings?.customCss ?? null,
+      productsPerPage: Number.isFinite(productsPerPage) && productsPerPage > 0 ? productsPerPage : 12,
+    };
   }
 
   async getPublicForm(orgId: string, slug: string) {

@@ -56,13 +56,13 @@ export function useProductListingFacets(orgId: string) {
     Promise.all([
       getJson<{ data: PublicCategory[] }>(`${API}/public/sites/${orgId}/categories`),
       getJson<ProductFacets>(`${API}/public/sites/${orgId}/products/facets`),
-      getJson<{ pageSize: number }>(`${API}/public/sites/${orgId}/products/page-size`),
+      getJson<{ productsPerPage: number }>(`${API}/public/sites/${orgId}/products/page-settings`),
     ])
       .then(([cats, f, ps]) => {
         if (cancelled) return;
         setCategories(cats.data);
         setFacets(f);
-        setPageSize(ps.pageSize);
+        setPageSize(ps.productsPerPage);
       })
       .catch(() => {})
       .finally(() => { if (!cancelled) setLoading(false); });

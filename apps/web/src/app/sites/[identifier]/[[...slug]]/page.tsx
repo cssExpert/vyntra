@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import type { Metadata } from "next";
 import { PageView, SiteHome, SystemPageView } from "./PageViews";
-import type { OrgInfo, CmsPage, PageListItem, SiteLayoutData } from "./PageViews";
+import type { OrgInfo, CmsPage, PageListItem, SiteLayoutData, SystemPageSettingsPublic } from "./PageViews";
 import { resolveSystemPageType } from "@/lib/themes/systemPages";
 
 // Always fetch fresh — CMS content changes on every publish
@@ -95,6 +95,17 @@ async function fetchActiveTheme(orgId: string, previewId?: string): Promise<stri
   }
 }
 
+/** SEO/OG/Favicon/Scripts/Styles/page-size for the /products system page, set via CMS → Page Settings. */
+async function fetchProductListingPageSettings(orgId: string): Promise<SystemPageSettingsPublic | null> {
+  try {
+    const res = await fetch(`${API}/public/sites/${orgId}/products/page-settings`, { cache: "no-store" });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
+
 // ─── Metadata ────────────────────────────────────────────────────────────────
 
 export async function generateMetadata({
@@ -124,7 +135,23 @@ export async function generateMetadata({
 
   const systemPageType = resolveSystemPageType(pageSlug);
   if (systemPageType) {
-    return { title: `Shop — ${org.name}` };
+    const settings = await fetchProductListingPageSettings(org.id);
+    const title = settings?.metaTitle || `Shop — ${org.name}`;
+    const description = settings?.metaDesc ?? undefined;
+    return {
+      title,
+      description,
+      keywords: settings?.metaKeywords ?? undefined,
+      robots: settings?.noIndex ? { index: false, follow: false } : undefined,
+      openGraph: {
+        title: settings?.ogTitle || title,
+        description: settings?.ogDescription || description,
+        type: (settings?.ogType as "website" | "article") || "website",
+        url: settings?.ogUrl ?? undefined,
+        images: settings?.ogImage ? [settings.ogImage] : undefined,
+      },
+      icons: settings?.faviconUrl ? { icon: settings.faviconUrl } : undefined,
+    };
   }
 
   const page = await fetchPage(org.id, pageSlug, activeLang);
@@ -186,11 +213,20 @@ export default async function PublicSitePage({
   // System routes (e.g. /products) are app-driven, resolved before any CMS page lookup.
   const systemPageType = resolveSystemPageType(pageSlug);
   if (systemPageType) {
-    const layout = await fetchSiteLayout(org.id);
+    const [layout, pageSettings] = await Promise.all([
+      fetchSiteLayout(org.id),
+      fetchProductListingPageSettings(org.id),
+    ]);
     return (
       <>
         <Head />
-        <SystemPageView org={org} layout={layout} pageType={systemPageType} themeIdentifier={orgThemeIdentifier} />
+        <SystemPageView
+          org={org}
+          layout={layout}
+          pageType={systemPageType}
+          themeIdentifier={orgThemeIdentifier}
+          pageSettings={pageSettings}
+        />
       </>
     );
   }
