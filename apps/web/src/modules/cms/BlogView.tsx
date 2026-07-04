@@ -22,6 +22,7 @@ import {
   FileText,
   Clock,
   RefreshCw,
+  Settings2,
 } from "lucide-react";
 import {
   useReactTable,
@@ -54,6 +55,10 @@ import { cmsBlogs } from "@/lib/api";
 import { type BlogStatus, type CmsBlog } from "@/modules/cms/blog-data";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { PageSettingsPanel } from "@/components/common/PageSettingsPanel";
+import { useAuth } from "@/providers/AuthProvider";
+
+const PAGE_SETTINGS_ROLES = ["ORG_ADMIN", "EDITOR"];
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -210,6 +215,7 @@ const DEFAULT_FILTERS: BlogFilters = {
 export function BlogView() {
   const router = useRouter();
   const t = useTranslations("cms");
+  const { user, hasModule } = useAuth();
   const [blogs, setBlogs] = useState<CmsBlog[]>([]);
   const [isFetching, setIsFetching] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -221,7 +227,13 @@ export function BlogView() {
     pageSize: 10,
   });
   const [deletingBlog, setDeletingBlog] = useState<CmsBlog | null>(null);
+  const [pageSettingsOpen, setPageSettingsOpen] = useState(false);
   const [filterDraft, setFilterDraft] = useState<BlogFilters>(DEFAULT_FILTERS);
+
+  const canManagePageSettings =
+    hasModule("CMS") &&
+    !!user?.organizationId &&
+    (user.superAdmin || user.roles.some((r) => PAGE_SETTINGS_ROLES.includes(r)));
   const [activeFilters, setActiveFilters] =
     useState<BlogFilters>(DEFAULT_FILTERS);
   const isLoaded = usePageLoad(700);
@@ -587,6 +599,20 @@ export function BlogView() {
             />
 
             <div className="flex items-center gap-2 flex-wrap justify-end">
+              {/* Page Settings */}
+              {canManagePageSettings && (
+                <Button
+                  variant="outline"
+                  size="lg"
+                  radius="sm"
+                  onClick={() => setPageSettingsOpen(true)}
+                  className="px-3 text-xs font-semibold text-muted-foreground hover:text-foreground"
+                  startIcon={<Settings2 size={14} />}
+                >
+                  Page Settings
+                </Button>
+              )}
+
               {/* Refresh */}
               <Button
                 variant="outline"
@@ -717,6 +743,18 @@ export function BlogView() {
               </Button>
             </div>
           </div>
+
+          {canManagePageSettings && (
+            <PageSettingsPanel
+              open={pageSettingsOpen}
+              onClose={() => setPageSettingsOpen(false)}
+              pageType="blog-listing"
+              label="Blog Listing"
+              pagePath="/blog"
+              companyId={user!.organizationId!}
+              module="cms"
+            />
+          )}
 
           {/* ── Status tabs ─────────────────────────────────────────────────── */}
           <div className="@container">

@@ -209,12 +209,15 @@ export async function SystemPageView({
   pageType,
   themeIdentifier = "shopingo",
   pageSettings,
+  slug,
 }: {
   org: OrgInfo;
   layout: SiteLayoutData;
   pageType: SystemPageType;
   themeIdentifier?: string;
   pageSettings?: SystemPageSettingsPublic | null;
+  /** Extra path segment for detail-style system pages, e.g. the blog post slug for "blog-detail". */
+  slug?: string;
 }) {
   const SystemPage = resolveThemeSystemPage(pageType, themeIdentifier);
   const pageStyle = {
@@ -227,7 +230,7 @@ export async function SystemPageView({
       {pageSettings?.customCss && <style dangerouslySetInnerHTML={{ __html: pageSettings.customCss }} />}
       {pageSettings?.headScript && <script dangerouslySetInnerHTML={{ __html: pageSettings.headScript }} />}
       <SiteNavbar org={org} layout={layout} themeIdentifier={themeIdentifier} />
-      <SystemPage orgId={org.id} themeIdentifier={themeIdentifier} />
+      <SystemPage orgId={org.id} themeIdentifier={themeIdentifier} slug={slug} />
       <SiteFooter org={org} layout={layout} themeIdentifier={themeIdentifier} />
       {pageSettings?.bodyScript && <script dangerouslySetInnerHTML={{ __html: pageSettings.bodyScript }} />}
     </div>

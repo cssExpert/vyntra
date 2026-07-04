@@ -213,6 +213,53 @@ export class DomainsController {
   }
 
   @Public()
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 60, ttl: 60_000 } })
+  @Get('public/sites/:orgId/blogs')
+  getPublicBlogs(
+    @Param('orgId') orgId: string,
+    @Query('skip') skip?: string,
+    @Query('take') take?: string,
+    @Query('category') category?: string,
+    @Query('tag') tag?: string,
+    @Query('search') search?: string,
+  ) {
+    return this.domainsService.getPublicBlogs(orgId, {
+      skip: skip ? parseInt(skip, 10) : undefined,
+      take: take ? parseInt(take, 10) : undefined,
+      category,
+      tag,
+      search,
+    });
+  }
+
+  @Public()
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 30, ttl: 60_000 } })
+  @Get('public/sites/:orgId/blogs/facets')
+  getPublicBlogFacets(@Param('orgId') orgId: string) {
+    return this.domainsService.getPublicBlogFacets(orgId);
+  }
+
+  @Public()
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 60, ttl: 60_000 } })
+  @Get('public/sites/:orgId/blogs/page-settings')
+  getPublicBlogListingSettings(@Param('orgId') orgId: string) {
+    return this.domainsService.getPublicBlogListingSettings(orgId);
+  }
+
+  // Must be registered after the literal `blogs/facets` and
+  // `blogs/page-settings` routes above, or this :slug param would shadow them.
+  @Public()
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 60, ttl: 60_000 } })
+  @Get('public/sites/:orgId/blogs/:slug')
+  getPublicBlogBySlug(@Param('orgId') orgId: string, @Param('slug') slug: string) {
+    return this.domainsService.getPublicBlogBySlug(orgId, slug);
+  }
+
+  @Public()
   @Get('public/sites/:orgId/menus/:menuId')
   getPublicMenu(
     @Param('orgId') orgId: string,

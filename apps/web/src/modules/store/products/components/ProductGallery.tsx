@@ -63,6 +63,15 @@ export function ProductGallery({
     if (!productId) onChange?.(items);
   }, [items, productId, onChange]);
 
+  // Notify the parent of the current primary image via an effect, not inside
+  // a setItems updater — updaters must stay pure (no calling another
+  // component's setState from within one, or React errors at "Cannot update
+  // a component while rendering a different component").
+  useEffect(() => {
+    const primary = items.find((i) => i.isPrimary);
+    onFeaturedChange?.(primary?.url ?? null);
+  }, [items, onFeaturedChange]);
+
   const existingUrls = new Set(items.map((i) => i.url));
 
   // ── Add images ─────────────────────────────────────────────────────────────
@@ -93,12 +102,7 @@ export function ProductGallery({
           console.error("Failed to add media", err);
         }
       }
-      setItems((prev) => {
-        const next = [...prev, ...added];
-        const primary = next.find((i) => i.isPrimary);
-        onFeaturedChange?.(primary?.url ?? null);
-        return next;
-      });
+      setItems((prev) => [...prev, ...added]);
     } else {
       const added: GalleryItem[] = fresh.map((url, i) => ({
         id:        `tmp_${Date.now()}_${i}`,
@@ -107,12 +111,7 @@ export function ProductGallery({
         isPrimary: items.length === 0 && i === 0,
         sortOrder: items.length + i,
       }));
-      setItems((prev) => {
-        const next = [...prev, ...added];
-        const primary = next.find((i) => i.isPrimary);
-        onFeaturedChange?.(primary?.url ?? null);
-        return next;
-      });
+      setItems((prev) => [...prev, ...added]);
     }
 
     setPickerOpen(false);
@@ -140,9 +139,6 @@ export function ProductGallery({
         if (productId) {
           storeProductMedia.setPrimary(productId, next[0].id).catch(() => {});
         }
-        onFeaturedChange?.(next[0].url);
-      } else if (next.length === 0) {
-        onFeaturedChange?.(null);
       }
       return next;
     });
@@ -166,7 +162,6 @@ export function ProductGallery({
     }
 
     setItems((prev) => prev.map((i) => ({ ...i, isPrimary: i.id === item.id })));
-    onFeaturedChange?.(item.url);
     setBusyIds((s) => { const n = new Set(s); n.delete(item.id); return n; });
   };
 

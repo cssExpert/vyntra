@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { randomBytes } from 'crypto';
 import * as dns from 'dns';
 import { PrismaService } from '../prisma/prisma.service';
+import { TagsService } from '../tags/tags.service';
 import { SetCustomDomainDto, SetSubdomainDto } from './dto/domain.dto';
 
 const DOMAIN_SELECT = {
@@ -26,6 +27,7 @@ export class DomainsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
+    private readonly tagsService: TagsService,
   ) {}
 
   async getOrgDomain(orgId: string) {
@@ -484,6 +486,211 @@ export class DomainsService {
       bodyScript: settings?.bodyScript ?? null,
       customCss: settings?.customCss ?? null,
       productsPerPage: Number.isFinite(productsPerPage) && productsPerPage > 0 ? productsPerPage : 12,
+    };
+  }
+
+  private static readonly PUBLIC_BLOG_SELECT = {
+    id: true,
+    title: true,
+    subtitle: true,
+    slug: true,
+    excerpt: true,
+    coverImage: true,
+    author: true,
+    category: true,
+    publishedAt: true,
+    isFeatured: true,
+    pinToTop: true,
+  } as const;
+
+  /**
+   * Public blog listing for the storefront /blog page. Only published,
+   * publicly-visible posts, and only fields safe to expose to an anonymous
+   * visitor. isFeatured/pinToTop are clamped to the org's blog feature
+   * switches (CMS Settings → Blog), same as the admin-facing getBlog does.
+   */
+  async getPublicBlogs(
+    orgId: string,
+    {
+      category,
+      tag,
+      search,
+      skip = 0,
+      take = 6,
+    }: {
+      category?: string;
+      tag?: string;
+      search?: string;
+      skip?: number;
+      take?: number;
+    } = {},
+  ) {
+    const limit = Math.min(Math.max(take, 1), 48);
+
+    let tagFilteredIds: string[] | undefined;
+    if (tag) {
+      const assignments = await this.prisma.tagAssignment.findMany({
+        where: { organizationId: orgId, entityType: 'blog', tag: { slug: tag } },
+        select: { entityId: true },
+      });
+      tagFilteredIds = assignments.map((a) => a.entityId);
+      if (tagFilteredIds.length === 0) {
+        return { data: [], total: 0, skip, take: limit, hasMore: false };
+      }
+    }
+
+    const where = {
+      organizationId: orgId,
+      published: true,
+      visibility: 'public',
+      ...(category && { category }),
+      ...(search && {
+        OR: [
+          { title: { contains: search, mode: 'insensitive' as const } },
+          { excerpt: { contains: search, mode: 'insensitive' as const } },
+        ],
+      }),
+      ...(tagFilteredIds && { id: { in: tagFilteredIds } }),
+    };
+
+    const org = await this.prisma.organization.findUnique({
+      where: { id: orgId },
+      select: { blogFeaturedEnabled: true, blogPinToTopEnabled: true },
+    });
+
+    const [rows, total] = await Promise.all([
+      this.prisma.blog.findMany({
+        where,
+        select: DomainsService.PUBLIC_BLOG_SELECT,
+        orderBy: org?.blogPinToTopEnabled
+          ? [{ pinToTop: 'desc' }, { publishedAt: 'desc' }]
+          : [{ publishedAt: 'desc' }],
+        skip: Math.max(skip, 0),
+        take: limit,
+      }),
+      this.prisma.blog.count({ where }),
+    ]);
+
+    const clamped = rows.map((b) => ({
+      ...b,
+      isFeatured: b.isFeatured && (org?.blogFeaturedEnabled ?? true),
+      pinToTop: b.pinToTop && (org?.blogPinToTopEnabled ?? true),
+    }));
+    const data = await this.tagsService.attachTags(orgId, 'blog', clamped);
+
+    return { data, total, skip, take: limit, hasMore: skip + data.length < total };
+  }
+
+  private static readonly PUBLIC_BLOG_DETAIL_SELECT = {
+    id: true,
+    title: true,
+    subtitle: true,
+    slug: true,
+    body: true,
+    excerpt: true,
+    coverImage: true,
+    author: true,
+    category: true,
+    seoTitle: true,
+    metaDesc: true,
+    keywords: true,
+    publishedAt: true,
+    isFeatured: true,
+    allowComments: true,
+  } as const;
+
+  /**
+   * Single published, publicly-visible blog post by slug, for the storefront
+   * /blog/[slug] page. 404s for drafts, scheduled, private/members-only
+   * posts, or posts belonging to a different org.
+   */
+  async getPublicBlogBySlug(orgId: string, slug: string) {
+    const blog = await this.prisma.blog.findFirst({
+      where: { organizationId: orgId, slug, published: true, visibility: 'public' },
+      select: DomainsService.PUBLIC_BLOG_DETAIL_SELECT,
+    });
+    if (!blog) throw new NotFoundException('Post not found');
+
+    const org = await this.prisma.organization.findUnique({
+      where: { id: orgId },
+      select: { blogCommentsEnabled: true, blogFeaturedEnabled: true },
+    });
+
+    const clamped = {
+      ...blog,
+      isFeatured: blog.isFeatured && (org?.blogFeaturedEnabled ?? true),
+      allowComments: blog.allowComments && (org?.blogCommentsEnabled ?? true),
+    };
+    return this.tagsService.attachTagsOne(orgId, 'blog', clamped);
+  }
+
+  /** Categories, popular tags, and recent posts for the /blog page's sidebar. */
+  async getPublicBlogFacets(orgId: string) {
+    const visibleWhere = { organizationId: orgId, published: true, visibility: 'public' };
+
+    const [categories, visibleBlogs, recentPosts] = await Promise.all([
+      this.prisma.blogCategory.findMany({
+        where: { organizationId: orgId },
+        select: { id: true, name: true, slug: true },
+        orderBy: { name: 'asc' },
+      }),
+      this.prisma.blog.findMany({ where: visibleWhere, select: { id: true } }),
+      this.prisma.blog.findMany({
+        where: visibleWhere,
+        select: { title: true, slug: true, coverImage: true, publishedAt: true },
+        orderBy: { publishedAt: 'desc' },
+        take: 5,
+      }),
+    ]);
+
+    const assignments = await this.prisma.tagAssignment.findMany({
+      where: { organizationId: orgId, entityType: 'blog', entityId: { in: visibleBlogs.map((b) => b.id) } },
+      include: { tag: true },
+    });
+    const tagCounts = new Map<string, number>();
+    for (const a of assignments) {
+      tagCounts.set(a.tag.name, (tagCounts.get(a.tag.name) ?? 0) + 1);
+    }
+    const tags = [...tagCounts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([name]) => name);
+
+    return { categories, tags, recentPosts };
+  }
+
+  /**
+   * Everything the storefront /blog page needs from CMS → Page Settings:
+   * SEO meta, Open Graph, favicon, injected scripts/CSS, the configured page
+   * size, and sidebar section visibility — mirrors
+   * getPublicProductListingSettings but for the "blog-listing" page type.
+   */
+  async getPublicBlogListingSettings(orgId: string) {
+    const settings = await this.prisma.systemPageSettings.findUnique({
+      where: { organizationId_pageType: { organizationId: orgId, pageType: 'blog-listing' } },
+    });
+    const custom = (settings?.customSettings as Record<string, unknown> | null) ?? {};
+    const postsPerPage = Number(custom.postsPerPage);
+    const boolOr = (v: unknown, fallback: boolean) => (typeof v === 'boolean' ? v : fallback);
+
+    return {
+      metaTitle: settings?.metaTitle ?? null,
+      metaDesc: settings?.metaDesc ?? null,
+      metaKeywords: settings?.metaKeywords ?? null,
+      noIndex: settings?.noIndex ?? false,
+      ogTitle: settings?.ogTitle ?? null,
+      ogDescription: settings?.ogDescription ?? null,
+      ogType: settings?.ogType ?? 'website',
+      ogUrl: settings?.ogUrl ?? null,
+      ogImage: settings?.ogImage ?? null,
+      faviconUrl: settings?.faviconUrl ?? null,
+      headScript: settings?.headScript ?? null,
+      bodyScript: settings?.bodyScript ?? null,
+      customCss: settings?.customCss ?? null,
+      postsPerPage: Number.isFinite(postsPerPage) && postsPerPage > 0 ? postsPerPage : 6,
+      showSidebar: boolOr(custom.showSidebar, true),
+      showSearch: boolOr(custom.showSearch, true),
+      showCategories: boolOr(custom.showCategories, true),
+      showTags: boolOr(custom.showTags, true),
     };
   }
 

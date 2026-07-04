@@ -3,7 +3,8 @@ import { cookies } from "next/headers";
 import type { Metadata } from "next";
 import { PageView, SiteHome, SystemPageView } from "./PageViews";
 import type { OrgInfo, CmsPage, PageListItem, SiteLayoutData, SystemPageSettingsPublic } from "./PageViews";
-import { resolveSystemPageType } from "@/lib/themes/systemPages";
+import { resolveSystemPageType, type SystemPageType } from "@/lib/themes/systemPages";
+import type { PublicBlogDetailPost } from "@/lib/themes/useBlogDetail";
 
 // Always fetch fresh — CMS content changes on every publish
 export const dynamic = "force-dynamic";
@@ -106,6 +107,34 @@ async function fetchProductListingPageSettings(orgId: string): Promise<SystemPag
   }
 }
 
+/** SEO/OG/Favicon/Scripts/Styles for the /blog system page, set via CMS → Page Settings. */
+async function fetchBlogListingPageSettings(orgId: string): Promise<SystemPageSettingsPublic | null> {
+  try {
+    const res = await fetch(`${API}/public/sites/${orgId}/blogs/page-settings`, { cache: "no-store" });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
+
+async function fetchSystemPageSettings(orgId: string, pageType: SystemPageType): Promise<SystemPageSettingsPublic | null> {
+  return pageType === "blog-listing"
+    ? fetchBlogListingPageSettings(orgId)
+    : fetchProductListingPageSettings(orgId);
+}
+
+/** A single published post for /blog/[slug] — null if not found/not public. */
+async function fetchBlogDetail(orgId: string, slug: string): Promise<PublicBlogDetailPost | null> {
+  try {
+    const res = await fetch(`${API}/public/sites/${orgId}/blogs/${encodeURIComponent(slug)}`, { cache: "no-store" });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
+
 // ─── Metadata ────────────────────────────────────────────────────────────────
 
 export async function generateMetadata({
@@ -133,10 +162,29 @@ export async function generateMetadata({
     };
   }
 
-  const systemPageType = resolveSystemPageType(pageSlug);
-  if (systemPageType) {
-    const settings = await fetchProductListingPageSettings(org.id);
-    const title = settings?.metaTitle || `Shop — ${org.name}`;
+  const resolved = resolveSystemPageType(pageSlug);
+  if (resolved) {
+    if (resolved.pageType === "blog-detail" && resolved.param) {
+      const post = await fetchBlogDetail(org.id, resolved.param);
+      if (!post) return { title: org.name };
+      const title = post.seoTitle || post.title;
+      const description = post.metaDesc || post.excerpt || undefined;
+      return {
+        title: `${title} — ${org.name}`,
+        description,
+        keywords: post.keywords ?? undefined,
+        openGraph: {
+          title,
+          description,
+          type: "article",
+          images: post.coverImage ? [post.coverImage] : undefined,
+        },
+      };
+    }
+
+    const settings = await fetchSystemPageSettings(org.id, resolved.pageType);
+    const defaultTitle = resolved.pageType === "blog-listing" ? `Blog — ${org.name}` : `Shop — ${org.name}`;
+    const title = settings?.metaTitle || defaultTitle;
     const description = settings?.metaDesc ?? undefined;
     return {
       title,
@@ -210,12 +258,13 @@ export default async function PublicSitePage({
 
   const pageSlug = slug.join("/");
 
-  // System routes (e.g. /products) are app-driven, resolved before any CMS page lookup.
-  const systemPageType = resolveSystemPageType(pageSlug);
-  if (systemPageType) {
+  // System routes (e.g. /products, /blog, /blog/:slug) are app-driven, resolved before any CMS page lookup.
+  const resolved = resolveSystemPageType(pageSlug);
+  if (resolved) {
     const [layout, pageSettings] = await Promise.all([
       fetchSiteLayout(org.id),
-      fetchProductListingPageSettings(org.id),
+      // blog-detail's SEO/etc comes from the post itself, not a Page Settings entry.
+      resolved.pageType === "blog-detail" ? null : fetchSystemPageSettings(org.id, resolved.pageType),
     ]);
     return (
       <>
@@ -223,9 +272,10 @@ export default async function PublicSitePage({
         <SystemPageView
           org={org}
           layout={layout}
-          pageType={systemPageType}
+          pageType={resolved.pageType}
           themeIdentifier={orgThemeIdentifier}
           pageSettings={pageSettings}
+          slug={resolved.param}
         />
       </>
     );

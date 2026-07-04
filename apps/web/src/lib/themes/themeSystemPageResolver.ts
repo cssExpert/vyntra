@@ -3,21 +3,31 @@ import type { SystemPageType } from "./systemPages";
 
 import ShopingoProductListing from "./shopingo/pages/ProductListing";
 import CommonProductListing from "./common/pages/ProductListing";
+import ShopingoBlogListing from "./shopingo/pages/BlogListing";
+import CommonBlogListing from "./common/pages/BlogListing";
+import ShopingoBlogDetail from "./shopingo/pages/BlogDetail";
+import CommonBlogDetail from "./common/pages/BlogDetail";
 
 export interface SystemPageProps {
   orgId: string;
   themeIdentifier: string;
+  /** Extra path segment for detail-style system pages, e.g. the blog post slug for "blog-detail". */
+  slug?: string;
 }
 
 type AnySystemPage = ComponentType<SystemPageProps>;
 
 const COMMON_SYSTEM_PAGES: Record<SystemPageType, AnySystemPage> = {
   "product-listing": CommonProductListing,
+  "blog-listing": CommonBlogListing,
+  "blog-detail": CommonBlogDetail,
 };
 
 const THEME_SYSTEM_PAGES: Record<string, Partial<Record<SystemPageType, AnySystemPage>>> = {
   shopingo: {
     "product-listing": ShopingoProductListing,
+    "blog-listing": ShopingoBlogListing,
+    "blog-detail": ShopingoBlogDetail,
   },
 };
 
