@@ -29,6 +29,8 @@ export interface ModalProps {
   maxWidth?: keyof typeof maxWidthMap;
   /** Max height of the scrollable body. CSS value (e.g. "400px", "60vh") or Tailwind class (e.g. "max-h-96"). Defaults to "calc(100vh-250px)". */
   bodyMaxHeight?: string;
+  /** Tailwind z-index class for the modal's fixed container. Defaults to "z-50" — raise this when the modal can be opened from inside another overlay (e.g. a slide-over panel). */
+  zIndexClassName?: string;
 }
 
 export function Modal({
@@ -43,6 +45,7 @@ export function Modal({
   footer,
   maxWidth = "lg",
   bodyMaxHeight,
+  zIndexClassName = "z-50",
 }: ModalProps) {
   const bodyRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -80,7 +83,7 @@ export function Modal({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="ervflow-modla !mt-0 fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div className={`ervflow-modla !mt-0 fixed inset-0 ${zIndexClassName} flex items-center justify-center p-4 overflow-y-auto`}>
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}

@@ -17,6 +17,7 @@ import { ModulesModule } from './modules/modules.module';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { PackagesModule } from './packages/packages.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { SystemPageSettingsModule } from './system-pages/system-page-settings.module';
 import { UploadModule } from './upload/upload.module';
 import { UsersModule } from './users/users.module';
 import { StoreModule } from './store/store.module';
@@ -41,6 +42,7 @@ import { StoreModule } from './store/store.module';
     ThemesModule,
     UploadModule,
     StoreModule,
+    SystemPageSettingsModule,
     // CrmModule added in the next phase.
   ],
   providers: [

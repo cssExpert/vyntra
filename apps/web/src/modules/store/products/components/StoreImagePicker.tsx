@@ -26,6 +26,8 @@ interface StoreImagePickerProps {
   libraryOnly?: boolean;
   hint?: string;
   onToast?: (msg: string, type?: "success" | "error" | "info" | "warning") => void;
+  /** Tailwind z-index class for the library modal — raise this when opening from inside another overlay (e.g. a slide-over panel). */
+  modalZIndexClassName?: string;
 }
 
 export function StoreImagePicker({
@@ -39,6 +41,7 @@ export function StoreImagePicker({
   libraryOnly = false,
   hint,
   onToast,
+  modalZIndexClassName,
 }: StoreImagePickerProps) {
   const { user } = useAuth();
   const companyId = companyIdProp ?? user?.organizationId ?? "superadmin";
@@ -194,6 +197,7 @@ export function StoreImagePicker({
             }}
             onClose={() => setLibraryOpen(false)}
             onToast={onToast}
+            modalZIndexClassName={modalZIndexClassName}
           />,
           document.body,
         )}

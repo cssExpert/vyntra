@@ -83,6 +83,8 @@ export interface LibraryModalProps {
     msg: string,
     type?: "success" | "error" | "info" | "warning",
   ) => void;
+  /** Tailwind z-index class passed through to the underlying Modal — raise this when opening from inside another overlay (e.g. a slide-over panel). */
+  modalZIndexClassName?: string;
 }
 
 export function LibraryModal({
@@ -95,6 +97,7 @@ export function LibraryModal({
   onSelect,
   onClose,
   onToast,
+  modalZIndexClassName,
 }: LibraryModalProps) {
   const activeFilters = filterOptions ?? FILTERS;
   const [filter, setFilter] = useState<string>("all");
@@ -227,6 +230,7 @@ export function LibraryModal({
           : `${total} asset${total !== 1 ? "s" : ""} · ${assetModule} module`
       }
       icon={<ImageIcon size={18} />}
+      zIndexClassName={modalZIndexClassName}
       maxWidth="xxl"
       bodyMaxHeight="none"
       headerActions={

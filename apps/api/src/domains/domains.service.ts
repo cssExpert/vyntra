@@ -457,6 +457,17 @@ export class DomainsService {
     return { data: categories };
   }
 
+  /** Storefront page size for the product listing page, set via CMS → Page Settings → Listing. */
+  async getPublicProductsPageSize(orgId: string) {
+    const settings = await this.prisma.systemPageSettings.findUnique({
+      where: { organizationId_pageType: { organizationId: orgId, pageType: 'product-listing' } },
+      select: { customSettings: true },
+    });
+    const custom = (settings?.customSettings as Record<string, unknown> | null) ?? {};
+    const productsPerPage = Number(custom.productsPerPage);
+    return { pageSize: Number.isFinite(productsPerPage) && productsPerPage > 0 ? productsPerPage : 12 };
+  }
+
   async getPublicForm(orgId: string, slug: string) {
     const form = await this.prisma.cmsForm.findFirst({
       where: { organizationId: orgId, slug, status: 'Published' },

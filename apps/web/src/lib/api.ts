@@ -804,6 +804,36 @@ export const mediaAssets = {
     apiFetch<{ ok: boolean }>(`/upload/assets/${id}`, { method: "DELETE" }),
 };
 
+// ─── System page settings (SEO/OG/Favicon/Scripts/Styles for app-driven
+// storefront pages like the product listing — keyed by pageType, not a slug) ──
+export interface SystemPageSettingsData {
+  metaTitle?: string | null;
+  metaDesc?: string | null;
+  metaKeywords?: string | null;
+  noIndex?: boolean;
+  ogTitle?: string | null;
+  ogDescription?: string | null;
+  ogType?: string;
+  ogUrl?: string | null;
+  ogImage?: string | null;
+  faviconUrl?: string | null;
+  /** Free-form, pageType-specific settings — e.g. { productsPerPage } for "product-listing". */
+  customSettings?: Record<string, unknown> | null;
+  headScript?: string | null;
+  bodyScript?: string | null;
+  customCss?: string | null;
+}
+
+export const systemPageSettings = {
+  get: (pageType: string) =>
+    apiFetch<SystemPageSettingsData>(`/cms/system-pages/${pageType}`),
+  update: (pageType: string, body: SystemPageSettingsData) =>
+    apiFetch<SystemPageSettingsData>(`/cms/system-pages/${pageType}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }),
+};
+
 // ─── CMS blog tags ──────────────────────────────────────
 export interface CmsBlogTag {
   id: string;

@@ -88,26 +88,26 @@ model Organization {
   logoUrl              String?
   darkLogoUrl          String?
   faviconUrl           String?
-  primaryColor         String   @default("#3b82f6")
-  secondaryColor       String   @default("#8b5cf6")
-  accentColor          String   @default("#ec4899")
-  emailNotifications   Boolean  @default(true)
-  slackNotifications   Boolean  @default(false)
-  themeSwitcherEnabled Boolean  @default(false)
+  primaryColor         String  @default("#3b82f6")
+  secondaryColor       String  @default("#8b5cf6")
+  accentColor          String  @default("#ec4899")
+  emailNotifications   Boolean @default(true)
+  slackNotifications   Boolean @default(false)
+  themeSwitcherEnabled Boolean @default(false)
 
   // Internationalization & Localization
-  defaultLocale        String   @default("en") // company-wide default UI language
-  timezone             String?  // org-specific timezone (nullable)
+  defaultLocale String  @default("en") // company-wide default UI language
+  timezone      String? // org-specific timezone (nullable)
 
   // Public site language settings
-  siteLanguages        String[] @default(["en"]) // enabled language codes for the public site
-  defaultSiteLanguage  String   @default("en")   // default language shown to visitors
+  siteLanguages       String[] @default(["en"]) // enabled language codes for the public site
+  defaultSiteLanguage String   @default("en") // default language shown to visitors
 
   // Domain / hosting
-  subdomain               String?  @unique // e.g. "acme" → acme.vyntra.com; set by super admin
-  customDomain            String?  @unique // e.g. "acme.com"; set by super admin or org admin
-  customDomainVerified    Boolean  @default(false)
-  domainVerificationToken String?  @unique
+  subdomain               String? @unique // e.g. "acme" → acme.vyntra.com; set by super admin
+  customDomain            String? @unique // e.g. "acme.com"; set by super admin or org admin
+  customDomainVerified    Boolean @default(false)
+  domainVerificationToken String? @unique
 
   // Relations
   users        User[]        @relation("OrganizationUsers")
@@ -121,16 +121,17 @@ model Organization {
   themes        Theme[] @relation("OrgCustomThemes")
 
   // CMS (org-scoped)
-  pages          Page[]
-  blogs          Blog[]
-  blogCategories BlogCategory[]
-  blogTags       BlogTag[]
-  comments       Comment[]
-  media          Media[]
-  websiteConfigs WebsiteConfig[]
-  menus          Menu[]
-  layouts        Layout[]
-  cmsForms       CmsForm[]
+  pages              Page[]
+  blogs              Blog[]
+  blogCategories     BlogCategory[]
+  blogTags           BlogTag[]
+  comments           Comment[]
+  media              Media[]
+  websiteConfigs     WebsiteConfig[]
+  menus              Menu[]
+  layouts            Layout[]
+  cmsForms           CmsForm[]
+  systemPageSettings SystemPageSettings[]
 
   // CRM (org-scoped)
   leads      Lead[]
@@ -140,18 +141,18 @@ model Organization {
   activities Activity[]
 
   // Store (org-scoped)
-  storeAttributes   StoreAttribute[]
-  products          Product[]
-  categories        ProductCategory[]
-  productReviews    ProductReview[]
-  storeCustomers    StoreCustomer[]
-  orders            Order[]
-  payments          Payment[]
-  coupons           CouponCode[]
-  refunds           Refund[]
-  storeCredits      StoreCreditTransaction[]
-  rewardPoints      RewardPointTransaction[]
-  inventory         Inventory[]
+  storeAttributes StoreAttribute[]
+  products        Product[]
+  categories      ProductCategory[]
+  productReviews  ProductReview[]
+  storeCustomers  StoreCustomer[]
+  orders          Order[]
+  payments        Payment[]
+  coupons         CouponCode[]
+  refunds         Refund[]
+  storeCredits    StoreCreditTransaction[]
+  rewardPoints    RewardPointTransaction[]
+  inventory       Inventory[]
 
   @@map("organizations")
 }
@@ -276,12 +277,12 @@ model AuditLog {
 // ════════════════════════════════════════════════════════════════════
 
 model Theme {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
   description String?
   thumbnail   String?
-  identifier  String   @default("shopingo")
-  isGlobal    Boolean  @default(false)
+  identifier  String  @default("shopingo")
+  isGlobal    Boolean @default(false)
   orgId       String?
 
   organization  Organization?  @relation("OrgCustomThemes", fields: [orgId], references: [id], onDelete: Cascade)
@@ -355,6 +356,54 @@ model PageTranslation {
   @@unique([pageId, lang])
   @@index([pageId])
   @@map("page_translations")
+}
+
+// Page Settings (SEO / Open Graph / Favicon / Scripts / Styles) for a system page —
+// an app-driven storefront route (product listing, product detail, …) as opposed to
+// a CMS page. Keyed by `pageType` (see SystemPageType in the web app) rather than a
+// slug, since system pages have no Page row. One row per org per page type.
+model SystemPageSettings {
+  id             String @id @default(cuid())
+  organizationId String
+  pageType       String // e.g. "product-listing"
+
+  // SEO
+  metaTitle    String?
+  metaDesc     String?
+  metaKeywords String?
+  noIndex      Boolean @default(false)
+
+  // Open Graph
+  ogTitle       String?
+  ogDescription String?
+  ogType        String  @default("website")
+  ogUrl         String?
+  ogImage       String?
+
+  // Favicon
+  faviconUrl String?
+
+  // Free-form settings whose shape depends on `pageType` — lets each system
+  // page (product-listing today, product-details/… later) grow its own
+  // extra config from the same generic Page Settings panel without a schema
+  // migration per field. product-listing currently stores { productsPerPage }.
+  customSettings Json?
+
+  // Scripts
+  headScript String?
+  bodyScript String?
+
+  // Styles
+  customCss String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, pageType])
+  @@index([organizationId])
+  @@map("system_page_settings")
 }
 
 model Blog {
@@ -485,16 +534,16 @@ model WebsiteConfig {
 }
 
 model Menu {
-  id             String     @id @default(cuid())
+  id             String       @id @default(cuid())
   name           String
-  menuType       String     @default("navigation")
+  menuType       String       @default("navigation")
   slug           String
-  visibility     String[]   @default(["all"])
+  visibility     String[]     @default(["all"])
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   items          MenuItem[]
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
   @@unique([organizationId, slug])
   @@index([organizationId])
@@ -520,19 +569,19 @@ model MenuItem {
 // ════════════════════════════════════════════════════════════════════
 
 model CmsForm {
-  id              String              @id @default(cuid())
-  name            String
-  description     String?
-  slug            String
-  status          String              @default("Draft")
-  fields          Json                @default("[]")
-  captchaEnabled  Boolean             @default(false)
-  organizationId  String
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
+  id             String   @id @default(cuid())
+  name           String
+  description    String?
+  slug           String
+  status         String   @default("Draft")
+  fields         Json     @default("[]")
+  captchaEnabled Boolean  @default(false)
+  organizationId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  organization  Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  submissions   CmsFormSubmission[]
+  organization Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  submissions  CmsFormSubmission[]
 
   @@unique([organizationId, slug])
   @@index([organizationId])
@@ -699,15 +748,15 @@ model Activity {
 // ════════════════════════════════════════════════════════════════════
 
 model StoreAttribute {
-  id              String   @id @default(cuid())
+  id              String                @id @default(cuid())
   organizationId  String
   name            String
-  attributeType   String   @default("selection") // "selection" | "color"
-  fieldType       String   @default("dropdown")  // "dropdown" | "multiselect" | "buttons" | "text" | "textarea"
-  usedInVariation Boolean  @default(false)
+  attributeType   String                @default("selection") // "selection" | "color"
+  fieldType       String                @default("dropdown") // "dropdown" | "multiselect" | "buttons" | "text" | "textarea"
+  usedInVariation Boolean               @default(false)
   values          StoreAttributeValue[]
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
@@ -730,13 +779,13 @@ model StoreAttributeValue {
 }
 
 model Product {
-  id             String   @id @default(cuid())
+  id             String @id @default(cuid())
   organizationId String
   name           String
   slug           String
   sku            String
-  type           String   // "simple", "variable", "digital", "downloadable", "service", "subscription", "bundle", "gift_card"
-  status         String   @default("draft")  // "draft", "active", "archived", "scheduled"
+  type           String // "simple", "variable", "digital", "downloadable", "service", "subscription", "bundle", "gift_card"
+  status         String @default("draft") // "draft", "active", "archived", "scheduled"
 
   // Descriptions & SEO
   shortDescription String?
@@ -747,40 +796,40 @@ model Product {
   seoKeywords      String?
 
   // Pricing & Cost
-  price           Float
-  compareAtPrice  Float?
-  costPrice       Float?
+  price          Float
+  compareAtPrice Float?
+  costPrice      Float?
 
   // Stock
-  stock           Int      @default(0)
+  stock             Int    @default(0)
   lowStockThreshold Int    @default(10)
-  stockStatus     String   @default("in_stock")
+  stockStatus       String @default("in_stock")
 
   // Attributes
-  weight          Float?
-  taxClass        String?
-  brand           String?
+  weight   Float?
+  taxClass String?
+  brand    String?
 
   // Media
-  featuredImage   String?
-  media           ProductMedia[]
+  featuredImage String?
+  media         ProductMedia[]
 
   // Organization
-  categoryIds     String[] @default([])
-  tags            String[] @default([])
+  categoryIds String[] @default([])
+  tags        String[] @default([])
 
   // Relations
-  variants        ProductVariant[]
-  inventory       Inventory[]
-  orderItems      OrderItem[]
-  reviews         ProductReview[]
+  variants   ProductVariant[]
+  inventory  Inventory[]
+  orderItems OrderItem[]
+  reviews    ProductReview[]
 
   // Timestamps
-  publishedAt     DateTime?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@unique([organizationId, slug])
   @@unique([organizationId, sku])
@@ -790,23 +839,23 @@ model Product {
 }
 
 model ProductVariant {
-  id          String   @id @default(cuid())
-  productId   String
-  sku         String
-  attributes  Json     @default("{}")
+  id         String @id @default(cuid())
+  productId  String
+  sku        String
+  attributes Json   @default("{}")
 
-  price       Float
+  price          Float
   compareAtPrice Float?
-  costPrice   Float?
+  costPrice      Float?
 
-  stock       Int      @default(0)
-  weight      Float?
-  imageUrl    String?
+  stock    Int     @default(0)
+  weight   Float?
+  imageUrl String?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([productId, sku])
   @@index([productId])
@@ -814,24 +863,24 @@ model ProductVariant {
 }
 
 model ProductCategory {
-  id             String   @id @default(cuid())
+  id             String  @id @default(cuid())
   organizationId String
   name           String
   slug           String
   parentId       String?
 
-  description    String?
-  imageUrl       String?
-  status         String   @default("active")
-  sortOrder      Int      @default(0)
+  description String?
+  imageUrl    String?
+  status      String  @default("active")
+  sortOrder   Int     @default(0)
 
-  parent         ProductCategory? @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
-  children       ProductCategory[] @relation("CategoryHierarchy")
+  parent   ProductCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children ProductCategory[] @relation("CategoryHierarchy")
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@unique([organizationId, slug])
   @@index([organizationId])
@@ -840,40 +889,40 @@ model ProductCategory {
 }
 
 model ProductMedia {
-  id          String   @id @default(cuid())
-  productId   String
-  url         String
-  type        String   // "image", "video"
-  alt         String?
-  isPrimary   Boolean  @default(false)
-  sortOrder   Int      @default(0)
+  id        String  @id @default(cuid())
+  productId String
+  url       String
+  type      String // "image", "video"
+  alt       String?
+  isPrimary Boolean @default(false)
+  sortOrder Int     @default(0)
 
-  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId])
   @@map("product_media")
 }
 
 model ProductReview {
-  id             String   @id @default(cuid())
+  id             String @id @default(cuid())
   organizationId String
   productId      String
   customerId     String
 
-  rating         Int
-  title          String?
-  content        String
+  rating  Int
+  title   String?
+  content String
 
-  status         String   @default("pending")
+  status             String  @default("pending")
   isVerifiedPurchase Boolean @default(false)
-  helpfulCount   Int      @default(0)
+  helpfulCount       Int     @default(0)
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  product        Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  customer       StoreCustomer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  product      Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customer     StoreCustomer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
   @@index([organizationId])
   @@index([productId])
@@ -885,19 +934,19 @@ model ProductReview {
 // ════════════════════════════════════════════════════════════════════
 
 model Inventory {
-  id             String   @id @default(cuid())
+  id             String  @id @default(cuid())
   organizationId String
   productId      String
   variantId      String?
 
   warehouseLocation String?
-  stock          Int
-  lastUpdated    DateTime @default(now())
+  stock             Int
+  lastUpdated       DateTime @default(now())
 
-  product        Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  history        InventoryHistory[]
+  product Product            @relation(fields: [productId], references: [id], onDelete: Cascade)
+  history InventoryHistory[]
 
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@unique([organizationId, productId, variantId])
   @@index([organizationId])
@@ -905,14 +954,14 @@ model Inventory {
 }
 
 model InventoryHistory {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   inventoryId String
   quantity    Int
   reason      String
   notes       String?
 
-  inventory   Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
-  createdAt   DateTime  @default(now())
+  inventory Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
 
   @@index([inventoryId])
   @@map("inventory_history")
@@ -923,25 +972,25 @@ model InventoryHistory {
 // ════════════════════════════════════════════════════════════════════
 
 model Order {
-  id             String   @id @default(cuid())
+  id             String @id @default(cuid())
   organizationId String
   orderNumber    String
 
-  customerId     String
-  customerName   String
-  customerEmail  String
-  customerPhone  String?
+  customerId    String
+  customerName  String
+  customerEmail String
+  customerPhone String?
 
-  items          OrderItem[]
+  items OrderItem[]
 
   subtotal       Float
-  discountAmount Float    @default(0)
-  shippingCost   Float    @default(0)
-  taxAmount      Float    @default(0)
+  discountAmount Float @default(0)
+  shippingCost   Float @default(0)
+  taxAmount      Float @default(0)
   total          Float
 
-  currencyCode   String   @default("USD")
-  couponCode     String?
+  currencyCode String  @default("USD")
+  couponCode   String?
 
   shippingAddressId String?
   billingAddressId  String?
@@ -949,26 +998,26 @@ model Order {
   shippingAddress OrderAddress? @relation("OrderShipping", fields: [shippingAddressId], references: [id], onDelete: SetNull)
   billingAddress  OrderAddress? @relation("OrderBilling", fields: [billingAddressId], references: [id], onDelete: SetNull)
 
-  status         String   @default("pending")
-  paymentStatus  String   @default("pending")
+  status        String @default("pending")
+  paymentStatus String @default("pending")
 
   shippingMethod String?
   trackingNumber String?
 
-  timeline       OrderTimeline[]
-  payments       Payment[]
-  refunds        Refund[]
+  timeline OrderTimeline[]
+  payments Payment[]
+  refunds  Refund[]
 
-  notes          String?
+  notes String?
 
-  paidAt         DateTime?
-  shippedAt      DateTime?
-  deliveredAt    DateTime?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  paidAt      DateTime?
+  shippedAt   DateTime?
+  deliveredAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  customer       StoreCustomer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customer     StoreCustomer @relation(fields: [customerId], references: [id], onDelete: Restrict)
 
   @@unique([organizationId, orderNumber])
   @@index([organizationId])
@@ -978,38 +1027,38 @@ model Order {
 }
 
 model OrderItem {
-  id          String   @id @default(cuid())
-  orderId     String
-  productId   String
-  variantId   String?
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  variantId String?
 
   productName String
   sku         String
 
-  quantity    Int
-  unitPrice   Float
-  totalPrice  Float
+  quantity   Int
+  unitPrice  Float
+  totalPrice Float
 
-  imageUrl    String?
+  imageUrl     String?
   variantLabel String?
 
-  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product     Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
 
   @@index([orderId])
   @@map("order_items")
 }
 
 model OrderAddress {
-  id        String   @id @default(cuid())
-  name      String
-  line1     String
-  line2     String?
-  city      String
-  state     String
-  country   String
-  zip       String
-  phone     String?
+  id      String  @id @default(cuid())
+  name    String
+  line1   String
+  line2   String?
+  city    String
+  state   String
+  country String
+  zip     String
+  phone   String?
 
   shippingOrders Order[] @relation("OrderShipping")
   billingOrders  Order[] @relation("OrderBilling")
@@ -1021,39 +1070,39 @@ model OrderAddress {
 }
 
 model OrderTimeline {
-  id        String   @id @default(cuid())
-  orderId   String
-  status    String
-  message   String?
+  id      String  @id @default(cuid())
+  orderId String
+  status  String
+  message String?
 
   createdAt DateTime @default(now())
 
-  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
   @@map("order_timeline")
 }
 
 model Payment {
-  id             String   @id @default(cuid())
+  id             String @id @default(cuid())
   organizationId String
   orderId        String
 
-  amount         Float
-  currency       String   @default("USD")
-  method         String
+  amount   Float
+  currency String @default("USD")
+  method   String
 
-  status         String
-  transactionId  String?
-  receiptUrl     String?
+  status        String
+  transactionId String?
+  receiptUrl    String?
 
-  metadata       Json?
+  metadata Json?
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  order        Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([organizationId])
   @@index([orderId])
@@ -1061,21 +1110,21 @@ model Payment {
 }
 
 model Refund {
-  id             String   @id @default(cuid())
+  id             String @id @default(cuid())
   organizationId String
   orderId        String
 
-  amount         Float
-  reason         String
-  status         String   @default("pending")
+  amount Float
+  reason String
+  status String @default("pending")
 
-  items          RefundItem[]
+  items RefundItem[]
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  order        Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([organizationId])
   @@index([orderId])
@@ -1083,13 +1132,13 @@ model Refund {
 }
 
 model RefundItem {
-  id        String   @id @default(cuid())
-  refundId  String
+  id          String @id @default(cuid())
+  refundId    String
   orderItemId String
-  quantity  Int
-  amount    Float
+  quantity    Int
+  amount      Float
 
-  refund    Refund   @relation(fields: [refundId], references: [id], onDelete: Cascade)
+  refund Refund @relation(fields: [refundId], references: [id], onDelete: Cascade)
 
   @@index([refundId])
   @@map("refund_items")
@@ -1100,37 +1149,37 @@ model RefundItem {
 // ════════════════════════════════════════════════════════════════════
 
 model StoreCustomer {
-  id             String   @id @default(cuid())
+  id             String @id @default(cuid())
   organizationId String
 
-  name           String
-  email          String   @unique
-  phone          String?
-  avatarUrl      String?
+  name      String
+  email     String  @unique
+  phone     String?
+  avatarUrl String?
 
-  status         String   @default("active")
-  tags           String[] @default([])
-  segment        String?
-  isVip          Boolean  @default(false)
+  status  String   @default("active")
+  tags    String[] @default([])
+  segment String?
+  isVip   Boolean  @default(false)
 
-  rewardPoints   Int      @default(0)
-  storeCredit    Float    @default(0)
-  rewardTier     String   @default("bronze")
+  rewardPoints Int    @default(0)
+  storeCredit  Float  @default(0)
+  rewardTier   String @default("bronze")
 
-  totalOrders    Int      @default(0)
-  totalSpent     Float    @default(0)
-  averageOrderValue Float @default(0)
-  lastOrderDate  DateTime?
+  totalOrders       Int       @default(0)
+  totalSpent        Float     @default(0)
+  averageOrderValue Float     @default(0)
+  lastOrderDate     DateTime?
 
-  orders         Order[]
+  orders             Order[]
   creditTransactions StoreCreditTransaction[]
   rewardTransactions RewardPointTransaction[]
-  reviews        ProductReview[]
+  reviews            ProductReview[]
 
-  registeredAt   DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  registeredAt DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@unique([organizationId, email])
   @@index([organizationId])
@@ -1138,18 +1187,18 @@ model StoreCustomer {
 }
 
 model StoreCreditTransaction {
-  id          String   @id @default(cuid())
-  customerId  String
-  amount      Float
-  type        String
-  reason      String
-  orderId     String?
+  id         String  @id @default(cuid())
+  customerId String
+  amount     Float
+  type       String
+  reason     String
+  orderId    String?
 
-  expiresAt   DateTime?
-  createdAt   DateTime @default(now())
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
 
-  customer    StoreCustomer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customer       StoreCustomer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId String
 
   @@index([customerId])
@@ -1157,18 +1206,18 @@ model StoreCreditTransaction {
 }
 
 model RewardPointTransaction {
-  id          String   @id @default(cuid())
-  customerId  String
-  points      Int
-  type        String
-  reason      String
-  orderId     String?
+  id         String  @id @default(cuid())
+  customerId String
+  points     Int
+  type       String
+  reason     String
+  orderId    String?
 
-  expiresAt   DateTime?
-  createdAt   DateTime @default(now())
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
 
-  customer    StoreCustomer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customer       StoreCustomer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId String
 
   @@index([customerId])
@@ -1176,34 +1225,34 @@ model RewardPointTransaction {
 }
 
 model CouponCode {
-  id             String   @id @default(cuid())
+  id             String @id @default(cuid())
   organizationId String
 
-  code           String
-  type           String
-  value          Float
+  code  String
+  type  String
+  value Float
 
-  minimumSpend   Float?
-  maximumDiscount Float?
-  usageLimit     Int?
-  usageCount     Int      @default(0)
+  minimumSpend      Float?
+  maximumDiscount   Float?
+  usageLimit        Int?
+  usageCount        Int    @default(0)
   usageLimitPerUser Int?
 
-  productIds     String[] @default([])
-  categoryIds    String[] @default([])
+  productIds  String[] @default([])
+  categoryIds String[] @default([])
 
-  startsAt       DateTime?
-  expiresAt      DateTime?
-  status         String   @default("active")
+  startsAt  DateTime?
+  expiresAt DateTime?
+  status    String    @default("active")
 
-  freeShipping   Boolean  @default(false)
+  freeShipping Boolean @default(false)
 
-  usages         CouponUsage[]
+  usages CouponUsage[]
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@unique([organizationId, code])
   @@index([organizationId])
@@ -1211,16 +1260,16 @@ model CouponCode {
 }
 
 model CouponUsage {
-  id        String   @id @default(cuid())
-  couponId  String
-  orderId   String
+  id         String @id @default(cuid())
+  couponId   String
+  orderId    String
   customerId String
 
   discountAmount Float
 
   createdAt DateTime @default(now())
 
-  coupon    CouponCode @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  coupon CouponCode @relation(fields: [couponId], references: [id], onDelete: Cascade)
 
   @@index([couponId])
   @@map("coupon_usages")
@@ -1241,37 +1290,37 @@ enum ActivityType {
 // ════════════════════════════════════════════════════════════════════
 
 model AdminSettings {
-  id                         String   @id @default(cuid())
-  siteName                   String   @default("Vyntra")
-  supportEmail               String   @default("support@vyntra.com")
-  logoUrl                    String?
-  faviconUrl                 String?
-  primaryColor               String   @default("#3b82f6")
-  secondaryColor             String   @default("#8b5cf6")
-  accentColor                String   @default("#ec4899")
-  maxOrganizations           Int      @default(1000)
-  maxUsersPerOrganization    Int      @default(500)
-  enableRegistration         Boolean  @default(true)
-  enableSocialAuth           Boolean  @default(false)
-  maintenanceMode            Boolean  @default(false)
+  id                      String  @id @default(cuid())
+  siteName                String  @default("Vyntra")
+  supportEmail            String  @default("support@vyntra.com")
+  logoUrl                 String?
+  faviconUrl              String?
+  primaryColor            String  @default("#3b82f6")
+  secondaryColor          String  @default("#8b5cf6")
+  accentColor             String  @default("#ec4899")
+  maxOrganizations        Int     @default(1000)
+  maxUsersPerOrganization Int     @default(500)
+  enableRegistration      Boolean @default(true)
+  enableSocialAuth        Boolean @default(false)
+  maintenanceMode         Boolean @default(false)
 
   // Email Configuration
-  emailProvider              String?  @default("smtp") // smtp | sendgrid | mailgun
-  smtpConfig                 Json?    // { host, port, secure, username, password, fromEmail }
-  sendgridConfig             Json?    // { apiKey, fromEmail }
-  mailgunConfig              Json?    // { apiKey, domain, fromEmail }
+  emailProvider  String? @default("smtp") // smtp | sendgrid | mailgun
+  smtpConfig     Json? // { host, port, secure, username, password, fromEmail }
+  sendgridConfig Json? // { apiKey, fromEmail }
+  mailgunConfig  Json? // { apiKey, domain, fromEmail }
 
   // Storage Configuration
-  storageProvider            String?  @default("local") // local | s3 | uploadthing | vercel-blob
-  s3Config                   Json?
-  uploadthingConfig          Json?
-  vercelBlobConfig           Json?
+  storageProvider   String? @default("local") // local | s3 | uploadthing | vercel-blob
+  s3Config          Json?
+  uploadthingConfig Json?
+  vercelBlobConfig  Json?
 
   // Internationalization & Localization
-  timezone                   String   @default("UTC") // global timezone setting
+  timezone String @default("UTC") // global timezone setting
 
-  createdAt                  DateTime @default(now())
-  updatedAt                  DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("admin_settings")
 }

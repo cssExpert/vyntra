@@ -78,19 +78,14 @@ function ProductCard({ product }: { product: PublicProduct }) {
 }
 
 export default function ProductListing({ orgId }: { orgId: string }) {
-  const [page, setPage] = useState(1);
   const [categoryId, setCategoryId] = useState<string | undefined>();
   const [brand, setBrand] = useState<string | undefined>();
   const [sort, setSort] = useState<ProductSort>("newest");
 
-  const { categories, facets } = useProductListingFacets(orgId);
+  const { categories, facets, pageSize } = useProductListingFacets(orgId);
 
   const filters: ProductListingFilters = { categoryId, brand, sort };
-  const { products, total, loading, pageCount } = useProductListing(orgId, filters, page);
-
-  function resetPage() {
-    setPage(1);
-  }
+  const { products, total, loading, loadingMore, hasMore, loadMore } = useProductListing(orgId, filters, pageSize);
 
   return (
     <section className="py-12 bg-gray-50 min-h-screen">
@@ -106,7 +101,7 @@ export default function ProductListing({ orgId }: { orgId: string }) {
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-8">
           <div className="flex flex-wrap gap-2 flex-1">
             <button
-              onClick={() => { setCategoryId(undefined); resetPage(); }}
+              onClick={() => setCategoryId(undefined)}
               className={`px-3.5 py-1.5 text-xs font-semibold rounded-full border transition-colors ${
                 !categoryId ? "text-white border-transparent" : "text-gray-600 border-gray-200 bg-white hover:border-gray-300"
               }`}
@@ -117,7 +112,7 @@ export default function ProductListing({ orgId }: { orgId: string }) {
             {categories.map((c) => (
               <button
                 key={c.id}
-                onClick={() => { setCategoryId(c.id); resetPage(); }}
+                onClick={() => setCategoryId(c.id)}
                 className={`px-3.5 py-1.5 text-xs font-semibold rounded-full border transition-colors ${
                   categoryId === c.id ? "text-white border-transparent" : "text-gray-600 border-gray-200 bg-white hover:border-gray-300"
                 }`}
@@ -132,7 +127,7 @@ export default function ProductListing({ orgId }: { orgId: string }) {
             {facets.brands.length > 0 && (
               <select
                 value={brand ?? ""}
-                onChange={(e) => { setBrand(e.target.value || undefined); resetPage(); }}
+                onChange={(e) => setBrand(e.target.value || undefined)}
                 className="text-xs font-medium border border-gray-200 rounded-full px-3 py-1.5 bg-white text-gray-700 focus:outline-none focus:border-gray-400"
               >
                 <option value="">All Brands</option>
@@ -143,7 +138,7 @@ export default function ProductListing({ orgId }: { orgId: string }) {
             )}
             <select
               value={sort}
-              onChange={(e) => { setSort(e.target.value as ProductSort); resetPage(); }}
+              onChange={(e) => setSort(e.target.value as ProductSort)}
               className="text-xs font-medium border border-gray-200 rounded-full px-3 py-1.5 bg-white text-gray-700 focus:outline-none focus:border-gray-400"
             >
               {SORT_OPTIONS.map((o) => (
@@ -169,38 +164,15 @@ export default function ProductListing({ orgId }: { orgId: string }) {
               {products.map((p) => <ProductCard key={p.id} product={p} />)}
             </div>
 
-            {pageCount > 1 && (
-              <div className="flex items-center justify-center gap-1.5 mt-12">
+            {hasMore && (
+              <div className="flex justify-center mt-12">
                 <button
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                  className="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 disabled:opacity-40 hover:border-gray-300"
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  className="px-6 py-2.5 text-sm font-semibold rounded-full text-white transition-opacity disabled:opacity-60"
+                  style={{ backgroundColor: BLUE }}
                 >
-                  ‹
-                </button>
-                {Array.from({ length: pageCount }).map((_, i) => {
-                  const n = i + 1;
-                  return (
-                    <button
-                      key={n}
-                      onClick={() => setPage(n)}
-                      className="w-9 h-9 flex items-center justify-center text-sm font-semibold rounded-full transition-colors"
-                      style={
-                        n === page
-                          ? { backgroundColor: BLUE, color: "white" }
-                          : { color: "#4b5563" }
-                      }
-                    >
-                      {n}
-                    </button>
-                  );
-                })}
-                <button
-                  onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
-                  disabled={page === pageCount}
-                  className="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 disabled:opacity-40 hover:border-gray-300"
-                >
-                  ›
+                  {loadingMore ? "Loading…" : "Load More"}
                 </button>
               </div>
             )}

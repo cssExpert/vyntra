@@ -304,13 +304,12 @@ function DomainTab() {
                   <tr key={i}>
                     <td className="px-3 py-2.5">
                       <span
-                        className={`inline-flex rounded-full px-2 py-0.5 font-mono font-semibold text-[10px] ${
-                          r.type === "A"
+                        className={`inline-flex rounded-full px-2 py-0.5 font-mono font-semibold text-[10px] ${r.type === "A"
                             ? "bg-blue-500/10 text-blue-500"
                             : r.type === "CNAME"
                               ? "bg-purple-500/10 text-purple-500"
                               : "bg-amber-500/10 text-amber-600"
-                        }`}
+                          }`}
                       >
                         {r.type}
                       </span>
@@ -336,13 +335,12 @@ function DomainTab() {
             {dns.dnsRecords.map((r, i) => (
               <p key={i} className="text-[11px] text-muted-foreground">
                 <span
-                  className={`font-semibold ${
-                    r.type === "A"
+                  className={`font-semibold ${r.type === "A"
                       ? "text-blue-500"
                       : r.type === "CNAME"
                         ? "text-purple-500"
                         : "text-amber-600"
-                  }`}
+                    }`}
                 >
                   {r.type} ({r.name})
                 </span>
@@ -400,7 +398,7 @@ function BrandingTab() {
         setFaviconUrl(s.faviconUrl);
         setThemeSwitcherEnabled(s.themeSwitcherEnabled);
       })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
   }, []);
 
@@ -580,7 +578,7 @@ function LanguagesTab() {
         setSelectedLangs(s.siteLanguages?.length ? s.siteLanguages : ["en"]);
         setDefaultLang(s.defaultSiteLanguage || "en");
       })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
   }, []);
 
@@ -660,19 +658,17 @@ function LanguagesTab() {
                 type="button"
                 onClick={() => toggle(lang.code)}
                 disabled={isRequired}
-                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl border text-left transition-all ${
-                  isSelected
+                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl border text-left transition-all ${isSelected
                     ? "border-primary/40 bg-primary/5 text-foreground"
                     : "border-border bg-background text-muted-foreground hover:border-border/80"
-                } ${isRequired ? "opacity-70 cursor-default" : "cursor-pointer"}`}
+                  } ${isRequired ? "opacity-70 cursor-default" : "cursor-pointer"}`}
               >
                 {/* Checkbox indicator */}
                 <span
-                  className={`flex-shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${
-                    isSelected
+                  className={`flex-shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${isSelected
                       ? "border-primary bg-primary"
                       : "border-muted-foreground/40"
-                  }`}
+                    }`}
                 >
                   {isSelected && (
                     <svg
@@ -723,11 +719,10 @@ function LanguagesTab() {
                 key={lang.code}
                 type="button"
                 onClick={() => setDefaultLang(lang.code)}
-                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border text-left transition-all ${
-                  isDefault
+                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border text-left transition-all ${isDefault
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-border bg-background text-foreground hover:border-primary/40"
-                }`}
+                  }`}
               >
                 <span className="text-base leading-none">{lang.flag}</span>
                 <span className="text-xs font-semibold">{lang.name}</span>
@@ -783,11 +778,10 @@ export function CmsSettingsView() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-all -mb-px ${
-              activeTab === tab.id
+            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-all -mb-px ${activeTab === tab.id
                 ? "border-primary text-primary"
                 : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
-            }`}
+              }`}
           >
             {tab.label}
           </button>

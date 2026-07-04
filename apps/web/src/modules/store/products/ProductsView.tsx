@@ -3,12 +3,17 @@
 import { useTranslations } from "next-intl";
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Settings2 } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { PageSettingsPanel } from "@/components/common/PageSettingsPanel";
 import { ProductsHeader, type ProductTabId } from "./components/ProductsHeader";
 import { ProductsToolbar } from "./components/ProductsToolbar";
 import { ProductsTable } from "./components/ProductsTable";
 import { storeProducts, type ApiProduct } from "@/lib/api";
+import { useAuth } from "@/providers/AuthProvider";
 import type { StoreProduct } from "../store.types";
+
+const PAGE_SETTINGS_ROLES = ["ORG_ADMIN", "EDITOR"];
 
 function mapApiProduct(p: ApiProduct): StoreProduct {
   return {
@@ -55,6 +60,7 @@ function mapApiProduct(p: ApiProduct): StoreProduct {
 
 export function ProductsView() {
   const t = useTranslations("store.products");
+  const { user, hasModule } = useAuth();
 
   const [products,   setProducts]   = useState<StoreProduct[]>([]);
   const [isLoading,  setIsLoading]  = useState(true);
@@ -64,6 +70,12 @@ export function ProductsView() {
   const [typeFilter, setTypeFilter] = useState("");
   const [stockFilter, setStockFilter] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [pageSettingsOpen, setPageSettingsOpen] = useState(false);
+
+  const canManagePageSettings =
+    hasModule("CMS") &&
+    !!user?.organizationId &&
+    (user.superAdmin || user.roles.some((r) => PAGE_SETTINGS_ROLES.includes(r)));
 
   useEffect(() => {
     document.documentElement.style.overflow = "hidden";
@@ -164,7 +176,29 @@ export function ProductsView() {
           title={t("title")}
           description={t("description")}
           breadcrumbs={[{ label: "Store", href: "/store" }, { label: t("title") }]}
-        />
+        >
+          {canManagePageSettings && (
+            <button
+              onClick={() => setPageSettingsOpen(true)}
+              className="flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            >
+              <Settings2 className="w-3.5 h-3.5" />
+              Page Settings
+            </button>
+          )}
+        </PageHeader>
+
+        {canManagePageSettings && (
+          <PageSettingsPanel
+            open={pageSettingsOpen}
+            onClose={() => setPageSettingsOpen(false)}
+            pageType="product-listing"
+            label="Product Listing"
+            pagePath="/products"
+            companyId={user!.organizationId!}
+            module="store"
+          />
+        )}
 
         <ProductsHeader
           total={products.length}

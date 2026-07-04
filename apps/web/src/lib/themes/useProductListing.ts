@@ -1,8 +1,4 @@
-// Product grid is dummy/static for now (see DUMMY_PRODUCTS below) — swap back to
-// live API calls once the /products system page is ready. Filters (categories,
-// brands, price range) already hit the real public storefront endpoints.
-
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
@@ -40,7 +36,7 @@ export interface ProductListingFilters {
   sort: ProductSort;
 }
 
-const PAGE_SIZE = 12;
+const DEFAULT_PAGE_SIZE = 12;
 
 async function getJson<T>(url: string): Promise<T> {
   const res = await fetch(url, { cache: "no-store" });
@@ -48,25 +44,11 @@ async function getJson<T>(url: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-const DUMMY_PRODUCTS: PublicProduct[] = [
-  { id: "p1", name: "Classic Cotton Crew Tee", slug: "classic-cotton-crew-tee", price: 24.99, compareAtPrice: 34.99, featuredImage: null, brand: "Acme", stockStatus: "in_stock" },
-  { id: "p2", name: "Relaxed Fit Denim Jacket", slug: "relaxed-fit-denim-jacket", price: 89.0, compareAtPrice: null, featuredImage: null, brand: "Northwind", stockStatus: "in_stock" },
-  { id: "p3", name: "High-Waist Wide Leg Trousers", slug: "high-waist-wide-leg-trousers", price: 54.5, compareAtPrice: 69.0, featuredImage: null, brand: "Contoso", stockStatus: "in_stock" },
-  { id: "p4", name: "Everyday Leather Tote", slug: "everyday-leather-tote", price: 129.0, compareAtPrice: null, featuredImage: null, brand: "Acme", stockStatus: "out_of_stock" },
-  { id: "p5", name: "Minimalist Wool Overcoat", slug: "minimalist-wool-overcoat", price: 199.0, compareAtPrice: 249.0, featuredImage: null, brand: "Northwind", stockStatus: "in_stock" },
-  { id: "p6", name: "Silk Blend Scarf", slug: "silk-blend-scarf", price: 34.0, compareAtPrice: null, featuredImage: null, brand: "Contoso", stockStatus: "in_stock" },
-  { id: "p7", name: "Slim Fit Chino Pants", slug: "slim-fit-chino-pants", price: 44.99, compareAtPrice: 59.99, featuredImage: null, brand: "Acme", stockStatus: "in_stock" },
-  { id: "p8", name: "Canvas Low-Top Sneakers", slug: "canvas-low-top-sneakers", price: 64.0, compareAtPrice: null, featuredImage: null, brand: "Northwind", stockStatus: "in_stock" },
-  { id: "p9", name: "Ribbed Knit Beanie", slug: "ribbed-knit-beanie", price: 18.0, compareAtPrice: 24.0, featuredImage: null, brand: "Contoso", stockStatus: "in_stock" },
-  { id: "p10", name: "Oversized Hooded Sweatshirt", slug: "oversized-hooded-sweatshirt", price: 49.0, compareAtPrice: null, featuredImage: null, brand: "Acme", stockStatus: "in_stock" },
-  { id: "p11", name: "Polarized Aviator Sunglasses", slug: "polarized-aviator-sunglasses", price: 39.0, compareAtPrice: 55.0, featuredImage: null, brand: "Northwind", stockStatus: "out_of_stock" },
-  { id: "p12", name: "Structured Baseball Cap", slug: "structured-baseball-cap", price: 22.0, compareAtPrice: null, featuredImage: null, brand: "Contoso", stockStatus: "in_stock" },
-];
-
-/** Category list + brand/price facets for the filter sidebar — live, from the real catalog. */
+/** Category list + brand/price facets for the filter sidebar, plus the org's configured page size — live, from the real catalog. */
 export function useProductListingFacets(orgId: string) {
   const [categories, setCategories] = useState<PublicCategory[]>([]);
   const [facets, setFacets] = useState<ProductFacets>({ brands: [], priceRange: { min: 0, max: 0 } });
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -74,39 +56,82 @@ export function useProductListingFacets(orgId: string) {
     Promise.all([
       getJson<{ data: PublicCategory[] }>(`${API}/public/sites/${orgId}/categories`),
       getJson<ProductFacets>(`${API}/public/sites/${orgId}/products/facets`),
+      getJson<{ pageSize: number }>(`${API}/public/sites/${orgId}/products/page-size`),
     ])
-      .then(([cats, f]) => {
+      .then(([cats, f, ps]) => {
         if (cancelled) return;
         setCategories(cats.data);
         setFacets(f);
+        setPageSize(ps.pageSize);
       })
       .catch(() => {})
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [orgId]);
 
-  return { categories, facets, loading };
+  return { categories, facets, pageSize, loading };
 }
 
-/** Paginated, filtered, sorted product listing for the shop page — static for now. */
-export function useProductListing(_orgId: string, filters: ProductListingFilters, page: number) {
-  const filtered = DUMMY_PRODUCTS
-    .filter((p) => !filters.brand || p.brand === filters.brand)
-    .sort((a, b) => {
-      if (filters.sort === "price_asc") return a.price - b.price;
-      if (filters.sort === "price_desc") return b.price - a.price;
-      return 0;
-    });
+/** Filtered, sorted, "load more"-paginated product listing for the shop page — backed by the live catalog (active products only, enforced server-side). */
+export function useProductListing(orgId: string, filters: ProductListingFilters, pageSize: number = DEFAULT_PAGE_SIZE) {
+  const { categoryId, brand, minPrice, maxPrice, sort } = filters;
 
-  const total = filtered.length;
-  const start = (page - 1) * PAGE_SIZE;
-  const products = filtered.slice(start, start + PAGE_SIZE);
+  const [products, setProducts] = useState<PublicProduct[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const skipRef = useRef(0);
+
+  function buildQs(skip: number) {
+    const qs = new URLSearchParams({ skip: String(skip), take: String(pageSize), sort });
+    if (categoryId) qs.set("categoryId", categoryId);
+    if (brand) qs.set("brand", brand);
+    if (minPrice != null) qs.set("minPrice", String(minPrice));
+    if (maxPrice != null) qs.set("maxPrice", String(maxPrice));
+    return qs;
+  }
+
+  useEffect(() => {
+    let cancelled = false;
+    skipRef.current = 0;
+    setLoading(true);
+    getJson<{ data: PublicProduct[]; total: number }>(
+      `${API}/public/sites/${orgId}/products?${buildQs(0)}`,
+    )
+      .then(({ data, total: t }) => {
+        if (cancelled) return;
+        setProducts(data);
+        setTotal(t);
+      })
+      .catch(() => { if (!cancelled) { setProducts([]); setTotal(0); } })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orgId, categoryId, brand, minPrice, maxPrice, sort, pageSize]);
+
+  async function loadMore() {
+    const nextSkip = skipRef.current + pageSize;
+    setLoadingMore(true);
+    try {
+      const { data, total: t } = await getJson<{ data: PublicProduct[]; total: number }>(
+        `${API}/public/sites/${orgId}/products?${buildQs(nextSkip)}`,
+      );
+      skipRef.current = nextSkip;
+      setProducts((prev) => [...prev, ...data]);
+      setTotal(t);
+    } catch {
+      // keep existing products; user can retry via the Load More button
+    } finally {
+      setLoadingMore(false);
+    }
+  }
 
   return {
     products,
     total,
-    loading: false,
-    pageSize: PAGE_SIZE,
-    pageCount: Math.max(1, Math.ceil(total / PAGE_SIZE)),
+    loading,
+    loadingMore,
+    hasMore: products.length < total,
+    loadMore,
   };
 }

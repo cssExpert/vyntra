@@ -126,7 +126,6 @@ function CheckboxRow({ label, count, checked, onChange }: { label: string; count
 }
 
 export default function ProductListing({ orgId }: { orgId: string }) {
-  const [page, setPage] = useState(1);
   const [categoryId, setCategoryId] = useState<string | undefined>();
   const [brand, setBrand] = useState<string | undefined>();
   const [priceMax, setPriceMax] = useState<number | undefined>();
@@ -134,7 +133,7 @@ export default function ProductListing({ orgId }: { orgId: string }) {
   const [view, setView] = useState<"grid" | "list">("grid");
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const { categories, facets, loading: facetsLoading } = useProductListingFacets(orgId);
+  const { categories, facets, pageSize, loading: facetsLoading } = useProductListingFacets(orgId);
 
   const filters: ProductListingFilters = {
     categoryId,
@@ -142,11 +141,7 @@ export default function ProductListing({ orgId }: { orgId: string }) {
     maxPrice: priceMax,
     sort,
   };
-  const { products, total, loading, pageCount } = useProductListing(orgId, filters, page);
-
-  function resetPage() {
-    setPage(1);
-  }
+  const { products, total, loading, loadingMore, hasMore, loadMore } = useProductListing(orgId, filters, pageSize);
 
   return (
     <section className="py-8 bg-white dark:bg-[#121214] min-h-screen">
@@ -198,7 +193,7 @@ export default function ProductListing({ orgId }: { orgId: string }) {
                             key={c.id}
                             label={c.name}
                             checked={categoryId === c.id}
-                            onChange={() => { setCategoryId(categoryId === c.id ? undefined : c.id); resetPage(); }}
+                            onChange={() => setCategoryId(categoryId === c.id ? undefined : c.id)}
                           />
                         ))}
                       </ul>
@@ -214,7 +209,7 @@ export default function ProductListing({ orgId }: { orgId: string }) {
                             key={b}
                             label={b}
                             checked={brand === b}
-                            onChange={() => { setBrand(brand === b ? undefined : b); resetPage(); }}
+                            onChange={() => setBrand(brand === b ? undefined : b)}
                           />
                         ))}
                       </ul>
@@ -231,7 +226,7 @@ export default function ProductListing({ orgId }: { orgId: string }) {
                     min={facets.priceRange.min}
                     max={facets.priceRange.max}
                     value={priceMax ?? facets.priceRange.max}
-                    onChange={(e) => { setPriceMax(Number(e.target.value)); resetPage(); }}
+                    onChange={(e) => setPriceMax(Number(e.target.value))}
                     className="w-full accent-[#e4611e]"
                   />
                   <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -282,7 +277,7 @@ export default function ProductListing({ orgId }: { orgId: string }) {
                   <span className="text-sm text-gray-500 dark:text-gray-400">Sort By</span>
                   <select
                     value={sort}
-                    onChange={(e) => { setSort(e.target.value as ProductSort); resetPage(); }}
+                    onChange={(e) => setSort(e.target.value as ProductSort)}
                     className="text-sm border border-gray-300 dark:border-gray-600 rounded px-3 py-1.5 bg-white dark:bg-[#1c1c1e] text-gray-800 dark:text-gray-200 focus:outline-none"
                   >
                     {SORT_OPTIONS.map((o) => (
@@ -311,39 +306,16 @@ export default function ProductListing({ orgId }: { orgId: string }) {
               </div>
             )}
 
-            {/* Pagination */}
-            {!loading && products.length > 0 && pageCount > 1 && (
-              <div className="flex flex-wrap items-center justify-center gap-1.5 mt-10">
+            {/* Load more */}
+            {!loading && products.length > 0 && hasMore && (
+              <div className="flex justify-center mt-10">
                 <button
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                  className="px-3 py-1.5 text-sm rounded border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 disabled:opacity-40 hover:border-gray-400"
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  className="px-6 py-2.5 text-sm font-semibold rounded text-white transition-opacity disabled:opacity-60"
+                  style={{ backgroundColor: ORANGE }}
                 >
-                  Previous
-                </button>
-                {Array.from({ length: pageCount }).map((_, i) => {
-                  const n = i + 1;
-                  return (
-                    <button
-                      key={n}
-                      onClick={() => setPage(n)}
-                      className="w-8 h-8 text-sm rounded font-semibold transition-colors"
-                      style={
-                        n === page
-                          ? { backgroundColor: ORANGE, color: "white" }
-                          : undefined
-                      }
-                    >
-                      {n}
-                    </button>
-                  );
-                })}
-                <button
-                  onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
-                  disabled={page === pageCount}
-                  className="px-3 py-1.5 text-sm rounded border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 disabled:opacity-40 hover:border-gray-400"
-                >
-                  Next
+                  {loadingMore ? "Loading…" : "Load More"}
                 </button>
               </div>
             )}
