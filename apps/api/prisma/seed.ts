@@ -7,6 +7,33 @@ const prisma = new PrismaClient();
 // Default dev password for all seeded accounts. Override via SEED_PASSWORD.
 const PASSWORD = process.env.SEED_PASSWORD ?? "ChangeMe123!";
 
+function slugifyTag(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
+// Mirrors TagsService.syncAssignments (apps/api/src/tags/tags.service.ts) —
+// the seed script talks to Prisma directly rather than the Nest app, so the
+// same find-or-create + replace-assignments logic is duplicated here.
+async function syncTags(organizationId: string, entityType: string, entityId: string, tagNames: string[]) {
+  const uniqueNames = [...new Set(tagNames.map((n) => n.trim()).filter(Boolean))];
+  const tagIds: string[] = [];
+  for (const name of uniqueNames) {
+    const slug = slugifyTag(name);
+    let tag = await prisma.tag.findFirst({ where: { organizationId, slug } });
+    if (!tag) {
+      tag = await prisma.tag.create({ data: { name, slug, organizationId } });
+    }
+    tagIds.push(tag.id);
+  }
+  await prisma.tagAssignment.deleteMany({ where: { organizationId, entityType, entityId } });
+  if (tagIds.length > 0) {
+    await prisma.tagAssignment.createMany({
+      data: tagIds.map((tagId) => ({ tagId, entityType, entityId, organizationId })),
+      skipDuplicates: true,
+    });
+  }
+}
+
 async function main() {
   const passwordHash = await bcrypt.hash(PASSWORD, 10);
 
@@ -385,6 +412,479 @@ async function main() {
       create: { ...p, organizationId: org.id, published: true, publishedAt: new Date("2026-01-01") },
     });
   }
+
+  // ── CMS Blog Categories for Acme Corp ────────────────────
+  const blogCategoryNames = ["Technology", "Engineering", "Design", "Product", "Marketing", "Career", "Tutorials", "News"];
+  for (const name of blogCategoryNames) {
+    const slug = name.toLowerCase();
+    await prisma.blogCategory.upsert({
+      where: { organizationId_slug: { organizationId: org.id, slug } },
+      update: { name },
+      create: { name, slug, organizationId: org.id },
+    });
+  }
+
+  // ── CMS Blogs for Acme Corp — 20 posts covering every field the editor
+  // exposes: rich HTML body, cover image, tags (shared catalog), categories,
+  // SEO fields, author, and every published/visibility/featured combination.
+  const PRESET_COVERS = [
+    "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
+  ];
+
+  const blogs = [
+    {
+      slug: "10-must-have-tools-for-modern-saas-founders",
+      title: "10 Must-Have Tools for Modern SaaS Founders in 2026",
+      subtitle: "The stack we'd rebuild Acme with, if we started today.",
+      excerpt: "From billing to analytics, here's the toolkit we actually rely on to run a lean, fast-moving SaaS business.",
+      body: "<h2>Why the Stack Matters</h2><p>Every founder eventually learns that the tools you pick early on either compound your speed or quietly tax it for years. After three years of building Acme, we've settled on a stack that stays out of our way.</p><h2>The Shortlist</h2><ul><li><strong>Billing:</strong> Usage-based pricing engines that don't require an engineering sprint to change a plan</li><li><strong>Analytics:</strong> Product analytics wired directly into your onboarding funnel, not bolted on after launch</li><li><strong>Support:</strong> A shared inbox that doesn't feel like a ticketing system</li><li><strong>Docs:</strong> Documentation that ships from the same repo as your code</li></ul><p>None of these are glamorous. That's the point — boring infrastructure lets you spend your attention on the product.</p>",
+      category: ["Product", "Technology"],
+      tags: ["saas", "startups", "productivity"],
+      author: "Acme Editor",
+      seoTitle: "10 Must-Have Tools for Modern SaaS Founders (2026)",
+      metaDesc: "The exact tools we use to run Acme Corp — billing, analytics, support, and docs — without slowing the team down.",
+      keywords: "saas tools, founder stack, startup tools",
+      publishedAt: "2026-01-12",
+      isFeatured: true,
+      allowComments: true,
+      visibility: "public",
+    },
+    {
+      slug: "redesigning-our-dashboard-template-for-conversions",
+      title: "How We Redesigned Our Dashboard Template for Better Conversions",
+      subtitle: "A/B tests, heatmaps, and the small changes that moved the needle.",
+      excerpt: "We rebuilt our best-selling dashboard template's landing page and saw a 34% lift in trial signups. Here's what changed.",
+      body: "<h2>Starting With Data</h2><p>Before touching a single pixel, we pulled six months of session recordings for our Premium SaaS Dashboard Template product page. The pattern was obvious: visitors were bouncing before reaching the feature list.</p><h2>What We Changed</h2><ul><li>Moved the live preview above the fold</li><li>Replaced a wall of text with a scannable feature grid</li><li>Added a comparison table against 'building it yourself'</li></ul><p>The result was a 34% lift in trial signups within four weeks, with no change to the underlying product.</p>",
+      category: ["Design", "Product"],
+      tags: ["design-systems", "ux", "dashboard"],
+      author: "Acme Editor",
+      seoTitle: "Redesigning a SaaS Dashboard Template for Conversions",
+      metaDesc: "How a data-driven redesign of our dashboard template's landing page lifted trial signups by 34%.",
+      keywords: "conversion design, ux, landing page redesign",
+      publishedAt: "2026-01-28",
+      isFeatured: false,
+      allowComments: true,
+      visibility: "public",
+    },
+    {
+      slug: "complete-guide-to-subscription-pricing-models",
+      title: "The Complete Guide to Subscription Pricing Models",
+      subtitle: "Flat-rate, usage-based, and everything in between.",
+      excerpt: "A practical breakdown of the pricing models available to digital product businesses, and when to use each.",
+      body: "<h2>There's No One Right Model</h2><p>Every pricing model trades simplicity for precision. Flat-rate plans are easy to explain but leave money on the table with your heaviest users. Usage-based pricing captures value but adds billing complexity.</p><h2>A Quick Framework</h2><ul><li><strong>Flat-rate:</strong> best for early-stage products with unclear usage patterns</li><li><strong>Tiered:</strong> best once you have 2–3 distinct customer segments</li><li><strong>Usage-based:</strong> best when your cost to serve scales with customer usage</li></ul><p>We run our Annual Growth Plan as a tiered model precisely because our customers' needs vary so widely by team size.</p>",
+      category: ["Marketing", "Product"],
+      tags: ["pricing", "subscriptions", "saas"],
+      author: "Acme Admin",
+      seoTitle: "The Complete Guide to Subscription Pricing Models",
+      metaDesc: "Flat-rate, tiered, and usage-based pricing explained — with a simple framework for choosing the right one.",
+      keywords: "pricing models, subscription pricing, saas pricing",
+      publishedAt: "2026-02-05",
+      isFeatured: false,
+      allowComments: true,
+      visibility: "public",
+    },
+    {
+      slug: "why-we-switched-to-a-component-driven-design-system",
+      title: "Why We Switched to a Component-Driven Design System",
+      subtitle: "Six months in, here's what actually changed for the team.",
+      excerpt: "Consolidating around a single component library cut our design-to-ship time nearly in half.",
+      body: "<h2>The Problem</h2><p>Before our design system, every new feature meant re-deciding what a button, a modal, and a data table should look like. Small inconsistencies piled up across the product.</p><h2>What We Built</h2><p>We standardized on a token-based system — colors, spacing, and typography defined once and consumed everywhere — paired with a documented component library in Storybook.</p><h2>The Payoff</h2><p>New features now ship in days instead of weeks, and our UI Component Bundle product exists because we productized exactly this system for other teams.</p>",
+      category: ["Engineering", "Design"],
+      tags: ["design-systems", "engineering-culture"],
+      author: "Acme Editor",
+      seoTitle: "Why We Adopted a Component-Driven Design System",
+      metaDesc: "How standardizing on a token-based design system cut our design-to-ship time in half.",
+      keywords: "design systems, component library, storybook",
+      publishedAt: "2026-02-19",
+      isFeatured: false,
+      allowComments: true,
+      visibility: "public",
+    },
+    {
+      slug: "seo-in-2026-what-actually-moves-the-needle",
+      title: "SEO in 2026: What Actually Moves the Needle",
+      subtitle: "Less checklist theater, more of what actually ranks.",
+      excerpt: "We audited 40 client sites this year. Here's what separated the ones that ranked from the ones that didn't.",
+      body: "<h2>Beyond the Checklist</h2><p>Technical SEO checklists (like the one we sell) matter, but they're table stakes. What separated top performers in our audits was content depth and genuine topical authority.</p><h2>What Actually Worked</h2><ul><li>Consolidating thin pages into comprehensive guides</li><li>Internal linking that reflects genuine topical clusters, not just keyword stuffing</li><li>Core Web Vitals fixes that also improved bounce rate, not just Lighthouse scores</li></ul><p>If you want the full 150-point breakdown, our SEO Audit Checklist covers it — but start with content depth first.</p>",
+      category: ["Marketing", "Tutorials"],
+      tags: ["seo", "marketing", "content-strategy"],
+      author: "Acme Admin",
+      seoTitle: "SEO in 2026: What Actually Moves the Needle",
+      metaDesc: "What 40 client SEO audits taught us about what actually drives rankings in 2026.",
+      keywords: "seo 2026, seo audit, content strategy",
+      publishedAt: "2026-03-02",
+      isFeatured: true,
+      allowComments: false,
+      visibility: "public",
+    },
+    {
+      slug: "building-a-remote-first-engineering-culture",
+      title: "Building a Remote-First Engineering Culture",
+      subtitle: "No offices, no time zone overlap requirements, no problem.",
+      excerpt: "Our engineering team spans nine time zones. Here's how we keep it functioning without daily standups.",
+      body: "<h2>Async by Default</h2><p>We don't require synchronous meetings for most decisions. Every proposal starts as a written document, gets asynchronous feedback for 48 hours, and only escalates to a call if there's genuine disagreement.</p><h2>What Makes It Work</h2><ul><li>Clear written decision records so context never lives only in someone's head</li><li>Overlap windows are recommended, not mandated</li><li>Documentation is treated as a first-class deliverable, not an afterthought</li></ul><p>It's slower for any single decision, but faster in aggregate because nobody is blocked waiting on a meeting.</p>",
+      category: ["Career", "Engineering"],
+      tags: ["remote-work", "engineering-culture", "productivity"],
+      author: "Acme Editor",
+      seoTitle: "Building a Remote-First Engineering Culture",
+      metaDesc: "How a nine-timezone engineering team stays productive without daily standups.",
+      keywords: "remote work, engineering culture, async work",
+      publishedAt: "2026-03-15",
+      isFeatured: false,
+      allowComments: true,
+      visibility: "members",
+    },
+    {
+      slug: "5-lessons-from-selling-digital-products-for-3-years",
+      title: "5 Lessons From Selling Digital Products for 3 Years",
+      subtitle: "What we got wrong before we got it right.",
+      excerpt: "Templates, checklists, component bundles — three years of selling digital products taught us these five lessons.",
+      body: "<h2>1. Support Is the Product</h2><p>Buyers of digital products aren't paying for a file — they're paying for confidence that it'll work. Fast, generous support drives more repeat purchases than any feature.</p><h2>2. Bundle Later, Not First</h2><p>We launched bundles too early, before individual products had proven demand on their own. Validate first, bundle second.</p><h2>3–5: Pricing, Packaging, and Updates</h2><p>Round-number pricing outperforms psychological pricing for B2B digital goods, clear licensing terms reduce refund requests, and lifetime free updates are cheaper to promise than they sound.</p>",
+      category: ["Product", "Marketing"],
+      tags: ["ecommerce", "startups", "productivity"],
+      author: "Acme Admin",
+      seoTitle: "5 Lessons From 3 Years Selling Digital Products",
+      metaDesc: "Real lessons from three years of selling templates, checklists, and component bundles online.",
+      keywords: "digital products, ecommerce lessons, selling online",
+      publishedAt: "2026-03-27",
+      isFeatured: false,
+      allowComments: true,
+      visibility: "public",
+    },
+    {
+      slug: "beginners-guide-to-headless-commerce",
+      title: "A Beginner's Guide to Headless Commerce",
+      subtitle: "What it is, when you need it, and when you don't.",
+      excerpt: "Headless commerce isn't required for every store — here's how to tell if it's actually the right call for you.",
+      body: "<h2>What 'Headless' Actually Means</h2><p>Headless commerce separates your storefront's front end from the commerce backend that handles products, carts, and checkout. You get flexibility in exchange for more moving parts.</p><h2>When You Need It</h2><ul><li>You need a genuinely custom storefront experience your platform's templates can't support</li><li>You're selling across multiple channels (web, app, in-store) from one product catalog</li></ul><h2>When You Don't</h2><p>If a themed storefront meets your needs, headless adds engineering overhead without a clear payoff. Start simple, migrate when the constraint is real.</p>",
+      category: ["Technology", "Tutorials"],
+      tags: ["headless-commerce", "ecommerce", "engineering-culture"],
+      author: "Acme Editor",
+      seoTitle: "A Beginner's Guide to Headless Commerce",
+      metaDesc: "When headless commerce is worth the engineering overhead, and when a themed storefront is enough.",
+      keywords: "headless commerce, ecommerce architecture",
+      publishedAt: "2026-04-03",
+      isFeatured: false,
+      allowComments: true,
+      visibility: "public",
+    },
+    {
+      slug: "how-to-price-your-first-digital-product",
+      title: "How to Price Your First Digital Product",
+      subtitle: "A simple starting framework, not a spreadsheet of formulas.",
+      excerpt: "Pricing your first template or download doesn't need to be complicated. Here's where we'd start today.",
+      body: "<h2>Start With Comparables</h2><p>Find three similar products already selling successfully and price within their range. You can always adjust later — you can't easily recover from a launch that's priced so far off-market that nobody clicks.</p><h2>Anchor With a Compare-At Price</h2><p>A visible discount from a higher list price consistently outperforms an unanchored 'fair' price, even when the underlying value is identical.</p><p>Once you have real sales data, revisit pricing quarterly rather than constantly — frequent changes erode buyer trust.</p>",
+      category: ["Marketing", "Product"],
+      tags: ["pricing", "ecommerce", "startups"],
+      author: "Acme Admin",
+      seoTitle: "How to Price Your First Digital Product",
+      metaDesc: "A simple, practical framework for pricing your first digital product or template.",
+      keywords: "digital product pricing, pricing strategy",
+      publishedAt: "2026-04-14",
+      isFeatured: false,
+      allowComments: true,
+      visibility: "public",
+    },
+    {
+      slug: "the-hidden-cost-of-poor-onboarding",
+      title: "The Hidden Cost of Poor Onboarding",
+      subtitle: "Churn shows up in month two, but it starts on day one.",
+      excerpt: "Most churn isn't a pricing problem or a feature gap — it's an onboarding problem that surfaces weeks later.",
+      body: "<h2>The Symptom Isn't the Cause</h2><p>When customers churn in month two citing 'not enough value,' the real story is usually that they never reached their first meaningful outcome in week one.</p><h2>What We Fixed</h2><ul><li>Replaced a generic welcome email with a checklist tied to a specific first win</li><li>Added in-app prompts at the exact point users historically got stuck</li><li>Shortened time-to-first-value from nine days to under two</li></ul><p>Retention improved more from this than from any feature we shipped that quarter.</p>",
+      category: ["Product", "Design"],
+      tags: ["onboarding", "ux", "productivity"],
+      author: "Acme Editor",
+      seoTitle: "The Hidden Cost of Poor Onboarding",
+      metaDesc: "Why churn that shows up in month two is usually an onboarding problem from day one.",
+      keywords: "onboarding, customer retention, churn",
+      publishedAt: "2026-04-25",
+      isFeatured: false,
+      allowComments: true,
+      visibility: "public",
+    },
+    {
+      slug: "our-journey-to-multi-tenant-architecture",
+      title: "Our Journey to Multi-Tenant Architecture",
+      subtitle: "Rebuilding the foundation without stopping the business.",
+      excerpt: "Migrating from single-tenant to multi-tenant infrastructure while staying live — the hard parts nobody tells you about.",
+      body: "<h2>Why We Migrated</h2><p>Running a separate database per customer worked at ten customers. At two hundred, every schema change became a coordination problem across every tenant.</p><h2>The Hard Parts</h2><ul><li>Backfilling organizationId across every table without downtime</li><li>Rewriting every query to scope by tenant, and testing that isolation actually holds</li><li>Migrating customer data in batches during off-peak hours over several weeks</li></ul><p>Eighteen months later, shipping a schema change takes minutes instead of days.</p>",
+      category: ["Engineering", "Technology"],
+      tags: ["multi-tenant", "engineering-culture", "startups"],
+      author: "Acme Admin",
+      seoTitle: "Our Journey to Multi-Tenant Architecture",
+      metaDesc: "How we migrated from single-tenant to multi-tenant infrastructure without stopping the business.",
+      keywords: "multi-tenant architecture, saas infrastructure",
+      publishedAt: "2026-05-06",
+      isFeatured: true,
+      allowComments: true,
+      visibility: "public",
+    },
+    {
+      slug: "design-systems-101-getting-buy-in-from-your-team",
+      title: "Design Systems 101: Getting Buy-In From Your Team",
+      subtitle: "The technical work is the easy part.",
+      excerpt: "The hardest part of adopting a design system isn't building it — it's getting engineers and designers to actually use it.",
+      body: "<h2>Start Small and Prove Value</h2><p>Don't propose a company-wide design system rollout on day one. Rebuild one high-visibility screen with the new components and let the before/after speak for itself.</p><h2>Make Adoption the Easy Path</h2><p>If using the design system is slower than writing custom CSS, people won't use it — no matter how good the documentation is. Invest in tooling that makes the right choice the fast choice.</p><p>Buy-in follows usage, not the other way around.</p>",
+      category: ["Design", "Career"],
+      tags: ["design-systems", "engineering-culture", "leadership"],
+      author: "Acme Editor",
+      seoTitle: "Design Systems 101: Getting Team Buy-In",
+      metaDesc: "How to get engineers and designers to actually adopt a design system, not just tolerate it.",
+      keywords: "design systems, team buy-in, adoption",
+      publishedAt: "2026-05-18",
+      isFeatured: false,
+      allowComments: true,
+      visibility: "public",
+    },
+    {
+      slug: "what-we-learned-shipping-50-themes",
+      title: "What We Learned Shipping 50 Themes",
+      subtitle: "Patterns that held up, and a few that didn't.",
+      excerpt: "Fifty storefront themes later, a few hard-won lessons about what makes a theme actually usable by non-developers.",
+      body: "<h2>Constraints Are a Feature</h2><p>Our most successful themes had fewer configuration options, not more. Unlimited flexibility sounds appealing but overwhelms non-technical buyers.</p><h2>Defaults Matter More Than Options</h2><p>Most buyers never touch advanced settings. A theme that looks great with zero configuration outperforms one that looks great only after an hour of tweaking.</p><p>We now design every new theme around a single confident default, with customization as the exception rather than the expectation.</p>",
+      category: ["Engineering", "Product"],
+      tags: ["design-systems", "productivity", "ecommerce"],
+      author: "Acme Admin",
+      seoTitle: "What We Learned Shipping 50 Storefront Themes",
+      metaDesc: "Hard-won lessons from building 50 storefront themes — why fewer options beat more flexibility.",
+      keywords: "theme design, storefront themes, product lessons",
+      publishedAt: "2026-05-29",
+      isFeatured: false,
+      allowComments: true,
+      visibility: "public",
+    },
+    {
+      slug: "the-creator-economy-trends-to-watch-this-year",
+      title: "The Creator Economy: Trends to Watch This Year",
+      subtitle: "Where independent sellers are actually winning right now.",
+      excerpt: "From micro-niches to bundled memberships, here's what's actually working for independent digital creators in 2026.",
+      body: "<h2>Micro-Niches Are Outperforming Broad Catalogs</h2><p>Sellers focused tightly on one audience — say, freelance illustrators, not 'designers' broadly — are converting at higher rates than generalist stores.</p><h2>Bundled Memberships Over One-Off Sales</h2><p>Recurring access to an evolving library of assets is outperforming single-purchase products for creators with steady output.</p><p>The through-line: narrower focus, recurring relationships, and fewer but better products.</p>",
+      category: ["Marketing", "News"],
+      tags: ["creator-economy", "marketing", "startups"],
+      author: "Acme Editor",
+      seoTitle: "The Creator Economy: Trends to Watch This Year",
+      metaDesc: "What's actually working for independent digital creators in 2026 — micro-niches and bundled memberships.",
+      keywords: "creator economy, digital creators, 2026 trends",
+      publishedAt: "2026-06-08",
+      isFeatured: false,
+      allowComments: true,
+      visibility: "public",
+    },
+    {
+      slug: "why-ergonomics-matter-more-than-you-think",
+      title: "Why Ergonomics Matter More Than You Think",
+      subtitle: "The keyboard on your desk affects more than your wrists.",
+      excerpt: "We surveyed our own team after switching to ergonomic keyboards company-wide. The results surprised us.",
+      body: "<h2>Beyond Comfort</h2><p>We expected fewer complaints about wrist strain. We didn't expect a measurable uptick in reported focus during long coding sessions.</p><h2>What Changed</h2><ul><li>Split keyboards reduced reported wrist and shoulder discomfort by the majority of respondents</li><li>Several engineers reported longer uninterrupted focus blocks</li></ul><p>It's a small, unglamorous investment with an outsized effect on how a distributed team actually feels day to day.</p>",
+      category: ["Career", "News"],
+      tags: ["productivity", "engineering-culture"],
+      author: "Acme Admin",
+      seoTitle: "Why Ergonomics Matter More Than You Think",
+      metaDesc: "What happened when our whole team switched to ergonomic keyboards, in their own words.",
+      keywords: "ergonomics, workplace wellness, remote work",
+      publishedAt: "2026-06-19",
+      isFeatured: false,
+      allowComments: true,
+      visibility: "public",
+    },
+    {
+      slug: "from-idea-to-launch-our-product-development-process",
+      title: "From Idea to Launch: Our Product Development Process",
+      subtitle: "How a product idea becomes a shipped feature at Acme.",
+      excerpt: "Every feature we ship goes through the same four stages. Here's what each one actually involves.",
+      body: "<h2>1. Problem Validation</h2><p>Before any design work, we confirm the problem exists for at least a handful of customers, not just our own intuition.</p><h2>2. Scoped Prototype</h2><p>We build the smallest version that tests the core hypothesis, deliberately cutting scope that doesn't affect the test.</p><h2>3. Limited Rollout</h2><p>New features ship to a subset of customers first, with clear success metrics defined in advance.</p><h2>4. General Availability</h2><p>Only after the metrics hold up does a feature graduate to every customer.</p>",
+      category: ["Product", "Engineering"],
+      tags: ["startups", "productivity", "engineering-culture"],
+      author: "Acme Editor",
+      seoTitle: "From Idea to Launch: Our Product Development Process",
+      metaDesc: "The four-stage process every feature goes through before it reaches every Acme customer.",
+      keywords: "product development, product process, feature rollout",
+      publishedAt: "2026-06-27",
+      isFeatured: false,
+      allowComments: true,
+      visibility: "public",
+    },
+    {
+      slug: "accessibility-isnt-optional-a-practical-checklist",
+      title: "Accessibility Isn't Optional: A Practical Checklist",
+      subtitle: "Sixteen concrete checks you can run this week.",
+      excerpt: "Accessibility work doesn't have to start with a full audit. Here are sixteen checks any team can run this week.",
+      body: "<h2>Start With the Basics</h2><ul><li>Every interactive element is reachable by keyboard alone</li><li>Color is never the only signal for state (error, success, selected)</li><li>Images carry meaningful alt text, not filenames</li><li>Form fields have visible, associated labels</li></ul><h2>Then Go Deeper</h2><p>Screen reader testing, focus order, and reduced-motion support take longer but matter just as much. Treat accessibility as a continuous practice, not a one-time audit before launch.</p>",
+      category: ["Design", "Tutorials"],
+      tags: ["accessibility", "ux", "design-systems"],
+      author: "Acme Admin",
+      seoTitle: "Accessibility Isn't Optional: A Practical Checklist",
+      metaDesc: "Sixteen concrete, practical accessibility checks any product team can run this week.",
+      keywords: "web accessibility, a11y checklist, inclusive design",
+      publishedAt: undefined,
+      isFeatured: false,
+      allowComments: true,
+      visibility: "public",
+      draft: true,
+    },
+    {
+      slug: "how-small-teams-can-compete-with-enterprise-software",
+      title: "How Small Teams Can Compete With Enterprise Software",
+      subtitle: "You don't need feature parity to win the deal.",
+      excerpt: "Small teams keep winning against much bigger competitors. Here's the pattern we keep seeing.",
+      body: "<h2>Speed Beats Feature Count</h2><p>Buyers evaluating a small vendor against an enterprise incumbent rarely choose based on total feature count. They choose based on how fast a real problem gets solved during the trial.</p><h2>Support Is a Differentiator</h2><p>A same-day response from someone who actually understands the product outperforms a bigger roadmap you can't get help with. Small teams should lean into this instead of apologizing for it.</p>",
+      category: ["Career", "Marketing"],
+      tags: ["startups", "leadership", "marketing"],
+      author: "Acme Editor",
+      seoTitle: "How Small Teams Can Compete With Enterprise Software",
+      metaDesc: "Why small vendors keep winning deals against enterprise incumbents, and how to lean into it.",
+      keywords: "small business software, competing with enterprise",
+      publishedAt: undefined,
+      isFeatured: false,
+      allowComments: true,
+      visibility: "public",
+      draft: true,
+    },
+    {
+      slug: "the-future-of-no-code-and-low-code-platforms",
+      title: "The Future of No-Code and Low-Code Platforms",
+      subtitle: "Where the ceiling actually is, and where it's moving.",
+      excerpt: "No-code platforms keep raising their ceiling. Here's where we think that ceiling lands next.",
+      body: "<h2>The Ceiling Keeps Rising</h2><p>What required custom code two years ago — conditional logic, third-party integrations, even basic workflows — is now table stakes for no-code tools.</p><h2>What's Next</h2><p>The next frontier is composability: no-code platforms that can plug into a real codebase rather than existing as a walled garden. Expect the line between 'no-code' and 'low-code' to blur further this year.</p>",
+      category: ["Technology", "News"],
+      tags: ["no-code", "startups", "productivity"],
+      author: "Acme Admin",
+      seoTitle: "The Future of No-Code and Low-Code Platforms",
+      metaDesc: "Where no-code and low-code platforms are headed next, and why the line between them is blurring.",
+      keywords: "no-code, low-code, no-code platforms",
+      publishedAt: "2026-07-15",
+      isFeatured: false,
+      allowComments: true,
+      visibility: "public",
+      scheduled: true,
+    },
+    {
+      slug: "building-trust-through-transparent-pricing",
+      title: "Building Trust With Customers Through Transparent Pricing",
+      subtitle: "No hidden fees, no surprise upsells, no asterisks.",
+      excerpt: "Transparent pricing costs you some short-term revenue tricks. It pays back in trust and lower churn.",
+      body: "<h2>What Transparent Pricing Actually Means</h2><p>Every fee is visible before checkout. Every plan limit is stated plainly, not buried in a footnote. Upgrades are optional, never required to unlock a feature you were told was included.</p><h2>The Trade-Off Is Worth It</h2><p>We've left some short-term revenue on the table by not using dark patterns. Support tickets about billing surprises dropped to nearly zero, and referral rates went up.</p>",
+      category: ["Marketing", "Career"],
+      tags: ["pricing", "marketing", "leadership"],
+      author: "Acme Editor",
+      seoTitle: "Building Trust With Customers Through Transparent Pricing",
+      metaDesc: "Why we chose transparent pricing over dark patterns, and what it did to churn and referrals.",
+      keywords: "transparent pricing, customer trust, pricing strategy",
+      publishedAt: "2026-08-01",
+      isFeatured: false,
+      allowComments: true,
+      visibility: "public",
+      scheduled: true,
+    },
+    {
+      slug: "what-we-got-wrong-about-customer-feedback",
+      title: "What We Got Wrong About Customer Feedback",
+      subtitle: "Listening to everyone isn't the same as listening well.",
+      excerpt: "We used to build whatever the loudest customers asked for. That turned out to be a mistake.",
+      body: "<h2>The Loudest Voice Isn't the Most Representative</h2><p>Feature requests from our most vocal customers skewed toward advanced use cases that only applied to a small fraction of our base.</p><h2>What We Do Now</h2><p>We weight feedback by how representative the requester is of our broader customer base, and we validate every request against usage data before committing engineering time.</p><p>Still a work in progress, but a much better filter than volume alone.</p>",
+      category: ["Product", "Career"],
+      tags: ["startups", "leadership", "productivity"],
+      author: "Acme Admin",
+      seoTitle: "What We Got Wrong About Customer Feedback",
+      metaDesc: "Why listening to your loudest customers isn't the same as listening well — and what we changed.",
+      keywords: "customer feedback, product prioritization",
+      publishedAt: undefined,
+      isFeatured: false,
+      allowComments: true,
+      visibility: "private",
+      scheduled: true,
+      scheduledDate: "2026-08-20",
+    },
+  ] as Array<{
+    slug: string;
+    title: string;
+    subtitle: string;
+    excerpt: string;
+    body: string;
+    category: string[];
+    tags: string[];
+    author: string;
+    seoTitle: string;
+    metaDesc: string;
+    keywords: string;
+    publishedAt?: string;
+    isFeatured: boolean;
+    allowComments: boolean;
+    visibility: string;
+    draft?: boolean;
+    scheduled?: boolean;
+    scheduledDate?: string;
+  }>;
+
+  let coverIdx = 0;
+  const blogIdBySlug: Record<string, string> = {};
+  for (const b of blogs) {
+    const isDraft = b.draft === true;
+    const isScheduled = b.scheduled === true;
+    const published = !isDraft && !isScheduled;
+    const publishedAt = isScheduled
+      ? new Date(b.scheduledDate ?? b.publishedAt!)
+      : (b.publishedAt ? new Date(b.publishedAt) : null);
+
+    const blog = await prisma.blog.upsert({
+      where: { organizationId_slug: { organizationId: org.id, slug: b.slug } },
+      update: {
+        title: b.title, subtitle: b.subtitle, body: b.body, excerpt: b.excerpt,
+        coverImage: PRESET_COVERS[coverIdx % PRESET_COVERS.length],
+        author: b.author, category: b.category.join(","),
+        seoTitle: b.seoTitle, metaDesc: b.metaDesc, keywords: b.keywords,
+        published, publishedAt,
+        visibility: b.visibility, allowComments: b.allowComments, isFeatured: b.isFeatured,
+      },
+      create: {
+        organizationId: org.id,
+        slug: b.slug, title: b.title, subtitle: b.subtitle, body: b.body, excerpt: b.excerpt,
+        coverImage: PRESET_COVERS[coverIdx % PRESET_COVERS.length],
+        author: b.author, category: b.category.join(","),
+        seoTitle: b.seoTitle, metaDesc: b.metaDesc, keywords: b.keywords,
+        published, publishedAt,
+        visibility: b.visibility, allowComments: b.allowComments, isFeatured: b.isFeatured,
+      },
+    });
+    await syncTags(org.id, "blog", blog.id, b.tags);
+    blogIdBySlug[b.slug] = blog.id;
+    coverIdx++;
+  }
+
+  // Pin exactly one published post to the top of the blog list.
+  await prisma.blog.update({
+    where: { organizationId_slug: { organizationId: org.id, slug: "our-journey-to-multi-tenant-architecture" } },
+    data: { pinToTop: true },
+  });
+
+  // A few sample comments across different moderation states.
+  const sampleComments: Array<{ slug: string; body: string; authorName: string; authorEmail: string; status: "PENDING" | "APPROVED" | "REJECTED" }> = [
+    { slug: "10-must-have-tools-for-modern-saas-founders", body: "Solid list — we switched our billing tool after reading this and it's already paying off.", authorName: "Priya N.", authorEmail: "priya.n@example.com", status: "APPROVED" },
+    { slug: "10-must-have-tools-for-modern-saas-founders", body: "Would love a follow-up on the analytics tooling specifically.", authorName: "Marcus T.", authorEmail: "marcus.t@example.com", status: "APPROVED" },
+    { slug: "seo-in-2026-what-actually-moves-the-needle", body: "This matches what we're seeing too — content depth is doing more work than backlinks lately.", authorName: "Dana R.", authorEmail: "dana.r@example.com", status: "PENDING" },
+    { slug: "our-journey-to-multi-tenant-architecture", body: "Curious how long the backfill actually took end to end?", authorName: "Sam K.", authorEmail: "sam.k@example.com", status: "APPROVED" },
+    { slug: "our-journey-to-multi-tenant-architecture", body: "Check out my website for a totally unrelated product!!", authorName: "Spam Bot", authorEmail: "spam@example.com", status: "REJECTED" },
+  ];
+  for (const c of sampleComments) {
+    const blogId = blogIdBySlug[c.slug];
+    if (!blogId) continue;
+    const existing = await prisma.comment.findFirst({
+      where: { blogId, authorEmail: c.authorEmail, body: c.body },
+    });
+    if (!existing) {
+      await prisma.comment.create({
+        data: {
+          blogId, organizationId: org.id, body: c.body,
+          authorName: c.authorName, authorEmail: c.authorEmail, status: c.status,
+        },
+      });
+    }
+  }
+
+  console.log("   ✓ Blog categories (8) + Blogs (21 posts: 16 published, 3 scheduled, 2 drafts) + sample comments");
 
   // ── CMS pages for Bloom Studio ───────────────────────────
   const bloomPages = [
@@ -854,7 +1354,7 @@ async function main() {
 
   const prodMap: Record<string, string> = {};
   for (const p of products) {
-    const rec = await prisma.product.upsert({
+    const product = await prisma.product.upsert({
       where: { organizationId_slug: { organizationId: org.id, slug: p.slug } },
       update: {
         name: p.name, sku: p.sku, type: p.type, status: p.status,
@@ -869,7 +1369,7 @@ async function main() {
         costPrice: p.costPrice ?? null,
         stockStatus: p.stockStatus, stock: p.stock,
         lowStockThreshold: p.lowStockThreshold,
-        categoryIds: p.categoryIds, tags: p.tags,
+        categoryIds: p.categoryIds,
       },
       create: {
         organizationId: org.id,
@@ -885,10 +1385,11 @@ async function main() {
         costPrice: p.costPrice ?? null,
         stockStatus: p.stockStatus, stock: p.stock,
         lowStockThreshold: p.lowStockThreshold,
-        categoryIds: p.categoryIds, tags: p.tags,
+        categoryIds: p.categoryIds,
       },
     });
-    prodMap[p.slug] = rec.id;
+    prodMap[p.slug] = product.id;
+    await syncTags(org.id, "product", product.id, p.tags);
   }
 
   console.log("   ✓ Products (9 sample products — all 8 types covered)");

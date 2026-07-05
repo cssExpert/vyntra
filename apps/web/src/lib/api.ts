@@ -175,6 +175,9 @@ export interface OrganizationSettings {
   darkLogoUrl: string | null;
   faviconUrl: string | null;
   themeSwitcherEnabled: boolean;
+  blogCommentsEnabled: boolean;
+  blogFeaturedEnabled: boolean;
+  blogPinToTopEnabled: boolean;
   siteLanguages: string[];
   defaultSiteLanguage: string;
   primaryColor: string;
@@ -834,8 +837,8 @@ export const systemPageSettings = {
     }),
 };
 
-// ─── CMS blog tags ──────────────────────────────────────
-export interface CmsBlogTag {
+// ─── Shared tag catalog (blogs, products, and any future taggable feature) ───
+export interface Tag {
   id: string;
   name: string;
   slug: string;
@@ -843,15 +846,15 @@ export interface CmsBlogTag {
   updatedAt: string;
 }
 
-export const cmsBlogTags = {
-  list: () => apiFetch<CmsBlogTag[]>("/cms/blog-tags"),
+export const tags = {
+  list: () => apiFetch<Tag[]>("/tags"),
   findOrCreate: (name: string) =>
-    apiFetch<CmsBlogTag>("/cms/blog-tags", {
+    apiFetch<Tag>("/tags", {
       method: "POST",
       body: JSON.stringify({ name }),
     }),
   delete: (id: string) =>
-    apiFetch<{ ok: boolean }>(`/cms/blog-tags/${id}`, { method: "DELETE" }),
+    apiFetch<{ ok: boolean }>(`/tags/${id}`, { method: "DELETE" }),
 };
 
 // ─── CMS menus ───────────────────────────────────────────

@@ -1,13 +1,17 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { TagsService } from '../../tags/tags.service';
 import { CreateProductDto, UpdateProductDto } from '../dto';
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private tagsService: TagsService,
+  ) {}
 
   async create(organizationId: string, createProductDto: CreateProductDto) {
-    const { slug, sku, ...data } = createProductDto;
+    const { slug, sku, tags, ...data } = createProductDto;
 
     // Check for duplicate slug and SKU
     const existing = await this.prisma.product.findFirst({
@@ -23,7 +27,7 @@ export class ProductsService {
       );
     }
 
-    return this.prisma.product.create({
+    const product = await this.prisma.product.create({
       data: {
         organizationId,
         slug,
@@ -35,6 +39,9 @@ export class ProductsService {
         media: true,
       },
     });
+
+    await this.tagsService.syncAssignments(organizationId, 'product', product.id, tags ?? []);
+    return this.tagsService.attachTagsOne(organizationId, 'product', product);
   }
 
   async findAll(
@@ -60,7 +67,7 @@ export class ProductsService {
       ...(type && { type }),
     };
 
-    const [data, total] = await Promise.all([
+    const [rows, total] = await Promise.all([
       this.prisma.product.findMany({
         where,
         skip,
@@ -76,6 +83,8 @@ export class ProductsService {
       }),
       this.prisma.product.count({ where }),
     ]);
+
+    const data = await this.tagsService.attachTags(organizationId, 'product', rows);
 
     return {
       data,
@@ -107,7 +116,7 @@ export class ProductsService {
       throw new NotFoundException('Product not found');
     }
 
-    return product;
+    return this.tagsService.attachTagsOne(organizationId, 'product', product);
   }
 
   async findById(organizationId: string, id: string) {
@@ -124,7 +133,7 @@ export class ProductsService {
       throw new NotFoundException('Product not found');
     }
 
-    return product;
+    return this.tagsService.attachTagsOne(organizationId, 'product', product);
   }
 
   async update(organizationId: string, id: string, updateProductDto: UpdateProductDto) {
@@ -160,18 +169,26 @@ export class ProductsService {
       }
     }
 
-    return this.prisma.product.update({
+    const { tags, ...updateData } = updateProductDto;
+
+    const updated = await this.prisma.product.update({
       where: { id },
-      data: updateProductDto,
+      data: updateData,
       include: {
         variants: true,
         media: true,
       },
     });
+
+    if (tags !== undefined) {
+      await this.tagsService.syncAssignments(organizationId, 'product', id, tags);
+    }
+    return this.tagsService.attachTagsOne(organizationId, 'product', updated);
   }
 
   async delete(organizationId: string, id: string) {
     await this.findById(organizationId, id);
+    await this.tagsService.removeAssignmentsFor(organizationId, 'product', id);
 
     return this.prisma.product.delete({
       where: { id },

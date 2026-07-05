@@ -19,7 +19,8 @@ import {
 import Image from "next/image";
 import type { ProductType, ProductStatus, StockStatus, StoreProduct, StoreAttribute, StoreCategory } from "../../store.types";
 import { SAMPLE_PRODUCTS } from "../../store.data";
-import { storeCategories, storeAttributes } from "@/lib/api";
+import { storeCategories, storeAttributes, tags as tagsApi } from "@/lib/api";
+import { TagMultiSelect } from "@/components/common/TagMultiSelect";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -367,8 +368,8 @@ export function ProductForm({
   // Organisation & SEO
   const [allCats,     setAllCats]     = useState<StoreCategory[]>([]);
   const [categoryIds, setCategoryIds] = useState<string[]>(initialData?.categoryIds ?? []);
-  const [tagInput,    setTagInput]    = useState("");
   const [tags,        setTags]        = useState<string[]>(initialData?.tags ?? []);
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [seoTitle,    setSeoTitle]    = useState(initialData?.seoTitle   ?? "");
   const [seoDesc,     setSeoDesc]     = useState(initialData?.seoDescription ?? "");
   const [seoKeywords, setSeoKeywords] = useState(initialData?.seoKeywords ?? "");
@@ -408,6 +409,8 @@ export function ProductForm({
         updatedAt: a.updatedAt,
       })));
     }).catch(() => {});
+
+    tagsApi.list().then((res) => setAvailableTags(res.map((t) => t.name))).catch(() => {});
   }, []);
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
@@ -417,14 +420,14 @@ export function ProductForm({
     setSlug(v.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""));
   };
 
-  const addTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key !== "Enter" && e.key !== ",") return;
-    e.preventDefault();
-    const tag = tagInput.trim().replace(/,$/, "");
-    if (tag && !tags.includes(tag)) setTags((p) => [...p, tag]);
-    setTagInput("");
+  const handleTagCreate = async (name: string) => {
+    try {
+      await tagsApi.findOrCreate(name);
+      setAvailableTags((prev) => (prev.includes(name) ? prev : [...prev, name].sort((a, b) => a.localeCompare(b))));
+    } catch {
+      // tag still gets assigned to the product even if catalog sync fails
+    }
   };
-
 
   // ── Attributes (select from global) ─────────────────────────────────────────
 
@@ -1110,17 +1113,12 @@ export function ProductForm({
             </div>
             <div>
               <label className={lbl}>Tags</label>
-              <Input value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={addTag} placeholder="Type and press Enter…" className={inp} />
-              {tags.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mt-2">
-                  {tags.map((tag) => (
-                    <span key={tag} className="flex items-center gap-1 bg-primary/10 text-primary text-xs font-medium px-2 py-0.5 rounded-sm">
-                      {tag}
-                      <button onClick={() => setTags((p) => p.filter((t) => t !== tag))} className="hover:text-destructive cursor-pointer">×</button>
-                    </span>
-                  ))}
-                </div>
-              )}
+              <TagMultiSelect
+                value={tags}
+                onChange={setTags}
+                availableTags={availableTags}
+                onCreateTag={handleTagCreate}
+              />
             </div>
           </Card>
 

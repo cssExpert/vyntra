@@ -1,4 +1,5 @@
 import type React from "react";
+import Link from "next/link";
 import { NodeRenderer } from "./NodeRenderer";
 import { SiteNavbar, SiteFooter } from "./SiteLayout";
 import { BlockRenderer } from "./BlockRenderer";
@@ -132,21 +133,21 @@ export async function PageView({
           }}
         >
           <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-            <a
+            <Link
               href="/"
               className="text-lg font-bold tracking-tight transition-opacity hover:opacity-70"
               style={{ color: "var(--primary, #3b82f6)" }}
             >
               {org.name}
-            </a>
+            </Link>
             {!isLanding && (
-              <a
+              <Link
                 href="/"
                 className="text-sm transition-opacity hover:opacity-70"
                 style={{ color: "var(--muted-foreground, #6b7280)" }}
               >
                 ← Home
-              </a>
+              </Link>
             )}
           </div>
         </nav>
@@ -209,12 +210,15 @@ export async function SystemPageView({
   pageType,
   themeIdentifier = "shopingo",
   pageSettings,
+  slug,
 }: {
   org: OrgInfo;
   layout: SiteLayoutData;
   pageType: SystemPageType;
   themeIdentifier?: string;
   pageSettings?: SystemPageSettingsPublic | null;
+  /** Extra path segment for detail-style system pages, e.g. the blog post slug for "blog-detail". */
+  slug?: string;
 }) {
   const SystemPage = resolveThemeSystemPage(pageType, themeIdentifier);
   const pageStyle = {
@@ -227,7 +231,7 @@ export async function SystemPageView({
       {pageSettings?.customCss && <style dangerouslySetInnerHTML={{ __html: pageSettings.customCss }} />}
       {pageSettings?.headScript && <script dangerouslySetInnerHTML={{ __html: pageSettings.headScript }} />}
       <SiteNavbar org={org} layout={layout} themeIdentifier={themeIdentifier} />
-      <SystemPage orgId={org.id} themeIdentifier={themeIdentifier} />
+      <SystemPage orgId={org.id} themeIdentifier={themeIdentifier} slug={slug} />
       <SiteFooter org={org} layout={layout} themeIdentifier={themeIdentifier} />
       {pageSettings?.bodyScript && <script dangerouslySetInnerHTML={{ __html: pageSettings.bodyScript }} />}
     </div>

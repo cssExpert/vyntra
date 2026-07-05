@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/button";
 import type { CmsBlogDetail, CmsBlogSaveDto, OrgMember } from "@/lib/api";
 import {
   apiGetOrgMembers,
+  apiGetOrgSettings,
   cmsBlogs,
   cmsBlogCategories,
-  cmsBlogTags,
+  tags as tagsApi,
 } from "@/lib/api";
 import { useAuth } from "@/providers/AuthProvider";
 import { EditorStepTabs, type EditorTab } from "./EditorStepTabs";
@@ -107,6 +108,11 @@ export function BlogEditor({ blog }: BlogEditorProps) {
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [availableAuthors, setAvailableAuthors] = useState<AuthorProfile[]>([]);
+  const [blogFeatureFlags, setBlogFeatureFlags] = useState({
+    commentsEnabled: true,
+    featuredEnabled: true,
+    pinToTopEnabled: true,
+  });
 
   const [form, setForm] = useState<BlogFormState>(() =>
     blog ? emptyBlogForm() : emptyBlogForm(),
@@ -121,9 +127,18 @@ export function BlogEditor({ blog }: BlogEditorProps) {
       .list()
       .then((cats) => setAvailableCategories(cats.map((c) => c.name)))
       .catch(() => {});
-    cmsBlogTags
+    tagsApi
       .list()
-      .then((tags) => setAvailableTags(tags.map((t) => t.name)))
+      .then((allTags) => setAvailableTags(allTags.map((t) => t.name)))
+      .catch(() => {});
+    apiGetOrgSettings()
+      .then((s) =>
+        setBlogFeatureFlags({
+          commentsEnabled: s.blogCommentsEnabled,
+          featuredEnabled: s.blogFeaturedEnabled,
+          pinToTopEnabled: s.blogPinToTopEnabled,
+        }),
+      )
       .catch(() => {});
 
     apiGetOrgMembers()
@@ -175,7 +190,7 @@ export function BlogEditor({ blog }: BlogEditorProps) {
 
   const handleTagCreate = async (name: string) => {
     try {
-      await cmsBlogTags.findOrCreate(name);
+      await tagsApi.findOrCreate(name);
       setAvailableTags((prev) =>
         prev.includes(name)
           ? prev
@@ -388,6 +403,7 @@ export function BlogEditor({ blog }: BlogEditorProps) {
                   form={form}
                   patch={patch}
                   availableAuthors={availableAuthors}
+                  featureFlags={blogFeatureFlags}
                   onBack={() => setActiveTab("seo")}
                   onPublish={handlePublish}
                 />

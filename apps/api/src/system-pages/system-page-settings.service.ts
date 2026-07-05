@@ -8,7 +8,7 @@ import { UpdateSystemPageSettingsDto } from './dto/update-system-page-settings.d
  * as opposed to CMS pages. Keep this list in sync with SYSTEM_PAGE_ROUTES in
  * apps/web/src/lib/themes/systemPages.ts.
  */
-export const SYSTEM_PAGE_TYPES = ['product-listing'] as const;
+export const SYSTEM_PAGE_TYPES = ['product-listing', 'blog-listing'] as const;
 export type SystemPageType = (typeof SYSTEM_PAGE_TYPES)[number];
 
 export function assertValidPageType(pageType: string): asserts pageType is SystemPageType {

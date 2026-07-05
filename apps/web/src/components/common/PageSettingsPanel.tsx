@@ -167,24 +167,97 @@ function SeoTab({
 }
 
 /**
- * "Listing" tab for the product-listing page — reads/writes into the generic
- * `customSettings` JSON blob so more listing-page settings can be added here
- * later without a schema change. Other system pages (e.g. product-details)
- * would get their own tab writing their own keys into the same field.
+ * "Listing" tab — reads/writes into the generic `customSettings` JSON blob so
+ * more listing-page settings can be added here later without a schema
+ * change. Content branches on `pageType`; other system pages (e.g.
+ * product-details) would get their own branch writing their own keys into
+ * the same field.
  */
 function ListingTab({
   form,
+  pageType,
   onChange,
 }: {
   form: SystemPageSettingsData;
+  pageType: string;
   onChange: (patch: Partial<SystemPageSettingsData>) => void;
 }) {
   const custom = form.customSettings ?? {};
-  const productsPerPage = typeof custom.productsPerPage === "number" ? custom.productsPerPage : 12;
 
   function patchCustom(patch: Record<string, unknown>) {
     onChange({ customSettings: { ...custom, ...patch } });
   }
+
+  if (pageType === "blog-listing") {
+    const postsPerPage = typeof custom.postsPerPage === "number" ? custom.postsPerPage : 6;
+    const showSidebar = custom.showSidebar !== false;
+    const showSearch = custom.showSearch !== false;
+    const showCategories = custom.showCategories !== false;
+    const showTags = custom.showTags !== false;
+
+    return (
+      <div className="flex flex-col gap-5">
+        <FieldRow label="Posts per page" hint="Number of blog posts shown per page on the storefront listing (1–100).">
+          <input
+            type="number"
+            min={1}
+            max={100}
+            value={postsPerPage}
+            onChange={(e) => {
+              const n = parseInt(e.target.value, 10);
+              if (!Number.isNaN(n)) patchCustom({ postsPerPage: Math.min(100, Math.max(1, n)) });
+            }}
+            className={inputCls}
+          />
+        </FieldRow>
+
+        <div className="flex items-center gap-3 rounded-lg border border-border bg-muted px-4 py-3">
+          <Switch
+            id="showSidebar"
+            checked={showSidebar}
+            onCheckedChange={(v) => patchCustom({ showSidebar: v })}
+            className="data-checked:bg-primary shrink-0"
+          />
+          <div className="min-w-0">
+            <Label htmlFor="showSidebar" className="text-xs font-semibold cursor-pointer block">
+              Show sidebar
+            </Label>
+            <p className="text-[10px] text-muted-foreground/60 mt-0.5">
+              Search, categories, recent posts, and tags next to the post list.
+            </p>
+          </div>
+        </div>
+
+        <div
+          className={cn(
+            "flex flex-col gap-2.5 pl-4 border-l-2 border-border ml-1 transition-opacity",
+            !showSidebar && "opacity-40 pointer-events-none",
+          )}
+        >
+          {[
+            { id: "showSearch", label: "Show search bar", checked: showSearch },
+            { id: "showCategories", label: "Show categories", checked: showCategories },
+            { id: "showTags", label: "Show tags", checked: showTags },
+          ].map((row) => (
+            <div key={row.id} className="flex items-center gap-3 rounded-lg border border-border bg-muted/60 px-3.5 py-2.5">
+              <Switch
+                id={row.id}
+                checked={row.checked}
+                disabled={!showSidebar}
+                onCheckedChange={(v) => patchCustom({ [row.id]: v })}
+                className="data-checked:bg-primary shrink-0"
+              />
+              <Label htmlFor={row.id} className="text-xs font-semibold cursor-pointer">
+                {row.label}
+              </Label>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const productsPerPage = typeof custom.productsPerPage === "number" ? custom.productsPerPage : 12;
 
   return (
     <div className="flex flex-col gap-5">
@@ -396,8 +469,8 @@ export interface PageSettingsPanelProps {
  * checkout, …) can reuse this without a new component.
  */
 export function PageSettingsPanel({ open, onClose, pageType, label, pagePath, companyId, module = "cms" }: PageSettingsPanelProps) {
-  const isProductListing = pageType === "product-listing";
-  const tabs = isProductListing ? [BASE_TABS[0], LISTING_TAB, ...BASE_TABS.slice(1)] : BASE_TABS;
+  const hasListingTab = pageType === "product-listing" || pageType === "blog-listing";
+  const tabs = hasListingTab ? [BASE_TABS[0], LISTING_TAB, ...BASE_TABS.slice(1)] : BASE_TABS;
   const [tab, setTab] = useState<Tab>("seo");
   const [form, setForm] = useState<SystemPageSettingsData>(EMPTY_FORM);
   const [loading, setLoading] = useState(false);
@@ -505,7 +578,7 @@ export function PageSettingsPanel({ open, onClose, pageType, label, pagePath, co
               ) : (
                 <div className="p-5">
                   {tab === "seo" && <SeoTab form={form} pagePath={pagePath} onChange={patch} />}
-                  {tab === "listing" && <ListingTab form={form} onChange={patch} />}
+                  {tab === "listing" && <ListingTab form={form} pageType={pageType} onChange={patch} />}
                   {tab === "og" && <OgTab form={form} companyId={companyId} module={module} onChange={patch} />}
                   {tab === "favicon" && <FaviconTab form={form} companyId={companyId} module={module} onChange={patch} />}
                   {tab === "scripts" && <ScriptsTab form={form} onChange={patch} />}

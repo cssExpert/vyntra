@@ -8,7 +8,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { LibraryModal } from "@/modules/cms/blog-editor/CoverImagePicker";
 
-const STORE_FILTERS = ["all", "products", "categories"] as const;
+export const STORE_FILTERS = ["all", "products", "categories"] as const;
 
 interface StoreImagePickerProps {
   value: string | null;
