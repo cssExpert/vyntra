@@ -13,6 +13,7 @@ import {
   OrganizationSettingsDto,
   UpdateOrganizationDto,
 } from './dto/organization.dto';
+import { DEFAULT_CUSTOMER_GROUP_NAMES } from '../store/utils/default-customer-groups';
 
 @Injectable()
 export class OrganizationsService {
@@ -164,6 +165,14 @@ export class OrganizationsService {
             create: { role: Role.ORG_ADMIN, organizationId: org.id },
           },
         },
+      });
+
+      await tx.customerGroup.createMany({
+        data: DEFAULT_CUSTOMER_GROUP_NAMES.map((name) => ({
+          organizationId: org.id,
+          name,
+          isDefault: true,
+        })),
       });
 
       return org;

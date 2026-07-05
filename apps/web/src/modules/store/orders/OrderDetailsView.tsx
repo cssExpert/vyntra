@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Printer, Download, Send, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { StoreOrder } from "../store.types";
-import { SAMPLE_ORDERS } from "../store.data";
 import { ORDER_STATUS_BADGES, PAYMENT_STATUS_BADGES } from "../store.constants";
-import { formatStorePrice } from "../store.utils";
+import { formatStorePrice, toStoreOrder } from "../store.utils";
+import { storeOrders } from "@/lib/api";
 
 interface OrderDetailsViewProps {
   orderId: string;
@@ -26,8 +26,10 @@ export function OrderDetailsView({ orderId }: OrderDetailsViewProps) {
     const fetchOrder = async () => {
       setIsLoading(true);
       try {
-        const found = SAMPLE_ORDERS.find((o) => o.id === orderId);
-        setOrder(found || null);
+        const found = await storeOrders.get(orderId);
+        setOrder(toStoreOrder(found));
+      } catch {
+        setOrder(null);
       } finally {
         setIsLoading(false);
       }
@@ -71,12 +73,12 @@ export function OrderDetailsView({ orderId }: OrderDetailsViewProps) {
       className="flex flex-col gap-6"
     >
       <PageHeader
-        title={`${t("orderHeader")} #${order.id}`}
+        title={`${t("orderHeader")} ${order.orderNumber}`}
         description={`${t("customer")}: ${order.customerName}`}
         breadcrumbs={[
           { label: t("store"), href: "/store" },
           { label: t("title"), href: "/store/orders" },
-          { label: order.id },
+          { label: order.orderNumber },
         ]}
       >
         <div className="flex gap-2">
@@ -107,7 +109,7 @@ export function OrderDetailsView({ orderId }: OrderDetailsViewProps) {
                     <p className="font-medium">{item.productName}</p>
                     <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
                   </div>
-                  <p className="font-medium">{formatStorePrice(item.price * item.quantity)}</p>
+                  <p className="font-medium">{formatStorePrice(item.totalPrice)}</p>
                 </div>
               ))}
             </div>
@@ -119,7 +121,7 @@ export function OrderDetailsView({ orderId }: OrderDetailsViewProps) {
           <div className="glass-card p-4 rounded-xl space-y-4">
             <div>
               <p className="text-xs text-muted-foreground mb-1">{t("orderHeader")}</p>
-              <p className="font-mono text-sm">#{order.id}</p>
+              <p className="font-mono text-sm">{order.orderNumber}</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground mb-1">{t("statusHeader")}</p>

@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Save, X, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { StoreCoupon, CouponType } from "../store.types";
-import { SAMPLE_COUPONS } from "../store.data";
+import { toStoreCoupon } from "../store.utils";
+import { storeCoupons } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 
 interface EditCouponViewProps {
@@ -18,6 +19,12 @@ interface EditCouponViewProps {
 const inp = "w-full rounded-sm border border-border bg-background px-3 py-2.5 text-[14px] text-foreground placeholder:text-muted-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15";
 const sel = "w-full rounded-sm border border-border bg-background px-3 py-2.5 text-[14px] text-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15 cursor-pointer";
 const lbl = "block text-sm font-medium text-foreground mb-1.5";
+
+// datetime-local inputs need "YYYY-MM-DDTHH:mm", not a full ISO 8601 string
+function toDatetimeLocal(iso?: string): string {
+  if (!iso) return "";
+  return iso.slice(0, 16);
+}
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.055 } } };
 const item = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.26, ease: "easeOut" } } };
@@ -65,21 +72,21 @@ export function EditCouponView({ couponId }: EditCouponViewProps) {
     const fetchCoupon = async () => {
       setIsLoading(true);
       try {
-        const found = SAMPLE_COUPONS.find((c) => c.id === couponId);
-        if (found) {
-          setCoupon(found);
-          setCode(found.code || "");
-          setType(found.type || "percent");
-          setValue(String(found.value || ""));
-          setMinimumSpend(String(found.minimumSpend || ""));
-          setMaximumDiscount(String(found.maximumDiscount || ""));
-          setUsageLimit(String(found.usageLimit || ""));
-          setUsageLimitPerUser(String(found.usageLimitPerUser || ""));
-          setStartsAt(found.startsAt || "");
-          setExpiresAt(found.expiresAt || "");
-          setFreeShipping(found.freeShipping === true);
-          setStatus(found.status || "active");
-        }
+        const found = toStoreCoupon(await storeCoupons.get(couponId));
+        setCoupon(found);
+        setCode(found.code || "");
+        setType(found.type || "percent");
+        setValue(String(found.value || ""));
+        setMinimumSpend(String(found.minimumSpend || ""));
+        setMaximumDiscount(String(found.maximumDiscount || ""));
+        setUsageLimit(String(found.usageLimit || ""));
+        setUsageLimitPerUser(String(found.usageLimitPerUser || ""));
+        setStartsAt(toDatetimeLocal(found.startsAt));
+        setExpiresAt(toDatetimeLocal(found.expiresAt));
+        setFreeShipping(found.freeShipping === true);
+        setStatus(found.status || "active");
+      } catch {
+        setCoupon(null);
       } finally {
         setIsLoading(false);
       }
@@ -90,27 +97,19 @@ export function EditCouponView({ couponId }: EditCouponViewProps) {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      // Save to localStorage for persistence
-      const savedCoupons = JSON.parse(localStorage.getItem("store_coupons_edited") || "{}");
-      savedCoupons[couponId] = {
-        id: couponId,
+      await storeCoupons.update(couponId, {
         code,
         type,
         value: parseFloat(value) || 0,
         minimumSpend: parseFloat(minimumSpend) || 0,
         maximumDiscount: parseFloat(maximumDiscount) || 0,
-        usageLimit: parseInt(usageLimit) || 0,
-        usageLimitPerUser: parseInt(usageLimitPerUser) || 0,
-        startsAt,
-        expiresAt,
+        usageLimit: parseInt(usageLimit) || undefined,
+        usageLimitPerUser: parseInt(usageLimitPerUser) || undefined,
+        startsAt: startsAt ? new Date(startsAt).toISOString() : undefined,
+        expiresAt: expiresAt ? new Date(expiresAt).toISOString() : undefined,
         freeShipping,
         status,
-        usageCount: coupon?.usageCount || 0,
-        createdAt: coupon?.createdAt || new Date().toISOString(),
-      };
-      localStorage.setItem("store_coupons_edited", JSON.stringify(savedCoupons));
-
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      });
       router.push("/store/coupons");
     } finally {
       setIsSaving(false);

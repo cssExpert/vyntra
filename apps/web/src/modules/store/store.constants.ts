@@ -16,7 +16,7 @@ import type {
   AutomationTrigger,
   AutomationAction,
 } from "./store.types";
-import type { BadgeVariant } from "@/components/ui/badge";
+import type { BadgeVariant } from "@/components/ui/StatusBadge";
 
 // ─── Product Status Badges ────────────────────────────────────────────────
 
@@ -35,7 +35,7 @@ export const PRODUCT_STATUS_BADGES: Record<
     icon: "Clock",
   },
   archived: {
-    variant: "secondary",
+    variant: "muted",
     label: "statusArchived",
     icon: "Archive",
   },
@@ -87,7 +87,7 @@ export const ORDER_STATUS_BADGES: Record<
     icon: "Loader2",
   },
   shipped: {
-    variant: "brand",
+    variant: "default",
     label: "statusShipped",
     icon: "Truck",
   },
@@ -97,7 +97,7 @@ export const ORDER_STATUS_BADGES: Record<
     icon: "CheckCircle2",
   },
   cancelled: {
-    variant: "destructive",
+    variant: "error",
     label: "statusCancelled",
     icon: "XCircle",
   },
@@ -107,7 +107,7 @@ export const ORDER_STATUS_BADGES: Record<
     icon: "RefreshCw",
   },
   on_hold: {
-    variant: "secondary",
+    variant: "muted",
     label: "statusOnHold",
     icon: "PauseCircle",
   },
@@ -130,7 +130,7 @@ export const PAYMENT_STATUS_BADGES: Record<
     icon: "CheckCircle2",
   },
   failed: {
-    variant: "destructive",
+    variant: "error",
     label: "payFailed",
     icon: "XCircle",
   },
@@ -157,11 +157,11 @@ export const COUPON_STATUS_BADGES: Record<
     label: "statusActive",
   },
   expired: {
-    variant: "secondary",
+    variant: "muted",
     label: "statusExpired",
   },
   disabled: {
-    variant: "destructive",
+    variant: "error",
     label: "statusDisabled",
   },
 };
@@ -189,7 +189,7 @@ export const STOCK_STATUS_BADGES: Record<
     icon: "AlertTriangle",
   },
   out_of_stock: {
-    variant: "destructive",
+    variant: "error",
     label: "statusOutOfStock",
     icon: "XCircle",
   },
@@ -212,7 +212,7 @@ export const CUSTOMER_STATUS_BADGES: Record<
     icon: "CheckCircle2",
   },
   blocked: {
-    variant: "destructive",
+    variant: "error",
     label: "statusBlocked",
     icon: "XCircle",
   },
@@ -230,13 +230,13 @@ export const REWARD_TIER_BADGES: Record<
   { variant: BadgeVariant; label: string; icon: string; color: string }
 > = {
   bronze: {
-    variant: "secondary",
+    variant: "muted",
     label: "tierBronze",
     icon: "Trophy",
     color: "text-amber-700",
   },
   silver: {
-    variant: "secondary",
+    variant: "muted",
     label: "tierSilver",
     icon: "Trophy",
     color: "text-slate-500",

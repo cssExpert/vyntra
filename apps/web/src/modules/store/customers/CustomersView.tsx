@@ -2,13 +2,14 @@
 
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import {
   useReactTable,
   getCoreRowModel,
@@ -36,7 +37,6 @@ import {
   ChevronDown,
   ChevronsUpDown,
 } from "lucide-react";
-import { SAMPLE_CUSTOMERS } from "../store.data";
 import type { StoreCustomer } from "../store.types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,8 +45,10 @@ import {
   getInitials,
   pageWindow,
   getCommonPinningStyles,
+  toStoreCustomer,
 } from "../store.utils";
 import { CUSTOMER_STATUS_BADGES } from "../store.constants";
+import { storeCustomers } from "@/lib/api";
 
 const columnHelper = createColumnHelper<StoreCustomer>();
 
@@ -64,7 +66,7 @@ const SEGMENT_BADGE: Record<
   inactive: { variant: "muted", label: "Inactive" },
 };
 
-const getColumns = (t: any, router: any) => [
+const getColumns = (t: any, router: any, setDeleteTarget: (c: StoreCustomer) => void) => [
   columnHelper.accessor("name", {
     header: () => t("customerHeader", { defaultValue: "Customer" }),
     size: 220,
@@ -188,12 +190,12 @@ const getColumns = (t: any, router: any) => [
           {
             label: t("edit", { defaultValue: "Edit" }),
             icon: <Pencil size={14} />,
-            onClick: () => {},
+            onClick: () => router.push(`/store/customers/${row.original.id}?edit=1`),
           },
           {
             label: t("delete", { defaultValue: "Delete" }),
             icon: <Trash2 size={14} />,
-            onClick: () => {},
+            onClick: () => setDeleteTarget(row.original),
             variant: "danger",
             separator: true,
           },
@@ -207,6 +209,8 @@ function Inner() {
   const t = useTranslations("store.customers");
   const router = useRouter();
   const isLoaded = usePageLoad(700);
+  const [customers, setCustomers] = useState<StoreCustomer[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [segment, setSegment] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -218,9 +222,41 @@ function Inner() {
     left: ["name"],
     right: ["actions"],
   });
+  const [deleteTarget, setDeleteTarget] = useState<StoreCustomer | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const res = await storeCustomers.list({ take: 500 });
+      setCustomers(res.data.map(toStoreCustomer));
+    } catch {
+      // keep empty
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+    try {
+      await storeCustomers.remove(deleteTarget.id);
+      setDeleteTarget(null);
+      await load();
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : t("deleteFailed", { defaultValue: "Failed to delete customer." }));
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const filtered = useMemo(() => {
-    let r = SAMPLE_CUSTOMERS;
+    let r = customers;
     if (segment) r = r.filter((c) => c.segment === segment);
     if (search.trim()) {
       const q = search.toLowerCase();
@@ -230,7 +266,7 @@ function Inner() {
       );
     }
     return r;
-  }, [search, segment]);
+  }, [customers, search, segment]);
 
   useEffect(() => {
     setPagination((p) => ({ ...p, pageIndex: 0 }));
@@ -238,7 +274,7 @@ function Inner() {
 
   const table = useReactTable({
     data: filtered,
-    columns: getColumns(t, router),
+    columns: getColumns(t, router, (c) => { setDeleteTarget(c); setDeleteError(null); }),
     state: { sorting, columnPinning, pagination },
     onSortingChange: setSorting,
     onPaginationChange: setPagination,
@@ -253,12 +289,31 @@ function Inner() {
   const toEntry = Math.min((pageIndex + 1) * pageSize, filteredCount);
   const pageCount = table.getPageCount();
 
-  const totalSpent = SAMPLE_CUSTOMERS.reduce((s, c) => s + c.totalSpent, 0);
-  const vipCount = SAMPLE_CUSTOMERS.filter((c) => c.isVip).length;
+  const totalSpent = customers.reduce((s, c) => s + c.totalSpent, 0);
+  const vipCount = customers.filter((c) => c.isVip).length;
 
   return (
     <AnimatePresence mode="wait" initial={false}>
-      {!isLoaded ? (
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title={t("deleteTitle", { defaultValue: "Delete Customer" })}
+        description={
+          <>
+            {deleteTarget
+              ? t("deleteDescription", {
+                  defaultValue: `Are you sure you want to delete "${deleteTarget.name}"? This cannot be undone.`,
+                  name: deleteTarget.name,
+                })
+              : ""}
+            {deleteError && <p className="mt-2 text-destructive">{deleteError}</p>}
+          </>
+        }
+        confirmLabel={isDeleting ? t("deleting", { defaultValue: "Deleting…" }) : t("delete", { defaultValue: "Delete" })}
+        onConfirm={handleDelete}
+        onCancel={() => { setDeleteTarget(null); setDeleteError(null); }}
+      />
+
+      {!isLoaded || isLoading ? (
         <motion.div key="sk" exit={{ opacity: 0 }} className="space-y-4">
           <div className="h-9 w-48 rounded-sm bg-muted animate-pulse" />
           <div className="h-72 w-full rounded-xl bg-muted animate-pulse" />
@@ -273,7 +328,7 @@ function Inner() {
         >
           <PageHeader
             title={t("title", { defaultValue: "Customers" })}
-            description={`${SAMPLE_CUSTOMERS.length} ${t("totalCustomers", { defaultValue: "customers" }).toLowerCase()} · ${vipCount} ${t("vip")} · $${totalSpent.toFixed(0)} ${t("lifetimeValue", { defaultValue: "lifetime value" }).toLowerCase()}`}
+            description={`${customers.length} ${t("totalCustomers", { defaultValue: "customers" }).toLowerCase()} · ${vipCount} ${t("vip")} · $${totalSpent.toFixed(0)} ${t("lifetimeValue", { defaultValue: "lifetime value" }).toLowerCase()}`}
             breadcrumbs={[
               { label: t("store", { defaultValue: "Store" }), href: "/store" },
               { label: t("title", { defaultValue: "Customers" }) },
@@ -290,20 +345,18 @@ function Inner() {
             {[
               {
                 label: t("totalCustomers", { defaultValue: "Total" }),
-                value: SAMPLE_CUSTOMERS.length,
+                value: customers.length,
                 color: "text-foreground",
               },
               { label: t("vip"), value: vipCount, color: "text-warning" },
               {
                 label: t("new", { defaultValue: "New" }),
-                value: SAMPLE_CUSTOMERS.filter((c) => c.segment === "new")
-                  .length,
+                value: customers.filter((c) => c.segment === "new").length,
                 color: "text-info",
               },
               {
                 label: t("atRisk", { defaultValue: "At Risk" }),
-                value: SAMPLE_CUSTOMERS.filter((c) => c.segment === "at_risk")
-                  .length,
+                value: customers.filter((c) => c.segment === "at_risk").length,
                 color: "text-error",
               },
             ].map((s) => (
@@ -517,7 +570,7 @@ function Inner() {
                         onClick={() => table.setPageIndex(p)}
                         className={`w-8 h-8 text-sm font-semibold rounded-sm transition-all cursor-pointer ${pageIndex === p ? "bg-primary text-primary-foreground" : "border border-border text-muted-foreground hover:bg-muted hover:text-foreground"}`}
                       >
-                        {(p as number) + 1}
+                        {p + 1}
                       </button>
                     ),
                   )}

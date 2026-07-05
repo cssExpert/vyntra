@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,32 +8,64 @@ import { usePageLoad } from "@/hooks/usePageLoad";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { Plus, Search, Tag, Pencil, Trash2, Copy } from "lucide-react";
-import { SAMPLE_COUPONS } from "../store.data";
+import type { StoreCoupon } from "../store.types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { formatCouponDiscount, pageWindow } from "../store.utils";
+import { formatCouponDiscount, pageWindow, toStoreCoupon } from "../store.utils";
+import { storeCoupons } from "@/lib/api";
 
 export function CouponsView() {
   const t = useTranslations("store.coupons");
   const router = useRouter();
   const isLoaded = usePageLoad(600);
+  const [coupons, setCoupons] = useState<StoreCoupon[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
+  const [deleteTarget, setDeleteTarget] = useState<StoreCoupon | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const load = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const res = await storeCoupons.list({ take: 500 });
+      setCoupons(res.data.map(toStoreCoupon));
+    } catch {
+      // keep empty
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    try {
+      await storeCoupons.remove(deleteTarget.id);
+      setDeleteTarget(null);
+      await load();
+    } catch {
+      // keep dialog open on error
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const filtered = useMemo(() => {
-    // Merge saved edits from localStorage with SAMPLE_COUPONS
-    const savedEdits = JSON.parse(typeof window !== "undefined" ? localStorage.getItem("store_coupons_edited") || "{}" : "{}");
-    let r = SAMPLE_COUPONS.map((c) => savedEdits[c.id] || c);
+    let r = coupons;
     if (status) r = r.filter((c) => c.status === status);
     if (search.trim()) {
       const q = search.toLowerCase();
       r = r.filter((c) => c.code.toLowerCase().includes(q));
     }
     return r;
-  }, [search, status]);
+  }, [coupons, search, status]);
 
   useEffect(() => {
     setPageIndex(0);
@@ -48,14 +80,30 @@ export function CouponsView() {
     (pageIndex + 1) * pageSize,
   );
 
-  const totalUsed = SAMPLE_COUPONS.reduce((s, c) => s + c.usageCount, 0);
+  const totalUsed = coupons.reduce((s, c) => s + c.usageCount, 0);
 
   const selectCls =
     "h-10 rounded-sm border border-border bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all cursor-pointer";
 
   return (
     <AnimatePresence mode="wait" initial={false}>
-      {!isLoaded ? (
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title={t("deleteTitle", { defaultValue: "Delete Coupon" })}
+        description={
+          deleteTarget
+            ? t("deleteDescription", {
+                defaultValue: `Are you sure you want to delete "${deleteTarget.code}"? This cannot be undone.`,
+                code: deleteTarget.code,
+              })
+            : ""
+        }
+        confirmLabel={isDeleting ? t("deleting", { defaultValue: "Deleting…" }) : t("delete")}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
+
+      {!isLoaded || isLoading ? (
         <motion.div key="sk" exit={{ opacity: 0 }} className="space-y-4">
           <div className="h-9 w-48 rounded-sm bg-muted animate-pulse" />
           <div className="h-64 w-full rounded-xl bg-muted animate-pulse" />
@@ -70,13 +118,13 @@ export function CouponsView() {
         >
           <PageHeader
             title={t("title")}
-            description={`${SAMPLE_COUPONS.length} ${t("title").toLowerCase()} · ${totalUsed} total uses`}
+            description={`${coupons.length} ${t("title").toLowerCase()} · ${totalUsed} total uses`}
             breadcrumbs={[
               { label: t("store"), href: "/store" },
               { label: t("title") },
             ]}
           >
-            <Button size="lg" radius="sm" className="px-4">
+            <Button size="lg" radius="sm" className="px-4" onClick={() => router.push("/store/coupons/add")}>
               <Plus
                 size={16}
                 className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4"
@@ -90,14 +138,12 @@ export function CouponsView() {
             {[
               {
                 key: "statusActive",
-                value: SAMPLE_COUPONS.filter((c) => c.status === "active")
-                  .length,
+                value: coupons.filter((c) => c.status === "active").length,
                 color: "text-success",
               },
               {
                 key: "statusExpired",
-                value: SAMPLE_COUPONS.filter((c) => c.status === "expired")
-                  .length,
+                value: coupons.filter((c) => c.status === "expired").length,
                 color: "text-error",
               },
               { key: "totalUses", value: totalUsed, color: "text-info" },
@@ -254,7 +300,7 @@ export function CouponsView() {
                             {
                               label: t("delete"),
                               icon: <Trash2 size={14} />,
-                              onClick: () => {},
+                              onClick: () => setDeleteTarget(coupon),
                               variant: "danger",
                               separator: true,
                             },

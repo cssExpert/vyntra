@@ -66,7 +66,7 @@ export class AnalyticsService {
   ): Promise<SalesMetrics> {
     const where = {
       organizationId,
-      status: 'completed',
+      status: 'delivered',
       ...(dateRange && { createdAt: { gte: dateRange.from, lte: dateRange.to } }),
     };
 
@@ -205,7 +205,7 @@ export class AnalyticsService {
     });
 
     const totalRevenue = await this.prisma.order.aggregate({
-      where: { organizationId, status: 'completed' },
+      where: { organizationId, status: 'delivered' },
       _sum: { total: true },
     });
 
@@ -293,7 +293,7 @@ export class AnalyticsService {
    */
   async getConversionFunnel(organizationId: string): Promise<ConversionFunnel> {
     const ordersCompleted = await this.prisma.order.count({
-      where: { organizationId, status: 'completed' },
+      where: { organizationId, status: 'delivered' },
     });
 
     // These would come from your analytics provider or tracking service
@@ -330,7 +330,7 @@ export class AnalyticsService {
     const orders = await this.prisma.order.findMany({
       where: {
         organizationId,
-        status: 'completed',
+        status: 'delivered',
         createdAt: { gte: startDate },
       },
       select: {

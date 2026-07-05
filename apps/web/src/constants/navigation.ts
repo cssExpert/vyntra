@@ -146,6 +146,12 @@ export const NAV_SECTIONS: NavSection[] = [
             icon: "",
           },
           {
+            id: "store-customer-groups",
+            label: "Customer Groups",
+            href: "/store/customer-groups",
+            icon: "",
+          },
+          {
             id: "store-coupons",
             label: "Coupons",
             href: "/store/coupons",

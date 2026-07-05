@@ -25,6 +25,13 @@ export class OrdersService {
     // Generate order number
     const orderNumber = await this.generateOrderNumber(organizationId);
 
+    // Look up product (and variant, if specified) details to snapshot onto each line item
+    const products = await this.prisma.product.findMany({
+      where: { id: { in: items.map((item) => item.productId) } },
+      include: { variants: true },
+    });
+    const productById = new Map(products.map((p) => [p.id, p]));
+
     // Create order with items and timeline
     const order = await this.prisma.order.create({
       data: {
@@ -32,15 +39,22 @@ export class OrdersService {
         organizationId,
         orderNumber,
         items: {
-          create: items.map((item) => ({
-            productId: item.productId,
-            variantId: item.variantId,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice,
-            totalPrice: item.quantity * item.unitPrice,
-            productName: '', // Will be populated by trigger or service
-            sku: '',
-          })),
+          create: items.map((item) => {
+            const product = productById.get(item.productId);
+            const variant = item.variantId
+              ? product?.variants.find((v) => v.id === item.variantId)
+              : undefined;
+            return {
+              productId: item.productId,
+              variantId: item.variantId,
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+              totalPrice: item.quantity * item.unitPrice,
+              productName: product?.name ?? '',
+              sku: variant?.sku ?? product?.sku ?? '',
+              imageUrl: variant?.imageUrl ?? product?.featuredImage ?? null,
+            };
+          }),
         },
         timeline: {
           create: {

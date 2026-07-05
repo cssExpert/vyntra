@@ -33,4 +33,8 @@ export class UpdateStoreCustomerDto {
   @IsOptional()
   @IsBoolean()
   isVip?: boolean;
+
+  @IsOptional()
+  @IsString()
+  customerGroupId?: string | null;
 }

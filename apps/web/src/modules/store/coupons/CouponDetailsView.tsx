@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Pencil, Copy, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { StoreCoupon } from "../store.types";
-import { SAMPLE_COUPONS } from "../store.data";
 import { COUPON_TYPE_LABELS } from "../store.constants";
-import { formatCouponDiscount } from "../store.utils";
+import { formatCouponDiscount, toStoreCoupon } from "../store.utils";
+import { storeCoupons } from "@/lib/api";
 
 interface CouponDetailsViewProps {
   couponId: string;
@@ -26,10 +26,10 @@ export function CouponDetailsView({ couponId }: CouponDetailsViewProps) {
     const fetchCoupon = async () => {
       setIsLoading(true);
       try {
-        const savedEdits = JSON.parse(typeof window !== "undefined" ? localStorage.getItem("store_coupons_edited") || "{}" : "{}");
-        const found = SAMPLE_COUPONS.find((c) => c.id === couponId);
-        const coupon = found ? { ...found, ...savedEdits[couponId] } : null;
-        setCoupon(coupon || null);
+        const found = await storeCoupons.get(couponId);
+        setCoupon(toStoreCoupon(found));
+      } catch {
+        setCoupon(null);
       } finally {
         setIsLoading(false);
       }

@@ -5,6 +5,7 @@ import { ProductsService } from './services/products.service';
 import { CategoriesService } from './services/categories.service';
 import { OrdersService } from './services/orders.service';
 import { CustomersService } from './services/customers.service';
+import { CustomerGroupsService } from './services/customer-groups.service';
 import { InventoryService } from './services/inventory.service';
 import { CouponsService } from './services/coupons.service';
 import { EmailService } from './services/email.service';
@@ -18,6 +19,7 @@ import { ProductsController } from './controllers/products.controller';
 import { CategoriesController } from './controllers/categories.controller';
 import { OrdersController } from './controllers/orders.controller';
 import { CustomersController } from './controllers/customers.controller';
+import { CustomerGroupsController } from './controllers/customer-groups.controller';
 import { InventoryController } from './controllers/inventory.controller';
 import { CouponsController } from './controllers/coupons.controller';
 import { WebhooksController } from './controllers/webhooks.controller';
@@ -32,6 +34,7 @@ import { JobsController } from './controllers/jobs.controller';
     CategoriesController,
     OrdersController,
     CustomersController,
+    CustomerGroupsController,
     InventoryController,
     CouponsController,
     WebhooksController,
@@ -47,6 +50,7 @@ import { JobsController } from './controllers/jobs.controller';
     CategoriesService,
     OrdersService,
     CustomersService,
+    CustomerGroupsService,
     InventoryService,
     CouponsService,
     EmailService,
@@ -62,6 +66,7 @@ import { JobsController } from './controllers/jobs.controller';
     CategoriesService,
     OrdersService,
     CustomersService,
+    CustomerGroupsService,
     InventoryService,
     CouponsService,
     EmailService,

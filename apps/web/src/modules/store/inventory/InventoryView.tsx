@@ -2,37 +2,54 @@
 
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
 import { Search, Package, Pencil, AlertTriangle } from "lucide-react";
-import { SAMPLE_INVENTORY } from "../store.data";
+import type { InventoryItem } from "../store.types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { pageWindow } from "../store.utils";
+import { pageWindow, toInventoryItem } from "../store.utils";
 import { STOCK_STATUS_BADGES } from "../store.constants";
+import { storeInventory } from "@/lib/api";
 
 export function InventoryView() {
   const t = useTranslations("store.inventory");
   const router = useRouter();
   const isLoaded = usePageLoad(600);
+  const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [search,      setSearch]      = useState("");
   const [stockFilter, setStockFilter] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize,  setPageSize]  = useState(10);
 
+  const load = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const res = await storeInventory.list({ take: 500 });
+      setInventory(res.data.map(toInventoryItem));
+    } catch {
+      // keep empty
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
   const filtered = useMemo(() => {
-    let r = SAMPLE_INVENTORY;
+    let r = inventory;
     if (stockFilter) r = r.filter((i) => i.stockStatus === stockFilter);
     if (search.trim()) {
       const q = search.toLowerCase();
       r = r.filter((i) => i.productName.toLowerCase().includes(q) || i.sku.toLowerCase().includes(q));
     }
     return r;
-  }, [search, stockFilter]);
+  }, [inventory, search, stockFilter]);
 
   useEffect(() => { setPageIndex(0); }, [search, stockFilter]);
 
@@ -42,14 +59,14 @@ export function InventoryView() {
   const pageCount = Math.ceil(filteredCount / pageSize) || 1;
   const paginatedRows = filtered.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize);
 
-  const outOfStock = SAMPLE_INVENTORY.filter((i) => i.stockStatus === "out_of_stock").length;
-  const lowStock   = SAMPLE_INVENTORY.filter((i) => i.stockStatus === "low_stock").length;
+  const outOfStock = inventory.filter((i) => i.stockStatus === "out_of_stock").length;
+  const lowStock   = inventory.filter((i) => i.stockStatus === "low_stock").length;
 
   const selectCls = "h-10 rounded-sm border border-border bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-all cursor-pointer";
 
   return (
     <AnimatePresence mode="wait" initial={false}>
-      {!isLoaded ? (
+      {!isLoaded || isLoading ? (
         <motion.div key="sk" exit={{ opacity: 0 }} className="space-y-4">
           <div className="h-9 w-48 rounded-sm bg-muted animate-pulse" />
           <div className="h-64 w-full rounded-xl bg-muted animate-pulse" />
@@ -119,7 +136,6 @@ export function InventoryView() {
                   <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("stockHeader")}</th>
                   <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("thresholdHeader")}</th>
                   <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("statusHeader")}</th>
-                  <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("backorderHeader")}</th>
                   <th className="sticky top-0 bg-muted border-b border-border py-4 px-4">{t("lastUpdatedHeader")}</th>
                   <th className="sticky top-0 bg-muted border-b border-border py-4 px-4 text-right" />
                 </tr>
@@ -154,15 +170,12 @@ export function InventoryView() {
                       <td className="py-4 px-4">
                         <StatusBadge variant={badge.variant} label={t(badge.label)} size="sm" dot />
                       </td>
-                      <td className="py-4 px-4">
-                        <StatusBadge variant={item.backorderEnabled ? "info" : "muted"} label={item.backorderEnabled ? t("enabled", { defaultValue: "Enabled" }) : t("disabled", { defaultValue: "Disabled" })} size="sm" />
-                      </td>
-                      <td className="py-4 px-4 text-xs text-muted-foreground">{item.lastUpdated}</td>
+                      <td className="py-4 px-4 text-xs text-muted-foreground">{new Date(item.lastUpdated).toLocaleDateString()}</td>
                       <td className="py-4 px-4 text-right">
                         <TableActionMenu
                           items={[
-                            { label: t("view"), icon: <Package size={14} />, onClick: () => router.push(`/store/inventory/${item.id}`) },
-                            { label: t("edit"), icon: <Pencil size={14} />, onClick: () => router.push(`/store/inventory/${item.id}`) },
+                            { label: t("view"), icon: <Package size={14} />, onClick: () => router.push(`/store/inventory/${item.productId}`) },
+                            { label: t("edit"), icon: <Pencil size={14} />, onClick: () => router.push(`/store/inventory/${item.productId}`) },
                           ]}
                         />
                       </td>

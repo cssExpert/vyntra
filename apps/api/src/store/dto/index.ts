@@ -9,3 +9,7 @@ export * from './update-order.dto';
 export * from './create-coupon-code.dto';
 export * from './update-coupon-code.dto';
 export * from './update-inventory.dto';
+export * from './create-customer-group.dto';
+export * from './update-customer-group.dto';
+export * from './update-customer-group-restrictions.dto';
+export * from './create-product-tier-price.dto';

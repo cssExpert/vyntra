@@ -1,5 +1,6 @@
 import { PrismaClient, Role } from "@prisma/client";
 import * as bcrypt from "bcryptjs";
+import { DEFAULT_CUSTOMER_GROUP_NAMES } from "../src/store/utils/default-customer-groups";
 
 const prisma = new PrismaClient();
 
@@ -347,6 +348,18 @@ async function main() {
     ekam.id,
     Role.ORG_ADMIN,
   );
+
+  // ── Default customer groups for every seeded org ─────────
+  for (const seededOrg of [org, bloom, startup, ekam]) {
+    await prisma.customerGroup.createMany({
+      data: DEFAULT_CUSTOMER_GROUP_NAMES.map((name) => ({
+        organizationId: seededOrg.id,
+        name,
+        isDefault: true,
+      })),
+      skipDuplicates: true,
+    });
+  }
 
   // ── CMS pages for Acme Corp ─────────────────────────────
   const acmePages = [
@@ -839,8 +852,9 @@ async function main() {
     },
   ];
 
+  const prodMap: Record<string, string> = {};
   for (const p of products) {
-    await prisma.product.upsert({
+    const rec = await prisma.product.upsert({
       where: { organizationId_slug: { organizationId: org.id, slug: p.slug } },
       update: {
         name: p.name, sku: p.sku, type: p.type, status: p.status,
@@ -874,9 +888,138 @@ async function main() {
         categoryIds: p.categoryIds, tags: p.tags,
       },
     });
+    prodMap[p.slug] = rec.id;
   }
 
   console.log("   ✓ Products (9 sample products — all 8 types covered)");
+
+  // ── Store customers (for Customers / Credits / Rewards pages) ──
+  const storeCustomers = [
+    { key: "cust1", name: "Sarah Mitchell", email: "sarah.mitchell@example.com", status: "active", segment: "vip", isVip: true, storeCredit: 25.0, rewardPoints: 2450, phone: "+1 555-0101" },
+    { key: "cust2", name: "Priya Nair", email: "priya.nair@example.com", status: "active", segment: "regular", isVip: false, storeCredit: 50.0, rewardPoints: 680, phone: "+1 555-0102" },
+    { key: "cust3", name: "Emma Davis", email: "emma.davis@example.com", status: "active", segment: "regular", isVip: false, storeCredit: 20.71, rewardPoints: 210, phone: "+1 555-0103" },
+    { key: "cust4", name: "Aisha Johnson", email: "aisha.johnson@example.com", status: "active", segment: "at_risk", isVip: false, storeCredit: 10.0, rewardPoints: 90, phone: "+1 555-0104" },
+    { key: "cust5", name: "James Cooper", email: "james.cooper@example.com", status: "active", segment: "new", isVip: false, storeCredit: 0, rewardPoints: 0, phone: "+1 555-0105" },
+    { key: "cust6", name: "Wei Zhang", email: "wei.zhang@example.com", status: "unverified", segment: "new", isVip: false, storeCredit: 0, rewardPoints: 0, phone: null },
+  ];
+  const custMap: Record<string, string> = {};
+  for (const c of storeCustomers) {
+    const rec = await prisma.storeCustomer.upsert({
+      where: { organizationId_email: { organizationId: org.id, email: c.email } },
+      update: { name: c.name, status: c.status, segment: c.segment, isVip: c.isVip, storeCredit: c.storeCredit, rewardPoints: c.rewardPoints, phone: c.phone },
+      create: { organizationId: org.id, name: c.name, email: c.email, status: c.status, segment: c.segment, isVip: c.isVip, storeCredit: c.storeCredit, rewardPoints: c.rewardPoints, phone: c.phone },
+    });
+    custMap[c.key] = rec.id;
+  }
+  console.log("   ✓ Store customers (6 sample customers with credit/reward balances)");
+
+  // ── Coupons ──────────────────────────────────────────────
+  const coupons = [
+    { code: "WELCOME10", type: "percent", value: 10, minimumSpend: 25, usageLimit: 500, usageCount: 312, status: "active", freeShipping: false, expiresAt: new Date("2026-12-31") },
+    { code: "SUMMER25", type: "percent", value: 25, usageLimit: 200, usageCount: 156, status: "active", freeShipping: false, expiresAt: new Date("2026-07-31") },
+    { code: "FLAT20OFF", type: "fixed_cart", value: 20, usageLimit: 100, usageCount: 100, status: "expired", freeShipping: false, expiresAt: new Date("2026-01-31") },
+    { code: "VIP2026", type: "percent", value: 30, usageLimitPerUser: 1, usageCount: 23, status: "active", freeShipping: true, expiresAt: new Date("2026-12-31") },
+  ];
+  for (const c of coupons) {
+    await prisma.couponCode.upsert({
+      where: { organizationId_code: { organizationId: org.id, code: c.code } },
+      update: { type: c.type, value: c.value, minimumSpend: c.minimumSpend ?? null, usageLimit: c.usageLimit ?? null, usageLimitPerUser: c.usageLimitPerUser ?? null, usageCount: c.usageCount, status: c.status, freeShipping: c.freeShipping, expiresAt: c.expiresAt },
+      create: { organizationId: org.id, code: c.code, type: c.type, value: c.value, minimumSpend: c.minimumSpend ?? null, usageLimit: c.usageLimit ?? null, usageLimitPerUser: c.usageLimitPerUser ?? null, usageCount: c.usageCount, status: c.status, freeShipping: c.freeShipping, expiresAt: c.expiresAt },
+    });
+  }
+  console.log("   ✓ Coupons (4 sample discount codes)");
+
+  // ── Inventory (separate warehouse-tracking rows for a few physical products) ──
+  const inventoryRows = [
+    { productSlug: "ui-component-bundle", stock: 9999, warehouseLocation: null },
+    { productSlug: "pro-t-shirt-branded", stock: 14, warehouseLocation: "A-12" },
+    { productSlug: "mechanical-keyboard-wrist-rest", stock: 87, warehouseLocation: "B-04" },
+  ];
+  for (const inv of inventoryRows) {
+    const productId = prodMap[inv.productSlug];
+    const existingInventory = await prisma.inventory.findFirst({
+      where: { organizationId: org.id, productId, variantId: null },
+    });
+    if (existingInventory) {
+      await prisma.inventory.update({
+        where: { id: existingInventory.id },
+        data: { stock: inv.stock, warehouseLocation: inv.warehouseLocation },
+      });
+    } else {
+      await prisma.inventory.create({
+        data: { organizationId: org.id, productId, stock: inv.stock, warehouseLocation: inv.warehouseLocation },
+      });
+    }
+  }
+  console.log("   ✓ Inventory (3 warehouse-tracked products)");
+
+  // ── Orders (mix of statuses so Reports/Orders pages have real data) ──
+  const sampleOrders = [
+    {
+      key: "ord1", customerKey: "cust1", status: "delivered", paymentStatus: "paid",
+      items: [{ slug: "ui-component-bundle", quantity: 1, unitPrice: 149.0 }],
+      shippingCost: 0, taxAmount: 0, daysAgo: 5,
+    },
+    {
+      key: "ord2", customerKey: "cust2", status: "delivered", paymentStatus: "paid",
+      items: [{ slug: "pro-t-shirt-branded", quantity: 2, unitPrice: 29.0 }, { slug: "mechanical-keyboard-wrist-rest", quantity: 1, unitPrice: 34.99 }],
+      shippingCost: 5.0, taxAmount: 7.44, daysAgo: 12,
+    },
+    {
+      key: "ord3", customerKey: "cust3", status: "processing", paymentStatus: "paid",
+      items: [{ slug: "seo-audit-checklist-pdf", quantity: 1, unitPrice: 19.0 }],
+      shippingCost: 0, taxAmount: 0, daysAgo: 1,
+    },
+    {
+      key: "ord4", customerKey: "cust4", status: "pending", paymentStatus: "pending",
+      items: [{ slug: "1-on-1-consulting-session", quantity: 1, unitPrice: 199.0 }],
+      shippingCost: 0, taxAmount: 0, daysAgo: 0,
+    },
+    {
+      key: "ord5", customerKey: "cust1", status: "cancelled", paymentStatus: "refunded",
+      items: [{ slug: "icon-pack-1200-line-icons", quantity: 1, unitPrice: 39.0 }],
+      shippingCost: 0, taxAmount: 0, daysAgo: 20,
+    },
+  ];
+  for (const o of sampleOrders) {
+    const customer = storeCustomers.find((c) => c.key === o.customerKey)!;
+    const orderNumber = `ORD-SEED-${o.key.slice(3).padStart(4, "0")}`;
+    const items = o.items.map((it) => {
+      const product = products.find((p) => p.slug === it.slug)!;
+      return {
+        productId: prodMap[it.slug],
+        productName: product.name,
+        sku: product.sku,
+        quantity: it.quantity,
+        unitPrice: it.unitPrice,
+        totalPrice: it.quantity * it.unitPrice,
+      };
+    });
+    const subtotal = items.reduce((s, i) => s + i.totalPrice, 0);
+    const total = subtotal + o.shippingCost + o.taxAmount;
+    const createdAt = new Date(Date.now() - o.daysAgo * 24 * 60 * 60 * 1000);
+
+    const existing = await prisma.order.findUnique({
+      where: { organizationId_orderNumber: { organizationId: org.id, orderNumber } },
+    });
+    if (!existing) {
+      await prisma.order.create({
+        data: {
+          organizationId: org.id,
+          orderNumber,
+          customerId: custMap[o.customerKey],
+          customerName: customer.name,
+          customerEmail: customer.email,
+          subtotal, shippingCost: o.shippingCost, taxAmount: o.taxAmount, total,
+          status: o.status, paymentStatus: o.paymentStatus,
+          createdAt,
+          items: { create: items },
+          timeline: { create: { status: o.status, message: `Order ${o.status}`, createdAt } },
+        },
+      });
+    }
+  }
+  console.log("   ✓ Orders (5 sample orders — delivered/processing/pending/cancelled)");
 
   const platformDomain = process.env.PLATFORM_DOMAIN ?? "lvh.me";
   console.log(`✅ Seed complete  (password for all accounts: ${PASSWORD})`);

@@ -1,37 +1,54 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
 import { Plus, Wallet, Pencil, Eye } from "lucide-react";
-import { SAMPLE_CREDITS } from "../store.data";
+import type { CustomerCredit } from "../store.types";
 import { Button } from "@/components/ui/button";
-import { pageWindow } from "../store.utils";
+import { pageWindow, toCustomerCredit } from "../store.utils";
+import { storeCustomers } from "@/lib/api";
 
 export function StoreCreditsView() {
-   
+
   const t = useTranslations("store.credits");
   const isLoaded = usePageLoad(600);
+  const [credits, setCredits] = useState<CustomerCredit[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
 
-  const totalLiability = SAMPLE_CREDITS.reduce((s, c) => s + c.balance, 0);
+  const load = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const res = await storeCustomers.list({ take: 500 });
+      setCredits(res.data.map(toCustomerCredit).filter((c) => c.balance > 0));
+    } catch {
+      // keep empty
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-  const filteredCount = SAMPLE_CREDITS.length;
+  useEffect(() => { load(); }, [load]);
+
+  const totalLiability = credits.reduce((s, c) => s + c.balance, 0);
+
+  const filteredCount = credits.length;
   const fromEntry = filteredCount === 0 ? 0 : pageIndex * pageSize + 1;
   const toEntry = Math.min((pageIndex + 1) * pageSize, filteredCount);
   const pageCount = Math.ceil(filteredCount / pageSize) || 1;
-  const paginatedRows = SAMPLE_CREDITS.slice(
+  const paginatedRows = credits.slice(
     pageIndex * pageSize,
     (pageIndex + 1) * pageSize,
   );
 
   return (
     <AnimatePresence mode="wait" initial={false}>
-      {!isLoaded ? (
+      {!isLoaded || isLoading ? (
         <motion.div key="sk" exit={{ opacity: 0 }} className="space-y-4">
           <div className="h-9 w-48 rounded-sm bg-muted animate-pulse" />
           <div className="h-64 w-full rounded-xl bg-muted animate-pulse" />
@@ -76,7 +93,7 @@ export function StoreCreditsView() {
               <Wallet size={18} className="text-success" />
               <div>
                 <p className="text-xl font-extrabold text-foreground">
-                  {SAMPLE_CREDITS.length}
+                  {credits.length}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   Customers with Credit
@@ -138,7 +155,7 @@ export function StoreCreditsView() {
                         </span>
                       </td>
                       <td className="py-4 px-4 text-xs text-muted-foreground">
-                        {c.lastTransactionAt}
+                        {c.lastTransactionAt ?? "—"}
                       </td>
                       <td className="py-4 px-4 text-right">
                         <TableActionMenu

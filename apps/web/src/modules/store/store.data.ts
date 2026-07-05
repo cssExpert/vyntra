@@ -644,11 +644,11 @@ export const SAMPLE_COUPONS: StoreCoupon[] = [
 // ─── Inventory ────────────────────────────────────────────────────────────────
 
 export const SAMPLE_INVENTORY: InventoryItem[] = [
-  { id: "inv1", productId: "p1", productName: "Premium SaaS Dashboard Template", sku: "TMPL-001", type: "digital", stock: 9999, lowStockThreshold: 0, stockStatus: "in_stock", backorderEnabled: false, lastUpdated: "2026-05-20", featuredImage: "https://placehold.co/40x40/d14c23/fff?text=DS" },
-  { id: "inv2", productId: "p5", productName: "Pro T-Shirt (S)", sku: "MERCH-TS-S", type: "variable", stock: 14, lowStockThreshold: 20, stockStatus: "low_stock", backorderEnabled: false, lastUpdated: "2026-05-22", warehouseLocation: "A-12", featuredImage: "https://placehold.co/40x40/16a34a/fff?text=TS" },
-  { id: "inv3", productId: "p5b", productName: "Pro T-Shirt (M)", sku: "MERCH-TS-M", type: "variable", stock: 0, lowStockThreshold: 20, stockStatus: "out_of_stock", backorderEnabled: true, lastUpdated: "2026-05-18", warehouseLocation: "A-12" },
-  { id: "inv4", productId: "p5c", productName: "Pro T-Shirt (L)", sku: "MERCH-TS-L", type: "variable", stock: 42, lowStockThreshold: 10, stockStatus: "in_stock", backorderEnabled: false, lastUpdated: "2026-05-22", warehouseLocation: "A-13" },
-  { id: "inv5", productId: "p4", productName: "SEO Audit Checklist PDF", sku: "DL-SEO-001", type: "downloadable", stock: 9999, lowStockThreshold: 0, stockStatus: "in_stock", backorderEnabled: false, lastUpdated: "2026-02-14" },
+  { id: "inv1", productId: "p1", productName: "Premium SaaS Dashboard Template", sku: "TMPL-001", type: "digital", stock: 9999, lowStockThreshold: 0, stockStatus: "in_stock", lastUpdated: "2026-05-20", featuredImage: "https://placehold.co/40x40/d14c23/fff?text=DS" },
+  { id: "inv2", productId: "p5", productName: "Pro T-Shirt (S)", sku: "MERCH-TS-S", type: "variable", stock: 14, lowStockThreshold: 20, stockStatus: "low_stock", lastUpdated: "2026-05-22", warehouseLocation: "A-12", featuredImage: "https://placehold.co/40x40/16a34a/fff?text=TS" },
+  { id: "inv3", productId: "p5b", productName: "Pro T-Shirt (M)", sku: "MERCH-TS-M", type: "variable", stock: 0, lowStockThreshold: 20, stockStatus: "out_of_stock", lastUpdated: "2026-05-18", warehouseLocation: "A-12" },
+  { id: "inv4", productId: "p5c", productName: "Pro T-Shirt (L)", sku: "MERCH-TS-L", type: "variable", stock: 42, lowStockThreshold: 10, stockStatus: "in_stock", lastUpdated: "2026-05-22", warehouseLocation: "A-13" },
+  { id: "inv5", productId: "p4", productName: "SEO Audit Checklist PDF", sku: "DL-SEO-001", type: "downloadable", stock: 9999, lowStockThreshold: 0, stockStatus: "in_stock", lastUpdated: "2026-02-14" },
 ];
 
 // ─── Automations ─────────────────────────────────────────────────────────────

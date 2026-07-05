@@ -141,18 +141,20 @@ model Organization {
   activities Activity[]
 
   // Store (org-scoped)
-  storeAttributes StoreAttribute[]
-  products        Product[]
-  categories      ProductCategory[]
-  productReviews  ProductReview[]
-  storeCustomers  StoreCustomer[]
-  orders          Order[]
-  payments        Payment[]
-  coupons         CouponCode[]
-  refunds         Refund[]
-  storeCredits    StoreCreditTransaction[]
-  rewardPoints    RewardPointTransaction[]
-  inventory       Inventory[]
+  storeAttributes   StoreAttribute[]
+  products          Product[]
+  categories        ProductCategory[]
+  productReviews    ProductReview[]
+  storeCustomers    StoreCustomer[]
+  orders            Order[]
+  payments          Payment[]
+  coupons           CouponCode[]
+  refunds           Refund[]
+  storeCredits      StoreCreditTransaction[]
+  rewardPoints      RewardPointTransaction[]
+  inventory         Inventory[]
+  customerGroups    CustomerGroup[]
+  productTierPrices ProductTierPrice[]
 
   @@map("organizations")
 }
@@ -335,6 +337,7 @@ model Page {
   theme        Theme?            @relation("PageTheme", fields: [themeId], references: [id], onDelete: SetNull)
   comments     Comment[]
   translations PageTranslation[]
+  groupRestrictions CustomerGroupPage[]
 
   @@unique([organizationId, slug])
   @@index([organizationId])
@@ -819,10 +822,12 @@ model Product {
   tags        String[] @default([])
 
   // Relations
-  variants   ProductVariant[]
-  inventory  Inventory[]
-  orderItems OrderItem[]
-  reviews    ProductReview[]
+  variants        ProductVariant[]
+  inventory       Inventory[]
+  orderItems      OrderItem[]
+  reviews         ProductReview[]
+  tierPrices        ProductTierPrice[]
+  groupRestrictions CustomerGroupProduct[]
 
   // Timestamps
   publishedAt DateTime?
@@ -874,8 +879,9 @@ model ProductCategory {
   status      String  @default("active")
   sortOrder   Int     @default(0)
 
-  parent   ProductCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
-  children ProductCategory[] @relation("CategoryHierarchy")
+  parent         ProductCategory? @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children       ProductCategory[] @relation("CategoryHierarchy")
+  groupRestrictions CustomerGroupCategory[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1181,9 +1187,166 @@ model StoreCustomer {
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
+  customerGroupId String?
+  customerGroup   CustomerGroup? @relation(fields: [customerGroupId], references: [id], onDelete: SetNull)
+
   @@unique([organizationId, email])
   @@index([organizationId])
+  @@index([customerGroupId])
   @@map("store_customers")
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  Store: Customer Groups
+// ════════════════════════════════════════════════════════════════════
+
+model CustomerGroup {
+  id             String   @id @default(cuid())
+  organizationId String
+
+  name           String
+  description    String?
+  isDefault      Boolean  @default(false) // one of the 3 seeded defaults (informational only — not protected from edit/delete)
+
+  // Flat discount applied to every product's price for customers in this group.
+  // Never stacks with ProductTierPrice — a matching tier price replaces it entirely.
+  discountType   String?  // "percentage" | "fixed"
+  discountValue  Float?
+
+  // Restriction modes shared across all six areas: "all" | "only_selected" | "except_selected"
+  categoriesMode      String @default("all")
+  productsMode        String @default("all")
+  pagesMode           String @default("all")
+  paymentMethodsMode  String @default("all")
+  shippingMethodsMode String @default("all")
+  onlineGatewaysMode  String @default("all")
+
+  // Products-only: regex tested against product name/SKU, OR'd with the manual product list.
+  productPattern String?
+
+  // Purchasing / B2B self-service gating
+  requiresApproval Boolean @default(false)
+  minOrderValue    Float?
+  maxOrderValue    Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization    Organization                  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customers       StoreCustomer[]
+  tierPrices      ProductTierPrice[]
+  categories      CustomerGroupCategory[]
+  products        CustomerGroupProduct[]
+  pages           CustomerGroupPage[]
+  paymentMethods  CustomerGroupPaymentMethod[]
+  shippingMethods CustomerGroupShippingMethod[]
+  onlineGateways  CustomerGroupOnlineGateway[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+  @@map("customer_groups")
+}
+
+model CustomerGroupCategory {
+  id              String @id @default(cuid())
+  customerGroupId String
+  categoryId      String
+
+  customerGroup CustomerGroup   @relation(fields: [customerGroupId], references: [id], onDelete: Cascade)
+  category      ProductCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([customerGroupId, categoryId])
+  @@index([customerGroupId])
+  @@index([categoryId])
+  @@map("customer_group_categories")
+}
+
+model CustomerGroupProduct {
+  id              String @id @default(cuid())
+  customerGroupId String
+  productId       String
+
+  customerGroup CustomerGroup @relation(fields: [customerGroupId], references: [id], onDelete: Cascade)
+  product       Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([customerGroupId, productId])
+  @@index([customerGroupId])
+  @@index([productId])
+  @@map("customer_group_products")
+}
+
+model CustomerGroupPage {
+  id              String @id @default(cuid())
+  customerGroupId String
+  pageId          String
+
+  customerGroup CustomerGroup @relation(fields: [customerGroupId], references: [id], onDelete: Cascade)
+  page          Page          @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@unique([customerGroupId, pageId])
+  @@index([customerGroupId])
+  @@index([pageId])
+  @@map("customer_group_pages")
+}
+
+// Payment/shipping/gateway integrations are keyed by a string slug in this app
+// (Payment.method, Order.shippingMethod are free text) — no relational entity to join against.
+model CustomerGroupPaymentMethod {
+  id              String @id @default(cuid())
+  customerGroupId String
+  methodSlug      String
+
+  customerGroup CustomerGroup @relation(fields: [customerGroupId], references: [id], onDelete: Cascade)
+
+  @@unique([customerGroupId, methodSlug])
+  @@index([customerGroupId])
+  @@map("customer_group_payment_methods")
+}
+
+model CustomerGroupShippingMethod {
+  id              String @id @default(cuid())
+  customerGroupId String
+  methodSlug      String
+
+  customerGroup CustomerGroup @relation(fields: [customerGroupId], references: [id], onDelete: Cascade)
+
+  @@unique([customerGroupId, methodSlug])
+  @@index([customerGroupId])
+  @@map("customer_group_shipping_methods")
+}
+
+model CustomerGroupOnlineGateway {
+  id              String @id @default(cuid())
+  customerGroupId String
+  gatewaySlug     String
+
+  customerGroup CustomerGroup @relation(fields: [customerGroupId], references: [id], onDelete: Cascade)
+
+  @@unique([customerGroupId, gatewaySlug])
+  @@index([customerGroupId])
+  @@map("customer_group_online_gateways")
+}
+
+model ProductTierPrice {
+  id              String  @id @default(cuid())
+  organizationId  String
+  productId       String
+  customerGroupId String? // null = applies to any group (see resolution algorithm's "null-group" fallback)
+
+  minQty Int
+  price  Float // absolute tier price, not a discount %
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization  Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  product       Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customerGroup CustomerGroup? @relation(fields: [customerGroupId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, customerGroupId, minQty])
+  @@index([organizationId])
+  @@index([productId])
+  @@map("product_tier_prices")
 }
 
 model StoreCreditTransaction {

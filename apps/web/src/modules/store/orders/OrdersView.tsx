@@ -1,15 +1,16 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Download, Search, X } from "lucide-react";
 import { OrdersTable } from "./components/OrdersTable";
-import { SAMPLE_ORDERS } from "../store.data";
-import type { OrderStatus } from "../store.types";
+import type { OrderStatus, StoreOrder } from "../store.types";
 import { cn } from "@/lib/utils";
+import { toStoreOrder } from "../store.utils";
+import { storeOrders } from "@/lib/api";
 import { MotionTabs, type MotionTabItem } from "@/components/ui/MotionTabs";
 import { Input } from "@/components/ui/input";
 
@@ -36,12 +37,28 @@ export function OrdersView() {
       document.documentElement.style.overflow = "";
     };
   }, []);
+  const [orders, setOrders] = useState<StoreOrder[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"all" | OrderStatus>("all");
   const [search, setSearch] = useState("");
   const [payFilter, setPayFilter] = useState("");
 
+  const load = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const res = await storeOrders.list({ take: 500 });
+      setOrders(res.data.map(toStoreOrder));
+    } catch {
+      // keep empty
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
   const filtered = useMemo(() => {
-    let r = SAMPLE_ORDERS;
+    let r = orders;
     if (activeTab !== "all") r = r.filter((o) => o.status === activeTab);
     if (payFilter) r = r.filter((o) => o.paymentStatus === payFilter);
     if (search.trim()) {
@@ -54,13 +71,13 @@ export function OrdersView() {
       );
     }
     return r;
-  }, [activeTab, search, payFilter]);
+  }, [orders, activeTab, search, payFilter]);
 
-  const total = SAMPLE_ORDERS.reduce((s, o) => s + o.total, 0);
+  const total = orders.reduce((s, o) => s + o.total, 0);
 
   return (
     <AnimatePresence mode="wait" initial={false}>
-      {!isLoaded ? (
+      {!isLoaded || isLoading ? (
         <motion.div
           key="sk"
           exit={{ opacity: 0 }}
@@ -81,7 +98,7 @@ export function OrdersView() {
         >
           <PageHeader
             title={t("title")}
-            description={t("description", { defaultValue: `${SAMPLE_ORDERS.length} orders · $${total.toFixed(2)} total revenue` })}
+            description={t("description", { defaultValue: `${orders.length} orders · $${total.toFixed(2)} total revenue` })}
             breadcrumbs={[
               { label: t("store"), href: "/store" },
               { label: t("title") },

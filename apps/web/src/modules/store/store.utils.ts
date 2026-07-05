@@ -4,12 +4,159 @@
  */
 
 import { formatCurrency as libFormatCurrency, formatDate as libFormatDate } from "@/lib/utils";
-import type { StoreCoupon, StoreCustomer } from "./store.types";
+import type { ApiInventoryItem, ApiOrderAddress, ApiStoreCoupon, ApiStoreCustomer, ApiStoreOrder } from "@/lib/api";
+import type { CustomerCredit, CustomerReward, InventoryItem, OrderAddress, ProductType, StockStatus, StoreCoupon, StoreCustomer, StoreOrder } from "./store.types";
+import { REWARD_TIER_THRESHOLDS } from "./store.constants";
 
 // ─── Currency & Price Formatting ───────────────────────────────────────────
 
 export function formatStorePrice(price: number): string {
   return libFormatCurrency(price, "USD", "en-US");
+}
+
+// ─── API → View Model Mapping ──────────────────────────────────────────────
+
+export function toStoreCustomer(c: ApiStoreCustomer): StoreCustomer {
+  return {
+    id: c.id,
+    name: c.name,
+    email: c.email,
+    phone: c.phone ?? undefined,
+    avatarUrl: c.avatarUrl ?? undefined,
+    status: c.status as StoreCustomer["status"],
+    tags: c.tags,
+    totalOrders: c.totalOrders,
+    totalSpent: c.totalSpent,
+    averageOrderValue: c.averageOrderValue,
+    rewardPoints: c.rewardPoints,
+    storeCredit: c.storeCredit,
+    lastOrderDate: c.lastOrderDate ?? undefined,
+    registeredAt: c.registeredAt,
+    isVip: c.isVip,
+    segment: (c.segment ?? undefined) as StoreCustomer["segment"],
+  };
+}
+
+function toStoreOrderAddress(a: ApiOrderAddress): OrderAddress {
+  return {
+    name: a.name,
+    line1: a.line1,
+    line2: a.line2 ?? undefined,
+    city: a.city,
+    state: a.state,
+    country: a.country,
+    zip: a.zip,
+    phone: a.phone ?? undefined,
+  };
+}
+
+export function toStoreOrder(o: ApiStoreOrder): StoreOrder {
+  return {
+    id: o.id,
+    orderNumber: o.orderNumber,
+    customerId: o.customerId,
+    customerName: o.customerName,
+    customerEmail: o.customerEmail,
+    status: o.status as StoreOrder["status"],
+    paymentStatus: o.paymentStatus as StoreOrder["paymentStatus"],
+    items: o.items.map((i) => ({
+      id: i.id,
+      productId: i.productId,
+      productName: i.productName,
+      sku: i.sku,
+      quantity: i.quantity,
+      unitPrice: i.unitPrice,
+      totalPrice: i.totalPrice,
+      imageUrl: i.imageUrl ?? undefined,
+      variantLabel: i.variantLabel ?? undefined,
+    })),
+    subtotal: o.subtotal,
+    discount: o.discountAmount,
+    shipping: o.shippingCost,
+    tax: o.taxAmount,
+    total: o.total,
+    currencyCode: o.currencyCode,
+    couponCode: o.couponCode ?? undefined,
+    notes: o.notes ?? undefined,
+    shippingAddress: o.shippingAddress ? toStoreOrderAddress(o.shippingAddress) : undefined,
+    billingAddress: o.billingAddress ? toStoreOrderAddress(o.billingAddress) : undefined,
+    shippingMethod: o.shippingMethod ?? undefined,
+    trackingNumber: o.trackingNumber ?? undefined,
+    createdAt: o.createdAt,
+    updatedAt: o.updatedAt,
+    paidAt: o.paidAt ?? undefined,
+    shippedAt: o.shippedAt ?? undefined,
+    deliveredAt: o.deliveredAt ?? undefined,
+  };
+}
+
+export function toStoreCoupon(c: ApiStoreCoupon): StoreCoupon {
+  return {
+    id: c.id,
+    code: c.code,
+    type: c.type as StoreCoupon["type"],
+    value: c.value,
+    minimumSpend: c.minimumSpend ?? undefined,
+    maximumDiscount: c.maximumDiscount ?? undefined,
+    usageLimit: c.usageLimit ?? undefined,
+    usageCount: c.usageCount,
+    usageLimitPerUser: c.usageLimitPerUser ?? undefined,
+    productIds: c.productIds,
+    categoryIds: c.categoryIds,
+    startsAt: c.startsAt ?? undefined,
+    expiresAt: c.expiresAt ?? undefined,
+    status: c.status as StoreCoupon["status"],
+    freeShipping: c.freeShipping,
+    createdAt: c.createdAt,
+  };
+}
+
+export function toInventoryItem(i: ApiInventoryItem): InventoryItem {
+  return {
+    id: i.id,
+    productId: i.productId,
+    productName: i.product.name,
+    sku: i.product.sku,
+    featuredImage: i.product.featuredImage ?? undefined,
+    type: i.product.type as ProductType,
+    stock: i.stock,
+    lowStockThreshold: i.product.lowStockThreshold,
+    stockStatus: i.product.stockStatus as StockStatus,
+    lastUpdated: i.lastUpdated,
+    warehouseLocation: i.warehouseLocation ?? undefined,
+  };
+}
+
+export function toCustomerCredit(c: ApiStoreCustomer): CustomerCredit {
+  return {
+    customerId: c.id,
+    customerName: c.name,
+    customerEmail: c.email,
+    balance: c.storeCredit,
+  };
+}
+
+const REWARD_TIERS: CustomerReward["tier"][] = ["platinum", "gold", "silver", "bronze"];
+
+export function rewardTierForPoints(points: number): CustomerReward["tier"] {
+  for (const tier of REWARD_TIERS) {
+    if (points >= REWARD_TIER_THRESHOLDS[tier]) return tier;
+  }
+  return "bronze";
+}
+
+export function toCustomerReward(c: ApiStoreCustomer): CustomerReward {
+  const tier = rewardTierForPoints(c.rewardPoints);
+  const tierIndex = REWARD_TIERS.indexOf(tier);
+  const nextTier = tierIndex > 0 ? REWARD_TIERS[tierIndex - 1] : null;
+  return {
+    customerId: c.id,
+    customerName: c.name,
+    customerEmail: c.email,
+    points: c.rewardPoints,
+    tier,
+    pointsToNextTier: nextTier ? REWARD_TIER_THRESHOLDS[nextTier] - c.rewardPoints : 0,
+  };
 }
 
 export function formatStorePriceWithCurrency(
@@ -73,31 +220,25 @@ export function formatDaysSince(date: string | Date): string {
 
 // ─── Pagination & Page Window ─────────────────────────────────────────────
 
-export function pageWindow(currentPage: number, totalPages: number): (number | string)[] {
+export function pageWindow(currentPage: number, totalPages: number): (number | "…")[] {
   if (totalPages <= 7) {
-    return Array.from({ length: totalPages }, (_, i) => i + 1);
+    return Array.from({ length: totalPages }, (_, i) => i);
   }
 
-  const window: (number | string)[] = [1];
+  const window: (number | "…")[] = [];
+  const add = (n: number) => {
+    if (!window.includes(n)) window.push(n);
+  };
 
-  if (currentPage > 3) {
-    window.push("…");
-  }
+  add(0);
+  if (currentPage > 2) window.push("…");
 
-  const start = Math.max(2, currentPage - 1);
-  const end = Math.min(totalPages - 1, currentPage + 1);
+  const start = Math.max(1, currentPage - 1);
+  const end = Math.min(totalPages - 2, currentPage + 1);
+  for (let i = start; i <= end; i++) add(i);
 
-  for (let i = start; i <= end; i++) {
-    if (!window.includes(i)) {
-      window.push(i);
-    }
-  }
-
-  if (currentPage < totalPages - 2) {
-    window.push("…");
-  }
-
-  window.push(totalPages);
+  if (currentPage < totalPages - 3) window.push("…");
+  add(totalPages - 1);
 
   return window;
 }

@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Plus, TrendingUp, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { InventoryItem } from "../store.types";
-import { SAMPLE_INVENTORY } from "../store.data";
 import { STOCK_STATUS_BADGES } from "../store.constants";
+import { toInventoryItem } from "../store.utils";
+import { storeInventory } from "@/lib/api";
 
 interface InventoryItemViewProps {
   inventoryId: string;
@@ -25,8 +26,10 @@ export function InventoryItemView({ inventoryId }: InventoryItemViewProps) {
     const fetchInventory = async () => {
       setIsLoading(true);
       try {
-        const found = SAMPLE_INVENTORY.find((i) => i.id === inventoryId);
-        setInventory(found || null);
+        const found = await storeInventory.getByProduct(inventoryId);
+        setInventory(toInventoryItem(found));
+      } catch {
+        setInventory(null);
       } finally {
         setIsLoading(false);
       }
@@ -128,16 +131,8 @@ export function InventoryItemView({ inventoryId }: InventoryItemViewProps) {
         <h3 className="font-semibold mb-4">{t("stockLevels")}</h3>
         <div className="grid grid-cols-3 gap-4 text-sm">
           <div>
-            <p className="text-muted-foreground">{t("minimumStock")}</p>
-            <p className="text-lg font-semibold">{inventory.minStock || 0}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">{t("maximumStock")}</p>
-            <p className="text-lg font-semibold">{inventory.maxStock || "—"}</p>
-          </div>
-          <div>
             <p className="text-muted-foreground">{t("reorderPoint")}</p>
-            <p className="text-lg font-semibold">{inventory.reorderPoint || "—"}</p>
+            <p className="text-lg font-semibold">{inventory.lowStockThreshold || "—"}</p>
           </div>
         </div>
       </div>

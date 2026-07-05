@@ -1265,6 +1265,381 @@ export const storeAttributes = {
     apiFetch<{ id: string }>(`/store/attributes/${id}`, { method: "DELETE" }),
 };
 
+// ─── Customer Groups ──────────────────────────────────────────────────────────
+
+export type CustomerGroupRestrictionMode = "all" | "only_selected" | "except_selected";
+
+export interface ApiCustomerGroup {
+  id: string;
+  organizationId: string;
+  name: string;
+  description: string | null;
+  isDefault: boolean;
+  discountType: "percentage" | "fixed" | null;
+  discountValue: number | null;
+  categoriesMode: CustomerGroupRestrictionMode;
+  productsMode: CustomerGroupRestrictionMode;
+  pagesMode: CustomerGroupRestrictionMode;
+  paymentMethodsMode: CustomerGroupRestrictionMode;
+  shippingMethodsMode: CustomerGroupRestrictionMode;
+  onlineGatewaysMode: CustomerGroupRestrictionMode;
+  productPattern: string | null;
+  requiresApproval: boolean;
+  minOrderValue: number | null;
+  maxOrderValue: number | null;
+  createdAt: string;
+  updatedAt: string;
+  _count: { customers: number; tierPrices: number };
+}
+
+export interface CreateCustomerGroupPayload {
+  name: string;
+  // `undefined` = omit (create: no value; update: leave untouched). `null` = explicit clear (update only).
+  description?: string | null;
+  discountType?: "percentage" | "fixed" | null;
+  discountValue?: number | null;
+  requiresApproval?: boolean;
+  minOrderValue?: number | null;
+  maxOrderValue?: number | null;
+}
+
+export interface ApiCustomerGroupRestrictions {
+  categoriesMode: CustomerGroupRestrictionMode;
+  categoryIds: string[];
+  productsMode: CustomerGroupRestrictionMode;
+  productIds: string[];
+  // Full summaries for the currently-selected products (not capped like searchProducts) —
+  // lets the Manual picker render chips for all selections, not just the first 20.
+  productItems: Omit<ApiGroupProductSummary, "price">[];
+  productPattern: string | null;
+  pagesMode: CustomerGroupRestrictionMode;
+  pageIds: string[];
+  paymentMethodsMode: CustomerGroupRestrictionMode;
+  paymentMethodSlugs: string[];
+  shippingMethodsMode: CustomerGroupRestrictionMode;
+  shippingMethodSlugs: string[];
+  onlineGatewaysMode: CustomerGroupRestrictionMode;
+  onlineGatewaySlugs: string[];
+}
+
+export interface ApiTierPriceRow {
+  id: string;
+  productId: string;
+  customerGroupId: string | null;
+  minQty: number;
+  price: number;
+}
+
+export interface ApiGroupProductSummary {
+  id: string;
+  name: string;
+  sku: string;
+  price: number;
+}
+
+export const storeCustomerGroups = {
+  list: () =>
+    apiFetch<{ data: ApiCustomerGroup[]; total: number }>("/store/customer-groups"),
+  get: (id: string) => apiFetch<ApiCustomerGroup>(`/store/customer-groups/${id}`),
+  create: (dto: CreateCustomerGroupPayload) =>
+    apiFetch<ApiCustomerGroup>("/store/customer-groups", {
+      method: "POST",
+      body: JSON.stringify(dto),
+    }),
+  update: (id: string, dto: Partial<CreateCustomerGroupPayload>) =>
+    apiFetch<ApiCustomerGroup>(`/store/customer-groups/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(dto),
+    }),
+  remove: (id: string) =>
+    apiFetch<{ id: string }>(`/store/customer-groups/${id}`, { method: "DELETE" }),
+  restrictions: {
+    get: (id: string) =>
+      apiFetch<ApiCustomerGroupRestrictions>(`/store/customer-groups/${id}/restrictions`),
+    update: (id: string, dto: Partial<ApiCustomerGroupRestrictions>) =>
+      apiFetch<ApiCustomerGroupRestrictions>(`/store/customer-groups/${id}/restrictions`, {
+        method: "PUT",
+        body: JSON.stringify(dto),
+      }),
+    searchProducts: (q: string) =>
+      apiFetch<ApiGroupProductSummary[]>(
+        `/store/customer-groups/products/search?q=${encodeURIComponent(q)}`,
+      ),
+    previewPattern: (id: string, pattern: string) =>
+      apiFetch<{ count: number; matches: ApiGroupProductSummary[] }>(
+        `/store/customer-groups/${id}/restrictions/preview-pattern`,
+        { method: "POST", body: JSON.stringify({ pattern }) },
+      ),
+  },
+  tierPrices: {
+    list: (productId: string) =>
+      apiFetch<ApiTierPriceRow[]>(`/store/customer-groups/${productId}/tier-prices`),
+    update: (productId: string, rows: { customerGroupId: string | null; minQty: number; price: number }[]) =>
+      apiFetch<ApiTierPriceRow[]>(`/store/customer-groups/${productId}/tier-prices`, {
+        method: "PUT",
+        body: JSON.stringify({ rows }),
+      }),
+  },
+};
+
+// ─── Store Customers ───────────────────────────────────────────────────────
+
+export interface ApiStoreCustomer {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  avatarUrl: string | null;
+  status: string;
+  tags: string[];
+  segment: string | null;
+  isVip: boolean;
+  rewardPoints: number;
+  storeCredit: number;
+  totalOrders: number;
+  totalSpent: number;
+  averageOrderValue: number;
+  lastOrderDate: string | null;
+  registeredAt: string;
+  customerGroupId: string | null;
+}
+
+export const storeCustomers = {
+  list: (params?: { skip?: number; take?: number; status?: string; segment?: string; isVip?: boolean }) => {
+    const qs = new URLSearchParams();
+    if (params?.skip !== undefined) qs.set("skip", String(params.skip));
+    if (params?.take !== undefined) qs.set("take", String(params.take));
+    if (params?.status) qs.set("status", params.status);
+    if (params?.segment) qs.set("segment", params.segment);
+    if (params?.isVip !== undefined) qs.set("isVip", String(params.isVip));
+    const q = qs.toString();
+    return apiFetch<{ data: ApiStoreCustomer[]; total: number }>(
+      `/store/customers${q ? `?${q}` : ""}`,
+    );
+  },
+  get: (id: string) => apiFetch<ApiStoreCustomer>(`/store/customers/${id}`),
+  update: (id: string, dto: Partial<Pick<ApiStoreCustomer, "name" | "email" | "phone" | "status" | "isVip">>) =>
+    apiFetch<ApiStoreCustomer>(`/store/customers/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(dto),
+    }),
+  updateGroup: (id: string, customerGroupId: string | null) =>
+    apiFetch<ApiStoreCustomer>(`/store/customers/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({ customerGroupId }),
+    }),
+  remove: (id: string) => apiFetch<{ id: string }>(`/store/customers/${id}`, { method: "DELETE" }),
+};
+
+// ─── Store Orders ──────────────────────────────────────────────────────────
+
+export interface ApiOrderItem {
+  id: string;
+  productId: string;
+  productName: string;
+  sku: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+  imageUrl: string | null;
+  variantLabel: string | null;
+}
+
+export interface ApiOrderAddress {
+  id: string;
+  name: string;
+  line1: string;
+  line2: string | null;
+  city: string;
+  state: string;
+  country: string;
+  zip: string;
+  phone: string | null;
+}
+
+export interface ApiStoreOrder {
+  id: string;
+  orderNumber: string;
+  customerId: string;
+  customerName: string;
+  customerEmail: string;
+  status: string;
+  paymentStatus: string;
+  items: ApiOrderItem[];
+  subtotal: number;
+  discountAmount: number;
+  shippingCost: number;
+  taxAmount: number;
+  total: number;
+  currencyCode: string;
+  couponCode: string | null;
+  notes: string | null;
+  shippingAddress?: ApiOrderAddress | null;
+  billingAddress?: ApiOrderAddress | null;
+  shippingMethod: string | null;
+  trackingNumber: string | null;
+  createdAt: string;
+  updatedAt: string;
+  paidAt: string | null;
+  shippedAt: string | null;
+  deliveredAt: string | null;
+}
+
+export const storeOrders = {
+  list: (params?: { skip?: number; take?: number; status?: string; customerId?: string }) => {
+    const qs = new URLSearchParams();
+    if (params?.skip !== undefined) qs.set("skip", String(params.skip));
+    if (params?.take !== undefined) qs.set("take", String(params.take));
+    if (params?.status) qs.set("status", params.status);
+    if (params?.customerId) qs.set("customerId", params.customerId);
+    const q = qs.toString();
+    return apiFetch<{ data: ApiStoreOrder[]; total: number }>(
+      `/store/orders${q ? `?${q}` : ""}`,
+    );
+  },
+  get: (id: string) => apiFetch<ApiStoreOrder>(`/store/orders/${id}`),
+};
+
+// ─── Store Coupons ─────────────────────────────────────────────────────────
+
+export interface ApiStoreCoupon {
+  id: string;
+  code: string;
+  type: string;
+  value: number;
+  minimumSpend: number | null;
+  maximumDiscount: number | null;
+  usageLimit: number | null;
+  usageCount: number;
+  usageLimitPerUser: number | null;
+  productIds: string[];
+  categoryIds: string[];
+  startsAt: string | null;
+  expiresAt: string | null;
+  status: string;
+  freeShipping: boolean;
+  createdAt: string;
+}
+
+export type CreateCouponPayload = {
+  code: string;
+  type: string;
+  value: number;
+  minimumSpend?: number | null;
+  maximumDiscount?: number | null;
+  usageLimit?: number | null;
+  usageLimitPerUser?: number | null;
+  productIds?: string[];
+  categoryIds?: string[];
+  startsAt?: string | null;
+  expiresAt?: string | null;
+  status?: string;
+  freeShipping?: boolean;
+};
+
+export const storeCoupons = {
+  list: (params?: { skip?: number; take?: number; status?: string }) => {
+    const qs = new URLSearchParams();
+    if (params?.skip !== undefined) qs.set("skip", String(params.skip));
+    if (params?.take !== undefined) qs.set("take", String(params.take));
+    if (params?.status) qs.set("status", params.status);
+    const q = qs.toString();
+    return apiFetch<{ data: (ApiStoreCoupon & { _count: { usages: number } })[]; total: number }>(
+      `/store/coupons${q ? `?${q}` : ""}`,
+    );
+  },
+  get: (id: string) => apiFetch<ApiStoreCoupon>(`/store/coupons/${id}`),
+  create: (dto: CreateCouponPayload) =>
+    apiFetch<ApiStoreCoupon>("/store/coupons", { method: "POST", body: JSON.stringify(dto) }),
+  update: (id: string, dto: Partial<CreateCouponPayload>) =>
+    apiFetch<ApiStoreCoupon>(`/store/coupons/${id}`, { method: "PUT", body: JSON.stringify(dto) }),
+  remove: (id: string) => apiFetch<{ id: string }>(`/store/coupons/${id}`, { method: "DELETE" }),
+};
+
+// ─── Store Inventory ───────────────────────────────────────────────────────
+
+export interface ApiInventoryProduct {
+  id: string;
+  name: string;
+  sku: string;
+  type: string;
+  featuredImage: string | null;
+  lowStockThreshold: number;
+  stockStatus: string;
+}
+
+export interface ApiInventoryItem {
+  id: string;
+  productId: string;
+  variantId: string | null;
+  warehouseLocation: string | null;
+  stock: number;
+  lastUpdated: string;
+  product: ApiInventoryProduct;
+}
+
+export const storeInventory = {
+  list: (params?: { skip?: number; take?: number; status?: string }) => {
+    const qs = new URLSearchParams();
+    if (params?.skip !== undefined) qs.set("skip", String(params.skip));
+    if (params?.take !== undefined) qs.set("take", String(params.take));
+    if (params?.status) qs.set("status", params.status);
+    const q = qs.toString();
+    return apiFetch<{ data: ApiInventoryItem[]; total: number }>(
+      `/store/inventory${q ? `?${q}` : ""}`,
+    );
+  },
+  getByProduct: (productId: string) => apiFetch<ApiInventoryItem>(`/store/inventory/product/${productId}`),
+};
+
+// ─── Store Analytics ───────────────────────────────────────────────────────
+
+export interface ApiSalesMetrics {
+  totalRevenue: number;
+  totalOrders: number;
+  averageOrderValue: number;
+  totalItems: number;
+  averageItemsPerOrder: number;
+}
+
+export interface ApiCustomerMetrics {
+  totalCustomers: number;
+  newCustomersThisMonth: number;
+  returningCustomers: number;
+  averageCustomerValue: number;
+  vipCount: number;
+  atRiskCustomers: number;
+}
+
+export interface ApiProductPerformance {
+  productId: string;
+  productName: string;
+  totalSold: number;
+  totalRevenue: number;
+  averageRating: number;
+  reviewCount: number;
+  trend: "trending_up" | "stable" | "trending_down";
+}
+
+export interface ApiRevenueTrendPoint {
+  date: string;
+  revenue: number;
+  orderCount: number;
+}
+
+export interface ApiDashboardMetrics {
+  salesMetrics: ApiSalesMetrics;
+  customerMetrics: ApiCustomerMetrics;
+  topProducts: ApiProductPerformance[];
+  revenueTrends: ApiRevenueTrendPoint[];
+  generatedAt: string;
+}
+
+export const storeAnalytics = {
+  dashboard: () => apiFetch<ApiDashboardMetrics>("/store/analytics/dashboard"),
+  revenueTrends: (days: number) => apiFetch<ApiRevenueTrendPoint[]>(`/store/analytics/revenue-trends?days=${days}`),
+};
+
 export const cmsMenus = {
   list: () => apiFetch<CmsMenu[]>("/cms/menus"),
   create: (data: { name: string; slug: string; visibility: string[]; menuType?: string }) =>

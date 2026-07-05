@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { ProductGallery } from "./ProductGallery";
 import type { ApiProductMedia } from "@/lib/api";
 import { ProductDescriptionEditor } from "./ProductDescriptionEditor";
+import { TierPricingRows } from "../../customer-groups/TierPricingRows";
 import Link from "next/link";
 import {
   Save, X, Plus, Trash2, RefreshCw, Package, Zap, Download,
@@ -1022,6 +1023,13 @@ export function ProductForm({
                   </select>
                 </Field>
               </div>
+            </Card>
+          )}
+
+          {/* 6b. Customer Group Tier Pricing — quantity-based pricing per group */}
+          {showPricing && (
+            <Card title="Customer Group Tier Pricing" badge="Optional">
+              <TierPricingRows productId={productId} />
             </Card>
           )}
 

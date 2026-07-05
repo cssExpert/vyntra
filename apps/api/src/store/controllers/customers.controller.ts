@@ -42,7 +42,7 @@ export class CustomersController {
       take: take ? parseInt(take) : 10,
       status,
       segment,
-      isVip: isVip === 'true',
+      isVip: isVip === undefined ? undefined : isVip === 'true',
     });
   }
 

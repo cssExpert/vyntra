@@ -15,7 +15,10 @@
       "Bash(node /tmp/batch-i18n-transform.js)",
       "Bash(node /tmp/comprehensive-i18n-batch.js)",
       "Bash(node /tmp/fix-dashboard-namespace.js)",
-      "Bash(node /tmp/fix-dashboard-merge.js)"
+      "Bash(node /tmp/fix-dashboard-merge.js)",
+      "Bash(mv /Applications/MAMP/htdocs/simran/vyntra/apps/web/verify-tierpricing3.mjs /private/tmp/claude-501/-Applications-MAMP-htdocs-simran-vyntra/bd6e2ebe-5e92-4a3e-8ce2-c223c7e2d8a4/scratchpad/)",
+      "Bash(node verify-tierpricing3.mjs)",
+      "Bash(node /private/tmp/claude-501/-Applications-MAMP-htdocs-simran-vyntra/9073c315-9554-4644-976b-9b06b45d2c92/scratchpad/verify-customers.mjs)"
     ]
   }
 }

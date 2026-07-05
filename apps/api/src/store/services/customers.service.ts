@@ -279,7 +279,7 @@ export class CustomersService {
 
     // Calculate order metrics
     const orders = await this.prisma.order.findMany({
-      where: { customerId, status: 'completed' },
+      where: { customerId, status: 'delivered' },
       select: { total: true },
     });
 

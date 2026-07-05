@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
@@ -8,29 +8,46 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
 import { Trophy, Eye, Pencil } from "lucide-react";
-import { SAMPLE_REWARDS } from "../store.data";
 import type { CustomerReward } from "../store.types";
 import { Button } from "@/components/ui/button";
 import { REWARD_TIER_BADGES, REWARD_TIER_THRESHOLDS } from "../store.constants";
-import { pageWindow } from "../store.utils";
+import { pageWindow, toCustomerReward } from "../store.utils";
+import { storeCustomers } from "@/lib/api";
 
 export function RewardPointsView() {
-     
+
   const t = useTranslations("store.rewards");
   const isLoaded = usePageLoad(600);
+  const [rewards, setRewards] = useState<CustomerReward[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize,  setPageSize]  = useState(10);
-  const totalPoints = SAMPLE_REWARDS.reduce((s, r) => s + r.points, 0);
 
-  const filteredCount = SAMPLE_REWARDS.length;
+  const load = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const res = await storeCustomers.list({ take: 500 });
+      setRewards(res.data.map(toCustomerReward));
+    } catch {
+      // keep empty
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const totalPoints = rewards.reduce((s, r) => s + r.points, 0);
+
+  const filteredCount = rewards.length;
   const fromEntry = filteredCount === 0 ? 0 : pageIndex * pageSize + 1;
   const toEntry = Math.min((pageIndex + 1) * pageSize, filteredCount);
   const pageCount = Math.ceil(filteredCount / pageSize) || 1;
-  const paginatedRows = SAMPLE_REWARDS.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize);
+  const paginatedRows = rewards.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize);
 
   return (
     <AnimatePresence mode="wait" initial={false}>
-      {!isLoaded ? (
+      {!isLoaded || isLoading ? (
         <motion.div key="sk" exit={{ opacity: 0 }} className="space-y-4">
           <div className="h-9 w-48 rounded-sm bg-muted animate-pulse" />
           <div className="h-64 w-full rounded-xl bg-muted animate-pulse" />
@@ -52,13 +69,13 @@ export function RewardPointsView() {
           {/* Tier stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {(["bronze","silver","gold","platinum"] as const).map((tier) => {
-              const count = SAMPLE_REWARDS.filter((r) => r.tier === tier).length;
+              const count = rewards.filter((r) => r.tier === tier).length;
               const badge = REWARD_TIER_BADGES[tier];
               return (
                 <div key={tier} className="glass-card p-4">
                   <Trophy size={16} className={`mb-2 ${tier === "platinum" ? "text-purple-400" : tier === "gold" ? "text-warning" : tier === "silver" ? "text-info" : "text-muted-foreground"}`} />
                   <p className="text-xl font-extrabold text-foreground">{count}</p>
-                  <StatusBadge variant={badge.variant} label={badge.label} size="sm" className="mt-1" />
+                  <StatusBadge variant={badge.variant} label={t(badge.label)} size="sm" className="mt-1" />
                 </div>
               );
             })}
@@ -117,7 +134,7 @@ export function RewardPointsView() {
                       <td className="py-4 px-4 text-xs text-muted-foreground tabular-nums">
                         {r.pointsToNextTier > 0 ? `${r.pointsToNextTier} ${t("points")}` : t("maxTier")}
                       </td>
-                      <td className="py-4 px-4 text-xs text-muted-foreground">{r.lastEarnedAt}</td>
+                      <td className="py-4 px-4 text-xs text-muted-foreground">{r.lastEarnedAt ?? "—"}</td>
                       <td className="py-4 px-4 text-right">
                         <TableActionMenu
                           items={[

@@ -269,7 +269,6 @@ export interface InventoryItem {
   stock: number;
   lowStockThreshold: number;
   stockStatus: StockStatus;
-  backorderEnabled: boolean;
   lastUpdated: string;
   warehouseLocation?: string;
 }
@@ -292,8 +291,8 @@ export interface CustomerCredit {
   customerName: string;
   customerEmail: string;
   balance: number;
-  lastTransactionAt: string;
-  transactions: StoreCreditTransaction[];
+  lastTransactionAt?: string;
+  transactions?: StoreCreditTransaction[];
 }
 
 // ─── Reward Points ───────────────────────────────────────────────────────────
@@ -316,7 +315,7 @@ export interface CustomerReward {
   points: number;
   tier: "bronze" | "silver" | "gold" | "platinum";
   pointsToNextTier: number;
-  lastEarnedAt: string;
+  lastEarnedAt?: string;
 }
 
 // ─── Automation ──────────────────────────────────────────────────────────────
