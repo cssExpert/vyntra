@@ -1751,6 +1751,8 @@
         "modeExceptSelected": "Tout le monde sauf sélectionnés",
         "noCategories": "Aucune catégorie trouvée.",
         "noPages": "Aucune page trouvée.",
+        "categoriesCount": "{count} catégories — faites défiler pour en voir plus",
+        "pagesCount": "{count} pages — faites défiler pour en voir plus",
         "manual": "Manuel",
         "pattern": "Motif",
         "searchProducts": "Rechercher des produits par nom ou SKU…",

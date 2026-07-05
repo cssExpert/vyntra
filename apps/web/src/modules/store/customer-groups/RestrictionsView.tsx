@@ -292,7 +292,13 @@ export function RestrictionsView({ groupId }: RestrictionsViewProps) {
           <div className="bg-card rounded-xl border border-border p-5 space-y-4">
             <ModeSelector value={restrictions.categoriesMode} onChange={(v) => update("categoriesMode", v)} t={t} />
             {restrictions.categoriesMode !== "all" && (
-              <div className="max-h-72 overflow-y-auto border border-border rounded-md divide-y divide-border">
+              <>
+                {categories.length > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    {t("categoriesCount", { defaultValue: `${categories.length} categories — scroll for more`, count: categories.length })}
+                  </p>
+                )}
+                <div className="max-h-72 overflow-y-auto border border-border rounded-md divide-y divide-border">
                 {categories.length === 0 ? (
                   <p className="p-4 text-sm text-muted-foreground">{t("noCategories", { defaultValue: "No categories found." })}</p>
                 ) : categories.map((cat) => (
@@ -301,7 +307,8 @@ export function RestrictionsView({ groupId }: RestrictionsViewProps) {
                     <span className="text-[13px] text-foreground">{cat.name}</span>
                   </label>
                 ))}
-              </div>
+                </div>
+              </>
             )}
             <div className="flex justify-end">
               <Button
@@ -409,16 +416,23 @@ export function RestrictionsView({ groupId }: RestrictionsViewProps) {
           <div className="bg-card rounded-xl border border-border p-5 space-y-4">
             <ModeSelector value={restrictions.pagesMode} onChange={(v) => update("pagesMode", v)} t={t} />
             {restrictions.pagesMode !== "all" && (
-              <div className="max-h-72 overflow-y-auto border border-border rounded-md divide-y divide-border">
-                {pages.length === 0 ? (
-                  <p className="p-4 text-sm text-muted-foreground">{t("noPages", { defaultValue: "No pages found." })}</p>
-                ) : pages.map((page) => (
-                  <label key={page.id} className="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-muted/40">
-                    <Checkbox checked={restrictions.pageIds.includes(page.id)} onCheckedChange={() => togglePage(page.id)} />
-                    <span className="text-[13px] text-foreground">{page.title}</span>
-                  </label>
-                ))}
-              </div>
+              <>
+                {pages.length > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    {t("pagesCount", { defaultValue: `${pages.length} pages — scroll for more`, count: pages.length })}
+                  </p>
+                )}
+                <div className="max-h-72 overflow-y-auto border border-border rounded-md divide-y divide-border">
+                  {pages.length === 0 ? (
+                    <p className="p-4 text-sm text-muted-foreground">{t("noPages", { defaultValue: "No pages found." })}</p>
+                  ) : pages.map((page) => (
+                    <label key={page.id} className="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-muted/40">
+                      <Checkbox checked={restrictions.pageIds.includes(page.id)} onCheckedChange={() => togglePage(page.id)} />
+                      <span className="text-[13px] text-foreground">{page.title}</span>
+                    </label>
+                  ))}
+                </div>
+              </>
             )}
             <div className="flex justify-end">
               <Button
