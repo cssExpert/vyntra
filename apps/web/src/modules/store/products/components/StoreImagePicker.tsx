@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ImageIcon, Trash2, UploadCloud } from "lucide-react";
+import { FileImage, ImageIcon, Trash2, UploadCloud } from "lucide-react";
 import { storageService } from "@/lib/storage";
 import { useAuth } from "@/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,10 @@ interface StoreImagePickerProps {
   /** When true, hides the drag-and-drop upload zone — selection is limited to the media Library. */
   libraryOnly?: boolean;
   hint?: string;
-  onToast?: (msg: string, type?: "success" | "error" | "info" | "warning") => void;
+  onToast?: (
+    msg: string,
+    type?: "success" | "error" | "info" | "warning",
+  ) => void;
   /** Tailwind z-index class for the library modal — raise this when opening from inside another overlay (e.g. a slide-over panel). */
   modalZIndexClassName?: string;
 }
@@ -101,16 +104,38 @@ export function StoreImagePicker({
 
       {value ? (
         /* ── Image preview with hover controls ── */
-        <div className="relative aspect-video rounded-xl overflow-hidden border border-border group">
+        <div
+          className={
+            libraryOnly
+              ? "group relative flex h-[184px] w-full items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-slate-300 dark:border-border bg-slate-50/60 dark:bg-muted/20 p-4"
+              : "relative aspect-video rounded-xl overflow-hidden border border-border group"
+          }
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={value} alt="" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors duration-200 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+          <img
+            src={value}
+            alt=""
+            className={
+              libraryOnly
+                ? "max-h-[150px] max-w-full object-contain"
+                : "w-full h-full object-cover"
+            }
+          />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors duration-200 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 rounded-[inherit]">
             <button
               type="button"
-              onClick={() => (libraryOnly ? setLibraryOpen(true) : fileInputRef.current?.click())}
+              onClick={() =>
+                libraryOnly
+                  ? setLibraryOpen(true)
+                  : fileInputRef.current?.click()
+              }
               className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-gray-900 rounded-lg text-xs font-semibold hover:bg-gray-100 transition-colors shadow-md"
             >
-              {libraryOnly ? <ImageIcon className="w-3.5 h-3.5" /> : <UploadCloud className="w-3.5 h-3.5" />}
+              {libraryOnly ? (
+                <ImageIcon className="w-3.5 h-3.5" />
+              ) : (
+                <UploadCloud className="w-3.5 h-3.5" />
+              )}
               {libraryOnly ? "Change" : "Replace"}
             </button>
             <button
@@ -128,15 +153,40 @@ export function StoreImagePicker({
         <button
           type="button"
           onClick={() => setLibraryOpen(true)}
-          className="w-full aspect-video rounded-xl border border-border bg-muted/30 hover:bg-muted/60 transition-colors flex flex-col items-center justify-center gap-2 text-muted-foreground"
+          className="group relative flex h-[184px] w-full flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed border-slate-300 dark:border-border bg-slate-50/60 dark:bg-muted/20 px-8 py-6 cursor-pointer select-none transition-all duration-200 hover:border-primary/50 hover:bg-primary/[0.02]"
         >
-          <ImageIcon className="w-6 h-6" />
-          <span className="text-xs font-semibold">Choose from Library</span>
+          {/* Stacked icon badge */}
+          <div className="relative">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 dark:bg-muted shadow-sm">
+              <FileImage
+                className="h-8 w-8 text-slate-400 dark:text-muted-foreground"
+                strokeWidth={1.5}
+              />
+            </div>
+            <div className="absolute -bottom-2.5 -right-2.5 flex h-8 w-8 items-center justify-center rounded-full bg-primary shadow-md shadow-primary/30">
+              <ImageIcon className="h-4 w-4 text-white" strokeWidth={2} />
+            </div>
+          </div>
+
+          {/* Text */}
+          <div className="text-center space-y-1">
+            <p className="text-sm text-foreground">
+              <span className="font-bold underline underline-offset-2 decoration-foreground">
+                Choose from Library
+              </span>
+            </p>
+            {hint && (
+              <p className="text-sm font-bold text-foreground/80">{hint}</p>
+            )}
+          </div>
         </button>
       ) : (
         /* ── Upload drop zone ── */
         <div
-          onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setIsDragging(true);
+          }}
           onDragLeave={() => setIsDragging(false)}
           onDrop={handleDrop}
           className={`border-2 border-dashed rounded-xl p-6 text-center transition-all ${
@@ -147,7 +197,9 @@ export function StoreImagePicker({
         >
           <UploadCloud className="w-7 h-7 mx-auto mb-2 text-muted-foreground" />
           {isUploading ? (
-            <p className="text-xs font-semibold text-muted-foreground animate-pulse">Uploading…</p>
+            <p className="text-xs font-semibold text-muted-foreground animate-pulse">
+              Uploading…
+            </p>
           ) : (
             <>
               <p className="text-xs font-semibold text-foreground mb-0.5">
@@ -160,7 +212,9 @@ export function StoreImagePicker({
                   browse files
                 </button>
               </p>
-              <p className="text-[10px] text-muted-foreground">PNG, JPG, WebP</p>
+              <p className="text-[10px] text-muted-foreground">
+                PNG, JPG, WebP
+              </p>
             </>
           )}
         </div>
@@ -182,7 +236,8 @@ export function StoreImagePicker({
       {hint && <p className="text-[11px] text-muted-foreground">{hint}</p>}
 
       {/* Library modal portal */}
-      {mounted && libraryOpen &&
+      {mounted &&
+        libraryOpen &&
         createPortal(
           <LibraryModal
             currentValue={value ?? ""}

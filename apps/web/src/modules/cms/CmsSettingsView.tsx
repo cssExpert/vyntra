@@ -13,6 +13,7 @@ import {
   Image as ImageIcon,
   Languages,
   Newspaper,
+  Save,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
@@ -379,6 +380,44 @@ function Toggle({
   );
 }
 
+function StickySaveBar({
+  saving,
+  success,
+  onSave,
+  label,
+}: {
+  saving: boolean;
+  success: string;
+  onSave: () => void;
+  label: string;
+}) {
+  return (
+    <div className="sticky bottom-0 mx-auto px-4 md:px-6 py-4 bg-background/70 backdrop-blur-md rounded-2xl rounded-b-none border border-border flex items-center justify-between gap-4 z-10">
+      <p className="text-xs text-muted-foreground">
+        {success ? (
+          <span className="flex items-center gap-1.5 text-success">
+            <CheckCircle2 className="h-3.5 w-3.5" /> {success}
+          </span>
+        ) : (
+          "Unsaved changes will be lost if you navigate away."
+        )}
+      </p>
+      <button
+        onClick={onSave}
+        disabled={saving}
+        className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition disabled:opacity-50 cursor-pointer shadow-md shadow-primary/20"
+      >
+        {saving ? (
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+        ) : (
+          <Save className="h-4 w-4" />
+        )}
+        {saving ? "Saving…" : label}
+      </button>
+    </div>
+  );
+}
+
 const BRANDING_FILTERS = ["all", "branding"] as const;
 
 function BrandingTab() {
@@ -550,15 +589,12 @@ function BrandingTab() {
         </div>
       </SectionCard>
 
-      <div className="flex justify-end">
-        <button
-          onClick={save}
-          disabled={saving}
-          className="px-5 py-2.5 bg-primary text-primary-foreground text-sm font-semibold rounded-xl hover:opacity-90 transition disabled:opacity-50 cursor-pointer"
-        >
-          {saving ? "Saving…" : "Save Branding"}
-        </button>
-      </div>
+      <StickySaveBar
+        saving={saving}
+        success={success}
+        onSave={save}
+        label="Save Branding"
+      />
     </div>
   );
 }
@@ -738,15 +774,12 @@ function LanguagesTab() {
         </p>
       </SectionCard>
 
-      <div className="flex justify-end">
-        <button
-          onClick={save}
-          disabled={saving}
-          className="px-5 py-2.5 bg-primary text-primary-foreground text-sm font-semibold rounded-xl hover:opacity-90 transition disabled:opacity-50 cursor-pointer"
-        >
-          {saving ? "Saving…" : "Save Languages"}
-        </button>
-      </div>
+      <StickySaveBar
+        saving={saving}
+        success={success}
+        onSave={save}
+        label="Save Languages"
+      />
     </div>
   );
 }
@@ -859,15 +892,12 @@ function BlogSettingsTab() {
         </div>
       </SectionCard>
 
-      <div className="flex justify-end">
-        <button
-          onClick={save}
-          disabled={saving}
-          className="px-5 py-2.5 bg-primary text-primary-foreground text-sm font-semibold rounded-xl hover:opacity-90 transition disabled:opacity-50 cursor-pointer"
-        >
-          {saving ? "Saving…" : "Save Blog Settings"}
-        </button>
-      </div>
+      <StickySaveBar
+        saving={saving}
+        success={success}
+        onSave={save}
+        label="Save Blog Settings"
+      />
     </div>
   );
 }
