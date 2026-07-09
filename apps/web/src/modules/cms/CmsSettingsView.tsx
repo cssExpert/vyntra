@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import {
   Globe,
@@ -306,12 +307,13 @@ function DomainTab() {
                   <tr key={i}>
                     <td className="px-3 py-2.5">
                       <span
-                        className={`inline-flex rounded-full px-2 py-0.5 font-mono font-semibold text-[10px] ${r.type === "A"
+                        className={`inline-flex rounded-full px-2 py-0.5 font-mono font-semibold text-[10px] ${
+                          r.type === "A"
                             ? "bg-blue-500/10 text-blue-500"
                             : r.type === "CNAME"
                               ? "bg-purple-500/10 text-purple-500"
                               : "bg-amber-500/10 text-amber-600"
-                          }`}
+                        }`}
                       >
                         {r.type}
                       </span>
@@ -337,12 +339,13 @@ function DomainTab() {
             {dns.dnsRecords.map((r, i) => (
               <p key={i} className="text-[11px] text-muted-foreground">
                 <span
-                  className={`font-semibold ${r.type === "A"
+                  className={`font-semibold ${
+                    r.type === "A"
                       ? "text-blue-500"
                       : r.type === "CNAME"
                         ? "text-purple-500"
                         : "text-amber-600"
-                    }`}
+                  }`}
                 >
                   {r.type} ({r.name})
                 </span>
@@ -391,30 +394,60 @@ function StickySaveBar({
   onSave: () => void;
   label: string;
 }) {
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  // Glass + border only apply while the bar is pinned (floating over content).
+  // A sentinel placed right after the bar is off-screen while stuck, and
+  // scrolls into view once the bar reaches its natural resting spot.
+  const [stuck, setStuck] = useState(false);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setStuck(!entry.isIntersecting),
+      { threshold: 0 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="sticky bottom-0 mx-auto px-4 md:px-6 py-4 bg-background/70 backdrop-blur-md rounded-2xl rounded-b-none border border-border flex items-center justify-between gap-4 z-10">
-      <p className="text-xs text-muted-foreground">
-        {success ? (
-          <span className="flex items-center gap-1.5 text-success">
-            <CheckCircle2 className="h-3.5 w-3.5" /> {success}
-          </span>
-        ) : (
-          "Unsaved changes will be lost if you navigate away."
-        )}
-      </p>
-      <button
-        onClick={onSave}
-        disabled={saving}
-        className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition disabled:opacity-50 cursor-pointer shadow-md shadow-primary/20"
-      >
-        {saving ? (
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-        ) : (
-          <Save className="h-4 w-4" />
-        )}
-        {saving ? "Saving…" : label}
-      </button>
-    </div>
+    <>
+      <div className="sticky bottom-0 mx-auto z-10">
+        {/* Masked glass: blur + tint fade in from top (transparent) to bottom (solid) */}
+        <div
+          aria-hidden
+          className={cn(
+            "pointer-events-none absolute -inset-x-[10px] bottom-0 h-[100px] bg-[background]/90 backdrop-blur-md transition-opacity duration-200 [mask-image:linear-gradient(to_top,black,black_45%,transparent)] [-webkit-mask-image:linear-gradient(to_top,black,black_45%,transparent)]",
+            stuck ? "opacity-100" : "opacity-0",
+          )}
+        />
+        <div className="relative flex items-center justify-between gap-4 px-0 py-4">
+          <p className="text-xs text-muted-foreground">
+            {success ? (
+              <span className="flex items-center gap-1.5 text-success">
+                <CheckCircle2 className="h-3.5 w-3.5" /> {success}
+              </span>
+            ) : null}
+          </p>
+          <button
+            onClick={onSave}
+            disabled={saving}
+            className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition disabled:opacity-50 cursor-pointer shadow-md shadow-primary/20"
+          >
+            {saving ? (
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            ) : (
+              <Save className="h-4 w-4" />
+            )}
+            {saving ? "Saving…" : label}
+          </button>
+        </div>
+      </div>
+      {/* Sentinel: intersects the viewport once the bar rests at the bottom.
+          !mt-0 cancels the space-y-5 gap so there's no dead space below the bar. */}
+      <div ref={sentinelRef} aria-hidden className="h-px w-full !mt-0" />
+    </>
   );
 }
 
@@ -438,7 +471,7 @@ function BrandingTab() {
         setFaviconUrl(s.faviconUrl);
         setThemeSwitcherEnabled(s.themeSwitcherEnabled);
       })
-      .catch(() => { })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
@@ -479,7 +512,7 @@ function BrandingTab() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 last:*:mt-0">
       {error && (
         <div className="flex items-center gap-2.5 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
           <AlertCircle className="h-4 w-4 shrink-0" /> {error}
@@ -615,7 +648,7 @@ function LanguagesTab() {
         setSelectedLangs(s.siteLanguages?.length ? s.siteLanguages : ["en"]);
         setDefaultLang(s.defaultSiteLanguage || "en");
       })
-      .catch(() => { })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
@@ -695,17 +728,19 @@ function LanguagesTab() {
                 type="button"
                 onClick={() => toggle(lang.code)}
                 disabled={isRequired}
-                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl border text-left transition-all ${isSelected
+                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl border text-left transition-all ${
+                  isSelected
                     ? "border-primary/40 bg-primary/5 text-foreground"
                     : "border-border bg-background text-muted-foreground hover:border-border/80"
-                  } ${isRequired ? "opacity-70 cursor-default" : "cursor-pointer"}`}
+                } ${isRequired ? "opacity-70 cursor-default" : "cursor-pointer"}`}
               >
                 {/* Checkbox indicator */}
                 <span
-                  className={`flex-shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${isSelected
+                  className={`flex-shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${
+                    isSelected
                       ? "border-primary bg-primary"
                       : "border-muted-foreground/40"
-                    }`}
+                  }`}
                 >
                   {isSelected && (
                     <svg
@@ -756,10 +791,11 @@ function LanguagesTab() {
                 key={lang.code}
                 type="button"
                 onClick={() => setDefaultLang(lang.code)}
-                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border text-left transition-all ${isDefault
+                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border text-left transition-all ${
+                  isDefault
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-border bg-background text-foreground hover:border-primary/40"
-                  }`}
+                }`}
               >
                 <span className="text-base leading-none">{lang.flag}</span>
                 <span className="text-xs font-semibold">{lang.name}</span>
@@ -862,32 +898,48 @@ function BlogSettingsTab() {
         <div className="space-y-3">
           <div className="flex items-center justify-between rounded-xl border border-border bg-muted/20 px-4 py-3.5">
             <div>
-              <p className="text-sm font-medium text-foreground">Allow comments</p>
+              <p className="text-sm font-medium text-foreground">
+                Allow comments
+              </p>
               <p className="text-xs text-muted-foreground mt-0.5">
                 Lets authors enable reader comments on individual blog posts.
               </p>
             </div>
-            <Toggle enabled={commentsEnabled} onToggle={() => setCommentsEnabled((v) => !v)} />
+            <Toggle
+              enabled={commentsEnabled}
+              onToggle={() => setCommentsEnabled((v) => !v)}
+            />
           </div>
 
           <div className="flex items-center justify-between rounded-xl border border-border bg-muted/20 px-4 py-3.5">
             <div>
-              <p className="text-sm font-medium text-foreground">Allow featured posts</p>
+              <p className="text-sm font-medium text-foreground">
+                Allow featured posts
+              </p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Lets authors mark a post as featured (e.g. for a homepage carousel).
+                Lets authors mark a post as featured (e.g. for a homepage
+                carousel).
               </p>
             </div>
-            <Toggle enabled={featuredEnabled} onToggle={() => setFeaturedEnabled((v) => !v)} />
+            <Toggle
+              enabled={featuredEnabled}
+              onToggle={() => setFeaturedEnabled((v) => !v)}
+            />
           </div>
 
           <div className="flex items-center justify-between rounded-xl border border-border bg-muted/20 px-4 py-3.5">
             <div>
-              <p className="text-sm font-medium text-foreground">Allow pin to top</p>
+              <p className="text-sm font-medium text-foreground">
+                Allow pin to top
+              </p>
               <p className="text-xs text-muted-foreground mt-0.5">
                 Lets authors pin a post to the top of blog index feeds.
               </p>
             </div>
-            <Toggle enabled={pinToTopEnabled} onToggle={() => setPinToTopEnabled((v) => !v)} />
+            <Toggle
+              enabled={pinToTopEnabled}
+              onToggle={() => setPinToTopEnabled((v) => !v)}
+            />
           </div>
         </div>
       </SectionCard>
@@ -927,18 +979,29 @@ export function CmsSettingsView() {
 
       {/* Tab strip */}
       <div className="flex items-center gap-1 border-b border-border">
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-all -mb-px ${activeTab === tab.id
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+        {TABS.map((tab) => {
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`relative px-4 py-2.5 text-sm font-medium transition-colors -mb-px ${
+                isActive
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+            >
+              {tab.label}
+              {isActive && (
+                <motion.span
+                  layoutId="cms-settings-tab-underline"
+                  className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-primary"
+                  transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                />
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {activeTab === "branding" && <BrandingTab />}
