@@ -13,7 +13,9 @@ export type BlockType =
   | "custom-html"
   | "page-header"
   | "text-image"
-  | "contact-form";
+  | "contact-form"
+  | "contact-form-info"
+  | "google-map";
 
 export interface Block<T = Record<string, unknown>> {
   id: string;
@@ -190,6 +192,30 @@ export interface ContactFormData {
   subjects?: string[];
 }
 
+export interface ContactFormInfoData {
+  formTitle?: string;
+  formSubtitle?: string;
+  submitText?: string;
+  infoTitle?: string;
+  addressLabel?: string;
+  address?: string;
+  phoneLabel?: string;
+  /** Rendered as separate lines, e.g. "Toll Free (123) 472-796" / "Mobile: +91-9910XXXX" */
+  phoneLines?: string[];
+  emailLabel?: string;
+  email?: string;
+  workingDaysLabel?: string;
+  workingDays?: string;
+}
+
+export interface GoogleMapData {
+  title?: string;
+  /** Plain-text address/place — used to build the embed URL automatically. */
+  address?: string;
+  zoom?: number;
+  height?: number;
+}
+
 // ── Map: BlockType → its data shape ──────────────────────────────────────────
 
 export interface BlockDataMap {
@@ -206,6 +232,8 @@ export interface BlockDataMap {
   "page-header": PageHeaderData;
   "text-image": TextImageData;
   "contact-form": ContactFormData;
+  "contact-form-info": ContactFormInfoData;
+  "google-map": GoogleMapData;
 }
 
 export type TypedBlock = {

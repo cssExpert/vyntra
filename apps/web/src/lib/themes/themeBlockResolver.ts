@@ -15,6 +15,8 @@ import ShopingoCustomHtml from "./shopingo/blocks/CustomHtml";
 import ShopingoPageHeader from "./shopingo/blocks/PageHeader";
 import ShopingoTextImage from "./shopingo/blocks/TextImage";
 import ShopingoContactForm from "./shopingo/blocks/ContactForm";
+import ShopingoContactFormInfo from "./shopingo/blocks/ContactFormInfo";
+import ShopingoGoogleMap from "./shopingo/blocks/GoogleMap";
 
 // ── Common (fallback) blocks ───────────────────────────────────────────────────
 import CommonHeroCarousel from "./common/blocks/HeroCarousel";
@@ -30,6 +32,8 @@ import CommonCustomHtml from "./common/blocks/CustomHtml";
 import CommonPageHeader from "./common/blocks/PageHeader";
 import CommonTextImage from "./common/blocks/TextImage";
 import CommonContactForm from "./common/blocks/ContactForm";
+import CommonContactFormInfo from "./common/blocks/ContactFormInfo";
+import CommonGoogleMap from "./common/blocks/GoogleMap";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyBlockComponent = ComponentType<{ data: any; orgId?: string }>;
@@ -48,6 +52,8 @@ const COMMON_BLOCKS: Record<BlockType, AnyBlockComponent> = {
   "page-header": CommonPageHeader,
   "text-image": CommonTextImage,
   "contact-form": CommonContactForm,
+  "contact-form-info": CommonContactFormInfo,
+  "google-map": CommonGoogleMap,
 };
 
 const THEME_BLOCKS: Record<string, Partial<Record<BlockType, AnyBlockComponent>>> = {
@@ -65,6 +71,8 @@ const THEME_BLOCKS: Record<string, Partial<Record<BlockType, AnyBlockComponent>>
     "page-header": ShopingoPageHeader,
     "text-image": ShopingoTextImage,
     "contact-form": ShopingoContactForm,
+    "contact-form-info": ShopingoContactFormInfo,
+    "google-map": ShopingoGoogleMap,
   },
 };
 

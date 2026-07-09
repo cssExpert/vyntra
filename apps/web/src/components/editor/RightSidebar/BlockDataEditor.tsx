@@ -22,6 +22,8 @@ const CATEGORY_COLOR: Record<string, string> = {
   "features-banner": "#f59e0b",
   "newsletter":      "#e4611e",
   "contact-form":    "#e4611e",
+  "contact-form-info": "#e4611e",
+  "google-map":      "#e4611e",
   "custom-html":     "#6b7280",
 };
 

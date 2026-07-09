@@ -47,7 +47,9 @@ export const SHOPINGO_PAGE_DEFAULTS: Record<string, SeedBlock[]> = {
       title: "Contact Us",
       breadcrumbs: [{ label: "Home", url: "/" }, { label: "Contact Us", url: "#" }],
     } as unknown as Record<string, unknown>),
-    b("cf1", "contact-form", BLOCK_DEFAULTS["contact-form"] as unknown as Record<string, unknown>),
+    b("fb1", "features-banner", BLOCK_DEFAULTS["features-banner"] as unknown as Record<string, unknown>),
+    b("cfi1", "contact-form-info", BLOCK_DEFAULTS["contact-form-info"] as unknown as Record<string, unknown>),
+    b("gm1", "google-map", BLOCK_DEFAULTS["google-map"] as unknown as Record<string, unknown>),
   ],
   blog: [
     b("ph1", "page-header", {

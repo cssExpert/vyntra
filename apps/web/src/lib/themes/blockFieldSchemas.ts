@@ -441,4 +441,47 @@ export const BLOCK_SCHEMAS: Record<string, BlockSection[]> = {
     },
   ],
 
+  'contact-form-info': [
+    {
+      title: 'Form',
+      fields: [
+        { type: 'text', key: 'formTitle',    label: 'Form Heading',  placeholder: 'Drop Us a Line' },
+        { type: 'text', key: 'formSubtitle', label: 'Form Subtitle', placeholder: 'Fill out the form below…' },
+        { type: 'text', key: 'submitText',   label: 'Submit Button Text', placeholder: 'Send Message' },
+      ],
+    },
+    {
+      title: 'Info Panel',
+      fields: [
+        { type: 'text',     key: 'infoTitle',        label: 'Section Heading', placeholder: 'Get In Touch' },
+        { type: 'text',     key: 'addressLabel',      label: 'Address Label',  placeholder: 'Address' },
+        { type: 'textarea', key: 'address',           label: 'Address',        placeholder: '123 Street Name, City, Australia', rows: 2 },
+        { type: 'text',     key: 'phoneLabel',        label: 'Phone Label',    placeholder: 'Phone' },
+        {
+          type: 'string-list',
+          key: 'phoneLines',
+          label: 'Phone Lines',
+          placeholder: 'e.g. Toll Free (123) 472-796',
+          addLabel: 'Add Phone Line',
+        },
+        { type: 'text', key: 'emailLabel',       label: 'Email Label',       placeholder: 'Email' },
+        { type: 'text', key: 'email',            label: 'Email',             placeholder: 'mail@example.com' },
+        { type: 'text', key: 'workingDaysLabel', label: 'Working Days Label', placeholder: 'Working Days' },
+        { type: 'text', key: 'workingDays',      label: 'Working Days',      placeholder: 'Mon - FRI / 9:30 AM - 6:30 PM' },
+      ],
+    },
+  ],
+
+  'google-map': [
+    {
+      title: 'Content',
+      fields: [
+        { type: 'text',   key: 'title',   label: 'Section Heading', placeholder: 'Find Us Map' },
+        { type: 'text',   key: 'address', label: 'Address / Place', placeholder: 'Melbourne VIC, Australia' },
+        { type: 'number', key: 'zoom',    label: 'Zoom Level', min: 1, max: 20 },
+        { type: 'number', key: 'height',  label: 'Map Height', min: 200, max: 800, suffix: 'px' },
+      ],
+    },
+  ],
+
 };

@@ -109,7 +109,7 @@ const UNIFIED_GROUPS: {
   { label: "FAQ", themeBlocks: [], htmlCategories: ["FAQ"] },
   { label: "Team", themeBlocks: [], htmlCategories: ["Team"] },
   { label: "Footer", themeBlocks: [], htmlCategories: ["Footer"] },
-  { label: "Contact & Forms", themeBlocks: ["newsletter", "contact-form"], htmlCategories: ["Contact", "Forms"] },
+  { label: "Contact & Forms", themeBlocks: ["newsletter", "contact-form", "contact-form-info", "google-map"], htmlCategories: ["Contact", "Forms"] },
   { label: "Portfolio", themeBlocks: [], htmlCategories: ["Portfolio"] },
   { label: "Cards", themeBlocks: [], htmlCategories: ["Cards"] },
   { label: "Typography", themeBlocks: [], htmlCategories: ["Typography"] },

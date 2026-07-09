@@ -519,34 +519,7 @@ export const SHOPINGO_PAGES: InstallPageDef[] = [
         },
       },
 
-      // 2. Contact Form — form + info panel + business hours
-      {
-        id: id('contact-form'),
-        type: 'contact-form',
-        data: {
-          formTitle: 'Drop Us a Line',
-          formSubtitle: 'Fill out the form below and we will get back to you as soon as possible.',
-          infoTitle: 'Find Us',
-          address: '123 Street Name\nCity, Australia',
-          phone: '+1 (800) 123-4567',
-          email: 'mail@example.com',
-          hours: [
-            { day: 'Monday – Friday', time: '9:30 AM – 6:30 PM' },
-            { day: 'Saturday',        time: '10:00 AM – 4:00 PM' },
-            { day: 'Sunday',          time: 'Closed' },
-          ],
-          mapEmbedUrl: '',
-          subjects: [
-            'Order Inquiry',
-            'Return & Refund',
-            'Product Question',
-            'Partnership',
-            'Other',
-          ],
-        },
-      },
-
-      // 3. Why Choose Us — feature cards
+      // 2. Why Choose Us — feature cards
       {
         id: id('contact-why'),
         type: 'features-banner',
@@ -557,6 +530,38 @@ export const SHOPINGO_PAGES: InstallPageDef[] = [
             { icon: 'shield',     title: 'Secure Shopping',  description: 'Your data and payments are always safe with us.' },
             { icon: 'headphones', title: 'Live Support',     description: 'Chat with our support team any time, any day.' },
           ],
+        },
+      },
+
+      // 3. Drop Us a Line — contact form + address/phone/email/hours info panel
+      {
+        id: id('contact-form-info'),
+        type: 'contact-form-info',
+        data: {
+          formTitle: 'Drop Us a Line',
+          formSubtitle: 'Fill out the form below and we will get back to you as soon as possible.',
+          submitText: 'Send Message',
+          infoTitle: 'Get In Touch',
+          addressLabel: 'Address',
+          address: '123 Street Name, City, Australia',
+          phoneLabel: 'Phone',
+          phoneLines: ['Toll Free (123) 472-796', 'Mobile : +91-9910XXXX'],
+          emailLabel: 'Email',
+          email: 'mail@example.com',
+          workingDaysLabel: 'Working Days',
+          workingDays: 'Mon - FRI / 9:30 AM - 6:30 PM',
+        },
+      },
+
+      // 4. Find Us Map — address-driven embed
+      {
+        id: id('contact-map'),
+        type: 'google-map',
+        data: {
+          title: 'Find Us Map',
+          address: 'Melbourne VIC, Australia',
+          zoom: 11,
+          height: 420,
         },
       },
     ],

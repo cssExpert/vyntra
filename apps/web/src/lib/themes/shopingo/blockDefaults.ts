@@ -20,7 +20,7 @@ export const BLOCK_CATEGORIES: { label: string; blocks: BlockType[] }[] = [
   },
   {
     label: "Engagement",
-    blocks: ["newsletter", "contact-form", "custom-html"],
+    blocks: ["newsletter", "contact-form", "contact-form-info", "google-map", "custom-html"],
   },
 ];
 
@@ -92,6 +92,16 @@ export const BLOCK_META: Record<
     label: "Contact Form",
     description: "Contact form with info panel, business hours and optional map",
     icon: "contact",
+  },
+  "contact-form-info": {
+    label: "Contact Form + Info",
+    description: "Simple contact form (name, email, phone, message) beside an address/phone/email/hours info panel",
+    icon: "contact",
+  },
+  "google-map": {
+    label: "Google Map",
+    description: "Full-width map section — enter an address, the embed is generated automatically",
+    icon: "map",
   },
 };
 
@@ -247,5 +257,25 @@ export const BLOCK_DEFAULTS: BlockDataMap = {
     ],
     mapEmbedUrl: "",
     subjects: ["Order Inquiry", "Return & Refund", "Product Question", "Partnership", "Other"],
+  },
+  "contact-form-info": {
+    formTitle: "Drop Us a Line",
+    formSubtitle: "Fill out the form below and we will get back to you as soon as possible.",
+    submitText: "Send Message",
+    infoTitle: "Get In Touch",
+    addressLabel: "Address",
+    address: "123 Street Name, City, Australia",
+    phoneLabel: "Phone",
+    phoneLines: ["Toll Free (123) 472-796", "Mobile : +91-9910XXXX"],
+    emailLabel: "Email",
+    email: "mail@example.com",
+    workingDaysLabel: "Working Days",
+    workingDays: "Mon - FRI / 9:30 AM - 6:30 PM",
+  },
+  "google-map": {
+    title: "Find Us Map",
+    address: "Melbourne VIC, Australia",
+    zoom: 11,
+    height: 420,
   },
 };

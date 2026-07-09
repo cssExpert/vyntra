@@ -170,6 +170,18 @@ function BlockThumbnail({ icon }: { icon: string }) {
           <rect x="88" y="59" width="58" height="9" rx="2" fill={ORANGE} />
         </svg>
       );
+    case "map":
+      return (
+        <svg className={base} viewBox="0 0 160 80" fill="none">
+          <rect width="160" height="80" fill="#e5f0e9" />
+          <path d="M0 40 L30 20 L60 40 L90 15 L120 40 L160 22 V80 H0 Z" fill="#cfe6d8" />
+          <path d="M0 55 L40 45 L80 60 L120 48 L160 58 V80 H0 Z" fill="#bfe0cf" />
+          <path d="M20 8 C10 40 40 55 30 78" stroke="#9fd2f0" strokeWidth="4" fill="none" />
+          <path d="M80 42 C86 44 90 50 80 78" stroke={ORANGE} strokeWidth="2" strokeDasharray="3 2" fill="none" />
+          <circle cx="80" cy="38" r="7" fill={ORANGE} />
+          <circle cx="80" cy="38" r="2.5" fill="white" />
+        </svg>
+      );
     case "html":
     default:
       return (
@@ -214,7 +226,7 @@ const BLOCK_GROUPS: BlockGroup[] = [
   },
   {
     label: "Other",
-    types: ["newsletter", "contact-form", "custom-html"],
+    types: ["newsletter", "contact-form", "contact-form-info", "google-map", "custom-html"],
   },
 ];
 
