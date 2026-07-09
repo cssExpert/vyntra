@@ -62,11 +62,11 @@ export function ProductsView() {
   const t = useTranslations("store.products");
   const { user, hasModule } = useAuth();
 
-  const [products,   setProducts]   = useState<StoreProduct[]>([]);
-  const [isLoading,  setIsLoading]  = useState(true);
-  const [error,      setError]      = useState<string | null>(null);
-  const [activeTab,  setActiveTab]  = useState<ProductTabId>("all");
-  const [search,     setSearch]     = useState("");
+  const [products, setProducts] = useState<StoreProduct[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<ProductTabId>("all");
+  const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [stockFilter, setStockFilter] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -75,7 +75,8 @@ export function ProductsView() {
   const canManagePageSettings =
     hasModule("CMS") &&
     !!user?.organizationId &&
-    (user.superAdmin || user.roles.some((r) => PAGE_SETTINGS_ROLES.includes(r)));
+    (user.superAdmin ||
+      user.roles.some((r) => PAGE_SETTINGS_ROLES.includes(r)));
 
   useEffect(() => {
     document.documentElement.style.overflow = "hidden";
@@ -97,17 +98,23 @@ export function ProductsView() {
     }
   }, []);
 
-  useEffect(() => { fetchProducts(); }, [fetchProducts]);
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   const filtered = useMemo(() => {
     let result = [...products];
 
-    if (activeTab === "active")   result = result.filter((p) => p.status === "active");
-    if (activeTab === "draft")    result = result.filter((p) => p.status === "draft");
-    if (activeTab === "archived") result = result.filter((p) => p.status === "archived");
+    if (activeTab === "active")
+      result = result.filter((p) => p.status === "active");
+    if (activeTab === "draft")
+      result = result.filter((p) => p.status === "draft");
+    if (activeTab === "archived")
+      result = result.filter((p) => p.status === "archived");
 
-    if (typeFilter)  result = result.filter((p) => p.type === typeFilter);
-    if (stockFilter) result = result.filter((p) => p.stockStatus === stockFilter);
+    if (typeFilter) result = result.filter((p) => p.type === typeFilter);
+    if (stockFilter)
+      result = result.filter((p) => p.stockStatus === stockFilter);
 
     if (search.trim()) {
       const q = search.toLowerCase();
@@ -125,7 +132,11 @@ export function ProductsView() {
   const handleToggleSelect = (id: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
       return next;
     });
   };
@@ -138,7 +149,11 @@ export function ProductsView() {
     try {
       await storeProducts.remove(id);
       setProducts((prev) => prev.filter((p) => p.id !== id));
-      setSelectedIds((prev) => { const next = new Set(prev); next.delete(id); return next; });
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     } catch (err) {
       console.error("Delete failed:", err);
     }
@@ -146,7 +161,12 @@ export function ProductsView() {
 
   if (isLoading) {
     return (
-      <motion.div key="skeleton" exit={{ opacity: 0 }} transition={{ duration: 0.12 }} className="space-y-4">
+      <motion.div
+        key="skeleton"
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.12 }}
+        className="space-y-4"
+      >
         <div className="h-9 w-96 rounded-sm bg-muted animate-pulse" />
         <div className="h-8 w-full rounded-sm bg-muted animate-pulse" />
         <div className="h-64 w-full rounded-xl bg-muted animate-pulse" />
@@ -156,9 +176,18 @@ export function ProductsView() {
 
   if (error) {
     return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center gap-4 min-h-96">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex flex-col items-center justify-center gap-4 min-h-96"
+      >
         <p className="text-destructive text-sm">{error}</p>
-        <button onClick={fetchProducts} className="text-sm text-primary underline">Retry</button>
+        <button
+          onClick={fetchProducts}
+          className="text-sm text-primary underline"
+        >
+          Retry
+        </button>
       </motion.div>
     );
   }
@@ -170,12 +199,15 @@ export function ProductsView() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.28, ease: "easeOut" }}
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-3 lg:h-[calc(100dvh-7rem)] lg:overflow-hidden"
       >
         <PageHeader
           title={t("title")}
           description={t("description")}
-          breadcrumbs={[{ label: "Store", href: "/store" }, { label: t("title") }]}
+          breadcrumbs={[
+            { label: "Store", href: "/store" },
+            { label: t("title") },
+          ]}
         >
           {canManagePageSettings && (
             <button
@@ -203,8 +235,13 @@ export function ProductsView() {
         <ProductsHeader
           total={products.length}
           activeTab={activeTab}
-          onTabChange={(tab) => { setActiveTab(tab); setSelectedIds(new Set()); }}
-          onAdd={() => { window.location.href = "/store/products/add"; }}
+          onTabChange={(tab) => {
+            setActiveTab(tab);
+            setSelectedIds(new Set());
+          }}
+          onAdd={() => {
+            window.location.href = "/store/products/add";
+          }}
         />
 
         <ProductsToolbar
@@ -215,7 +252,9 @@ export function ProductsView() {
           stockFilter={stockFilter}
           onStockFilterChange={setStockFilter}
           selectedCount={selectedIds.size}
-          onBulkDelete={() => { setSelectedIds(new Set()); }}
+          onBulkDelete={() => {
+            setSelectedIds(new Set());
+          }}
           onClearSelection={() => setSelectedIds(new Set())}
         />
 
