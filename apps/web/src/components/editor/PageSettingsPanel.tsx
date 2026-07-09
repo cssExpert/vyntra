@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  useState,
-  useEffect,
-  useRef,
-  type ChangeEvent,
-} from "react";
+import { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   X,
@@ -18,16 +13,23 @@ import {
   Check,
   AlertCircle,
   ExternalLink,
+  ChevronLeft,
+  ChevronRight,
+  Lightbulb,
+  Megaphone,
+  Link2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { cmsPages } from "@/lib/api";
 import { useEditorSave } from "./EditorSaveContext";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { TruncatedText } from "@/components/ui/truncated-text";
+import { StoreImagePicker } from "@/modules/store/products/components/StoreImagePicker";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
-type Tab = "seo" | "og" | "favicon" | "scripts" | "styles";
+type Tab = "seo" | "og" | "social" | "favicon" | "scripts" | "styles";
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 interface Form {
@@ -41,6 +43,12 @@ interface Form {
   ogDescription: string;
   ogType: string;
   ogUrl: string;
+  ogImage: string | null;
+  // Social / X (UI-only until backend supports)
+  twitterTitle: string;
+  twitterDescription: string;
+  twitterImage: string | null;
+  twitterCardSize: "large" | "small";
   // Scripts (UI-only)
   headScript: string;
   bodyScript: string;
@@ -57,6 +65,11 @@ const EMPTY_FORM: Form = {
   ogDescription: "",
   ogType: "website",
   ogUrl: "",
+  ogImage: null,
+  twitterTitle: "",
+  twitterDescription: "",
+  twitterImage: null,
+  twitterCardSize: "large",
   headScript: "",
   bodyScript: "",
   customCss: "",
@@ -118,7 +131,10 @@ function SeoTab({
 }) {
   return (
     <div className="flex flex-col gap-5">
-      <FieldRow label="Page Title" counter={{ current: form.title.length, max: 60 }}>
+      <FieldRow
+        label="Page Title"
+        counter={{ current: form.title.length, max: 60 }}
+      >
         <input
           type="text"
           value={form.title}
@@ -135,7 +151,10 @@ function SeoTab({
             type="text"
             value={slug ?? ""}
             readOnly
-            className={cn(inputCls, "bg-muted text-muted-foreground cursor-default")}
+            className={cn(
+              inputCls,
+              "bg-muted text-muted-foreground cursor-default",
+            )}
           />
           {slug && (
             <a
@@ -168,19 +187,22 @@ function SeoTab({
           className={textareaCls}
         />
         {/* Live SERP preview */}
-        <div className="mt-1 rounded-lg border border-border bg-muted p-3">
-          <p className="text-[10px] text-muted-foreground/50 uppercase tracking-wider mb-1.5 font-semibold">
-            Search Preview
-          </p>
-          <p className="text-[13px] font-medium text-blue-600 dark:text-blue-400 truncate">
-            {form.title || "Page Title"}
-          </p>
-          <p className="text-[11px] text-emerald-700 dark:text-emerald-500 truncate">
-            yoursite.com/{slug ?? "page-slug"}
-          </p>
-          <p className="text-[11px] text-muted-foreground line-clamp-2 mt-0.5">
-            {form.metaDesc || "Meta description will appear here…"}
-          </p>
+        <div className="mt-2">
+          <div className="mb-2 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+            Preview on Google
+            <Lightbulb className="h-3.5 w-3.5 text-blue-500" />
+          </div>
+          <div className="rounded-lg border border-border bg-white dark:bg-background px-4 py-3">
+            <TruncatedText className="text-lg font-bold leading-snug text-[#1a0dab] dark:text-blue-400">
+              {form.title || "Page Title"}
+            </TruncatedText>
+            <p className="mt-0.5 truncate text-[13px] text-[#006621] dark:text-emerald-500">
+              https://yoursite.com/{slug ?? "page-slug"}
+            </p>
+            <p className="mt-1 line-clamp-2 text-[13px] text-[#4d5156] dark:text-muted-foreground">
+              {form.metaDesc || "Meta description will appear here…"}
+            </p>
+          </div>
         </div>
       </FieldRow>
 
@@ -205,11 +227,18 @@ function SeoTab({
           className="data-checked:bg-primary shrink-0"
         />
         <div className="min-w-0">
-          <Label htmlFor="noIndex" className="text-xs font-semibold cursor-pointer block">
+          <Label
+            htmlFor="noIndex"
+            className="text-xs font-semibold cursor-pointer block"
+          >
             Hide from search engines
           </Label>
           <p className="text-[10px] text-muted-foreground/60 mt-0.5">
-            Adds <code className="font-mono bg-border px-1 rounded">noindex, nofollow</code> to the page.
+            Adds{" "}
+            <code className="font-mono bg-border px-1 rounded">
+              noindex, nofollow
+            </code>{" "}
+            to the page.
           </p>
         </div>
       </div>
@@ -217,13 +246,20 @@ function SeoTab({
   );
 }
 
-function OgTab({ form, onChange }: { form: Form; onChange: (patch: Partial<Form>) => void }) {
+function OgTab({
+  form,
+  onChange,
+}: {
+  form: Form;
+  onChange: (patch: Partial<Form>) => void;
+}) {
   const OG_TYPES = ["website", "article", "book", "profile", "video.movie"];
   return (
     <div className="flex flex-col gap-5">
       <div className="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800/40 dark:bg-amber-950/30 px-3 py-2.5">
         <p className="text-[11px] text-amber-700 dark:text-amber-400">
-          Open Graph fields are saved locally and will be persisted once backend support is added.
+          Open Graph fields are saved locally and will be persisted once backend
+          support is added.
         </p>
       </div>
 
@@ -280,10 +316,321 @@ function OgTab({ form, onChange }: { form: Form; onChange: (patch: Partial<Form>
       >
         <div className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center gap-2 text-center cursor-pointer hover:border-primary/50 hover:bg-muted transition-colors">
           <ImageIcon className="w-8 h-8 text-muted-foreground/40" />
-          <p className="text-xs font-medium text-muted-foreground">Click to upload OG image</p>
-          <p className="text-[10px] text-muted-foreground/50">JPG, PNG, WEBP · 1200×630 recommended</p>
+          <p className="text-xs font-medium text-muted-foreground">
+            Click to upload OG image
+          </p>
+          <p className="text-[10px] text-muted-foreground/50">
+            JPG, PNG, WEBP · 1200×630 recommended
+          </p>
         </div>
       </FieldRow>
+    </div>
+  );
+}
+
+/** X (formerly Twitter) brand logo — lucide has no brand icons. */
+function XLogo({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
+
+const SOCIAL_FILTERS = ["all", "seo"] as const;
+
+/**
+ * "Social Share" tab — friendlier editor for the Open Graph tags social
+ * networks read, plus X/Twitter card overrides. UI-only until the backend
+ * persists these fields (mirrors the OG tab).
+ */
+function SocialShareTab({
+  form,
+  slug,
+  onChange,
+}: {
+  form: Form;
+  slug: string | null;
+  onChange: (patch: Partial<Form>) => void;
+}) {
+  const [xOpen, setXOpen] = useState(false);
+  const ogTitle = form.ogTitle;
+  const ogDescription = form.ogDescription;
+  const host = `www.yoursite.com/${slug ?? "page-slug"}`;
+
+  return (
+    <div className="flex flex-col gap-5">
+      {/* Heading */}
+      <div>
+        <h3 className="text-sm font-bold text-foreground">
+          Social share settings
+        </h3>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+          Open graph (og) tags are used by social networks like Facebook &amp;
+          Pinterest to display text and an image when this page is shared.
+        </p>
+      </div>
+
+      <div className="border-t border-border" />
+
+      {/* Preview */}
+      <div>
+        <p className="mb-2 text-xs text-muted-foreground">
+          Preview on social{" "}
+          <span className="cursor-pointer text-blue-500 hover:underline">
+            When will changes show live?
+          </span>
+        </p>
+
+        <div className="overflow-hidden rounded-lg border border-border">
+          <div className="aspect-[1.91/1] bg-muted">
+            {form.ogImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={form.ogImage}
+                alt=""
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
+                No image selected
+              </div>
+            )}
+          </div>
+          <div className="border-t border-border bg-muted/40 px-3.5 py-3">
+            <p className="truncate text-[11px] uppercase tracking-wide text-muted-foreground">
+              {host}
+            </p>
+            <p className="mt-0.5 truncate text-[13px] font-bold text-foreground">
+              {ogTitle || "Title shown on social media"}
+            </p>
+            <p className="mt-0.5 line-clamp-1 text-[12px] text-muted-foreground">
+              {ogDescription || "Description shown on social media…"}
+            </p>
+          </div>
+        </div>
+
+        {/* Image picker */}
+        <div className="mt-3">
+          <StoreImagePicker
+            value={form.ogImage}
+            onChange={(url) => onChange({ ogImage: url })}
+            module="cms"
+            subtype="seo"
+            filterOptions={SOCIAL_FILTERS}
+            libraryOnly
+            modalZIndexClassName="z-[200]"
+            hint="Recommended 1200 × 630 px."
+          />
+        </div>
+      </div>
+
+      {/* og:title */}
+      <FieldRow label="og:title (title on social media)">
+        <input
+          type="text"
+          value={ogTitle}
+          placeholder="Title on social media"
+          onChange={(e) => onChange({ ogTitle: e.target.value })}
+          className={inputCls}
+        />
+      </FieldRow>
+
+      {/* og:description */}
+      <FieldRow label="og:description (description on social media)">
+        <textarea
+          rows={4}
+          value={ogDescription}
+          placeholder="Description on social media"
+          onChange={(e) => onChange({ ogDescription: e.target.value })}
+          className={textareaCls}
+        />
+      </FieldRow>
+
+      {/* X (Twitter) settings — collapsible */}
+      <div className="border-t border-border pt-3">
+        <button
+          type="button"
+          onClick={() => setXOpen((v) => !v)}
+          className="flex w-full items-center gap-1.5 text-sm font-semibold text-foreground outline-none focus:outline-none"
+          aria-expanded={xOpen}
+        >
+          <ChevronRight
+            className={cn(
+              "h-4 w-4 text-muted-foreground transition-transform",
+              xOpen && "rotate-90",
+            )}
+          />
+          <XLogo className="h-3.5 w-3.5" />X Settings
+        </button>
+
+        {xOpen && (
+          <div className="mt-3 flex flex-col gap-5">
+            {/* Preview on X */}
+            <div>
+              <p className="mb-2 text-xs text-muted-foreground">
+                Preview on X{" "}
+                <span className="cursor-pointer text-blue-500 hover:underline">
+                  When will changes show live?
+                </span>
+              </p>
+
+              {(() => {
+                const img = form.twitterImage ?? form.ogImage ?? null;
+                const title =
+                  form.twitterTitle || ogTitle || "Title shown on X";
+                const desc =
+                  form.twitterDescription ||
+                  ogDescription ||
+                  "Description shown on X…";
+                const domain = host.split("/")[0];
+
+                if (form.twitterCardSize === "small") {
+                  return (
+                    <div className="flex overflow-hidden rounded-2xl border border-border">
+                      <div className="aspect-square w-24 shrink-0 bg-sky-50 dark:bg-muted">
+                        {img ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={img}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        ) : null}
+                      </div>
+                      <div className="min-w-0 flex-1 px-3 py-2">
+                        <p className="truncate text-[13px] font-bold text-foreground">
+                          {title}
+                        </p>
+                        <p className="line-clamp-2 text-[12px] text-muted-foreground">
+                          {desc}
+                        </p>
+                        <p className="mt-1 flex items-center gap-1 truncate text-[11px] text-muted-foreground">
+                          <Link2 className="h-3 w-3 shrink-0" />
+                          {domain}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="overflow-hidden rounded-2xl border border-border">
+                    <div className="flex aspect-[1.91/1] items-center justify-center bg-sky-50 dark:bg-muted">
+                      {img ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={img}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-xs text-muted-foreground">
+                          No image selected
+                        </span>
+                      )}
+                    </div>
+                    <div className="border-t border-border px-3.5 py-2.5">
+                      <p className="truncate text-[13px] font-bold text-foreground">
+                        {title}
+                      </p>
+                      <p className="line-clamp-2 text-[12px] text-muted-foreground">
+                        {desc}
+                      </p>
+                      <p className="mt-1 flex items-center gap-1 truncate text-[11px] text-muted-foreground">
+                        <Link2 className="h-3 w-3 shrink-0" />
+                        {domain}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Image picker */}
+              <div className="mt-3">
+                <StoreImagePicker
+                  value={form.twitterImage}
+                  onChange={(url) => onChange({ twitterImage: url })}
+                  module="cms"
+                  subtype="seo"
+                  filterOptions={SOCIAL_FILTERS}
+                  libraryOnly
+                  modalZIndexClassName="z-[200]"
+                  hint="Defaults to the social image above if left empty."
+                />
+              </div>
+            </div>
+
+            {/* Card size */}
+            <div>
+              <p className="mb-2 text-xs font-semibold text-foreground">
+                Card size to display on X
+              </p>
+              <div className="flex flex-col gap-2.5">
+                {(
+                  [
+                    { value: "large", label: "Large" },
+                    { value: "small", label: "Small" },
+                  ] as const
+                ).map((opt) => {
+                  const selected = form.twitterCardSize === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => onChange({ twitterCardSize: opt.value })}
+                      className="flex items-center gap-2.5 text-sm text-foreground outline-none focus:outline-none"
+                    >
+                      <span
+                        className={cn(
+                          "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+                          selected
+                            ? "border-primary"
+                            : "border-muted-foreground/40",
+                        )}
+                      >
+                        {selected && (
+                          <span className="h-2 w-2 rounded-full bg-primary" />
+                        )}
+                      </span>
+                      {opt.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* x:title */}
+            <FieldRow label="x:title (title on X)">
+              <input
+                type="text"
+                value={form.twitterTitle}
+                placeholder="Title on X"
+                onChange={(e) => onChange({ twitterTitle: e.target.value })}
+                className={inputCls}
+              />
+            </FieldRow>
+
+            {/* x:description */}
+            <FieldRow label="x:description (description on X)">
+              <textarea
+                rows={4}
+                value={form.twitterDescription}
+                placeholder="Description on X"
+                onChange={(e) =>
+                  onChange({ twitterDescription: e.target.value })
+                }
+                className={textareaCls}
+              />
+            </FieldRow>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -293,17 +640,25 @@ function FaviconTab() {
     <div className="flex flex-col gap-5">
       <div className="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800/40 dark:bg-amber-950/30 px-3 py-2.5">
         <p className="text-[11px] text-amber-700 dark:text-amber-400">
-          Favicon upload will persist once backend storage support is configured.
+          Favicon upload will persist once backend storage support is
+          configured.
         </p>
       </div>
 
-      <FieldRow label="Site Favicon" hint="ICO, PNG, or SVG · max 128 KB · recommended 32×32 px.">
+      <FieldRow
+        label="Site Favicon"
+        hint="ICO, PNG, or SVG · max 128 KB · recommended 32×32 px."
+      >
         <div className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center gap-2 text-center cursor-pointer hover:border-primary/50 hover:bg-muted transition-colors">
           <div className="w-12 h-12 rounded-xl bg-muted border border-border flex items-center justify-center">
             <span className="text-2xl select-none">🌐</span>
           </div>
-          <p className="text-xs font-medium text-muted-foreground">Click to upload favicon</p>
-          <p className="text-[10px] text-muted-foreground/50">ICO · PNG · SVG</p>
+          <p className="text-xs font-medium text-muted-foreground">
+            Click to upload favicon
+          </p>
+          <p className="text-[10px] text-muted-foreground/50">
+            ICO · PNG · SVG
+          </p>
         </div>
       </FieldRow>
     </div>
@@ -321,7 +676,8 @@ function ScriptsTab({
     <div className="flex flex-col gap-5">
       <div className="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800/40 dark:bg-amber-950/30 px-3 py-2.5">
         <p className="text-[11px] text-amber-700 dark:text-amber-400">
-          Script fields are saved locally and will be persisted once backend support is added.
+          Script fields are saved locally and will be persisted once backend
+          support is added.
         </p>
       </div>
 
@@ -365,7 +721,8 @@ function StylesTab({
     <div className="flex flex-col gap-5">
       <div className="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800/40 dark:bg-amber-950/30 px-3 py-2.5">
         <p className="text-[11px] text-amber-700 dark:text-amber-400">
-          Custom CSS is saved locally and will be persisted once backend support is added.
+          Custom CSS is saved locally and will be persisted once backend support
+          is added.
         </p>
       </div>
 
@@ -376,7 +733,9 @@ function StylesTab({
         <textarea
           rows={12}
           value={form.customCss}
-          placeholder={"/* Page-specific styles */\nbody { font-family: 'Inter'; }"}
+          placeholder={
+            "/* Page-specific styles */\nbody { font-family: 'Inter'; }"
+          }
           onChange={(e) => onChange({ customCss: e.target.value })}
           className={cn(textareaCls, "font-mono text-xs")}
         />
@@ -390,10 +749,106 @@ function StylesTab({
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "seo", label: "SEO", icon: Search },
   { id: "og", label: "Open Graph", icon: Share2 },
+  { id: "social", label: "Social Share", icon: Megaphone },
   { id: "favicon", label: "Favicon", icon: ImageIcon },
   { id: "scripts", label: "Scripts", icon: Code2 },
   { id: "styles", label: "Styles", icon: Paintbrush },
 ];
+
+/**
+ * Horizontally-scrollable tab strip. Arrows appear only when the tabs overflow
+ * the available width; each arrow is disabled once that end is reached.
+ */
+function ScrollableTabStrip({
+  active,
+  onChange,
+}: {
+  active: Tab;
+  onChange: (id: Tab) => void;
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [overflowing, setOverflowing] = useState(false);
+  const [canLeft, setCanLeft] = useState(false);
+  const [canRight, setCanRight] = useState(false);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const update = () => {
+      const maxScroll = el.scrollWidth - el.clientWidth;
+      setOverflowing(maxScroll > 1);
+      setCanLeft(el.scrollLeft > 1);
+      setCanRight(el.scrollLeft < maxScroll - 1);
+    };
+    update();
+    el.addEventListener("scroll", update, { passive: true });
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => {
+      el.removeEventListener("scroll", update);
+      ro.disconnect();
+    };
+  }, []);
+
+  const scrollByDir = (dir: -1 | 1) => {
+    scrollRef.current?.scrollBy({
+      left: dir * scrollRef.current.clientWidth * 0.6,
+      behavior: "smooth",
+    });
+  };
+
+  const arrowCls =
+    "shrink-0 flex items-center justify-center w-8 text-muted-foreground transition-colors hover:text-foreground hover:bg-muted disabled:opacity-30 disabled:pointer-events-none";
+
+  return (
+    <div className="shrink-0 flex items-stretch border-b border-border">
+      {overflowing && (
+        <button
+          type="button"
+          aria-label="Scroll tabs left"
+          disabled={!canLeft}
+          onClick={() => scrollByDir(-1)}
+          className={cn(arrowCls, "border-r border-border")}
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+      )}
+
+      <div
+        ref={scrollRef}
+        className="flex-1 flex overflow-x-auto overflow-y-hidden no-scrollbar"
+      >
+        {TABS.map(({ id, label, icon: Icon }) => (
+          <button
+            key={id}
+            onClick={() => onChange(id)}
+            className={cn(
+              "flex items-center gap-1.5 px-3.5 py-2.5 text-xs font-semibold whitespace-nowrap transition-colors border-b-2 -mb-px outline-none focus:outline-none focus-visible:outline-none",
+              active === id
+                ? "text-primary border-primary"
+                : "text-muted-foreground border-transparent hover:text-foreground",
+            )}
+          >
+            <Icon className="w-3 h-3 shrink-0" />
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {overflowing && (
+        <button
+          type="button"
+          aria-label="Scroll tabs right"
+          disabled={!canRight}
+          onClick={() => scrollByDir(1)}
+          className={cn(arrowCls, "border-l border-border")}
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      )}
+    </div>
+  );
+}
 
 interface Props {
   open: boolean;
@@ -421,7 +876,9 @@ export function PageSettingsPanel({ open, onClose }: Props) {
           metaKeywords: page.metaKeywords ?? "",
         }));
       })
-      .catch(() => {/* leave defaults */})
+      .catch(() => {
+        /* leave defaults */
+      })
       .finally(() => setLoading(false));
   }, [open, pageSlug]);
 
@@ -444,15 +901,17 @@ export function PageSettingsPanel({ open, onClose }: Props) {
     setSaveStatus("saving");
     try {
       // Save the API-backed fields only; others are UI-only until backend extends
-      await (cmsPages.save as (
-        slug: string,
-        body: {
-          content: string;
-          title?: string;
-          metaDesc?: string;
-          metaKeywords?: string;
-        },
-      ) => Promise<unknown>)(pageSlug, {
+      await (
+        cmsPages.save as (
+          slug: string,
+          body: {
+            content: string;
+            title?: string;
+            metaDesc?: string;
+            metaKeywords?: string;
+          },
+        ) => Promise<unknown>
+      )(pageSlug, {
         content: "", // content managed by canvas save, not here
         title: form.title,
         metaDesc: form.metaDesc,
@@ -497,7 +956,9 @@ export function PageSettingsPanel({ open, onClose }: Props) {
                   <Search className="w-3.5 h-3.5 text-primary" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-bold text-foreground">Page Settings</h2>
+                  <h2 className="text-sm font-bold text-foreground">
+                    Page Settings
+                  </h2>
                   {pageSlug && (
                     <p className="text-[10px] text-muted-foreground/60 font-mono">
                       /{pageSlug}
@@ -514,23 +975,7 @@ export function PageSettingsPanel({ open, onClose }: Props) {
             </div>
 
             {/* Tabs */}
-            <div className="shrink-0 flex border-b border-border overflow-x-auto">
-              {TABS.map(({ id, label, icon: Icon }) => (
-                <button
-                  key={id}
-                  onClick={() => setTab(id)}
-                  className={cn(
-                    "flex items-center gap-1.5 px-3.5 py-2.5 text-xs font-semibold whitespace-nowrap transition-colors border-b-2 -mb-px",
-                    tab === id
-                      ? "text-primary border-primary"
-                      : "text-muted-foreground border-transparent hover:text-foreground",
-                  )}
-                >
-                  <Icon className="w-3 h-3 shrink-0" />
-                  {label}
-                </button>
-              ))}
-            </div>
+            <ScrollableTabStrip active={tab} onChange={setTab} />
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto">
@@ -544,6 +989,13 @@ export function PageSettingsPanel({ open, onClose }: Props) {
                     <SeoTab form={form} slug={pageSlug} onChange={patch} />
                   )}
                   {tab === "og" && <OgTab form={form} onChange={patch} />}
+                  {tab === "social" && (
+                    <SocialShareTab
+                      form={form}
+                      slug={pageSlug}
+                      onChange={patch}
+                    />
+                  )}
                   {tab === "favicon" && <FaviconTab />}
                   {tab === "scripts" && (
                     <ScriptsTab form={form} onChange={patch} />
@@ -574,7 +1026,11 @@ export function PageSettingsPanel({ open, onClose }: Props) {
                       ? "bg-rose-600 text-white"
                       : "bg-primary hover:bg-primary/90 text-primary-foreground",
                 )}
-                title={tab !== "seo" ? "Only SEO settings can be saved (switch to SEO tab)" : undefined}
+                title={
+                  tab !== "seo"
+                    ? "Only SEO settings can be saved (switch to SEO tab)"
+                    : undefined
+                }
               >
                 {saveStatus === "saving" ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />

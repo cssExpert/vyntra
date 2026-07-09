@@ -38,17 +38,17 @@ export function ProductsHeader({
 
       {/* Actions */}
       <div className="flex items-center gap-2 flex-wrap">
-        <button className="flex items-center gap-1.5 rounded-sm border border-border bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer">
+        <button className="flex items-center gap-1.5 rounded-sm border border-border bg-transparent px-3.5 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer">
           <Upload size={16} />
           {t("import")}
         </button>
-        <button className="flex items-center gap-1.5 rounded-sm border border-border bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer">
+        <button className="flex items-center gap-1.5 rounded-sm border border-border bg-transparent px-3.5 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer">
           <Download size={16} />
           {t("export")}
         </button>
         <button
           onClick={onAdd}
-          className="group flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer"
+          className="group flex items-center gap-2 rounded-sm bg-primary px-3.5 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer"
         >
           <Plus
             size={16}

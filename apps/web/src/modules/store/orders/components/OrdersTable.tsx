@@ -231,10 +231,10 @@ export function OrdersTable({ orders }: Props) {
   const pageCount = table.getPageCount();
 
   return (
-    <div className="bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-clip">
+    <div className="lg:min-h-0 lg:flex-1 lg:flex lg:flex-col bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-clip">
       {orders.length > 0 ? (
         <>
-        <div ref={setScrollEl} className="overflow-x-auto overflow-y-auto" style={{ maxHeight: "calc(100vh - 300px)" }}>
+        <div ref={setScrollEl} className="overflow-x-auto overflow-y-auto max-h-[calc(100dvh-300px)] lg:max-h-none lg:min-h-0 lg:flex-1">
           <table className="text-left border-collapse" style={{ tableLayout: "fixed", width: "100%", minWidth: "1100px" }}>
             <thead>
               {table.getHeaderGroups().map((hg) => (

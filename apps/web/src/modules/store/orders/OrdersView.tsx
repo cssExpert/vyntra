@@ -94,7 +94,7 @@ export function OrdersView() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.28, ease: "easeOut" }}
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-3 lg:h-[calc(100dvh-7rem)] lg:overflow-hidden"
         >
           <PageHeader
             title={t("title")}
