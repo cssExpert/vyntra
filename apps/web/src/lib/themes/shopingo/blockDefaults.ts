@@ -130,10 +130,12 @@ export const BLOCK_DEFAULTS: BlockDataMap = {
     tabs: [
       {
         label: "New Arrivals",
+        source: { limit: 8 },
         products: [{ id: "1", name: "Sample Product", price: 29.99, image: "", rating: 4 }],
       },
       {
         label: "Best Sellers",
+        source: { limit: 8 },
         products: [{ id: "2", name: "Another Product", price: 39.99, image: "", rating: 5 }],
       },
     ],

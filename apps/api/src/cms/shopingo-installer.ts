@@ -203,6 +203,7 @@ export const SHOPINGO_PAGES: InstallPageDef[] = [
           tabs: [
             {
               label: 'New Arrival',
+              source: { limit: 8 },
               products: [
                 { id: 'na1', name: 'Wireless Headphones Pro',  price: 49.00, originalPrice: 89.99, image: '', badge: 'New Season', rating: 5 },
                 { id: 'na2', name: 'Running Sneakers X2',      price: 49.00, originalPrice: 79.99, image: '', badge: 'New Season', rating: 4 },
@@ -213,6 +214,7 @@ export const SHOPINGO_PAGES: InstallPageDef[] = [
             },
             {
               label: 'Best Seller',
+              source: { limit: 8 },
               products: [
                 { id: 'bs1', name: 'Portable Bluetooth Speaker', price: 49.00, originalPrice: 79.99, image: '', badge: 'Hot',     rating: 5 },
                 { id: 'bs2', name: 'Denim Jacket Classic',       price: 49.00,                       image: '', badge: 'Popular', rating: 5 },
@@ -223,6 +225,7 @@ export const SHOPINGO_PAGES: InstallPageDef[] = [
             },
             {
               label: 'Trending',
+              source: { limit: 8 },
               products: [
                 { id: 'tr1', name: 'USB-C Hub 7-in-1',     price: 49.00, originalPrice: 89.99, image: '', badge: 'Trending', rating: 4 },
                 { id: 'tr2', name: 'Canvas Tote Bag',       price: 49.00,                       image: '', badge: 'Trending', rating: 4 },
@@ -233,6 +236,7 @@ export const SHOPINGO_PAGES: InstallPageDef[] = [
             },
             {
               label: 'Special Offer',
+              source: { limit: 8 },
               products: [
                 { id: 'so1', name: 'Casual Polo Shirt',  price: 14.99, originalPrice: 49.00, image: '', badge: '50% Discount', rating: 4 },
                 { id: 'so2', name: 'Kitchen Knife Set',  price: 24.99, originalPrice: 49.00, image: '', badge: '50% Discount', rating: 5 },
