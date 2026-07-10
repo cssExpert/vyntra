@@ -571,12 +571,46 @@ export interface CmsPageData {
   content: string | null;
   metaDesc: string | null;
   metaKeywords: string | null;
+  noIndex: boolean;
   published: boolean;
   publishedAt: string | null;
   isLandingPage: boolean;
   layoutId: string | null;
   themeId: string | null;
   themeIdentifier: string | null;
+  ogTitle: string | null;
+  ogDescription: string | null;
+  ogType: string;
+  ogUrl: string | null;
+  ogImage: string | null;
+  twitterTitle: string | null;
+  twitterDescription: string | null;
+  twitterImage: string | null;
+  twitterCardSize: string;
+  faviconUrl: string | null;
+  headScript: string | null;
+  bodyScript: string | null;
+  customCss: string | null;
+}
+
+export interface CmsPageSettingsDto {
+  title?: string;
+  metaDesc?: string;
+  metaKeywords?: string;
+  noIndex?: boolean;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogType?: string;
+  ogUrl?: string;
+  ogImage?: string | null;
+  twitterTitle?: string;
+  twitterDescription?: string;
+  twitterImage?: string | null;
+  twitterCardSize?: string;
+  faviconUrl?: string | null;
+  headScript?: string;
+  bodyScript?: string;
+  customCss?: string;
 }
 
 export interface CmsPageListItem {
@@ -663,6 +697,11 @@ export const cmsPages = {
   load: (slug: string) => apiFetch<CmsPageData>(`/cms/pages/${slug}`),
   save: (slug: string, body: { content: string; publish?: boolean; layoutId?: string | null; themeId?: string | null }) =>
     apiFetch<CmsPageData>(`/cms/pages/${slug}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }),
+  saveSettings: (slug: string, body: CmsPageSettingsDto) =>
+    apiFetch<CmsPageData>(`/cms/pages/${slug}/settings`, {
       method: "PATCH",
       body: JSON.stringify(body),
     }),

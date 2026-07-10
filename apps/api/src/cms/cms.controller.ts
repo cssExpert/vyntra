@@ -150,6 +150,35 @@ export class CmsController {
   }
 
   @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Patch('pages/:slug/settings')
+  saveSettings(
+    @CurrentOrg() orgId: string | null,
+    @Param('slug') slug: string,
+    @Body()
+    body: {
+      title?: string;
+      metaDesc?: string;
+      metaKeywords?: string;
+      noIndex?: boolean;
+      ogTitle?: string;
+      ogDescription?: string;
+      ogType?: string;
+      ogUrl?: string;
+      ogImage?: string | null;
+      twitterTitle?: string;
+      twitterDescription?: string;
+      twitterImage?: string | null;
+      twitterCardSize?: string;
+      faviconUrl?: string | null;
+      headScript?: string;
+      bodyScript?: string;
+      customCss?: string;
+    },
+  ) {
+    return this.cmsService.updatePageSettings(requireOrg(orgId), slug, body);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
   @Put('pages/bulk-layout')
   bulkUpdateLayout(
     @CurrentOrg() orgId: string | null,

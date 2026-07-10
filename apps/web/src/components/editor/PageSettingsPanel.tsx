@@ -20,7 +20,7 @@ import {
   Link2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { cmsPages } from "@/lib/api";
+import { cmsPages, type CmsPageSettingsDto } from "@/lib/api";
 import { useEditorSave } from "./EditorSaveContext";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -38,21 +38,23 @@ interface Form {
   metaDesc: string;
   metaKeywords: string;
   noIndex: boolean;
-  // OG (UI-only until backend supports)
+  // OG
   ogTitle: string;
   ogDescription: string;
   ogType: string;
   ogUrl: string;
   ogImage: string | null;
-  // Social / X (UI-only until backend supports)
+  // Social / X
   twitterTitle: string;
   twitterDescription: string;
   twitterImage: string | null;
   twitterCardSize: "large" | "small";
-  // Scripts (UI-only)
+  // Favicon
+  faviconUrl: string | null;
+  // Scripts
   headScript: string;
   bodyScript: string;
-  // Styles (UI-only)
+  // Styles
   customCss: string;
 }
 
@@ -70,6 +72,7 @@ const EMPTY_FORM: Form = {
   twitterDescription: "",
   twitterImage: null,
   twitterCardSize: "large",
+  faviconUrl: null,
   headScript: "",
   bodyScript: "",
   customCss: "",
@@ -256,13 +259,6 @@ function OgTab({
   const OG_TYPES = ["website", "article", "book", "profile", "video.movie"];
   return (
     <div className="flex flex-col gap-5">
-      <div className="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800/40 dark:bg-amber-950/30 px-3 py-2.5">
-        <p className="text-[11px] text-amber-700 dark:text-amber-400">
-          Open Graph fields are saved locally and will be persisted once backend
-          support is added.
-        </p>
-      </div>
-
       <FieldRow label="OG Title" hint="Defaults to page title if empty.">
         <input
           type="text"
@@ -312,17 +308,18 @@ function OgTab({
 
       <FieldRow
         label="OG Image"
-        hint="Recommended size: 1200 × 630 px. Max 5 MB."
+        hint="Recommended size: 1200 × 630 px."
       >
-        <div className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center gap-2 text-center cursor-pointer hover:border-primary/50 hover:bg-muted transition-colors">
-          <ImageIcon className="w-8 h-8 text-muted-foreground/40" />
-          <p className="text-xs font-medium text-muted-foreground">
-            Click to upload OG image
-          </p>
-          <p className="text-[10px] text-muted-foreground/50">
-            JPG, PNG, WEBP · 1200×630 recommended
-          </p>
-        </div>
+        <StoreImagePicker
+          value={form.ogImage}
+          onChange={(url) => onChange({ ogImage: url })}
+          module="cms"
+          subtype="seo"
+          filterOptions={["all", "seo"]}
+          libraryOnly
+          modalZIndexClassName="z-[200]"
+          hint="Recommended 1200 × 630 px."
+        />
       </FieldRow>
     </div>
   );
@@ -635,31 +632,29 @@ function SocialShareTab({
   );
 }
 
-function FaviconTab() {
+function FaviconTab({
+  form,
+  onChange,
+}: {
+  form: Form;
+  onChange: (patch: Partial<Form>) => void;
+}) {
   return (
     <div className="flex flex-col gap-5">
-      <div className="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800/40 dark:bg-amber-950/30 px-3 py-2.5">
-        <p className="text-[11px] text-amber-700 dark:text-amber-400">
-          Favicon upload will persist once backend storage support is
-          configured.
-        </p>
-      </div>
-
       <FieldRow
         label="Site Favicon"
-        hint="ICO, PNG, or SVG · max 128 KB · recommended 32×32 px."
+        hint="ICO, PNG, or SVG · recommended 32×32 px. Overrides the site-wide favicon for this page only."
       >
-        <div className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center gap-2 text-center cursor-pointer hover:border-primary/50 hover:bg-muted transition-colors">
-          <div className="w-12 h-12 rounded-xl bg-muted border border-border flex items-center justify-center">
-            <span className="text-2xl select-none">🌐</span>
-          </div>
-          <p className="text-xs font-medium text-muted-foreground">
-            Click to upload favicon
-          </p>
-          <p className="text-[10px] text-muted-foreground/50">
-            ICO · PNG · SVG
-          </p>
-        </div>
+        <StoreImagePicker
+          value={form.faviconUrl}
+          onChange={(url) => onChange({ faviconUrl: url })}
+          module="cms"
+          subtype="favicon"
+          filterOptions={["all", "seo"]}
+          libraryOnly
+          modalZIndexClassName="z-[200]"
+          hint="Recommended 32 × 32 px."
+        />
       </FieldRow>
     </div>
   );
@@ -674,13 +669,6 @@ function ScriptsTab({
 }) {
   return (
     <div className="flex flex-col gap-5">
-      <div className="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800/40 dark:bg-amber-950/30 px-3 py-2.5">
-        <p className="text-[11px] text-amber-700 dark:text-amber-400">
-          Script fields are saved locally and will be persisted once backend
-          support is added.
-        </p>
-      </div>
-
       <FieldRow
         label="Head scripts"
         hint="Injected inside <head>. Do not wrap in <script> tags."
@@ -719,13 +707,6 @@ function StylesTab({
 }) {
   return (
     <div className="flex flex-col gap-5">
-      <div className="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800/40 dark:bg-amber-950/30 px-3 py-2.5">
-        <p className="text-[11px] text-amber-700 dark:text-amber-400">
-          Custom CSS is saved locally and will be persisted once backend support
-          is added.
-        </p>
-      </div>
-
       <FieldRow
         label="Custom CSS"
         hint="Injected inside a <style> tag on this page only. Do not wrap in <style> tags."
@@ -874,6 +855,20 @@ export function PageSettingsPanel({ open, onClose }: Props) {
           title: page.title ?? "",
           metaDesc: page.metaDesc ?? "",
           metaKeywords: page.metaKeywords ?? "",
+          noIndex: page.noIndex ?? false,
+          ogTitle: page.ogTitle ?? "",
+          ogDescription: page.ogDescription ?? "",
+          ogType: page.ogType ?? "website",
+          ogUrl: page.ogUrl ?? "",
+          ogImage: page.ogImage ?? null,
+          twitterTitle: page.twitterTitle ?? "",
+          twitterDescription: page.twitterDescription ?? "",
+          twitterImage: page.twitterImage ?? null,
+          twitterCardSize: (page.twitterCardSize as "large" | "small") ?? "large",
+          faviconUrl: page.faviconUrl ?? null,
+          headScript: page.headScript ?? "",
+          bodyScript: page.bodyScript ?? "",
+          customCss: page.customCss ?? "",
         }));
       })
       .catch(() => {
@@ -900,23 +895,26 @@ export function PageSettingsPanel({ open, onClose }: Props) {
     if (!pageSlug || saveStatus === "saving") return;
     setSaveStatus("saving");
     try {
-      // Save the API-backed fields only; others are UI-only until backend extends
-      await (
-        cmsPages.save as (
-          slug: string,
-          body: {
-            content: string;
-            title?: string;
-            metaDesc?: string;
-            metaKeywords?: string;
-          },
-        ) => Promise<unknown>
-      )(pageSlug, {
-        content: "", // content managed by canvas save, not here
+      const dto: CmsPageSettingsDto = {
         title: form.title,
         metaDesc: form.metaDesc,
         metaKeywords: form.metaKeywords,
-      });
+        noIndex: form.noIndex,
+        ogTitle: form.ogTitle,
+        ogDescription: form.ogDescription,
+        ogType: form.ogType,
+        ogUrl: form.ogUrl,
+        ogImage: form.ogImage,
+        twitterTitle: form.twitterTitle,
+        twitterDescription: form.twitterDescription,
+        twitterImage: form.twitterImage,
+        twitterCardSize: form.twitterCardSize,
+        faviconUrl: form.faviconUrl,
+        headScript: form.headScript,
+        bodyScript: form.bodyScript,
+        customCss: form.customCss,
+      };
+      await cmsPages.saveSettings(pageSlug, dto);
       setSaveStatus("saved");
       setTimeout(() => setSaveStatus("idle"), 2500);
     } catch {
@@ -996,7 +994,9 @@ export function PageSettingsPanel({ open, onClose }: Props) {
                       onChange={patch}
                     />
                   )}
-                  {tab === "favicon" && <FaviconTab />}
+                  {tab === "favicon" && (
+                    <FaviconTab form={form} onChange={patch} />
+                  )}
                   {tab === "scripts" && (
                     <ScriptsTab form={form} onChange={patch} />
                   )}
@@ -1017,7 +1017,7 @@ export function PageSettingsPanel({ open, onClose }: Props) {
               </button>
               <button
                 onClick={handleSave}
-                disabled={saveStatus === "saving" || !pageSlug || tab !== "seo"}
+                disabled={saveStatus === "saving" || !pageSlug}
                 className={cn(
                   "flex-1 h-8 flex items-center justify-center gap-1.5 rounded-md text-xs font-semibold transition-all disabled:opacity-50",
                   saveStatus === "saved"
@@ -1026,11 +1026,6 @@ export function PageSettingsPanel({ open, onClose }: Props) {
                       ? "bg-rose-600 text-white"
                       : "bg-primary hover:bg-primary/90 text-primary-foreground",
                 )}
-                title={
-                  tab !== "seo"
-                    ? "Only SEO settings can be saved (switch to SEO tab)"
-                    : undefined
-                }
               >
                 {saveStatus === "saving" ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -1045,9 +1040,7 @@ export function PageSettingsPanel({ open, onClose }: Props) {
                     ? "Saved!"
                     : saveStatus === "error"
                       ? "Error — retry"
-                      : tab === "seo"
-                        ? "Save SEO Settings"
-                        : "Save (SEO only)"}
+                      : "Save Page Settings"}
               </button>
             </div>
           </motion.div>

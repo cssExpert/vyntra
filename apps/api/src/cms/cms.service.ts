@@ -370,16 +370,68 @@ export class CmsService {
         content: true,
         metaDesc: true,
         metaKeywords: true,
+        noIndex: true,
         published: true,
         publishedAt: true,
         isLandingPage: true,
         layoutId: true,
         themeId: true,
         theme: { select: { identifier: true } },
+        ogTitle: true,
+        ogDescription: true,
+        ogType: true,
+        ogUrl: true,
+        ogImage: true,
+        twitterTitle: true,
+        twitterDescription: true,
+        twitterImage: true,
+        twitterCardSize: true,
+        faviconUrl: true,
+        headScript: true,
+        bodyScript: true,
+        customCss: true,
       },
     });
     if (!page) throw new NotFoundException('Page not found');
     return { ...page, themeIdentifier: page.theme?.identifier ?? null };
+  }
+
+  /**
+   * Saves Page Settings fields (SEO/OG/Social/Favicon/Scripts/Styles) only.
+   * Deliberately separate from `savePage`, which owns `content` — mixing the
+   * two let a settings-only save clobber the page's blocks with an empty
+   * content string.
+   */
+  async updatePageSettings(
+    orgId: string,
+    slug: string,
+    dto: {
+      title?: string;
+      metaDesc?: string;
+      metaKeywords?: string;
+      noIndex?: boolean;
+      ogTitle?: string;
+      ogDescription?: string;
+      ogType?: string;
+      ogUrl?: string;
+      ogImage?: string | null;
+      twitterTitle?: string;
+      twitterDescription?: string;
+      twitterImage?: string | null;
+      twitterCardSize?: string;
+      faviconUrl?: string | null;
+      headScript?: string;
+      bodyScript?: string;
+      customCss?: string;
+    },
+  ) {
+    const existing = await this.prisma.page.findFirst({
+      where: { organizationId: orgId, slug },
+      select: { id: true },
+    });
+    if (!existing) throw new NotFoundException('Page not found');
+
+    return this.prisma.page.update({ where: { id: existing.id }, data: dto });
   }
 
   async savePage(

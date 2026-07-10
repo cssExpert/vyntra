@@ -26,10 +26,24 @@ export interface CmsPage {
   content: string | null;
   metaDesc: string | null;
   metaKeywords: string | null;
+  noIndex?: boolean;
   publishedAt: string | null;
   updatedAt: string;
   layoutId?: string | null;
   themeIdentifier?: string | null;
+  ogTitle?: string | null;
+  ogDescription?: string | null;
+  ogType?: string;
+  ogUrl?: string | null;
+  ogImage?: string | null;
+  twitterTitle?: string | null;
+  twitterDescription?: string | null;
+  twitterImage?: string | null;
+  twitterCardSize?: string;
+  faviconUrl?: string | null;
+  headScript?: string | null;
+  bodyScript?: string | null;
+  customCss?: string | null;
 }
 
 export interface PageListItem {
@@ -102,9 +116,12 @@ export async function PageView({
   if (typedBlocks) {
     return (
       <div className="min-h-screen" style={pageStyle}>
+        {page.customCss && <style dangerouslySetInnerHTML={{ __html: page.customCss }} />}
+        {page.headScript && <script dangerouslySetInnerHTML={{ __html: page.headScript }} />}
         <SiteNavbar org={org} layout={layout} themeIdentifier={themeIdentifier} />
         <BlockRenderer blocks={typedBlocks} themeIdentifier={themeIdentifier} orgId={org.id} />
         <SiteFooter org={org} layout={layout} themeIdentifier={themeIdentifier} />
+        {page.bodyScript && <script dangerouslySetInnerHTML={{ __html: page.bodyScript }} />}
       </div>
     );
   }
@@ -113,15 +130,20 @@ export async function PageView({
   if (nodes) {
     return (
       <div className="min-h-screen" style={pageStyle}>
+        {page.customCss && <style dangerouslySetInnerHTML={{ __html: page.customCss }} />}
+        {page.headScript && <script dangerouslySetInnerHTML={{ __html: page.headScript }} />}
         {hasLayout && <SiteNavbar org={org} layout={layout} themeIdentifier={themeIdentifier} />}
         <NodeRenderer nodes={nodes} orgId={org.id} themeIdentifier={themeIdentifier} />
         {hasLayout && <SiteFooter org={org} layout={layout} themeIdentifier={themeIdentifier} />}
+        {page.bodyScript && <script dangerouslySetInnerHTML={{ __html: page.bodyScript }} />}
       </div>
     );
   }
 
   return (
     <div className="min-h-screen font-sans" style={pageStyle}>
+      {page.customCss && <style dangerouslySetInnerHTML={{ __html: page.customCss }} />}
+      {page.headScript && <script dangerouslySetInnerHTML={{ __html: page.headScript }} />}
       {hasLayout ? (
         <SiteNavbar org={org} layout={layout} themeIdentifier={themeIdentifier} />
       ) : (
@@ -199,6 +221,7 @@ export async function PageView({
           © {new Date().getFullYear()} {org.name}
         </footer>
       )}
+      {page.bodyScript && <script dangerouslySetInnerHTML={{ __html: page.bodyScript }} />}
     </div>
   );
 }

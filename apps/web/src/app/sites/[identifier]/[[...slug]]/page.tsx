@@ -137,6 +137,32 @@ async function fetchBlogDetail(orgId: string, slug: string): Promise<PublicBlogD
 
 // ─── Metadata ────────────────────────────────────────────────────────────────
 
+/** Builds full SEO/OG/Twitter/favicon metadata for a regular CMS page (or the landing page). */
+function buildPageMetadata(page: CmsPage, orgName: string): Metadata {
+  const title = `${page.title} — ${orgName}`;
+  const description = page.metaDesc ?? undefined;
+  return {
+    title,
+    description,
+    keywords: page.metaKeywords ?? undefined,
+    robots: page.noIndex ? { index: false, follow: false } : undefined,
+    openGraph: {
+      title: page.ogTitle || title,
+      description: page.ogDescription || description,
+      type: (page.ogType as "website" | "article") || "website",
+      url: page.ogUrl ?? undefined,
+      images: page.ogImage ? [page.ogImage] : undefined,
+    },
+    twitter: {
+      card: page.twitterCardSize === "small" ? "summary" : "summary_large_image",
+      title: page.twitterTitle || page.ogTitle || title,
+      description: page.twitterDescription || page.ogDescription || description,
+      images: (page.twitterImage || page.ogImage) ? [(page.twitterImage || page.ogImage) as string] : undefined,
+    },
+    icons: page.faviconUrl ? { icon: page.faviconUrl } : undefined,
+  };
+}
+
 export async function generateMetadata({
   params,
   searchParams,
@@ -156,10 +182,7 @@ export async function generateMetadata({
   const pageSlug = slug?.join("/");
   if (!pageSlug) {
     const landing = await fetchLandingPage(org.id, activeLang);
-    return {
-      title: landing ? `${landing.title} — ${org.name}` : org.name,
-      description: landing?.metaDesc ?? undefined,
-    };
+    return landing ? buildPageMetadata(landing, org.name) : { title: org.name };
   }
 
   const resolved = resolveSystemPageType(pageSlug);
@@ -203,11 +226,7 @@ export async function generateMetadata({
   }
 
   const page = await fetchPage(org.id, pageSlug, activeLang);
-  return {
-    title: page ? `${page.title} — ${org.name}` : org.name,
-    description: page?.metaDesc ?? undefined,
-    keywords: page?.metaKeywords ?? undefined,
-  };
+  return page ? buildPageMetadata(page, org.name) : { title: org.name };
 }
 
 // ─── Page component ───────────────────────────────────────────────────────────
