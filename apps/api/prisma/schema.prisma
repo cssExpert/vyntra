@@ -101,6 +101,10 @@ model Organization {
   blogFeaturedEnabled Boolean @default(true)
   blogPinToTopEnabled Boolean @default(true)
 
+  // SEO & Analytics
+  googleAnalyticsId              String? // GA4 measurement ID, e.g. "G-XXXXXXXXXX"
+  googleSiteVerification         String? // Search Console HTML tag verification token (meta content only)
+
   // Internationalization & Localization
   defaultLocale String  @default("en") // company-wide default UI language
   timezone      String? // org-specific timezone (nullable)

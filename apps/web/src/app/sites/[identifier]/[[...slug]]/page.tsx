@@ -175,6 +175,16 @@ export async function generateMetadata({
   const org = await resolveOrg(identifier, _chost);
   if (!org) return {};
 
+  const metadata = await resolvePageMetadata(org, slug);
+  return org.googleSiteVerification
+    ? { ...metadata, verification: { google: org.googleSiteVerification } }
+    : metadata;
+}
+
+async function resolvePageMetadata(
+  org: OrgInfo,
+  slug: string[] | undefined,
+): Promise<Metadata> {
   const cookieStore = await cookies();
   const lang = cookieStore.get("vyntra_site_lang")?.value;
   const activeLang = (lang && org.siteLanguages?.includes(lang)) ? lang : (org.defaultSiteLanguage ?? "en");

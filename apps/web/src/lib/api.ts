@@ -185,6 +185,8 @@ export interface OrganizationSettings {
   accentColor: string;
   emailNotifications: boolean;
   slackNotifications: boolean;
+  googleAnalyticsId: string | null;
+  googleSiteVerification: string | null;
 }
 
 export function apiGetOrgSettings() {

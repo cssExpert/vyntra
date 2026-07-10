@@ -15,6 +15,11 @@ import {
   Languages,
   Newspaper,
   Save,
+  BarChart3,
+  Search,
+  ShieldCheck,
+  FileCode2,
+  ExternalLink,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
@@ -36,7 +41,7 @@ function FieldGroup({
   children,
 }: {
   label: string;
-  hint?: string;
+  hint?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
@@ -954,6 +959,204 @@ function BlogSettingsTab() {
   );
 }
 
+// ── SEO & Analytics Tab ───────────────────────────────────────────────────────
+
+const GA_ID_PATTERN = /^(G|GTM)-[A-Z0-9]+$/i;
+
+function SeoAnalyticsTab() {
+  const [gaId, setGaId] = useState("");
+  const [gscVerification, setGscVerification] = useState("");
+  const [siteUrl, setSiteUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    Promise.all([apiGetOrgSettings(), orgDomain.dnsInfo().catch(() => null)])
+      .then(([settings, dns]) => {
+        setGaId(settings.googleAnalyticsId ?? "");
+        setGscVerification(settings.googleSiteVerification ?? "");
+        const url =
+          dns?.customDomainVerified && dns.customDomain
+            ? `https://${dns.customDomain}`
+            : dns?.subdomainUrl ?? null;
+        setSiteUrl(url);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const flash = (msg: string, isErr = false) => {
+    if (isErr) {
+      setError(msg);
+      setTimeout(() => setError(""), 4000);
+    } else {
+      setSuccess(msg);
+      setTimeout(() => setSuccess(""), 4000);
+    }
+  };
+
+  const gaIdValid = gaId.trim() === "" || GA_ID_PATTERN.test(gaId.trim());
+
+  const save = async () => {
+    if (!gaIdValid) {
+      flash("Google Analytics ID looks invalid — expected a G-XXXXXXXXXX or GTM-XXXXXXX format.", true);
+      return;
+    }
+    setSaving(true);
+    try {
+      await apiUpdateOrgSettings({
+        googleAnalyticsId: gaId.trim() || undefined,
+        googleSiteVerification: gscVerification.trim() || undefined,
+      });
+      flash("SEO & Analytics settings saved.");
+    } catch {
+      flash("Failed to save SEO & Analytics settings.", true);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16 text-muted-foreground text-sm">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent mr-2" />
+        Loading…
+      </div>
+    );
+  }
+
+  const sitemapUrl = siteUrl ? `${siteUrl}/sitemap.xml` : null;
+  const robotsUrl = siteUrl ? `${siteUrl}/robots.txt` : null;
+
+  return (
+    <div className="space-y-5">
+      {error && (
+        <div className="flex items-center gap-2.5 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+          <AlertCircle className="h-4 w-4 shrink-0" /> {error}
+        </div>
+      )}
+      {success && (
+        <div className="flex items-center gap-2.5 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 text-sm text-emerald-600">
+          <CheckCircle2 className="h-4 w-4 shrink-0" /> {success}
+        </div>
+      )}
+
+      <SectionCard
+        icon={BarChart3}
+        title="Google Analytics"
+        description="Adds the GA4 tracking snippet to every page of your public site."
+      >
+        <FieldGroup
+          label="Measurement ID"
+          hint="Found in Google Analytics under Admin → Data Streams → your web stream. Format: G-XXXXXXXXXX (or a GTM-XXXXXXX container ID)."
+        >
+          <Input
+            type="text"
+            className={cn(inputCls, !gaIdValid && "border-destructive focus:border-destructive")}
+            placeholder="G-XXXXXXXXXX"
+            value={gaId}
+            onChange={(e) => setGaId(e.target.value.trim())}
+          />
+        </FieldGroup>
+      </SectionCard>
+
+      <SectionCard
+        icon={ShieldCheck}
+        title="Google Search Console"
+        description="Verify site ownership without a DNS record, using the HTML tag method."
+      >
+        <FieldGroup
+          label="Verification content"
+          hint={
+            <>
+              In Search Console, choose &ldquo;HTML tag&rdquo; verification and paste only the{" "}
+              <code className="font-mono bg-muted px-1 rounded">content=&quot;...&quot;</code> value here — not the
+              whole tag.
+            </>
+          }
+        >
+          <Input
+            type="text"
+            className={inputCls}
+            placeholder="abc123XYZ..."
+            value={gscVerification}
+            onChange={(e) => setGscVerification(e.target.value.trim())}
+          />
+        </FieldGroup>
+      </SectionCard>
+
+      <SectionCard
+        icon={FileCode2}
+        title="Sitemap & Robots"
+        description="Generated automatically from your published pages, products, and blog posts — no configuration needed."
+      >
+        {sitemapUrl && robotsUrl ? (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 rounded-xl border border-border bg-muted/30 px-4 py-3">
+              <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <a
+                href={sitemapUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 text-sm font-mono text-primary hover:underline truncate"
+              >
+                {sitemapUrl}
+              </a>
+              <CopyBtn text={sitemapUrl} />
+              <a
+                href={sitemapUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition"
+                title="Open sitemap"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            </div>
+            <div className="flex items-center gap-2 rounded-xl border border-border bg-muted/30 px-4 py-3">
+              <FileCode2 className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <a
+                href={robotsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 text-sm font-mono text-primary hover:underline truncate"
+              >
+                {robotsUrl}
+              </a>
+              <CopyBtn text={robotsUrl} />
+              <a
+                href={robotsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition"
+                title="Open robots.txt"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Submit the sitemap URL above in Google Search Console under Sitemaps.
+            </p>
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            Set up a subdomain or custom domain first — the sitemap URL depends on it.
+          </p>
+        )}
+      </SectionCard>
+
+      <StickySaveBar
+        saving={saving}
+        success={success}
+        onSave={save}
+        label="Save SEO & Analytics"
+      />
+    </div>
+  );
+}
+
 // ── CmsSettingsView ───────────────────────────────────────────────────────────
 
 const TABS = [
@@ -961,6 +1164,7 @@ const TABS = [
   { id: "blog", label: "Blog" },
   { id: "languages", label: "Languages" },
   { id: "domain", label: "Domain" },
+  { id: "seo", label: "SEO & Analytics" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -1008,6 +1212,7 @@ export function CmsSettingsView() {
       {activeTab === "blog" && <BlogSettingsTab />}
       {activeTab === "languages" && <LanguagesTab />}
       {activeTab === "domain" && <DomainTab />}
+      {activeTab === "seo" && <SeoAnalyticsTab />}
     </div>
   );
 }

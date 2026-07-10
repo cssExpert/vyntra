@@ -256,6 +256,7 @@ export class DomainsService {
         title: true,
         slug: true,
         metaDesc: true,
+        noIndex: true,
         publishedAt: true,
         updatedAt: true,
       },
@@ -828,6 +829,8 @@ export class DomainsService {
       themeSwitcherEnabled: true,
       siteLanguages: true,
       defaultSiteLanguage: true,
+      googleAnalyticsId: true,
+      googleSiteVerification: true,
       subscription: {
         include: {
           package: {
@@ -848,6 +851,8 @@ export class DomainsService {
     themeSwitcherEnabled?: boolean;
     siteLanguages?: string[];
     defaultSiteLanguage?: string;
+    googleAnalyticsId?: string | null;
+    googleSiteVerification?: string | null;
     subscription: {
       status: string;
       package: {
@@ -876,6 +881,8 @@ export class DomainsService {
       themeSwitcherEnabled: org.themeSwitcherEnabled ?? false,
       siteLanguages: org.siteLanguages ?? ["en"],
       defaultSiteLanguage: org.defaultSiteLanguage ?? "en",
+      googleAnalyticsId: org.googleAnalyticsId ?? null,
+      googleSiteVerification: org.googleSiteVerification ?? null,
     };
   }
 }

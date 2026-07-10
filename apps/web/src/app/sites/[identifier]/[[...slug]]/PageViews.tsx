@@ -1,11 +1,33 @@
 import type React from "react";
 import Link from "next/link";
+import Script from "next/script";
 import { NodeRenderer } from "./NodeRenderer";
 import { SiteNavbar, SiteFooter } from "./SiteLayout";
 import { BlockRenderer } from "./BlockRenderer";
 import { parseTypedBlocks } from "@/lib/themes/parseTypedBlocks";
 import { resolveThemeSystemPage } from "@/lib/themes/themeSystemPageResolver";
 import type { SystemPageType } from "@/lib/themes/systemPages";
+
+/** Injects the GA4 gtag.js snippet when the org has a Measurement/Container ID configured. */
+function GoogleAnalytics({ gaId }: { gaId?: string | null }) {
+  if (!gaId) return null;
+  return (
+    <>
+      <Script
+        src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+        strategy="afterInteractive"
+      />
+      <Script id="ga4-init" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${gaId}');
+        `}
+      </Script>
+    </>
+  );
+}
 
 export interface OrgInfo {
   id: string;
@@ -17,6 +39,8 @@ export interface OrgInfo {
   themeSwitcherEnabled: boolean;
   siteLanguages: string[];
   defaultSiteLanguage: string;
+  googleAnalyticsId?: string | null;
+  googleSiteVerification?: string | null;
 }
 
 export interface CmsPage {
@@ -51,7 +75,9 @@ export interface PageListItem {
   title: string;
   slug: string;
   metaDesc: string | null;
+  noIndex?: boolean;
   publishedAt: string | null;
+  updatedAt?: string;
 }
 
 export interface SiteLayoutData {
@@ -118,6 +144,7 @@ export async function PageView({
       <div className="min-h-screen" style={pageStyle}>
         {page.customCss && <style dangerouslySetInnerHTML={{ __html: page.customCss }} />}
         {page.headScript && <script dangerouslySetInnerHTML={{ __html: page.headScript }} />}
+        <GoogleAnalytics gaId={org.googleAnalyticsId} />
         <SiteNavbar org={org} layout={layout} themeIdentifier={themeIdentifier} />
         <BlockRenderer blocks={typedBlocks} themeIdentifier={themeIdentifier} orgId={org.id} />
         <SiteFooter org={org} layout={layout} themeIdentifier={themeIdentifier} />
@@ -132,6 +159,7 @@ export async function PageView({
       <div className="min-h-screen" style={pageStyle}>
         {page.customCss && <style dangerouslySetInnerHTML={{ __html: page.customCss }} />}
         {page.headScript && <script dangerouslySetInnerHTML={{ __html: page.headScript }} />}
+        <GoogleAnalytics gaId={org.googleAnalyticsId} />
         {hasLayout && <SiteNavbar org={org} layout={layout} themeIdentifier={themeIdentifier} />}
         <NodeRenderer nodes={nodes} orgId={org.id} themeIdentifier={themeIdentifier} />
         {hasLayout && <SiteFooter org={org} layout={layout} themeIdentifier={themeIdentifier} />}
@@ -144,6 +172,7 @@ export async function PageView({
     <div className="min-h-screen font-sans" style={pageStyle}>
       {page.customCss && <style dangerouslySetInnerHTML={{ __html: page.customCss }} />}
       {page.headScript && <script dangerouslySetInnerHTML={{ __html: page.headScript }} />}
+      <GoogleAnalytics gaId={org.googleAnalyticsId} />
       {hasLayout ? (
         <SiteNavbar org={org} layout={layout} themeIdentifier={themeIdentifier} />
       ) : (
@@ -253,6 +282,7 @@ export async function SystemPageView({
     <div className="min-h-screen" style={pageStyle}>
       {pageSettings?.customCss && <style dangerouslySetInnerHTML={{ __html: pageSettings.customCss }} />}
       {pageSettings?.headScript && <script dangerouslySetInnerHTML={{ __html: pageSettings.headScript }} />}
+      <GoogleAnalytics gaId={org.googleAnalyticsId} />
       <SiteNavbar org={org} layout={layout} themeIdentifier={themeIdentifier} />
       <SystemPage orgId={org.id} themeIdentifier={themeIdentifier} slug={slug} />
       <SiteFooter org={org} layout={layout} themeIdentifier={themeIdentifier} />
@@ -280,6 +310,7 @@ export async function SiteHome({
 
   return (
     <div className="min-h-screen font-sans" style={pageStyle}>
+      <GoogleAnalytics gaId={org.googleAnalyticsId} />
       {hasLayout ? (
         <SiteNavbar org={org} layout={layout} themeIdentifier={themeIdentifier} />
       ) : (

@@ -187,4 +187,12 @@ export class OrganizationSettingsDto {
   @IsOptional()
   @IsString()
   defaultSiteLanguage?: string;
+
+  @IsOptional()
+  @IsString()
+  googleAnalyticsId?: string;
+
+  @IsOptional()
+  @IsString()
+  googleSiteVerification?: string;
 }

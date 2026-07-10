@@ -251,6 +251,8 @@ export class OrganizationsService {
         blogPinToTopEnabled: true,
         siteLanguages: true,
         defaultSiteLanguage: true,
+        googleAnalyticsId: true,
+        googleSiteVerification: true,
       },
     });
     if (!org) throw new NotFoundException('Organization not found');
@@ -282,6 +284,8 @@ export class OrganizationsService {
     if (dto.accentColor) data.accentColor = dto.accentColor;
     if (dto.emailNotifications !== undefined) data.emailNotifications = dto.emailNotifications;
     if (dto.slackNotifications !== undefined) data.slackNotifications = dto.slackNotifications;
+    if (dto.googleAnalyticsId !== undefined) data.googleAnalyticsId = dto.googleAnalyticsId;
+    if (dto.googleSiteVerification !== undefined) data.googleSiteVerification = dto.googleSiteVerification;
 
     return this.prisma.organization.update({
       where: { id: organizationId },
@@ -304,6 +308,8 @@ export class OrganizationsService {
         blogPinToTopEnabled: true,
         siteLanguages: true,
         defaultSiteLanguage: true,
+        googleAnalyticsId: true,
+        googleSiteVerification: true,
       },
     });
   }
