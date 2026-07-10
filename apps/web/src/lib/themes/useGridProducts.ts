@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { storeProducts, type ApiProduct } from "@/lib/api";
-import type { ProductItem, ProductTabsData } from "./types";
+import type { ProductGridData, ProductItem } from "./types";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
@@ -36,8 +36,9 @@ function toProductItemPublic(p: PublicProduct): ProductItem {
 }
 
 /**
- * Resolves the products to render for the active tab: always fetches live
- * from the catalog, optionally filtered/limited by the tab's `source` config.
+ * Resolves the products to render for a Product Grid block: always fetches
+ * live from the catalog, filtered/sorted/limited by the block's `source`
+ * config.
  *
  * `orgId` distinguishes the two rendering contexts this component is shared
  * across: when set (public storefront), products come from the unauthenticated
@@ -45,18 +46,14 @@ function toProductItemPublic(p: PublicProduct): ProductItem {
  * where the viewer is already logged in), it uses the authenticated store API
  * scoped to the editor user's own organization.
  */
-export function useActiveTabProducts(
-  tabs: ProductTabsData["tabs"],
-  activeIndex: number,
-  orgId?: string,
-) {
-  const tab = tabs[activeIndex];
-  const source = tab?.source;
+export function useGridProducts(data: ProductGridData, orgId?: string) {
+  const source = data.source;
   const categoryId = source?.categoryId;
   const productType = source?.productType;
+  const sort = source?.sort ?? "newest";
   const limit = source?.limit ?? 8;
 
-  const [products, setProducts] = useState<ProductItem[]>(tab?.products ?? []);
+  const [products, setProducts] = useState<ProductItem[]>(data.products ?? []);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -65,7 +62,7 @@ export function useActiveTabProducts(
 
     const fetchProducts = orgId
       ? (async () => {
-          const qs = new URLSearchParams({ take: String(limit) });
+          const qs = new URLSearchParams({ take: String(limit), sort });
           if (categoryId) qs.set("categoryId", categoryId);
           if (productType) qs.set("type", productType);
           const res = await fetch(`${API}/public/sites/${orgId}/products?${qs}`, {
@@ -76,7 +73,7 @@ export function useActiveTabProducts(
           return data.map(toProductItemPublic);
         })()
       : storeProducts
-          .list({ take: limit, status: "active", categoryId, type: productType })
+          .list({ take: limit, status: "active", categoryId, type: productType, sort })
           .then((res) => res.data.map(toProductItem));
 
     fetchProducts
@@ -85,8 +82,7 @@ export function useActiveTabProducts(
       .finally(() => { if (!cancelled) setLoading(false); });
 
     return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeIndex, categoryId, productType, limit, orgId]);
+  }, [categoryId, productType, sort, limit, orgId]);
 
   return { products, loading };
 }

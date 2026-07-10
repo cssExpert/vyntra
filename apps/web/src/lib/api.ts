@@ -596,6 +596,9 @@ export interface CmsBlogListItem {
   slug: string;
   published: boolean;
   author: string | null;
+  excerpt?: string | null;
+  coverImage?: string | null;
+  category?: string | null;
   createdAt: string;
   publishedAt: string | null;
 }
@@ -718,7 +721,20 @@ export const cmsDashboard = {
 };
 
 export const cmsBlogs = {
-  list: () => apiFetch<CmsBlogListItem[]>("/cms/blogs"),
+  list: (params?: {
+    category?: string;
+    sort?: "newest" | "oldest";
+    take?: number;
+    published?: boolean;
+  }) => {
+    const qs = new URLSearchParams();
+    if (params?.category) qs.set("category", params.category);
+    if (params?.sort) qs.set("sort", params.sort);
+    if (params?.take !== undefined) qs.set("take", String(params.take));
+    if (params?.published !== undefined) qs.set("published", String(params.published));
+    const q = qs.toString();
+    return apiFetch<CmsBlogListItem[]>(`/cms/blogs${q ? `?${q}` : ""}`);
+  },
   get: (id: string) => apiFetch<CmsBlogDetail>(`/cms/blogs/${id}`),
   create: (dto: CmsBlogSaveDto) =>
     apiFetch<CmsBlogDetail>("/cms/blogs", {
@@ -1139,6 +1155,7 @@ export const storeProducts = {
     status?: string;
     categoryId?: string;
     type?: string;
+    sort?: "newest" | "price_asc" | "price_desc";
   }) => {
     const qs = new URLSearchParams();
     if (params?.skip !== undefined) qs.set("skip", String(params.skip));
@@ -1146,6 +1163,7 @@ export const storeProducts = {
     if (params?.status) qs.set("status", params.status);
     if (params?.categoryId) qs.set("categoryId", params.categoryId);
     if (params?.type) qs.set("type", params.type);
+    if (params?.sort) qs.set("sort", params.sort);
     const q = qs.toString();
     return apiFetch<ApiProductsPage>(`/store/products${q ? `?${q}` : ""}`);
   },

@@ -1,7 +1,10 @@
 import type { CategoryGridData } from "@/lib/themes/types";
+import { useGridCategories } from "@/lib/themes/useCategoryGrid";
+import { EmptyState } from "@/lib/themes/shared/EmptyState";
 
-export default function CategoryGrid({ data }: { data: CategoryGridData }) {
-  if (!data.categories.length) return null;
+export default function CategoryGrid({ data, orgId }: { data: CategoryGridData; orgId?: string }) {
+  const { categories, loading } = useGridCategories(data, orgId);
+
   return (
     <section className="py-14 bg-white dark:bg-[#121214]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -15,8 +18,13 @@ export default function CategoryGrid({ data }: { data: CategoryGridData }) {
             </a>
           </div>
         )}
+        {loading ? (
+          <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-10">Loading categories…</p>
+        ) : categories.length === 0 ? (
+          <EmptyState title="No categories found" message="Add some categories to your store catalog." />
+        ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {data.categories.map((cat, i) => (
+          {categories.map((cat, i) => (
             <a
               key={i}
               href={cat.url}
@@ -38,6 +46,7 @@ export default function CategoryGrid({ data }: { data: CategoryGridData }) {
             </a>
           ))}
         </div>
+        )}
       </div>
     </section>
   );

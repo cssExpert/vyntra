@@ -223,6 +223,7 @@ export class DomainsController {
     @Query('category') category?: string,
     @Query('tag') tag?: string,
     @Query('search') search?: string,
+    @Query('sort') sort?: 'newest' | 'oldest',
   ) {
     return this.domainsService.getPublicBlogs(orgId, {
       skip: skip ? parseInt(skip, 10) : undefined,
@@ -230,6 +231,7 @@ export class DomainsController {
       category,
       tag,
       search,
+      sort,
     });
   }
 

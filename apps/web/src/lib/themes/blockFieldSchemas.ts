@@ -14,7 +14,8 @@ export type ScalarFieldDef =
   | { type: 'select';      key: string; label: string; options: { value: string; label: string }[] }
   | { type: 'toggle';      key: string; label: string; description?: string }
   | { type: 'string-list'; key: string; label: string; placeholder?: string; addLabel?: string }
-  | { type: 'product-source'; key: string; label: string; defaultLimit?: number };
+  | { type: 'product-source'; key: string; label: string; defaultLimit?: number }
+  | { type: 'blog-source'; key: string; label: string; defaultLimit?: number };
 
 export interface ArrayFieldDef {
   type: 'array';
@@ -91,15 +92,7 @@ export const BLOCK_SCHEMAS: Record<string, BlockSection[]> = {
       title: 'Data Source',
       defaultOpen: false,
       fields: [
-        {
-          type: 'db-source',
-          key: 'products',
-          table: 'products',
-          label: 'Products',
-          description: 'Products will be fetched live from your catalog at render time.',
-          limitKey: 'limit',
-          defaultLimit: 8,
-        },
+        { type: 'product-source', key: 'source', label: 'Products', defaultLimit: 8 },
       ],
     },
   ],
@@ -260,7 +253,7 @@ export const BLOCK_SCHEMAS: Record<string, BlockSection[]> = {
         {
           type: 'number',
           key: 'postsCount',
-          label: 'Number of Posts',
+          label: 'Posts Per Page',
           min: 1,
           max: 12,
           suffix: 'posts',
@@ -296,15 +289,7 @@ export const BLOCK_SCHEMAS: Record<string, BlockSection[]> = {
       title: 'Data Source',
       defaultOpen: false,
       fields: [
-        {
-          type: 'db-source',
-          key: 'posts',
-          table: 'blog_posts',
-          label: 'Blog Posts',
-          description: 'Posts will be fetched live from your blog.',
-          limitKey: 'postsCount',
-          defaultLimit: 3,
-        },
+        { type: 'blog-source', key: 'source', label: 'Blog Posts', defaultLimit: 12 },
       ],
     },
   ],

@@ -517,12 +517,14 @@ export class DomainsService {
       search,
       skip = 0,
       take = 6,
+      sort = 'newest',
     }: {
       category?: string;
       tag?: string;
       search?: string;
       skip?: number;
       take?: number;
+      sort?: 'newest' | 'oldest';
     } = {},
   ) {
     const limit = Math.min(Math.max(take, 1), 48);
@@ -543,7 +545,7 @@ export class DomainsService {
       organizationId: orgId,
       published: true,
       visibility: 'public',
-      ...(category && { category }),
+      ...(category && { category: { contains: category } }),
       ...(search && {
         OR: [
           { title: { contains: search, mode: 'insensitive' as const } },
@@ -558,13 +560,18 @@ export class DomainsService {
       select: { blogFeaturedEnabled: true, blogPinToTopEnabled: true },
     });
 
+    const orderBy =
+      sort === 'oldest'
+        ? [{ publishedAt: 'asc' as const }]
+        : org?.blogPinToTopEnabled
+          ? [{ pinToTop: 'desc' as const }, { publishedAt: 'desc' as const }]
+          : [{ publishedAt: 'desc' as const }];
+
     const [rows, total] = await Promise.all([
       this.prisma.blog.findMany({
         where,
         select: DomainsService.PUBLIC_BLOG_SELECT,
-        orderBy: org?.blogPinToTopEnabled
-          ? [{ pinToTop: 'desc' }, { publishedAt: 'desc' }]
-          : [{ publishedAt: 'desc' }],
+        orderBy,
         skip: Math.max(skip, 0),
         take: limit,
       }),

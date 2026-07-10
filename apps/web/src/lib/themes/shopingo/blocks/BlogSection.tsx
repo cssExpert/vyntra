@@ -4,6 +4,8 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { BlogSectionData, BlogPost } from "@/lib/themes/types";
+import { useBlogPosts } from "@/lib/themes/useBlogPosts";
+import { EmptyState } from "@/lib/themes/shared/EmptyState";
 
 // ── Post card (grid mode) ─────────────────────────────────────────────────────
 
@@ -242,19 +244,23 @@ function GridListView({ data, posts }: { data: BlogSectionData; posts: BlogPost[
 
 // ── Main export ───────────────────────────────────────────────────────────────
 
-export default function BlogSection({ data }: { data: BlogSectionData }) {
-  const posts = (data.posts ?? []).slice(0, data.postsCount ?? 3);
-  if (!posts.length) return null;
+export default function BlogSection({ data, orgId }: { data: BlogSectionData; orgId?: string }) {
+  const { posts, loading } = useBlogPosts(data, orgId);
   const isSlider = data.displayMode === "slider";
 
   return (
     <section className="py-14 bg-[#f5f5f5] dark:bg-[#121214]">
       <div className={`max-w-7xl mx-auto px-4 sm:px-6 ${isSlider ? "px-8 sm:px-10" : ""}`}>
         <SectionTitle data={data} />
-        {isSlider
-          ? <SliderView data={data} posts={posts} />
-          : <GridListView data={data} posts={posts} />
-        }
+        {loading ? (
+          <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-10">Loading posts…</p>
+        ) : posts.length === 0 ? (
+          <EmptyState title="No posts found" message="Try a different category, or publish your first post." />
+        ) : isSlider ? (
+          <SliderView data={data} posts={posts} />
+        ) : (
+          <GridListView data={data} posts={posts} />
+        )}
       </div>
     </section>
   );

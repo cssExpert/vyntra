@@ -40,8 +40,19 @@ export class CmsController {
 
   @Roles(Role.ORG_ADMIN, Role.EDITOR)
   @Get('blogs')
-  listBlogs(@CurrentOrg() orgId: string | null) {
-    return this.cmsService.listBlogs(requireOrg(orgId));
+  listBlogs(
+    @CurrentOrg() orgId: string | null,
+    @Query('category') category?: string,
+    @Query('sort') sort?: string,
+    @Query('take') take?: string,
+    @Query('published') published?: string,
+  ) {
+    return this.cmsService.listBlogs(requireOrg(orgId), {
+      category,
+      sort: sort === 'oldest' ? 'oldest' : 'newest',
+      take: take ? parseInt(take, 10) : undefined,
+      published: published === 'true' ? true : published === 'false' ? false : undefined,
+    });
   }
 
   @Roles(Role.ORG_ADMIN, Role.EDITOR)

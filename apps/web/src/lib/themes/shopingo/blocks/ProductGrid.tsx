@@ -1,4 +1,6 @@
 import type { ProductGridData, ProductItem } from "@/lib/themes/types";
+import { useGridProducts } from "@/lib/themes/useGridProducts";
+import { EmptyState } from "@/lib/themes/shared/EmptyState";
 
 const ORANGE = "#e4611e";
 
@@ -63,7 +65,8 @@ function ProductCard({ product }: { product: ProductItem }) {
   );
 }
 
-export default function ProductGrid({ data }: { data: ProductGridData }) {
+export default function ProductGrid({ data, orgId }: { data: ProductGridData; orgId?: string }) {
+  const { products, loading } = useGridProducts(data, orgId);
   return (
     <section className="py-14 bg-white dark:bg-[#121214]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -78,9 +81,15 @@ export default function ProductGrid({ data }: { data: ProductGridData }) {
             <div className="mt-3 mx-auto w-12 h-1 rounded bg-[#e4611e]" />
           </div>
         )}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {data.products.map((p) => <ProductCard key={p.id} product={p} />)}
-        </div>
+        {loading ? (
+          <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-10">Loading products…</p>
+        ) : products.length === 0 ? (
+          <EmptyState title="No products found" message="Try a different category or product type." />
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {products.map((p) => <ProductCard key={p.id} product={p} />)}
+          </div>
+        )}
       </div>
     </section>
   );

@@ -17,7 +17,7 @@ import {
   List,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { storeCategories, type ApiProductCategory } from "@/lib/api";
+import { storeCategories, type ApiProductCategory, cmsBlogCategories, type CmsBlogCategory } from "@/lib/api";
 import { BLOCK_SCHEMAS } from "@/lib/themes/blockFieldSchemas";
 import type {
   ScalarFieldDef,
@@ -187,8 +187,15 @@ const PRODUCT_TYPE_OPTIONS = [
 interface ProductSource {
   categoryId?: string;
   productType?: string;
+  sort?: "newest" | "price_asc" | "price_desc";
   limit?: number;
 }
+
+const SORT_OPTIONS: { value: NonNullable<ProductSource["sort"]>; label: string }[] = [
+  { value: "newest", label: "Newest first" },
+  { value: "price_asc", label: "Price: Low to High" },
+  { value: "price_desc", label: "Price: High to Low" },
+];
 
 function ProductSourceField({
   def,
@@ -265,6 +272,21 @@ function ProductSourceField({
         </select>
       </div>
 
+      <div>
+        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide block mb-1">
+          Sort By
+        </span>
+        <select
+          value={source.sort ?? "newest"}
+          onChange={(e) => set({ sort: e.target.value as ProductSource["sort"] })}
+          className={fieldCls}
+        >
+          {SORT_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+      </div>
+
       <div className="flex items-center gap-2">
         <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide shrink-0">
           Limit
@@ -278,6 +300,112 @@ function ProductSourceField({
           className={cn(fieldCls, "w-16 text-center")}
         />
         <span className="text-[10px] text-muted-foreground">items</span>
+      </div>
+    </div>
+  );
+}
+
+// ── Blog source field (category / sort / limit) ─────────────────────────────────
+
+interface BlogSource {
+  category?: string;
+  sort?: "newest" | "oldest";
+  limit?: number;
+}
+
+const BLOG_SORT_OPTIONS: { value: NonNullable<BlogSource["sort"]>; label: string }[] = [
+  { value: "newest", label: "Newest first" },
+  { value: "oldest", label: "Oldest first" },
+];
+
+function BlogSourceField({
+  def,
+  value,
+  onChange,
+}: {
+  def: Extract<ScalarFieldDef, { type: "blog-source" }>;
+  value: unknown;
+  onChange: (v: unknown) => void;
+}) {
+  const source = (value ?? {}) as BlogSource;
+  const [categories, setCategories] = useState<CmsBlogCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    cmsBlogCategories
+      .list()
+      .then((cats) => { if (!cancelled) setCategories(cats); })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
+
+  function set(patch: Partial<BlogSource>) {
+    onChange({ ...source, ...patch });
+  }
+
+  return (
+    <div className="rounded-xl border border-primary/20 bg-primary/5 p-3.5 space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Database className="w-3.5 h-3.5 text-primary shrink-0" />
+          <span className="text-xs font-semibold text-foreground">{def.label}</span>
+        </div>
+        <span className="text-[9px] px-2 py-0.5 rounded-full bg-primary/15 text-primary font-bold uppercase tracking-wide">
+          live
+        </span>
+      </div>
+      <p className="text-[10px] text-muted-foreground leading-relaxed">
+        Posts are fetched live from your blog. Leave category on &ldquo;All&rdquo; to skip that
+        filter.
+      </p>
+
+      <div>
+        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide block mb-1">
+          Category
+        </span>
+        <select
+          value={source.category ?? ""}
+          onChange={(e) => set({ category: e.target.value || undefined })}
+          disabled={loading}
+          className={fieldCls}
+        >
+          <option value="">All categories</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.name}>{c.name}</option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide block mb-1">
+          Sort By
+        </span>
+        <select
+          value={source.sort ?? "newest"}
+          onChange={(e) => set({ sort: e.target.value as BlogSource["sort"] })}
+          className={fieldCls}
+        >
+          {BLOG_SORT_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide shrink-0">
+          Limit
+        </span>
+        <input
+          type="number"
+          value={source.limit ?? def.defaultLimit ?? 12}
+          min={1}
+          max={50}
+          onChange={(e) => set({ limit: Number(e.target.value) })}
+          className={cn(fieldCls, "w-16 text-center")}
+        />
+        <span className="text-[10px] text-muted-foreground">posts</span>
       </div>
     </div>
   );
@@ -311,6 +439,10 @@ export function ScalarField({
 
   if (def.type === "product-source") {
     return <ProductSourceField def={def} value={value} onChange={onChange} />;
+  }
+
+  if (def.type === "blog-source") {
+    return <BlogSourceField def={def} value={value} onChange={onChange} />;
   }
 
   if (def.type === "url") {

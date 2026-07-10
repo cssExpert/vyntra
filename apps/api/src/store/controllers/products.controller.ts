@@ -38,7 +38,8 @@ export class ProductsController {
     @Query('take') take?: string,
     @Query('status') status?: string,
     @Query('categoryId') categoryId?: string,
-    @Query('type') type?: string
+    @Query('type') type?: string,
+    @Query('sort') sort?: string
   ) {
     return this.productsService.findAll(organizationId, {
       skip: skip ? parseInt(skip) : 0,
@@ -46,6 +47,7 @@ export class ProductsController {
       status,
       categoryId,
       type,
+      sort,
     });
   }
 

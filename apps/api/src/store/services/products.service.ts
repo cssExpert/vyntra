@@ -44,6 +44,12 @@ export class ProductsService {
     return this.tagsService.attachTagsOne(organizationId, 'product', product);
   }
 
+  private static readonly SORTS = {
+    newest: { createdAt: 'desc' },
+    price_asc: { price: 'asc' },
+    price_desc: { price: 'desc' },
+  } as const;
+
   async findAll(
     organizationId: string,
     {
@@ -52,12 +58,14 @@ export class ProductsService {
       status,
       categoryId,
       type,
+      sort,
     }: {
       skip?: number;
       take?: number;
       status?: string;
       categoryId?: string;
       type?: string;
+      sort?: string;
     } = {}
   ) {
     const where = {
@@ -66,6 +74,9 @@ export class ProductsService {
       ...(categoryId && { categoryIds: { has: categoryId } }),
       ...(type && { type }),
     };
+    const orderBy =
+      ProductsService.SORTS[sort as keyof typeof ProductsService.SORTS] ??
+      ProductsService.SORTS.newest;
 
     const [rows, total] = await Promise.all([
       this.prisma.product.findMany({
@@ -79,7 +90,7 @@ export class ProductsService {
             select: { orderItems: true, reviews: true },
           },
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy,
       }),
       this.prisma.product.count({ where }),
     ]);

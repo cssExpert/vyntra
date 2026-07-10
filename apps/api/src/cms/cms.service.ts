@@ -73,19 +73,40 @@ export class CmsService {
     });
   }
 
-  async listBlogs(orgId: string) {
+  async listBlogs(
+    orgId: string,
+    {
+      category,
+      sort = 'newest',
+      take,
+      published,
+    }: {
+      category?: string;
+      sort?: 'newest' | 'oldest';
+      take?: number;
+      published?: boolean;
+    } = {},
+  ) {
     return this.prisma.blog.findMany({
-      where: { organizationId: orgId },
+      where: {
+        organizationId: orgId,
+        ...(category && { category: { contains: category } }),
+        ...(published !== undefined && { published }),
+      },
       select: {
         id: true,
         title: true,
         slug: true,
         published: true,
         author: true,
+        excerpt: true,
+        coverImage: true,
+        category: true,
         createdAt: true,
         publishedAt: true,
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: sort === 'oldest' ? 'asc' : 'desc' },
+      ...(take !== undefined && { take }),
     });
   }
 

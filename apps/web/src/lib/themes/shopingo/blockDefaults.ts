@@ -122,6 +122,7 @@ export const BLOCK_DEFAULTS: BlockDataMap = {
   "product-grid": {
     title: "Featured Products",
     subtitle: "Hand-picked products just for you",
+    source: { sort: "newest", limit: 8 },
     products: [
       { id: "1", name: "Sample Product", price: 29.99, originalPrice: 49.99, image: "", badge: "Sale", rating: 4 },
     ],
@@ -213,6 +214,7 @@ export const BLOCK_DEFAULTS: BlockDataMap = {
         slug: "sustainable-shopping-guide",
       },
     ],
+    source: { sort: "newest", limit: 12 },
     postsCount: 3,
     titleStyle: "default",
     displayMode: "grid",

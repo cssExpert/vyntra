@@ -49,23 +49,27 @@ export interface ProductItem {
   rating?: number;
 }
 
+export interface ProductSource {
+  categoryId?: string;
+  productType?: string;
+  sort?: "newest" | "price_asc" | "price_desc";
+  limit?: number;
+}
+
 export interface ProductGridData {
   title: string;
   subtitle?: string;
-  products: ProductItem[];
-}
-
-export interface ProductTabsSource {
-  categoryId?: string;
-  productType?: string;
-  limit?: number;
+  /** Live datasource used to fetch products from the catalog. */
+  source?: ProductSource;
+  /** Static fallback, used when `source` isn't configured. */
+  products?: ProductItem[];
 }
 
 export interface ProductTabsData {
   tabs: Array<{
     label: string;
     /** Live datasource — when set, products are fetched from the catalog instead of `products`. */
-    source?: ProductTabsSource;
+    source?: ProductSource;
     /** Static fallback, used when `source` isn't configured. */
     products?: ProductItem[];
   }>;
@@ -114,6 +118,7 @@ export interface CategoryItem {
 export interface CategoryGridData {
   title?: string;
   categories: CategoryItem[];
+  limit?: number;
 }
 
 export interface NewsletterData {
@@ -137,10 +142,19 @@ export interface BlogPost {
 export type BlogTitleStyle = "default" | "underline" | "badge" | "minimal";
 export type BlogDisplayMode = "grid" | "list" | "slider";
 
+export interface BlogSource {
+  category?: string;
+  sort?: "newest" | "oldest";
+  limit?: number;
+}
+
 export interface BlogSectionData {
   title: string;
   subtitle?: string;
-  posts: BlogPost[];
+  /** Live datasource used to fetch posts from the blog. */
+  source?: BlogSource;
+  /** Static fallback, used when `source` isn't configured. */
+  posts?: BlogPost[];
   postsCount?: number;
   titleStyle?: BlogTitleStyle;
   displayMode?: BlogDisplayMode;
