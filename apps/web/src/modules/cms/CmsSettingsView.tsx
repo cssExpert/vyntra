@@ -20,6 +20,7 @@ import {
   ShieldCheck,
   FileCode2,
   ExternalLink,
+  ShieldAlert,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
@@ -1157,6 +1158,113 @@ function SeoAnalyticsTab() {
   );
 }
 
+// ── Security Tab ──────────────────────────────────────────────────────────────
+
+function SecurityTab() {
+  const [recaptchaEnabled, setRecaptchaEnabled] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    apiGetOrgSettings()
+      .then((s) => setRecaptchaEnabled(s.recaptchaEnabled))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const flash = (msg: string, isErr = false) => {
+    if (isErr) {
+      setError(msg);
+      setTimeout(() => setError(""), 4000);
+    } else {
+      setSuccess(msg);
+      setTimeout(() => setSuccess(""), 4000);
+    }
+  };
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      await apiUpdateOrgSettings({ recaptchaEnabled });
+      flash("Security settings saved.");
+    } catch {
+      flash("Failed to save security settings.", true);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16 text-muted-foreground text-sm">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent mr-2" />
+        Loading…
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      {error && (
+        <div className="flex items-center gap-2.5 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+          <AlertCircle className="h-4 w-4 shrink-0" /> {error}
+        </div>
+      )}
+      {success && (
+        <div className="flex items-center gap-2.5 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 text-sm text-emerald-600">
+          <CheckCircle2 className="h-4 w-4 shrink-0" /> {success}
+        </div>
+      )}
+
+      <SectionCard
+        icon={ShieldAlert}
+        title="Google reCAPTCHA"
+        description="Master switch for invisible reCAPTCHA (v3) bot protection on your public site's forms — the Contact Form block and any form built with the Form Builder."
+      >
+        <div className="flex items-center justify-between rounded-xl border border-border bg-muted/20 px-4 py-3.5">
+          <div>
+            <p className="text-sm font-medium text-foreground">
+              Enable invisible reCAPTCHA
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Runs silently in the background — visitors never see a checkbox
+              or challenge. Applies only to forms that also have reCAPTCHA
+              turned on individually in the Form Builder.
+            </p>
+          </div>
+          <Toggle
+            enabled={recaptchaEnabled}
+            onToggle={() => setRecaptchaEnabled((v) => !v)}
+          />
+        </div>
+        <p className="text-xs text-muted-foreground mt-3">
+          Requires <code className="font-mono bg-muted px-1 rounded">NEXT_PUBLIC_RECAPTCHA_SITE_KEY</code> and{" "}
+          <code className="font-mono bg-muted px-1 rounded">RECAPTCHA_SECRET_KEY</code> to be configured on the
+          server. Get your keys from the{" "}
+          <a
+            href="https://www.google.com/recaptcha/admin"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
+            Google reCAPTCHA admin console
+          </a>
+          .
+        </p>
+      </SectionCard>
+
+      <StickySaveBar
+        saving={saving}
+        success={success}
+        onSave={save}
+        label="Save Security Settings"
+      />
+    </div>
+  );
+}
+
 // ── CmsSettingsView ───────────────────────────────────────────────────────────
 
 const TABS = [
@@ -1165,6 +1273,7 @@ const TABS = [
   { id: "languages", label: "Languages" },
   { id: "domain", label: "Domain" },
   { id: "seo", label: "SEO & Analytics" },
+  { id: "security", label: "Security" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -1213,6 +1322,7 @@ export function CmsSettingsView() {
       {activeTab === "languages" && <LanguagesTab />}
       {activeTab === "domain" && <DomainTab />}
       {activeTab === "seo" && <SeoAnalyticsTab />}
+      {activeTab === "security" && <SecurityTab />}
     </div>
   );
 }

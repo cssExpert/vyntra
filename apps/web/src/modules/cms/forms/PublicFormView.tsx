@@ -1,12 +1,23 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
+import Script from "next/script";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, Upload, Send, Check, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { FormField } from "./forms.types";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
+declare global {
+  interface Window {
+    grecaptcha?: {
+      ready: (cb: () => void) => void;
+      execute: (siteKey: string, opts: { action: string }) => Promise<string>;
+    };
+  }
+}
 
 const inputCls =
   "w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all disabled:opacity-50";
@@ -267,6 +278,9 @@ export function PublicFormView({ form, orgId }: PublicFormViewProps) {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const recaptchaReady = useRef(false);
+
+  const captchaActive = form.captchaEnabled && !!RECAPTCHA_SITE_KEY;
 
   const setField = useCallback((id: string, v: string | string[]) => {
     setValues((prev) => ({ ...prev, [id]: v }));
@@ -278,6 +292,18 @@ export function PublicFormView({ form, orgId }: PublicFormViewProps) {
     });
   }, []);
 
+  const getCaptchaToken = useCallback(async (): Promise<string | undefined> => {
+    if (!captchaActive || !recaptchaReady.current || !window.grecaptcha) return undefined;
+    return new Promise((resolve) => {
+      window.grecaptcha!.ready(() => {
+        window
+          .grecaptcha!.execute(RECAPTCHA_SITE_KEY!, { action: "form_submit" })
+          .then(resolve)
+          .catch(() => resolve(undefined));
+      });
+    });
+  }, [captchaActive]);
+
   const handleSubmit = async () => {
     const errs = validate(form.fields, values);
     if (errs.size > 0) {
@@ -288,12 +314,13 @@ export function PublicFormView({ form, orgId }: PublicFormViewProps) {
     setSubmitting(true);
     setSubmitError(null);
     try {
+      const captchaToken = await getCaptchaToken();
       const res = await fetch(
         `${API}/public/sites/${orgId}/forms/${encodeURIComponent(form.slug)}/submit`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(values),
+          body: JSON.stringify(captchaToken ? { ...values, captchaToken } : values),
         },
       );
       if (!res.ok) {
@@ -308,9 +335,20 @@ export function PublicFormView({ form, orgId }: PublicFormViewProps) {
     }
   };
 
+  const recaptchaScript = captchaActive ? (
+    <Script
+      src={`https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`}
+      strategy="afterInteractive"
+      onLoad={() => {
+        recaptchaReady.current = true;
+      }}
+    />
+  ) : null;
+
   if (submitted) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        {recaptchaScript}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -347,6 +385,7 @@ export function PublicFormView({ form, orgId }: PublicFormViewProps) {
 
   return (
     <div className="min-h-screen bg-background py-12 px-4">
+      {recaptchaScript}
       <div className="max-w-xl mx-auto">
         {/* Header */}
         <motion.div

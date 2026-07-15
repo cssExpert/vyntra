@@ -82,3 +82,10 @@ API runs at http://localhost:3001
 
 Add -v flag to also wipe data volumes:
 `docker compose -f infrastructure/docker-compose.yml down -v`
+
+---
+
+## Google reCAPTCHA v3 Keys
+
+- **Site Key**: `6LdKp1QtAAAAAIEpPkdP1RJZkahzsklWhs229tHR`
+- **Secret Key**: `6LdKp1QtAAAAAMLPfcPCIW-EBQwr-8HoWr-i20m8`

@@ -18,6 +18,7 @@ import { Public } from '../common/decorators/public.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { SuperAdminOnly } from '../common/decorators/super-admin.decorator';
 import { SetCustomDomainDto, SetSubdomainDto } from './dto/domain.dto';
+import { SubmitContactFormDto } from './dto/contact-submission.dto';
 import { DomainsService } from './domains.service';
 
 @Controller()
@@ -293,5 +294,14 @@ export class DomainsController {
     @Body() body: Record<string, unknown>,
   ) {
     return this.domainsService.submitPublicForm(orgId, slug, body);
+  }
+
+  @Public()
+  @Post('public/sites/:orgId/contact/submit')
+  submitContactForm(
+    @Param('orgId') orgId: string,
+    @Body() body: SubmitContactFormDto,
+  ) {
+    return this.domainsService.submitContactForm(orgId, body);
   }
 }

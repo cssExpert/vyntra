@@ -1,17 +1,31 @@
 "use client";
 
 import type { ContactFormData } from "@/lib/themes/types";
+import { useContactFormSubmit, ContactRecaptchaScript } from "@/lib/themes/useContactFormSubmit";
 
 const ORANGE = "#e4611e";
 
-export default function ContactForm({ data }: { data: ContactFormData }) {
+export default function ContactForm({ data, orgId }: { data: ContactFormData; orgId?: string }) {
   const subjects = data.subjects?.length
     ? data.subjects
     : ["Order Inquiry", "Return & Refund", "Product Question", "Partnership", "Other"];
   const hours = data.hours ?? [];
+  const {
+    values,
+    setField,
+    submitting,
+    submitted,
+    error,
+    handleSubmit,
+    reset,
+    captchaActive,
+    recaptchaSiteKey,
+    markRecaptchaReady,
+  } = useContactFormSubmit(orgId);
 
   return (
     <section className="py-16 bg-[#f5f5f5] dark:bg-[#151518]">
+      <ContactRecaptchaScript active={captchaActive} siteKey={recaptchaSiteKey} onReady={markRecaptchaReady} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
 
@@ -68,44 +82,95 @@ export default function ContactForm({ data }: { data: ContactFormData }) {
 
           {/* ── Contact Form ── */}
           <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl p-8 shadow-lg border border-transparent dark:border-gray-700">
-            <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-1">
-              {data.formTitle ?? "Send Us a Message"}
-            </h2>
-            {data.formSubtitle && (
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{data.formSubtitle}</p>
-            )}
-
-            <form className="flex flex-col gap-4" onSubmit={(e) => e.preventDefault()}>
-              <div className="grid grid-cols-2 gap-4">
-                <FormField label="First Name">
-                  <input type="text" placeholder="John" className="shopingo-input" />
-                </FormField>
-                <FormField label="Last Name">
-                  <input type="text" placeholder="Doe" className="shopingo-input" />
-                </FormField>
+            {submitted ? (
+              <div className="text-center py-10">
+                <p className="text-xl font-bold text-gray-800 dark:text-white mb-1">Thank you!</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                  We&apos;ve received your message and will get back to you soon.
+                </p>
+                <button
+                  type="button"
+                  onClick={reset}
+                  className="text-sm font-semibold hover:opacity-80"
+                  style={{ color: ORANGE }}
+                >
+                  Send another message
+                </button>
               </div>
-              <FormField label="Email Address">
-                <input type="email" placeholder="john@example.com" className="shopingo-input" />
-              </FormField>
-              <FormField label="Phone Number">
-                <input type="tel" placeholder="+1 (555) 000-0000" className="shopingo-input" />
-              </FormField>
-              <FormField label="Subject">
-                <select className="shopingo-input">
-                  {subjects.map((s, i) => <option key={i}>{s}</option>)}
-                </select>
-              </FormField>
-              <FormField label="Message">
-                <textarea rows={4} placeholder="Write your message here…" className="shopingo-input resize-y" />
-              </FormField>
+            ) : (
+              <>
+                <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-1">
+                  {data.formTitle ?? "Send Us a Message"}
+                </h2>
+                {data.formSubtitle && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{data.formSubtitle}</p>
+                )}
 
-              <button
-                type="submit"
-                className="w-full py-3 rounded-lg text-sm font-bold text-white bg-[#e4611e] transition-opacity hover:opacity-90"
-              >
-                Send Message
-              </button>
-            </form>
+                <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+                  <FormField label="Full Name">
+                    <input
+                      type="text"
+                      placeholder="John Doe"
+                      value={values.name}
+                      onChange={(e) => setField("name", e.target.value)}
+                      disabled={submitting}
+                      className="shopingo-input"
+                    />
+                  </FormField>
+                  <FormField label="Email Address">
+                    <input
+                      type="email"
+                      placeholder="john@example.com"
+                      value={values.email}
+                      onChange={(e) => setField("email", e.target.value)}
+                      disabled={submitting}
+                      className="shopingo-input"
+                    />
+                  </FormField>
+                  <FormField label="Phone Number">
+                    <input
+                      type="tel"
+                      placeholder="+1 (555) 000-0000"
+                      value={values.phone}
+                      onChange={(e) => setField("phone", e.target.value)}
+                      disabled={submitting}
+                      className="shopingo-input"
+                    />
+                  </FormField>
+                  <FormField label="Subject">
+                    <select
+                      value={values.subject}
+                      onChange={(e) => setField("subject", e.target.value)}
+                      disabled={submitting}
+                      className="shopingo-input"
+                    >
+                      <option value="">Select a subject…</option>
+                      {subjects.map((s, i) => <option key={i}>{s}</option>)}
+                    </select>
+                  </FormField>
+                  <FormField label="Message">
+                    <textarea
+                      rows={4}
+                      placeholder="Write your message here…"
+                      value={values.message}
+                      onChange={(e) => setField("message", e.target.value)}
+                      disabled={submitting}
+                      className="shopingo-input resize-y"
+                    />
+                  </FormField>
+
+                  {error && <p className="text-xs text-rose-500">{error}</p>}
+
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="w-full py-3 rounded-lg text-sm font-bold text-white bg-[#e4611e] transition-opacity hover:opacity-90 disabled:opacity-60"
+                  >
+                    {submitting ? "Sending…" : "Send Message"}
+                  </button>
+                </form>
+              </>
+            )}
           </div>
         </div>
       </div>

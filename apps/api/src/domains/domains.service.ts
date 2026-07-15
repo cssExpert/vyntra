@@ -10,6 +10,8 @@ import * as dns from 'dns';
 import { PrismaService } from '../prisma/prisma.service';
 import { TagsService } from '../tags/tags.service';
 import { SetCustomDomainDto, SetSubdomainDto } from './dto/domain.dto';
+import { SubmitContactFormDto } from './dto/contact-submission.dto';
+import { verifyRecaptcha } from '../common/recaptcha';
 
 const DOMAIN_SELECT = {
   id: true,
@@ -731,29 +733,82 @@ export class DomainsService {
   }
 
   async getPublicForm(orgId: string, slug: string) {
-    const form = await this.prisma.cmsForm.findFirst({
-      where: { organizationId: orgId, slug, status: 'Published' },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        slug: true,
-        fields: true,
-        captchaEnabled: true,
-      },
-    });
+    const [form, org] = await Promise.all([
+      this.prisma.cmsForm.findFirst({
+        where: { organizationId: orgId, slug, status: 'Published' },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          slug: true,
+          fields: true,
+          captchaEnabled: true,
+        },
+      }),
+      this.prisma.organization.findUnique({
+        where: { id: orgId },
+        select: { recaptchaEnabled: true },
+      }),
+    ]);
     if (!form) throw new NotFoundException('Form not found');
-    return form;
+    return { ...form, captchaEnabled: form.captchaEnabled && !!org?.recaptchaEnabled };
   }
 
-  async submitPublicForm(orgId: string, slug: string, data: Record<string, unknown>) {
-    const form = await this.prisma.cmsForm.findFirst({
-      where: { organizationId: orgId, slug, status: 'Published' },
-      select: { id: true },
-    });
+  async submitPublicForm(
+    orgId: string,
+    slug: string,
+    data: Record<string, unknown>,
+  ) {
+    const { captchaToken, ...fields } = data as { captchaToken?: string } & Record<string, unknown>;
+
+    const [form, org] = await Promise.all([
+      this.prisma.cmsForm.findFirst({
+        where: { organizationId: orgId, slug, status: 'Published' },
+        select: { id: true, captchaEnabled: true },
+      }),
+      this.prisma.organization.findUnique({
+        where: { id: orgId },
+        select: { recaptchaEnabled: true },
+      }),
+    ]);
     if (!form) throw new NotFoundException('Form not found');
+
+    if (form.captchaEnabled && org?.recaptchaEnabled) {
+      const result = await verifyRecaptcha(captchaToken);
+      if (!result.success) {
+        throw new BadRequestException('reCAPTCHA verification failed. Please try again.');
+      }
+    }
+
     await this.prisma.cmsFormSubmission.create({
-      data: { formId: form.id, data: data as object },
+      data: { formId: form.id, data: fields as object },
+    });
+    return { ok: true };
+  }
+
+  async submitContactForm(orgId: string, dto: SubmitContactFormDto) {
+    const org = await this.prisma.organization.findUnique({
+      where: { id: orgId },
+      select: { recaptchaEnabled: true },
+    });
+    if (!org) throw new NotFoundException('Organization not found');
+
+    if (org.recaptchaEnabled) {
+      const result = await verifyRecaptcha(dto.captchaToken);
+      if (!result.success) {
+        throw new BadRequestException('reCAPTCHA verification failed. Please try again.');
+      }
+    }
+
+    await this.prisma.contactSubmission.create({
+      data: {
+        organizationId: orgId,
+        name: dto.name,
+        email: dto.email,
+        phone: dto.phone,
+        subject: dto.subject,
+        message: dto.message,
+      },
     });
     return { ok: true };
   }

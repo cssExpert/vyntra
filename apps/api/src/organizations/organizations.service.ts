@@ -253,6 +253,7 @@ export class OrganizationsService {
         defaultSiteLanguage: true,
         googleAnalyticsId: true,
         googleSiteVerification: true,
+        recaptchaEnabled: true,
       },
     });
     if (!org) throw new NotFoundException('Organization not found');
@@ -286,6 +287,7 @@ export class OrganizationsService {
     if (dto.slackNotifications !== undefined) data.slackNotifications = dto.slackNotifications;
     if (dto.googleAnalyticsId !== undefined) data.googleAnalyticsId = dto.googleAnalyticsId;
     if (dto.googleSiteVerification !== undefined) data.googleSiteVerification = dto.googleSiteVerification;
+    if (dto.recaptchaEnabled !== undefined) data.recaptchaEnabled = dto.recaptchaEnabled;
 
     return this.prisma.organization.update({
       where: { id: organizationId },
@@ -310,6 +312,7 @@ export class OrganizationsService {
         defaultSiteLanguage: true,
         googleAnalyticsId: true,
         googleSiteVerification: true,
+        recaptchaEnabled: true,
       },
     });
   }

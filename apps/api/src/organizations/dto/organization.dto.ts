@@ -195,4 +195,8 @@ export class OrganizationSettingsDto {
   @IsOptional()
   @IsString()
   googleSiteVerification?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  recaptchaEnabled?: boolean;
 }

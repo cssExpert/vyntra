@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { TagsService } from '../tags/tags.service';
+import { verifyRecaptcha } from '../common/recaptcha';
 
 // Slugs reserved for app-driven storefront system pages (kept in sync with
 // apps/web/src/lib/themes/systemPages.ts) — a CMS page can never use these,
@@ -937,16 +938,28 @@ export class CmsService {
   }
 
   async verifyCaptcha(token: string): Promise<{ success: boolean; errorCodes?: string[] }> {
-    const secret = process.env.RECAPTCHA_SECRET_KEY;
-    if (!secret) return { success: false, errorCodes: ['missing-secret'] };
+    return verifyRecaptcha(token);
+  }
 
-    const params = new URLSearchParams({ secret, response: token });
-    const res = await fetch('https://www.google.com/recaptcha/api/siteverify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: params.toString(),
+  // ── Contact Requests (storefront Contact Form / Contact Form + Info blocks) ─
+
+  async listContactSubmissions(orgId: string) {
+    return this.prisma.contactSubmission.findMany({
+      where: { organizationId: orgId },
+      orderBy: { createdAt: 'desc' },
     });
-    const data = await res.json() as { success: boolean; 'error-codes'?: string[] };
-    return { success: data.success, errorCodes: data['error-codes'] };
+  }
+
+  async updateContactSubmissionStatus(orgId: string, id: string, status: string) {
+    const existing = await this.prisma.contactSubmission.findFirst({ where: { id, organizationId: orgId } });
+    if (!existing) throw new NotFoundException('Contact request not found');
+    return this.prisma.contactSubmission.update({ where: { id }, data: { status } });
+  }
+
+  async deleteContactSubmission(orgId: string, id: string) {
+    const existing = await this.prisma.contactSubmission.findFirst({ where: { id, organizationId: orgId } });
+    if (!existing) throw new NotFoundException('Contact request not found');
+    await this.prisma.contactSubmission.delete({ where: { id } });
+    return { ok: true };
   }
 }

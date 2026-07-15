@@ -187,6 +187,7 @@ export interface OrganizationSettings {
   slackNotifications: boolean;
   googleAnalyticsId: string | null;
   googleSiteVerification: string | null;
+  recaptchaEnabled: boolean;
 }
 
 export function apiGetOrgSettings() {
@@ -1081,6 +1082,31 @@ export const cmsForms = {
       method: "POST",
       body: JSON.stringify({ token }),
     }),
+};
+
+// ─── CMS Contact Requests ────────────────────────────────────────────────────
+
+export interface ContactSubmission {
+  id: string;
+  organizationId: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  subject: string | null;
+  message: string;
+  status: string;
+  createdAt: string;
+}
+
+export const contactRequests = {
+  list: () => apiFetch<ContactSubmission[]>("/cms/contact-requests"),
+  updateStatus: (id: string, status: string) =>
+    apiFetch<ContactSubmission>(`/cms/contact-requests/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    }),
+  delete: (id: string) =>
+    apiFetch<{ ok: boolean }>(`/cms/contact-requests/${id}`, { method: "DELETE" }),
 };
 
 // ─── Store: Products ─────────────────────────────────────────────────────────

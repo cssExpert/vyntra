@@ -396,4 +396,28 @@ export class CmsController {
   verifyCaptcha(@Body() body: { token: string }) {
     return this.cmsService.verifyCaptcha(body.token);
   }
+
+  // ── Contact Requests (storefront Contact Form / Contact Form + Info blocks) ─
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Get('contact-requests')
+  listContactSubmissions(@CurrentOrg() orgId: string | null) {
+    return this.cmsService.listContactSubmissions(requireOrg(orgId));
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Patch('contact-requests/:id')
+  updateContactSubmissionStatus(
+    @CurrentOrg() orgId: string | null,
+    @Param('id') id: string,
+    @Body() body: { status: string },
+  ) {
+    return this.cmsService.updateContactSubmissionStatus(requireOrg(orgId), id, body.status);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Delete('contact-requests/:id')
+  deleteContactSubmission(@CurrentOrg() orgId: string | null, @Param('id') id: string) {
+    return this.cmsService.deleteContactSubmission(requireOrg(orgId), id);
+  }
 }
