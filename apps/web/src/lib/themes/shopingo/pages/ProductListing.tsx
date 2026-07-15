@@ -24,7 +24,8 @@ function GridCard({ product }: { product: PublicProduct }) {
     : null;
 
   return (
-    <div className="group">
+     
+    <a href={`/products/${product.slug}`} className="group block">
       <div className="relative overflow-hidden bg-gray-50 dark:bg-[#2a2a2e] aspect-[3/4] mb-4">
         {product.featuredImage ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -45,11 +46,16 @@ function GridCard({ product }: { product: PublicProduct }) {
             Sold Out
           </span>
         )}
+        {discount !== null && discount > 0 && (
+          <span className="absolute top-2 right-2 text-[10px] font-bold uppercase px-2 py-0.5 text-white rounded" style={{ backgroundColor: ORANGE }}>
+            -{discount}%
+          </span>
+        )}
       </div>
       {product.brand && (
         <h3 className="font-bold text-gray-900 dark:text-gray-100 line-clamp-1">{product.brand}</h3>
       )}
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-1.5 line-clamp-2">{product.name}</p>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-1.5 line-clamp-2 group-hover:text-gray-800 dark:group-hover:text-gray-200 transition-colors">{product.name}</p>
       <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm">
         <span className="font-bold text-gray-900 dark:text-gray-100">${product.price.toFixed(2)}</span>
         {product.compareAtPrice != null && (
@@ -59,7 +65,7 @@ function GridCard({ product }: { product: PublicProduct }) {
           <span className="font-medium" style={{ color: ORANGE }}>({discount}% off)</span>
         )}
       </div>
-    </div>
+    </a>
   );
 }
 
@@ -69,11 +75,12 @@ function ListCard({ product }: { product: PublicProduct }) {
     : null;
 
   return (
-    <div className="flex gap-4 sm:gap-5 py-5 border-b border-gray-200 dark:border-gray-700 last:border-0">
+     
+    <a href={`/products/${product.slug}`} className="flex gap-4 sm:gap-5 py-5 border-b border-gray-200 dark:border-gray-700 last:border-0 group">
       <div className="relative overflow-hidden bg-gray-50 dark:bg-[#2a2a2e] w-24 h-32 sm:w-32 sm:h-40 md:w-40 md:h-48 shrink-0">
         {product.featuredImage ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={product.featuredImage} alt={product.name} className="w-full h-full object-cover" />
+          <img src={product.featuredImage} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-300 dark:text-gray-600">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -89,7 +96,7 @@ function ListCard({ product }: { product: PublicProduct }) {
       </div>
       <div className="min-w-0">
         {product.brand && <h3 className="font-bold text-gray-900 dark:text-gray-100 line-clamp-1">{product.brand}</h3>}
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-2 line-clamp-2">{product.name}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-2 line-clamp-2 group-hover:text-gray-800 dark:group-hover:text-gray-200 transition-colors">{product.name}</p>
         <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm">
           <span className="font-bold text-gray-900 dark:text-gray-100">${product.price.toFixed(2)}</span>
           {product.compareAtPrice != null && (
@@ -100,7 +107,7 @@ function ListCard({ product }: { product: PublicProduct }) {
           )}
         </div>
       </div>
-    </div>
+    </a>
   );
 }
 
@@ -148,6 +155,7 @@ export default function ProductListing({ orgId }: { orgId: string }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Breadcrumb */}
         <nav className="text-xs text-gray-500 dark:text-gray-400 mb-6">
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
           <a href="/" className="hover:text-gray-800 dark:hover:text-gray-200">Home</a>
           <span className="mx-1.5">/</span>
           <span className="text-gray-800 dark:text-gray-200 font-medium">Products</span>

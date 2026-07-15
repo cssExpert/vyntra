@@ -1533,6 +1533,21 @@ export const storeCustomers = {
       body: JSON.stringify({ customerGroupId }),
     }),
   remove: (id: string) => apiFetch<{ id: string }>(`/store/customers/${id}`, { method: "DELETE" }),
+  addCredit: (id: string, amount: number, reason: string) =>
+    apiFetch<ApiStoreCustomer>(`/store/customers/${id}/credit`, {
+      method: "POST",
+      body: JSON.stringify({ amount, reason }),
+    }),
+  deductCredit: (id: string, amount: number, reason: string) =>
+    apiFetch<ApiStoreCustomer>(`/store/customers/${id}/credit/deduct`, {
+      method: "POST",
+      body: JSON.stringify({ amount, reason }),
+    }),
+  addRewardPoints: (id: string, points: number, reason: string) =>
+    apiFetch<ApiStoreCustomer>(`/store/customers/${id}/reward-points`, {
+      method: "POST",
+      body: JSON.stringify({ points, reason }),
+    }),
 };
 
 // ─── Store Orders ──────────────────────────────────────────────────────────
@@ -1602,6 +1617,16 @@ export const storeOrders = {
     );
   },
   get: (id: string) => apiFetch<ApiStoreOrder>(`/store/orders/${id}`),
+  updateStatus: (id: string, status: string, message?: string) =>
+    apiFetch<ApiStoreOrder>(`/store/orders/${id}/status`, {
+      method: "PUT",
+      body: JSON.stringify({ status, message }),
+    }),
+  cancel: (id: string, reason?: string) =>
+    apiFetch<ApiStoreOrder>(`/store/orders/${id}/cancel`, {
+      method: "POST",
+      body: JSON.stringify({ reason }),
+    }),
 };
 
 // ─── Store Coupons ─────────────────────────────────────────────────────────
@@ -1694,6 +1719,20 @@ export const storeInventory = {
     );
   },
   getByProduct: (productId: string) => apiFetch<ApiInventoryItem>(`/store/inventory/product/${productId}`),
+  adjust: (productId: string, quantity: number, reason: string, notes?: string) =>
+    apiFetch<ApiInventoryItem>(`/store/inventory/product/${productId}/adjust`, {
+      method: "POST",
+      body: JSON.stringify({ quantity, reason, notes }),
+    }),
+  getHistory: (productId: string, params?: { skip?: number; take?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.skip !== undefined) qs.set("skip", String(params.skip));
+    if (params?.take !== undefined) qs.set("take", String(params.take));
+    const q = qs.toString();
+    return apiFetch<{ data: any[]; total: number }>(`/store/inventory/product/${productId}/history${q ? `?${q}` : ""}`);
+  },
+  getLowStock: () => apiFetch<ApiInventoryItem[]>("/store/inventory/low-stock"),
+  getOutOfStock: () => apiFetch<ApiInventoryItem[]>("/store/inventory/out-of-stock"),
 };
 
 // ─── Store Analytics ───────────────────────────────────────────────────────
@@ -1731,17 +1770,41 @@ export interface ApiRevenueTrendPoint {
   orderCount: number;
 }
 
+export interface ApiInventoryMetrics {
+  totalItems: number;
+  totalValue: number;
+  lowStockCount: number;
+  outOfStockCount: number;
+  turnoverRate: number;
+}
+
 export interface ApiDashboardMetrics {
   salesMetrics: ApiSalesMetrics;
   customerMetrics: ApiCustomerMetrics;
   topProducts: ApiProductPerformance[];
   revenueTrends: ApiRevenueTrendPoint[];
+  inventoryMetrics: ApiInventoryMetrics;
   generatedAt: string;
 }
 
 export const storeAnalytics = {
   dashboard: () => apiFetch<ApiDashboardMetrics>("/store/analytics/dashboard"),
   revenueTrends: (days: number) => apiFetch<ApiRevenueTrendPoint[]>(`/store/analytics/revenue-trends?days=${days}`),
+};
+
+// ─── Store AI Assistant ────────────────────────────────────────────────────
+
+export interface AIChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export const storeAI = {
+  chat: (messages: AIChatMessage[], model?: string) =>
+    apiFetch<{ content: string }>("/store/ai/chat", {
+      method: "POST",
+      body: JSON.stringify({ messages, model }),
+    }),
 };
 
 export const cmsMenus = {

@@ -760,7 +760,12 @@
         "opus": "claude-opus-4-8",
         "haiku": "claude-haiku-4-5-20251001",
         "connect": "Connect",
-        "disconnect": "Disconnect"
+        "disconnect": "Disconnect",
+        "storeDescription": "Configure your store's general settings, payments, shipping, and more.",
+        "store": "Store",
+        "settings": "Settings",
+        "cancel": "Cancel",
+        "saveChanges": "Save Changes"
       },
       "searchOrderPlaceholder": "ऑर्डर आईडी, ग्राहक द्वारा खोजें...",
       "addCategory": "श्रेणी जोड़ें",

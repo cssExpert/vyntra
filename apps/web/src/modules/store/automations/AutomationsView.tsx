@@ -20,12 +20,114 @@ import {
   Package,
   Bell,
   RefreshCw,
+  X,
 } from "lucide-react";
 import { SAMPLE_AUTOMATIONS } from "../store.data";
-import type { AutomationTrigger } from "../store.types";
+import type { AutomationTrigger, AutomationRule } from "../store.types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { AUTOMATION_TRIGGER_LABELS } from "../store.constants";
+
+// ─── New Automation Modal ─────────────────────────────────────────────────────
+
+const TRIGGER_OPTIONS: { value: AutomationTrigger; label: string }[] = [
+  { value: "customer_registered",    label: "Customer Registered" },
+  { value: "customer_first_purchase",label: "Customer First Purchase" },
+  { value: "abandoned_cart",         label: "Abandoned Cart" },
+  { value: "product_low_stock",      label: "Product Low Stock" },
+  { value: "order_paid",             label: "Order Paid" },
+  { value: "order_delivered",        label: "Order Delivered" },
+];
+
+function NewAutomationModal({
+  onClose,
+  onSaved,
+}: {
+  onClose: () => void;
+  onSaved: (rule: AutomationRule) => void;
+}) {
+  const [name, setName]           = useState("");
+  const [description, setDesc]    = useState("");
+  const [trigger, setTrigger]     = useState<AutomationTrigger>("customer_registered");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newRule: AutomationRule = {
+      id:          `rule_${Date.now()}`,
+      name:        name.trim(),
+      description: description.trim(),
+      trigger,
+      conditions:  [],
+      actions:     [],
+      status:      "active",
+      isBuiltIn:   false,
+      runCount:    0,
+      lastRunAt:   undefined,
+      createdAt:   new Date().toISOString(),
+    };
+    onSaved(newRule);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-card rounded-xl border border-border shadow-xl w-full max-w-md mx-4 p-6 space-y-4"
+      >
+        <div className="flex items-center justify-between">
+          <h2 className="font-semibold text-foreground">New Automation</h2>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground cursor-pointer"><X size={18} /></button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1">
+            <label className="block text-xs font-semibold text-foreground">Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Welcome Email Sequence"
+              className="w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary outline-none"
+              required
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-xs font-semibold text-foreground">Trigger</label>
+            <select
+              value={trigger}
+              onChange={(e) => setTrigger(e.target.value as AutomationTrigger)}
+              className="w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary outline-none cursor-pointer"
+            >
+              {TRIGGER_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-xs font-semibold text-foreground">Description (optional)</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDesc(e.target.value)}
+              rows={2}
+              placeholder="What does this automation do?"
+              className="w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary outline-none resize-none"
+            />
+          </div>
+
+          <p className="text-[11px] text-muted-foreground">
+            Actions (email, credit, points, etc.) can be configured after creation.
+          </p>
+
+          <div className="flex gap-2 pt-1">
+            <Button type="button" variant="outline" radius="sm" className="flex-1" onClick={onClose}>Cancel</Button>
+            <Button type="submit" radius="sm" className="flex-1">Create</Button>
+          </div>
+        </form>
+      </motion.div>
+    </div>
+  );
+}
 
 const TRIGGER_ICONS: Partial<Record<AutomationTrigger, React.ReactNode>> = {
   customer_registered: <UserPlus size={14} />,
@@ -37,10 +139,10 @@ const TRIGGER_ICONS: Partial<Record<AutomationTrigger, React.ReactNode>> = {
 };
 
 export function AutomationsView() {
-   
   const t = useTranslations("store.automations");
   const isLoaded = usePageLoad(600);
   const [rules, setRules] = useState(SAMPLE_AUTOMATIONS);
+  const [showNewModal, setShowNewModal] = useState(false);
 
   const toggleStatus = (id: string) => {
     setRules((prev) =>
@@ -52,9 +154,14 @@ export function AutomationsView() {
     );
   };
 
+  const deleteRule = (id: string) => {
+    setRules((prev) => prev.filter((r) => r.id !== id));
+  };
+
   const activeCount = rules.filter((r) => r.status === "active").length;
 
   return (
+    <>
     <AnimatePresence mode="wait" initial={false}>
       {!isLoaded ? (
         <motion.div key="sk" exit={{ opacity: 0 }} className="space-y-4">
@@ -81,7 +188,7 @@ export function AutomationsView() {
               { label: "Automations" },
             ]}
           >
-            <Button size="lg" radius="sm" className="px-4">
+            <Button size="lg" radius="sm" className="px-4" onClick={() => setShowNewModal(true)}>
               <Plus
                 size={16}
                 className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4"
@@ -235,7 +342,7 @@ export function AutomationsView() {
                     {
                       label: "Delete",
                       icon: <Trash2 size={14} />,
-                      onClick: () => {},
+                      onClick: () => deleteRule(rule.id),
                       variant: "danger",
                       separator: true,
                     },
@@ -247,5 +354,16 @@ export function AutomationsView() {
         </motion.div>
       )}
     </AnimatePresence>
+
+    {showNewModal && (
+      <NewAutomationModal
+        onClose={() => setShowNewModal(false)}
+        onSaved={(rule) => {
+          setRules((prev) => [rule, ...prev]);
+          setShowNewModal(false);
+        }}
+      />
+    )}
+    </>
   );
 }

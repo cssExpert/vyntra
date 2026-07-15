@@ -533,6 +533,42 @@ export class DomainsService {
     };
   }
 
+  private static readonly PUBLIC_PRODUCT_DETAIL_SELECT = {
+    id: true,
+    name: true,
+    slug: true,
+    shortDescription: true,
+    description: true,
+    specification: true,
+    price: true,
+    compareAtPrice: true,
+    featuredImage: true,
+    brand: true,
+    sku: true,
+    stockStatus: true,
+    type: true,
+    weight: true,
+    categoryIds: true,
+    tags: true,
+    seoTitle: true,
+    seoDescription: true,
+    seoKeywords: true,
+    publishedAt: true,
+    media: {
+      select: { id: true, url: true, alt: true, isPrimary: true, sortOrder: true },
+      orderBy: [{ isPrimary: 'desc' as const }, { sortOrder: 'asc' as const }],
+    },
+  } as const;
+
+  /** Full product detail for storefront /products/:slug — only active products. */
+  async getPublicProductDetail(orgId: string, slug: string) {
+    const product = await this.prisma.product.findFirst({
+      where: { organizationId: orgId, slug, status: 'active' },
+      select: DomainsService.PUBLIC_PRODUCT_DETAIL_SELECT,
+    });
+    return product ?? null;
+  }
+
   private static readonly PUBLIC_BLOG_SELECT = {
     id: true,
     title: true,

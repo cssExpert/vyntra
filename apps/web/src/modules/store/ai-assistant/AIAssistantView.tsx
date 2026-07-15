@@ -16,27 +16,30 @@ import {
   Zap,
   BarChart2,
   Lightbulb,
+  AlertCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
+import { storeAI, type AIChatMessage } from "@/lib/api";
 
 interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
+  error?: boolean;
 }
 
 const QUICK_PROMPTS = [
   {
     label: "Low stock products?",
     icon: <Package size={12} />,
-    prompt: "Which products are low in stock?",
+    prompt: "Which products are running low on stock? Give me a brief summary.",
   },
   {
     label: "Top revenue products",
     icon: <BarChart2 size={12} />,
-    prompt: "Show me the top 5 products by revenue this month.",
+    prompt: "What are the top 5 products by revenue this month?",
   },
   {
     label: "Create 20% weekend discount",
@@ -61,21 +64,6 @@ const QUICK_PROMPTS = [
   },
 ];
 
-const SAMPLE_RESPONSES: Record<string, string> = {
-  "which products are low in stock?":
-    "📦 **Low Stock Products**\n\n1. **Pro T-Shirt (S)** — 14 units (threshold: 20)\n2. **Pro T-Shirt (M)** — **Out of Stock** ⚠️\n\n_Recommendation: Reorder T-Shirt (M) immediately. Consider enabling backorders for T-Shirt (S) to prevent lost sales._",
-  "show me the top 5 products by revenue this month.":
-    "📊 **Top 5 Products by Revenue**\n\n1. Business Plan - Monthly — $79 × 1,248 = **$98,592**\n2. Premium SaaS Dashboard Template — $49 × 342 = **$16,758**\n3. SEO Audit Checklist PDF — $19 × 567 = **$10,773**\n4. 1-on-1 Consulting Session — $199 × 78 = **$15,522**\n5. UI Component Bundle — $129 × 89 = **$11,481**",
-};
-
-function getResponse(prompt: string): string {
-  const key = prompt.toLowerCase().trim();
-  return (
-    SAMPLE_RESPONSES[key] ??
-    `I understand you want to: *"${prompt}"*\n\nThis AI Store Assistant is connected to your store data. In a production environment, I would:\n- Query your database in real-time\n- Run the requested action or analysis\n- Show you results with actionable next steps\n\n_Connect your AI provider (Anthropic/OpenAI) in Store Settings → AI Assistant to enable live responses._`
-  );
-}
-
 export function AIAssistantView() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("store.ai-assistant");
@@ -91,6 +79,7 @@ export function AIAssistantView() {
   ]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [isConfigured, setIsConfigured] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -98,7 +87,8 @@ export function AIAssistantView() {
   }, [messages, isTyping]);
 
   const send = async (text: string) => {
-    if (!text.trim()) return;
+    if (!text.trim() || isTyping) return;
+
     const userMsg: Message = {
       id: Date.now().toString(),
       role: "user",
@@ -108,18 +98,43 @@ export function AIAssistantView() {
     setMessages((p) => [...p, userMsg]);
     setInput("");
     setIsTyping(true);
-    await new Promise((r) => setTimeout(r, 900 + Math.random() * 600));
-    const response = getResponse(text.trim());
-    setIsTyping(false);
-    setMessages((p) => [
-      ...p,
-      {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: response,
-        timestamp: new Date(),
-      },
-    ]);
+
+    // Build message history for the API (exclude error messages)
+    const history: AIChatMessage[] = messages
+      .filter((m) => !m.error)
+      .map((m) => ({ role: m.role, content: m.content }));
+    history.push({ role: "user", content: text.trim() });
+
+    try {
+      const { content } = await storeAI.chat(history);
+      setMessages((p) => [
+        ...p,
+        {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content,
+          timestamp: new Date(),
+        },
+      ]);
+    } catch (err: any) {
+      const errMsg = err?.message ?? "Failed to get a response.";
+      const isUnconfigured = errMsg.includes("not configured") || errMsg.includes("ANTHROPIC_API_KEY");
+      if (isUnconfigured) setIsConfigured(false);
+      setMessages((p) => [
+        ...p,
+        {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: isUnconfigured
+            ? "AI assistant is not configured. Add your **ANTHROPIC_API_KEY** to the API environment variables, then restart the server."
+            : `Sorry, something went wrong: ${errMsg}`,
+          timestamp: new Date(),
+          error: true,
+        },
+      ]);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -145,19 +160,31 @@ export function AIAssistantView() {
         >
           <PageHeader
             title="AI Store Assistant"
-            description="Powered by AI — ask anything about your store."
+            description="Powered by Claude — ask anything about your store."
             breadcrumbs={[
               { label: "Store", href: "/store" },
               { label: "AI Assistant" },
             ]}
           >
-            <div className="flex items-center gap-1.5 rounded-sm bg-success/10 border border-success/20 px-3 py-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
-              <span className="text-xs font-medium text-success">
-                Connected
+            <div className={cn(
+              "flex items-center gap-1.5 rounded-sm border px-3 py-1.5",
+              isConfigured
+                ? "bg-success/10 border-success/20"
+                : "bg-warning/10 border-warning/20",
+            )}>
+              <span className={cn("h-1.5 w-1.5 rounded-full animate-pulse", isConfigured ? "bg-success" : "bg-warning")} />
+              <span className={cn("text-xs font-medium", isConfigured ? "text-success" : "text-warning")}>
+                {isConfigured ? "Ready" : "Not configured"}
               </span>
             </div>
           </PageHeader>
+
+          {!isConfigured && (
+            <div className="flex items-start gap-2 rounded-xl border border-warning/20 bg-warning/5 px-4 py-3 text-sm text-warning">
+              <AlertCircle size={15} className="shrink-0 mt-0.5" />
+              <p>Set <code className="font-mono text-xs bg-warning/10 px-1 py-0.5 rounded">ANTHROPIC_API_KEY</code> in <code className="font-mono text-xs">apps/api/.env</code> to enable live AI responses.</p>
+            </div>
+          )}
 
           {/* Chat area */}
           <div
@@ -179,12 +206,12 @@ export function AIAssistantView() {
                   className={cn(
                     "h-7 w-7 shrink-0 rounded-full flex items-center justify-center text-white",
                     msg.role === "assistant"
-                      ? "bg-primary"
+                      ? msg.error ? "bg-warning" : "bg-primary"
                       : "bg-gradient-brand",
                   )}
                 >
                   {msg.role === "assistant" ? (
-                    <Bot size={13} />
+                    msg.error ? <AlertCircle size={13} /> : <Bot size={13} />
                   ) : (
                     <User size={13} />
                   )}
@@ -193,18 +220,15 @@ export function AIAssistantView() {
                   className={cn(
                     "max-w-[75%] rounded-xl px-4 py-3 text-[13px] leading-relaxed",
                     msg.role === "assistant"
-                      ? "bg-muted text-foreground"
+                      ? msg.error
+                        ? "bg-warning/10 text-warning border border-warning/20"
+                        : "bg-muted text-foreground"
                       : "bg-primary text-primary-foreground",
                   )}
                 >
-                  <pre className="font-sans whitespace-pre-wrap">
-                    {msg.content}
-                  </pre>
+                  <pre className="font-sans whitespace-pre-wrap">{msg.content}</pre>
                   <p className="text-[10px] opacity-50 mt-1.5">
-                    {msg.timestamp.toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                   </p>
                 </div>
               </motion.div>
@@ -225,11 +249,7 @@ export function AIAssistantView() {
                     <motion.span
                       key={i}
                       animate={{ y: [0, -4, 0] }}
-                      transition={{
-                        duration: 0.6,
-                        repeat: Infinity,
-                        delay: i * 0.15,
-                      }}
+                      transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15 }}
                       className="h-1.5 w-1.5 rounded-full bg-muted-foreground block"
                     />
                   ))}
@@ -273,7 +293,7 @@ export function AIAssistantView() {
             <button
               type="submit"
               disabled={!input.trim() || isTyping}
-              className="flex items-center gap-2 rounded-sm bg-primary px-45 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+              className="flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
             >
               <Send size={14} />
               Send

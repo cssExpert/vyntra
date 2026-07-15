@@ -4,7 +4,7 @@
 // site route checks this map before falling back to a CMS page lookup, and CMS page
 // creation rejects any slug found here.
 
-export type SystemPageType = "product-listing" | "blog-listing" | "blog-detail";
+export type SystemPageType = "product-listing" | "product-detail" | "blog-listing" | "blog-detail";
 
 /** slug (no leading slash) → system page type. Extend here for /cart, /checkout, etc. */
 export const SYSTEM_PAGE_ROUTES: Record<string, SystemPageType> = {
@@ -31,6 +31,9 @@ export function resolveSystemPageType(pageSlug: string): ResolvedSystemPage | nu
 
   const blogDetailMatch = pageSlug.match(/^blog\/([^/]+)$/);
   if (blogDetailMatch) return { pageType: "blog-detail", param: blogDetailMatch[1] };
+
+  const productDetailMatch = pageSlug.match(/^products\/([^/]+)$/);
+  if (productDetailMatch) return { pageType: "product-detail", param: productDetailMatch[1] };
 
   return null;
 }

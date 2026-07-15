@@ -201,6 +201,17 @@ export class DomainsController {
   @Public()
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 60, ttl: 60_000 } })
+  @Get('public/sites/:orgId/products/:slug')
+  getPublicProductDetail(
+    @Param('orgId') orgId: string,
+    @Param('slug') slug: string,
+  ) {
+    return this.domainsService.getPublicProductDetail(orgId, slug);
+  }
+
+  @Public()
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 60, ttl: 60_000 } })
   @Get('public/sites/:orgId/categories')
   getPublicCategories(@Param('orgId') orgId: string) {
     return this.domainsService.getPublicCategories(orgId);

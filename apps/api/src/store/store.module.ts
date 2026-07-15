@@ -26,6 +26,8 @@ import { CouponsController } from './controllers/coupons.controller';
 import { WebhooksController } from './controllers/webhooks.controller';
 import { AnalyticsController } from './controllers/analytics.controller';
 import { JobsController } from './controllers/jobs.controller';
+import { StoreAIController } from './controllers/ai.controller';
+import { StoreAIService } from './services/ai.service';
 
 @Module({
   imports: [ConfigModule, TagsModule],
@@ -41,6 +43,7 @@ import { JobsController } from './controllers/jobs.controller';
     WebhooksController,
     AnalyticsController,
     JobsController,
+    StoreAIController,
   ],
   providers: [
     AttributesService,
@@ -57,6 +60,7 @@ import { JobsController } from './controllers/jobs.controller';
     EmailService,
     WebhookService,
     AnalyticsService,
+    StoreAIService,
   ],
   exports: [
     AttributesService,

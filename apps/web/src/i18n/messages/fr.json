@@ -763,7 +763,12 @@
         "opus": "claude-opus-4-8",
         "haiku": "claude-haiku-4-5-20251001",
         "connect": "Connecter",
-        "disconnect": "Déconnecter"
+        "disconnect": "Déconnecter",
+        "storeDescription": "Configurez les paramètres généraux de votre boutique, les paiements, l'expédition, etc.",
+        "store": "Boutique",
+        "settings": "Paramètres",
+        "cancel": "Annuler",
+        "saveChanges": "Enregistrer les modifications"
       },
       "products": "Produits"
     },

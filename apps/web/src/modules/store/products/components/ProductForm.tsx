@@ -276,11 +276,17 @@ function Field({ label, hint, children }: { label: React.ReactNode; hint?: strin
   );
 }
 
-function PriceInput({ value, onChange, prefix = "$" }: { value: string; onChange: (v: string) => void; prefix?: string }) {
+function PriceInput({ value, onChange, prefix = "$", error }: { value: string; onChange: (v: string) => void; prefix?: string; error?: string }) {
   return (
     <div className="relative">
       <span className="absolute inset-y-0 left-3 flex items-center text-muted-foreground text-[14px] pointer-events-none">{prefix}</span>
-      <Input value={value} onChange={(e) => onChange(e.target.value)} type="number" min="0" step="0.01" placeholder="0.00" className={`${inp} pl-7`} />
+      <Input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        type="number" min="0" step="0.01" placeholder="0.00"
+        className={`${inp} pl-7 ${error ? "border-destructive focus:border-destructive focus:ring-destructive/15" : ""}`}
+        data-error={!!error || undefined}
+      />
     </div>
   );
 }
@@ -541,9 +547,31 @@ export function ProductForm({
 
   const variationAttrs = attributes.filter((a) => a.usedInVariation && a.selectedOptionIds.length > 0);
 
+  // ── Validation ────────────────────────────────────────────────────────────────
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validate = (): boolean => {
+    const next: Record<string, string> = {};
+    if (!name.trim())                                     next.name = "Product name is required.";
+    if (!sku.trim())                                      next.sku  = "SKU is required.";
+    if (showPricing && !isGiftCard && !price.trim())      next.price = "Regular price is required.";
+    if (isSubscription && !billingInterval.trim())        next.billingInterval = "Billing interval is required.";
+    if (isBundle && bundleItems.length === 0)             next.bundleItems = "Add at least one product to the bundle.";
+    if (isGiftCard && giftAmounts.length === 0 && !allowCustomAmount)
+      next.giftAmounts = "Add at least one predefined amount or enable custom amounts.";
+    setErrors(next);
+    if (Object.keys(next).length > 0) {
+      // scroll to first error
+      setTimeout(() => document.querySelector("[data-error='true']")?.scrollIntoView({ behavior: "smooth", block: "center" }), 50);
+    }
+    return Object.keys(next).length === 0;
+  };
+
   // ── Save ──────────────────────────────────────────────────────────────────────
 
   const handleSave = async () => {
+    if (!validate()) return;
     await onSave({
       name, slug, shortDescription: shortDesc, description, specification, featuredImage: featuredImg,
       type, status, publishedAt,
@@ -591,11 +619,25 @@ export function ProductForm({
           {/* 1. Basic Information — FIRST */}
           <Card title="Basic Information">
             <Field label={<>Product Name <span className="text-destructive">*</span></>}>
-              <Input value={name} onChange={(e) => handleName(e.target.value)} placeholder="e.g. Premium Wireless Headphones" className={inp} />
+              <Input
+                value={name}
+                onChange={(e) => { handleName(e.target.value); setErrors((p) => ({ ...p, name: "" })); }}
+                placeholder="e.g. Premium Wireless Headphones"
+                className={`${inp} ${errors.name ? "border-destructive focus:border-destructive focus:ring-destructive/15" : ""}`}
+                data-error={errors.name ? "true" : undefined}
+              />
+              {errors.name && <p className="text-[12px] text-destructive mt-1">{errors.name}</p>}
             </Field>
             <div className="grid grid-cols-2 gap-4">
-              <Field label="SKU" hint="Unique product identifier">
-                <Input value={sku} onChange={(e) => setSku(e.target.value)} placeholder="SKU-001" className={inp} />
+              <Field label={<>SKU <span className="text-destructive">*</span></>} hint="Unique product identifier">
+                <Input
+                  value={sku}
+                  onChange={(e) => { setSku(e.target.value); setErrors((p) => ({ ...p, sku: "" })); }}
+                  placeholder="SKU-001"
+                  className={`${inp} ${errors.sku ? "border-destructive focus:border-destructive focus:ring-destructive/15" : ""}`}
+                  data-error={errors.sku ? "true" : undefined}
+                />
+                {errors.sku && <p className="text-[12px] text-destructive mt-1">{errors.sku}</p>}
               </Field>
               <Field label="Slug">
                 <Input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="premium-wireless-headphones" className={inp} />
@@ -741,6 +783,7 @@ export function ProductForm({
               ) : (
                 <p className="text-xs text-muted-foreground">No products added to bundle yet. Search above.</p>
               )}
+              {errors.bundleItems && <p className="text-[12px] text-destructive" data-error="true">{errors.bundleItems}</p>}
             </Card>
           )}
 
@@ -754,18 +797,19 @@ export function ProductForm({
                     {giftAmounts.map((amt) => (
                       <span key={amt} className="flex items-center gap-1 bg-primary/10 text-primary text-sm font-bold px-3 py-1 rounded-sm">
                         ${amt}
-                        <button onClick={() => setGiftAmounts((p) => p.filter((a) => a !== amt))} className="hover:text-destructive cursor-pointer ml-1">×</button>
+                        <button onClick={() => { setGiftAmounts((p) => p.filter((a) => a !== amt)); setErrors((p) => ({ ...p, giftAmounts: "" })); }} className="hover:text-destructive cursor-pointer ml-1">×</button>
                       </span>
                     ))}
                   </div>
                 )}
+                {errors.giftAmounts && <p className="text-[12px] text-destructive mt-1" data-error="true">{errors.giftAmounts}</p>}
               </Field>
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium">Allow Custom Amount</p>
                   <p className="text-xs text-muted-foreground">Customers can enter any amount</p>
                 </div>
-                <Switch checked={allowCustomAmount} onCheckedChange={setAllowCustomAmount} />
+                <Switch checked={allowCustomAmount} onCheckedChange={(v) => { setAllowCustomAmount(v); if (v) setErrors((p) => ({ ...p, giftAmounts: "" })); }} />
               </div>
               <Field label="Expiry (days after purchase)" hint="Blank = never expires">
                 <Input value={giftCardExpiry} onChange={(e) => setGiftCardExpiry(e.target.value)} type="number" min="0" placeholder="365" className={inp} />
@@ -1007,7 +1051,12 @@ export function ProductForm({
             <Card title="Pricing" badge={isSubscription ? "Per billing period" : undefined}>
               <div className="grid grid-cols-2 gap-4">
                 <Field label={<>Regular Price <span className="text-destructive">*</span></>}>
-                  <PriceInput value={price} onChange={setPrice} />
+                  <PriceInput
+                    value={price}
+                    onChange={(v) => { setPrice(v); setErrors((p) => ({ ...p, price: "" })); }}
+                    error={errors.price}
+                  />
+                  {errors.price && <p className="text-[12px] text-destructive mt-1" data-error="true">{errors.price}</p>}
                 </Field>
                 {!isGiftCard && (
                   <Field label="Compare at Price" hint="Shows as crossed-out original price">

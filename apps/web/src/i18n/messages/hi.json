@@ -763,7 +763,12 @@
         "opus": "claude-opus-4-8",
         "haiku": "claude-haiku-4-5-20251001",
         "connect": "कनेक्ट करें",
-        "disconnect": "डिस्कनेक्ट करें"
+        "disconnect": "डिस्कनेक्ट करें",
+        "storeDescription": "अपने स्टोर की सामान्य सेटिंग, भुगतान, शिपिंग आदि कॉन्फ़िगर करें।",
+        "store": "स्टोर",
+        "settings": "सेटिंग",
+        "cancel": "रद्द करें",
+        "saveChanges": "परिवर्तन सहेजें"
       },
       "products": "उत्पाद"
     },

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { useRouter } from "next/navigation";
 import {
   Save,
   Store,
@@ -13,6 +14,7 @@ import {
   DollarSign,
   Bell,
   Cpu,
+  CheckCircle2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MotionTabs, type MotionTabItem } from "@/components/ui/MotionTabs";
@@ -135,7 +137,14 @@ function Toggle({
 export function StoreSettingsView() {
   const t = useTranslations("admin.store.settings");
   const isLoaded = usePageLoad(500);
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabId>("general");
+  const [saved, setSaved]         = useState(false);
+
+  const handleSave = () => {
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
+  };
 
   return (
     <AnimatePresence mode="wait" initial={false}>
@@ -164,16 +173,17 @@ export function StoreSettingsView() {
             ]}
           >
             <button
-              onClick={() => {
-                alert("alert");
-              }}
+              onClick={() => router.push("/store")}
               className="rounded-sm border border-border bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer"
             >
               {t("cancel", { defaultValue: "Cancel" })}
             </button>
-            <button className="flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer">
-              <Save className="h-3.5 w-3.5" />
-              {t("saveChanges", { defaultValue: "Save Changes" })}
+            <button
+              onClick={handleSave}
+              className="flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer"
+            >
+              {saved ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Save className="h-3.5 w-3.5" />}
+              {saved ? "Saved!" : t("saveChanges", { defaultValue: "Save Changes" })}
             </button>
           </PageHeader>
 
@@ -405,16 +415,14 @@ export function StoreSettingsView() {
               </p>
               <div className="flex items-center gap-2 ml-auto">
                 <button
-                  onClick={() => {
-                    alert("alert");
-                  }}
+                  onClick={() => router.push("/store")}
                   className="rounded-sm border border-border bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer"
                 >
                   Cancel
                 </button>
-                <button className="flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer">
-                  <Save className="h-3.5 w-3.5" />
-                  Save Changes
+                <button onClick={handleSave} className="flex items-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer">
+                  {saved ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Save className="h-3.5 w-3.5" />}
+                  {saved ? "Saved!" : "Save Changes"}
                 </button>
               </div>
             </div>

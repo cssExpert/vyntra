@@ -16,6 +16,7 @@ import {
   type ColumnPinningState,
   type PaginationState,
 } from "@tanstack/react-table";
+import Link from "next/link";
 import {
   ChevronUp,
   ChevronDown,
@@ -114,9 +115,12 @@ const buildColumns = (
               )}
             </div>
             <div className="min-w-0">
-              <p className="font-semibold text-foreground truncate text-[13px]">
+              <Link
+                href={`/store/products/${p.id}`}
+                className="font-semibold text-foreground truncate text-[13px] hover:text-primary hover:underline transition-colors cursor-pointer block"
+              >
                 {p.name}
-              </p>
+              </Link>
               <p className="text-[11px] text-muted-foreground">{p.sku}</p>
             </div>
           </div>
