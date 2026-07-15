@@ -962,4 +962,20 @@ export class CmsService {
     await this.prisma.contactSubmission.delete({ where: { id } });
     return { ok: true };
   }
+
+  // ── Newsletter Subscribers (storefront footer newsletter signup) ───────────
+
+  async listNewsletterSubscribers(orgId: string) {
+    return this.prisma.newsletterSubscriber.findMany({
+      where: { organizationId: orgId },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async deleteNewsletterSubscriber(orgId: string, id: string) {
+    const existing = await this.prisma.newsletterSubscriber.findFirst({ where: { id, organizationId: orgId } });
+    if (!existing) throw new NotFoundException('Subscriber not found');
+    await this.prisma.newsletterSubscriber.delete({ where: { id } });
+    return { ok: true };
+  }
 }

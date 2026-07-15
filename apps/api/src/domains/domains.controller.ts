@@ -19,6 +19,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { SuperAdminOnly } from '../common/decorators/super-admin.decorator';
 import { SetCustomDomainDto, SetSubdomainDto } from './dto/domain.dto';
 import { SubmitContactFormDto } from './dto/contact-submission.dto';
+import { SubscribeNewsletterDto } from './dto/newsletter-subscription.dto';
 import { DomainsService } from './domains.service';
 
 @Controller()
@@ -303,5 +304,14 @@ export class DomainsController {
     @Body() body: SubmitContactFormDto,
   ) {
     return this.domainsService.submitContactForm(orgId, body);
+  }
+
+  @Public()
+  @Post('public/sites/:orgId/newsletter/subscribe')
+  subscribeToNewsletter(
+    @Param('orgId') orgId: string,
+    @Body() body: SubscribeNewsletterDto,
+  ) {
+    return this.domainsService.subscribeToNewsletter(orgId, body);
   }
 }

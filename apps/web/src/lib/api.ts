@@ -1109,6 +1109,22 @@ export const contactRequests = {
     apiFetch<{ ok: boolean }>(`/cms/contact-requests/${id}`, { method: "DELETE" }),
 };
 
+// ─── CMS Newsletter Subscribers ──────────────────────────────────────────────
+
+export interface NewsletterSubscriber {
+  id: string;
+  organizationId: string;
+  email: string;
+  name: string | null;
+  createdAt: string;
+}
+
+export const newsletterSubscribers = {
+  list: () => apiFetch<NewsletterSubscriber[]>("/cms/newsletter-subscribers"),
+  delete: (id: string) =>
+    apiFetch<{ ok: boolean }>(`/cms/newsletter-subscribers/${id}`, { method: "DELETE" }),
+};
+
 // ─── Store: Products ─────────────────────────────────────────────────────────
 
 export interface ApiProductVariant {

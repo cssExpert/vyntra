@@ -4,6 +4,7 @@
 import { cookies } from "next/headers";
 import { SiteThemeToggle } from "./SiteThemeToggle";
 import { SiteLanguageSwitcher } from "./SiteLanguageSwitcher";
+import { FooterNewsletterForm } from "./FooterNewsletterForm";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
@@ -645,17 +646,7 @@ async function FooterShopingo({
               Subscribe to our newsletter for the latest offers &amp; deals
             </p>
           </div>
-          <div className="flex w-full sm:w-auto max-w-sm overflow-hidden border border-white/20 rounded">
-            <input
-              type="email"
-              placeholder="Enter your email address"
-              className="flex-1 px-4 py-2.5 text-sm outline-none bg-white dark:bg-[#2a2a2e] text-gray-800 dark:text-gray-100 placeholder:text-gray-400"
-              readOnly
-            />
-            <button className="px-5 py-2.5 text-sm font-semibold text-white shrink-0 bg-[#e4611e] hover:bg-[#cf5519] transition-colors">
-              Subscribe
-            </button>
-          </div>
+          <FooterNewsletterForm orgId={org.id} />
         </div>
       </div>
 

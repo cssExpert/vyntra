@@ -11,7 +11,20 @@ import { PrismaService } from '../prisma/prisma.service';
 import { TagsService } from '../tags/tags.service';
 import { SetCustomDomainDto, SetSubdomainDto } from './dto/domain.dto';
 import { SubmitContactFormDto } from './dto/contact-submission.dto';
+import { SubscribeNewsletterDto } from './dto/newsletter-subscription.dto';
 import { verifyRecaptcha } from '../common/recaptcha';
+
+// Newsletter signup currently only collects an email address — until a real
+// name field is added to that form, derive a display name from the local
+// part so the column is already populated (e.g. "jane.doe" -> "Jane Doe").
+function deriveNameFromEmail(email: string): string {
+  const local = email.split('@')[0] ?? '';
+  return local
+    .split(/[.\-_+]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ') || local;
+}
 
 const DOMAIN_SELECT = {
   id: true,
@@ -809,6 +822,30 @@ export class DomainsService {
         subject: dto.subject,
         message: dto.message,
       },
+    });
+    return { ok: true };
+  }
+
+  async subscribeToNewsletter(orgId: string, dto: SubscribeNewsletterDto) {
+    const org = await this.prisma.organization.findUnique({
+      where: { id: orgId },
+      select: { recaptchaEnabled: true },
+    });
+    if (!org) throw new NotFoundException('Organization not found');
+
+    if (org.recaptchaEnabled) {
+      const result = await verifyRecaptcha(dto.captchaToken);
+      if (!result.success) {
+        throw new BadRequestException('reCAPTCHA verification failed. Please try again.');
+      }
+    }
+
+    const name = dto.name?.trim() || deriveNameFromEmail(dto.email);
+
+    await this.prisma.newsletterSubscriber.upsert({
+      where: { organizationId_email: { organizationId: orgId, email: dto.email } },
+      create: { organizationId: orgId, email: dto.email, name },
+      update: {},
     });
     return { ok: true };
   }

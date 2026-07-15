@@ -145,6 +145,7 @@ model Organization {
   layouts            Layout[]
   cmsForms           CmsForm[]
   contactSubmissions ContactSubmission[]
+  newsletterSubscribers NewsletterSubscriber[]
   systemPageSettings SystemPageSettings[]
   tags               Tag[]
   tagAssignments     TagAssignment[]
@@ -686,6 +687,24 @@ model ContactSubmission {
 
   @@index([organizationId])
   @@map("contact_submissions")
+}
+
+// Subscribers from the storefront footer newsletter signup (shopingo theme).
+// `name` is nullable and, until a real name field is added to that form,
+// gets auto-derived from the email's local part — so a future name input
+// can just start populating this same column without a schema change.
+model NewsletterSubscriber {
+  id             String   @id @default(cuid())
+  organizationId String
+  email          String
+  name           String?
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, email])
+  @@index([organizationId])
+  @@map("newsletter_subscribers")
 }
 
 // ════════════════════════════════════════════════════════════════════

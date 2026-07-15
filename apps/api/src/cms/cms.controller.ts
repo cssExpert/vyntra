@@ -420,4 +420,18 @@ export class CmsController {
   deleteContactSubmission(@CurrentOrg() orgId: string | null, @Param('id') id: string) {
     return this.cmsService.deleteContactSubmission(requireOrg(orgId), id);
   }
+
+  // ── Newsletter Subscribers (storefront footer newsletter signup) ───────────
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Get('newsletter-subscribers')
+  listNewsletterSubscribers(@CurrentOrg() orgId: string | null) {
+    return this.cmsService.listNewsletterSubscribers(requireOrg(orgId));
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Delete('newsletter-subscribers/:id')
+  deleteNewsletterSubscriber(@CurrentOrg() orgId: string | null, @Param('id') id: string) {
+    return this.cmsService.deleteNewsletterSubscriber(requireOrg(orgId), id);
+  }
 }

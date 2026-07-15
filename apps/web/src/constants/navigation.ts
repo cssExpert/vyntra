@@ -62,6 +62,7 @@ export const NAV_SECTIONS: NavSection[] = [
           { id: "cms-forms",    label: "Forms",            href: "/cms/forms",            icon: "" },
           { id: "cms-comments", label: "Comments",         href: "/cms/comments",         icon: "" },
           { id: "cms-contact",  label: "Contact Requests", href: "/cms/contact-requests", icon: "" },
+          { id: "cms-newsletter", label: "Newsletter Subscribers", href: "/cms/newsletter-subscribers", icon: "" },
           { id: "cms-themes",   label: "Themes",           href: "/cms/themes",           icon: "" },
           { id: "cms-menus",    label: "Menus",            href: "/cms/menus",            icon: "" },
           { id: "cms-layouts",  label: "Layouts",          href: "/cms/layouts",          icon: "" },
