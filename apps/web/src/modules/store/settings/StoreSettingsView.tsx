@@ -15,10 +15,15 @@ import {
   Bell,
   Cpu,
   CheckCircle2,
+  Settings2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MotionTabs, type MotionTabItem } from "@/components/ui/MotionTabs";
 import { Input } from "@/components/ui/input";
+import { PageSettingsPanel } from "@/components/common/PageSettingsPanel";
+import { useAuth } from "@/providers/AuthProvider";
+
+const PAGE_SETTINGS_ROLES = ["ORG_ADMIN", "EDITOR"];
 
 type TabId =
   | "general"
@@ -138,8 +143,14 @@ export function StoreSettingsView() {
   const t = useTranslations("admin.store.settings");
   const isLoaded = usePageLoad(500);
   const router = useRouter();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabId>("general");
   const [saved, setSaved]         = useState(false);
+  const [pageSettingsOpen, setPageSettingsOpen] = useState(false);
+
+  const canManagePageSettings =
+    !!user?.organizationId &&
+    (user.superAdmin || user.roles.some((r) => PAGE_SETTINGS_ROLES.includes(r)));
 
   const handleSave = () => {
     setSaved(true);
@@ -172,6 +183,15 @@ export function StoreSettingsView() {
               { label: t("settings", { defaultValue: "Settings" }) },
             ]}
           >
+            {canManagePageSettings && (
+              <button
+                onClick={() => setPageSettingsOpen(true)}
+                className="flex items-center gap-1.5 rounded-sm border border-border bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer"
+              >
+                <Settings2 className="h-3.5 w-3.5" />
+                Shop Page Settings
+              </button>
+            )}
             <button
               onClick={() => router.push("/store")}
               className="rounded-sm border border-border bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer"
@@ -186,6 +206,18 @@ export function StoreSettingsView() {
               {saved ? "Saved!" : t("saveChanges", { defaultValue: "Save Changes" })}
             </button>
           </PageHeader>
+
+          {canManagePageSettings && (
+            <PageSettingsPanel
+              open={pageSettingsOpen}
+              onClose={() => setPageSettingsOpen(false)}
+              pageType="product-listing"
+              label="Product Listing"
+              pagePath="/shop"
+              companyId={user!.organizationId!}
+              module="store"
+            />
+          )}
 
           <MotionTabs
             tabs={getTabs(t)}

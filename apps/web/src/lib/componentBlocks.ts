@@ -1317,7 +1317,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
         makeNode("span", "span", "inline-block text-xs font-semibold uppercase tracking-[0.2em] text-[#ff2c2c] mb-4", "New Collection 2024"),
         makeNode("h1", "h1", "text-5xl font-extrabold text-white mb-4 leading-tight", "Women Fashion"),
         makeNode("p", "p", "text-2xl font-light text-white/75 mb-10", "Sale up to 25% off"),
-        makeNode("a", "a", "inline-block bg-[#ff2c2c] hover:opacity-90 text-white font-bold px-10 py-3.5 text-sm uppercase tracking-widest transition-opacity", "Shop Now", undefined, { href: "/products" }),
+        makeNode("a", "a", "inline-block bg-[#ff2c2c] hover:opacity-90 text-white font-bold px-10 py-3.5 text-sm uppercase tracking-widest transition-opacity", "Shop Now", undefined, { href: "/shop" }),
       ]),
     ]),
   },
@@ -1417,8 +1417,8 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
             ),
           ]),
           makeNode("div", "div", "flex gap-4 flex-wrap", undefined, [
-            makeNode("a", "a", "inline-block bg-[#ff2c2c] hover:opacity-90 text-white font-bold px-8 py-3 text-sm uppercase tracking-wider transition-opacity", "Buy Now", undefined, { href: "/products" }),
-            makeNode("a", "a", "inline-block border-2 border-[#212529] text-[#212529] hover:bg-[#212529] hover:text-white font-bold px-8 py-3 text-sm uppercase tracking-wider transition-colors", "View Details", undefined, { href: "/products" }),
+            makeNode("a", "a", "inline-block bg-[#ff2c2c] hover:opacity-90 text-white font-bold px-8 py-3 text-sm uppercase tracking-wider transition-opacity", "Buy Now", undefined, { href: "/shop" }),
+            makeNode("a", "a", "inline-block border-2 border-[#212529] text-[#212529] hover:bg-[#212529] hover:text-white font-bold px-8 py-3 text-sm uppercase tracking-wider transition-colors", "View Details", undefined, { href: "/shop" }),
           ]),
         ]),
         makeNode("div", "div", "overflow-hidden", undefined, [
@@ -1487,7 +1487,7 @@ export const COMPONENT_BLOCKS: ComponentBlock[] = [
                 makeNode("h4", "h4", "text-white font-bold text-lg", cat),
                 makeNode("span", "span", "text-white/70 text-xs", count),
               ]),
-            ], { href: "/products" })
+            ], { href: "/shop" })
           ),
         ]),
       ]),

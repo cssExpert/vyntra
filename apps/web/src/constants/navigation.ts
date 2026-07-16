@@ -194,6 +194,13 @@ export const NAV_SECTIONS: NavSection[] = [
             href: "/store/settings",
             icon: "",
           },
+          {
+            id: "store-open",
+            label: "Open Store",
+            href: "/shop",
+            icon: "",
+            external: true,
+          },
         ],
       },
       {

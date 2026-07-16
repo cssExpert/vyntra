@@ -9,6 +9,9 @@ export interface NavItem {
   children?: NavItem[];
   isNew?: boolean;
   isPro?: boolean;
+  /** Opens the tenant storefront in a new tab; href is used as the storefront
+   *  path (e.g. "/shop") resolved against the org's domain/subdomain. */
+  external?: boolean;
   /** Module entitlement key required to see this item (e.g. "CMS", "CRM").
    *  Items without it are always visible; super admins see everything. */
   module?: string;

@@ -47,7 +47,7 @@ export const SHOPINGO_PAGE_DEFAULTS: Record<string, SeedBlock[]> = {
       image: "",
       imagePosition: "right",
       ctaText: "Shop Now",
-      ctaUrl: "/products",
+      ctaUrl: "/shop",
     } as unknown as Record<string, unknown>),
     b("fb1", "features-banner", {
       features: [
@@ -111,16 +111,16 @@ export const SHOPINGO_PAGE_DEFAULTS: Record<string, SeedBlock[]> = {
     b("bc1", "brand-carousel", {
       title: "Shop By Brands",
       brands: [
-        { name: "Nike", logo: "", url: "/products?brand=nike" },
-        { name: "Adidas", logo: "", url: "/products?brand=adidas" },
-        { name: "Apple", logo: "", url: "/products?brand=apple" },
-        { name: "Samsung", logo: "", url: "/products?brand=samsung" },
-        { name: "Puma", logo: "", url: "/products?brand=puma" },
-        { name: "Sony", logo: "", url: "/products?brand=sony" },
-        { name: "Reebok", logo: "", url: "/products?brand=reebok" },
-        { name: "H&M", logo: "", url: "/products?brand=hm" },
-        { name: "Zara", logo: "", url: "/products?brand=zara" },
-        { name: "Philips", logo: "", url: "/products?brand=philips" },
+        { name: "Nike", logo: "", url: "/shop?brand=nike" },
+        { name: "Adidas", logo: "", url: "/shop?brand=adidas" },
+        { name: "Apple", logo: "", url: "/shop?brand=apple" },
+        { name: "Samsung", logo: "", url: "/shop?brand=samsung" },
+        { name: "Puma", logo: "", url: "/shop?brand=puma" },
+        { name: "Sony", logo: "", url: "/shop?brand=sony" },
+        { name: "Reebok", logo: "", url: "/shop?brand=reebok" },
+        { name: "H&M", logo: "", url: "/shop?brand=hm" },
+        { name: "Zara", logo: "", url: "/shop?brand=zara" },
+        { name: "Philips", logo: "", url: "/shop?brand=philips" },
       ],
     } as unknown as Record<string, unknown>),
     b("nl1", "newsletter", {

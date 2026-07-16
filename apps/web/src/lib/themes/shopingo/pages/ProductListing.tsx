@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   useProductListing,
   useProductListingFacets,
+  buildCategoryTree,
+  type CategoryTreeNode,
   type ProductListingFilters,
   type ProductSort,
   type PublicProduct,
@@ -25,7 +27,7 @@ function GridCard({ product }: { product: PublicProduct }) {
 
   return (
      
-    <a href={`/products/${product.slug}`} className="group block">
+    <a href={`/shop/${product.slug}`} className="group block">
       <div className="relative overflow-hidden bg-gray-50 dark:bg-[#2a2a2e] aspect-[3/4] mb-4">
         {product.featuredImage ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -76,7 +78,7 @@ function ListCard({ product }: { product: PublicProduct }) {
 
   return (
      
-    <a href={`/products/${product.slug}`} className="flex gap-4 sm:gap-5 py-5 border-b border-gray-200 dark:border-gray-700 last:border-0 group">
+    <a href={`/shop/${product.slug}`} className="flex gap-4 sm:gap-5 py-5 border-b border-gray-200 dark:border-gray-700 last:border-0 group">
       <div className="relative overflow-hidden bg-gray-50 dark:bg-[#2a2a2e] w-24 h-32 sm:w-32 sm:h-40 md:w-40 md:h-48 shrink-0">
         {product.featuredImage ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -132,6 +134,89 @@ function CheckboxRow({ label, count, checked, onChange }: { label: string; count
   );
 }
 
+function CategoryTreeRow({
+  node,
+  depth,
+  selectedId,
+  expanded,
+  onToggleExpand,
+  onSelect,
+}: {
+  node: CategoryTreeNode;
+  depth: number;
+  selectedId?: string;
+  expanded: Set<string>;
+  onToggleExpand: (id: string) => void;
+  onSelect: (id: string) => void;
+}) {
+  const hasChildren = node.children.length > 0;
+  const isOpen = expanded.has(node.id);
+  const isSelected = selectedId === node.id;
+
+  return (
+    <li>
+      <div className="flex items-center gap-1" style={{ paddingLeft: depth * 14 }}>
+        {hasChildren ? (
+          <button
+            type="button"
+            onClick={() => onToggleExpand(node.id)}
+            aria-label={isOpen ? "Collapse" : "Expand"}
+            aria-expanded={isOpen}
+            className="shrink-0 p-0.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+          >
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={`transition-transform duration-150 ${isOpen ? "rotate-90" : ""}`}
+            >
+              <polyline points="9 6 15 12 9 18" />
+            </svg>
+          </button>
+        ) : (
+          <span className="w-[14px] shrink-0" />
+        )}
+        <button
+          type="button"
+          onClick={() => onSelect(node.id)}
+          className="flex-1 min-w-0 flex items-center justify-between gap-2 py-1.5 text-left group"
+        >
+          <span
+            className={`text-sm truncate transition-colors ${
+              isSelected
+                ? "text-gray-900 dark:text-white font-semibold"
+                : "text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+            }`}
+          >
+            {node.name}
+          </span>
+          {isSelected && <span className="h-1.5 w-1.5 rounded-full shrink-0" style={{ backgroundColor: ORANGE }} />}
+        </button>
+      </div>
+      {hasChildren && isOpen && (
+        <ul>
+          {node.children.map((child) => (
+            <CategoryTreeRow
+              key={child.id}
+              node={child}
+              depth={depth + 1}
+              selectedId={selectedId}
+              expanded={expanded}
+              onToggleExpand={onToggleExpand}
+              onSelect={onSelect}
+            />
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+}
+
 export default function ProductListing({ orgId }: { orgId: string }) {
   const [categoryId, setCategoryId] = useState<string | undefined>();
   const [brand, setBrand] = useState<string | undefined>();
@@ -139,8 +224,26 @@ export default function ProductListing({ orgId }: { orgId: string }) {
   const [sort, setSort] = useState<ProductSort>("newest");
   const [view, setView] = useState<"grid" | "list">("grid");
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [expandedCats, setExpandedCats] = useState<Set<string>>(new Set());
 
-  const { categories, facets, pageSize, loading: facetsLoading } = useProductListingFacets(orgId);
+  const { categories, facets, pageSize, banner, loading: facetsLoading } = useProductListingFacets(orgId);
+
+  const categoryTree = useMemo(() => buildCategoryTree(categories), [categories]);
+
+  // Default to fully expanded so the whole hierarchy is browsable at a glance.
+  useEffect(() => {
+    const parentIds = categories.filter((c) => categories.some((x) => x.parentId === c.id)).map((c) => c.id);
+    setExpandedCats(new Set(parentIds));
+  }, [categories]);
+
+  function toggleExpandCat(id: string) {
+    setExpandedCats((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   const filters: ProductListingFilters = {
     categoryId,
@@ -151,14 +254,38 @@ export default function ProductListing({ orgId }: { orgId: string }) {
   const { products, total, loading, loadingMore, hasMore, loadMore } = useProductListing(orgId, filters, pageSize);
 
   return (
-    <section className="py-8 bg-white dark:bg-[#121214] min-h-screen">
+    <section className="bg-white dark:bg-[#121214] min-h-screen">
+      {banner.enabled && (banner.image || banner.title) && (
+        <div className="relative w-full h-56 sm:h-72 md:h-80 overflow-hidden bg-gray-100 dark:bg-[#1c1c1e]">
+          {banner.image && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={banner.image}
+              alt={banner.title || "Shop banner"}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          )}
+          {(banner.title || banner.subtitle) && (
+            <div className="absolute inset-0 bg-black/35 flex flex-col items-center justify-center text-center px-4">
+              {banner.title && (
+                <h1 className="text-2xl sm:text-4xl font-bold text-white">{banner.title}</h1>
+              )}
+              {banner.subtitle && (
+                <p className="mt-2 text-sm sm:text-base text-white/85">{banner.subtitle}</p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Breadcrumb */}
         <nav className="text-xs text-gray-500 dark:text-gray-400 mb-6">
           {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
           <a href="/" className="hover:text-gray-800 dark:hover:text-gray-200">Home</a>
           <span className="mx-1.5">/</span>
-          <span className="text-gray-800 dark:text-gray-200 font-medium">Products</span>
+          <span className="text-gray-800 dark:text-gray-200 font-medium">Shop</span>
         </nav>
 
         {/* Mobile/tablet filter toggle */}
@@ -195,13 +322,27 @@ export default function ProductListing({ orgId }: { orgId: string }) {
                   {categories.length > 0 && (
                     <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
                       <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-3">Categories</h3>
-                      <ul className="space-y-2.5">
-                        {categories.map((c) => (
-                          <CheckboxRow
-                            key={c.id}
-                            label={c.name}
-                            checked={categoryId === c.id}
-                            onChange={() => setCategoryId(categoryId === c.id ? undefined : c.id)}
+                      <ul>
+                        <li>
+                          <button
+                            type="button"
+                            onClick={() => setCategoryId(undefined)}
+                            className="w-full flex items-center py-1.5 text-left"
+                          >
+                            <span className={`text-sm transition-colors ${!categoryId ? "text-gray-900 dark:text-white font-semibold" : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"}`}>
+                              All Categories
+                            </span>
+                          </button>
+                        </li>
+                        {categoryTree.map((node) => (
+                          <CategoryTreeRow
+                            key={node.id}
+                            node={node}
+                            depth={0}
+                            selectedId={categoryId}
+                            expanded={expandedCats}
+                            onToggleExpand={toggleExpandCat}
+                            onSelect={(id) => setCategoryId(categoryId === id ? undefined : id)}
                           />
                         ))}
                       </ul>
@@ -329,6 +470,7 @@ export default function ProductListing({ orgId }: { orgId: string }) {
             )}
           </div>
         </div>
+      </div>
       </div>
     </section>
   );

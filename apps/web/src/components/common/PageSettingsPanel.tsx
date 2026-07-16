@@ -210,10 +210,14 @@ function SeoTab({
 function ListingTab({
   form,
   pageType,
+  companyId,
+  module,
   onChange,
 }: {
   form: SystemPageSettingsData;
   pageType: string;
+  companyId: string;
+  module: string;
   onChange: (patch: Partial<SystemPageSettingsData>) => void;
 }) {
   const custom = form.customSettings ?? {};
@@ -311,6 +315,13 @@ function ListingTab({
 
   const productsPerPage =
     typeof custom.productsPerPage === "number" ? custom.productsPerPage : 12;
+  const bannerEnabled = custom.bannerEnabled === true;
+  const bannerImage =
+    typeof custom.bannerImage === "string" ? custom.bannerImage : null;
+  const bannerTitle =
+    typeof custom.bannerTitle === "string" ? custom.bannerTitle : "";
+  const bannerSubtitle =
+    typeof custom.bannerSubtitle === "string" ? custom.bannerSubtitle : "";
 
   return (
     <div className="flex flex-col gap-5">
@@ -331,6 +342,68 @@ function ListingTab({
           className={inputCls}
         />
       </FieldRow>
+
+      <div className="border-t border-border pt-5">
+        <div className="flex items-center gap-3 rounded-lg border border-border bg-muted px-4 py-3">
+          <Switch
+            id="bannerEnabled"
+            checked={bannerEnabled}
+            onCheckedChange={(v) => patchCustom({ bannerEnabled: v })}
+            className="data-checked:bg-primary shrink-0"
+          />
+          <div className="min-w-0">
+            <Label
+              htmlFor="bannerEnabled"
+              className="text-xs font-semibold cursor-pointer block"
+            >
+              Show banner
+            </Label>
+            <p className="text-[10px] text-muted-foreground/60 mt-0.5">
+              A full-width image banner at the top of the shop page.
+            </p>
+          </div>
+        </div>
+
+        <div
+          className={cn(
+            "mt-4 flex flex-col gap-5 transition-opacity",
+            !bannerEnabled && "opacity-40 pointer-events-none",
+          )}
+        >
+          <FieldRow label="Banner image" hint="Recommended size: 1920 × 480 px.">
+            <StoreImagePicker
+              value={bannerImage}
+              onChange={(url) => patchCustom({ bannerImage: url })}
+              companyId={companyId}
+              module={module}
+              subtype="banner"
+              filterOptions={PAGE_SETTINGS_FILTERS}
+              libraryOnly
+              modalZIndexClassName="z-[200]"
+            />
+          </FieldRow>
+
+          <FieldRow label="Banner title">
+            <input
+              type="text"
+              value={bannerTitle}
+              placeholder="Shop the Collection"
+              onChange={(e) => patchCustom({ bannerTitle: e.target.value })}
+              className={inputCls}
+            />
+          </FieldRow>
+
+          <FieldRow label="Banner subtitle">
+            <input
+              type="text"
+              value={bannerSubtitle}
+              placeholder="New arrivals, every week."
+              onChange={(e) => patchCustom({ bannerSubtitle: e.target.value })}
+              className={inputCls}
+            />
+          </FieldRow>
+        </div>
+      </div>
     </div>
   );
 }
@@ -391,7 +464,7 @@ function OgTab({
         <input
           type="url"
           value={form.ogUrl ?? ""}
-          placeholder="https://yoursite.com/products"
+          placeholder="https://yoursite.com/shop"
           onChange={(e) => onChange({ ogUrl: e.target.value })}
           className={inputCls}
         />
@@ -966,7 +1039,7 @@ export interface PageSettingsPanelProps {
   pageType: string;
   /** Human label shown in the panel header, e.g. "Product Listing". */
   label: string;
-  /** Live storefront path shown in the search preview, e.g. "/products". */
+  /** Live storefront path shown in the search preview, e.g. "/shop". */
   pagePath: string;
   /** Organization id — required for image uploads. */
   companyId: string;
@@ -1097,6 +1170,8 @@ export function PageSettingsPanel({
                     <ListingTab
                       form={form}
                       pageType={pageType}
+                      companyId={companyId}
+                      module={module}
                       onChange={patch}
                     />
                   )}

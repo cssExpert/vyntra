@@ -26,7 +26,7 @@ export default function ProductDetail({ orgId, slug }: { orgId: string; slug?: s
       <div className="max-w-4xl mx-auto px-6 py-16 text-center">
         <p className="text-xl font-semibold mb-4" style={{ color: "var(--foreground, #111827)" }}>Product not found</p>
         { }
-        <a href="/products" style={{ color: "var(--primary, #3b82f6)" }}>← Back to products</a>
+        <a href="/shop" style={{ color: "var(--primary, #3b82f6)" }}>← Back to products</a>
       </div>
     );
   }
@@ -42,7 +42,7 @@ export default function ProductDetail({ orgId, slug }: { orgId: string; slug?: s
         <a href="/" className="hover:underline">Home</a>
         <span>/</span>
         { }
-        <a href="/products" className="hover:underline">Products</a>
+        <a href="/shop" className="hover:underline">Shop</a>
         <span>/</span>
         <span style={{ color: "var(--foreground, #111827)" }}>{product.name}</span>
       </nav>

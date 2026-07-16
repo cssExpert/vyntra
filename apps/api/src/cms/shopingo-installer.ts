@@ -39,7 +39,7 @@ export const SHOPINGO_MENUS: InstallMenuDef[] = [
     role: 'nav',
     items: [
       { label: 'Home',       url: '/',           target: '_self', order: 0 },
-      { label: 'Shop',       url: '/products',        target: '_self', order: 1 },
+      { label: 'Shop',       url: '/shop',        target: '_self', order: 1 },
       { label: 'About Us',   url: '/about-us',    target: '_self', order: 2 },
       { label: 'Blog',       url: '/blog',        target: '_self', order: 3 },
       { label: 'Contact Us', url: '/contact-us',  target: '_self', order: 4 },
@@ -80,9 +80,9 @@ export const SHOPINGO_MENUS: InstallMenuDef[] = [
     role: 'footer-col',
     items: [
       { label: 'Home',         url: '/',                    target: '_self', order: 0 },
-      { label: 'Shop All',     url: '/products',                target: '_self', order: 1 },
-      { label: 'New Arrivals', url: '/products?filter=new',     target: '_self', order: 2 },
-      { label: 'Sale',         url: '/products?filter=sale',    target: '_self', order: 3 },
+      { label: 'Shop All',     url: '/shop',                target: '_self', order: 1 },
+      { label: 'New Arrivals', url: '/shop?filter=new',     target: '_self', order: 2 },
+      { label: 'Sale',         url: '/shop?filter=sale',    target: '_self', order: 3 },
       { label: 'Gift Cards',   url: '#',                    target: '_self', order: 4 },
       { label: 'Store Locator', url: '#',                   target: '_self', order: 5 },
     ],
@@ -122,7 +122,7 @@ export const SHOPINGO_PAGES: InstallPageDef[] = [
               subtitle: 'Explore our exclusive collection of women\'s wear at unbeatable prices.',
               badge: '25% Off',
               ctaText: 'Shop Now',
-              ctaUrl: '/products?cat=women',
+              ctaUrl: '/shop?cat=women',
               image: '',
             },
             {
@@ -130,7 +130,7 @@ export const SHOPINGO_PAGES: InstallPageDef[] = [
               subtitle: 'Stay stylish this season with our curated fashion collection.',
               badge: '35% Off',
               ctaText: 'Browse Deals',
-              ctaUrl: '/products?cat=fashion',
+              ctaUrl: '/shop?cat=fashion',
               image: '',
             },
             {
@@ -138,7 +138,7 @@ export const SHOPINGO_PAGES: InstallPageDef[] = [
               subtitle: 'Adorable, comfortable and durable clothes for your little ones.',
               badge: '15% Off',
               ctaText: 'Shop Kids',
-              ctaUrl: '/products?cat=kids',
+              ctaUrl: '/shop?cat=kids',
               image: '',
             },
             {
@@ -146,7 +146,7 @@ export const SHOPINGO_PAGES: InstallPageDef[] = [
               subtitle: 'Top-rated gadgets, headphones, smart devices and more.',
               badge: '45% Off',
               ctaText: 'Shop Electronics',
-              ctaUrl: '/products?cat=electronics',
+              ctaUrl: '/shop?cat=electronics',
               image: '',
             },
             {
@@ -154,7 +154,7 @@ export const SHOPINGO_PAGES: InstallPageDef[] = [
               subtitle: 'Transform your living space with our premium furniture collection.',
               badge: '24% Off',
               ctaText: 'Shop Furniture',
-              ctaUrl: '/products?cat=furniture',
+              ctaUrl: '/shop?cat=furniture',
               image: '',
             },
           ],
@@ -258,7 +258,7 @@ export const SHOPINGO_PAGES: InstallPageDef[] = [
           subtitle: 'New Season',
           description: 'From beachwear to garden furniture — everything you need for the perfect summer, all in one place.',
           primaryCtaText: 'Buy Now',
-          primaryCtaUrl: '/products',
+          primaryCtaUrl: '/shop',
           secondaryCtaText: 'View Details',
           secondaryCtaUrl: '/blog',
           image: '',
@@ -273,16 +273,16 @@ export const SHOPINGO_PAGES: InstallPageDef[] = [
         data: {
           title: 'Shop By Brands',
           brands: [
-            { name: 'Nike',     logo: '', url: '/products?brand=nike' },
-            { name: 'Adidas',   logo: '', url: '/products?brand=adidas' },
-            { name: 'Apple',    logo: '', url: '/products?brand=apple' },
-            { name: 'Samsung',  logo: '', url: '/products?brand=samsung' },
-            { name: 'Puma',     logo: '', url: '/products?brand=puma' },
-            { name: 'Sony',     logo: '', url: '/products?brand=sony' },
-            { name: 'Reebok',   logo: '', url: '/products?brand=reebok' },
-            { name: 'H&M',      logo: '', url: '/products?brand=hm' },
-            { name: 'Zara',     logo: '', url: '/products?brand=zara' },
-            { name: 'Philips',  logo: '', url: '/products?brand=philips' },
+            { name: 'Nike',     logo: '', url: '/shop?brand=nike' },
+            { name: 'Adidas',   logo: '', url: '/shop?brand=adidas' },
+            { name: 'Apple',    logo: '', url: '/shop?brand=apple' },
+            { name: 'Samsung',  logo: '', url: '/shop?brand=samsung' },
+            { name: 'Puma',     logo: '', url: '/shop?brand=puma' },
+            { name: 'Sony',     logo: '', url: '/shop?brand=sony' },
+            { name: 'Reebok',   logo: '', url: '/shop?brand=reebok' },
+            { name: 'H&M',      logo: '', url: '/shop?brand=hm' },
+            { name: 'Zara',     logo: '', url: '/shop?brand=zara' },
+            { name: 'Philips',  logo: '', url: '/shop?brand=philips' },
           ],
         },
       },
@@ -294,12 +294,12 @@ export const SHOPINGO_PAGES: InstallPageDef[] = [
         data: {
           title: 'Top Categories',
           categories: [
-            { name: 'Kurtas',  image: '', count: 128, url: '/products?cat=kurtas' },
-            { name: 'Heels',   image: '', count: 96,  url: '/products?cat=heels' },
-            { name: 'Lehenga', image: '', count: 74,  url: '/products?cat=lehenga' },
-            { name: 'Plazzos', image: '', count: 83,  url: '/products?cat=plazzos' },
-            { name: 'Makeup',  image: '', count: 210, url: '/products?cat=makeup' },
-            { name: 'Shoes',   image: '', count: 187, url: '/products?cat=shoes' },
+            { name: 'Kurtas',  image: '', count: 128, url: '/shop?cat=kurtas' },
+            { name: 'Heels',   image: '', count: 96,  url: '/shop?cat=heels' },
+            { name: 'Lehenga', image: '', count: 74,  url: '/shop?cat=lehenga' },
+            { name: 'Plazzos', image: '', count: 83,  url: '/shop?cat=plazzos' },
+            { name: 'Makeup',  image: '', count: 210, url: '/shop?cat=makeup' },
+            { name: 'Shoes',   image: '', count: 187, url: '/shop?cat=shoes' },
           ],
         },
       },
@@ -392,7 +392,7 @@ export const SHOPINGO_PAGES: InstallPageDef[] = [
           image: '',
           imagePosition: 'right',
           ctaText: 'Shop Now',
-          ctaUrl: '/products',
+          ctaUrl: '/shop',
         },
       },
 
@@ -474,16 +474,16 @@ export const SHOPINGO_PAGES: InstallPageDef[] = [
         data: {
           title: 'Shop By Brands',
           brands: [
-            { name: 'Nike',     logo: '', url: '/products?brand=nike' },
-            { name: 'Adidas',   logo: '', url: '/products?brand=adidas' },
-            { name: 'Apple',    logo: '', url: '/products?brand=apple' },
-            { name: 'Samsung',  logo: '', url: '/products?brand=samsung' },
-            { name: 'Puma',     logo: '', url: '/products?brand=puma' },
-            { name: 'Sony',     logo: '', url: '/products?brand=sony' },
-            { name: 'Reebok',   logo: '', url: '/products?brand=reebok' },
-            { name: 'H&M',      logo: '', url: '/products?brand=hm' },
-            { name: 'Zara',     logo: '', url: '/products?brand=zara' },
-            { name: 'Philips',  logo: '', url: '/products?brand=philips' },
+            { name: 'Nike',     logo: '', url: '/shop?brand=nike' },
+            { name: 'Adidas',   logo: '', url: '/shop?brand=adidas' },
+            { name: 'Apple',    logo: '', url: '/shop?brand=apple' },
+            { name: 'Samsung',  logo: '', url: '/shop?brand=samsung' },
+            { name: 'Puma',     logo: '', url: '/shop?brand=puma' },
+            { name: 'Sony',     logo: '', url: '/shop?brand=sony' },
+            { name: 'Reebok',   logo: '', url: '/shop?brand=reebok' },
+            { name: 'H&M',      logo: '', url: '/shop?brand=hm' },
+            { name: 'Zara',     logo: '', url: '/shop?brand=zara' },
+            { name: 'Philips',  logo: '', url: '/shop?brand=philips' },
           ],
         },
       },
@@ -571,71 +571,10 @@ export const SHOPINGO_PAGES: InstallPageDef[] = [
     ],
   },
 
-  // ── Shop ──────────────────────────────────────────────────────────────────────
-  {
-    slug: 'shop',
-    title: 'Shop',
-    metaDesc: 'Browse our full collection of products. New arrivals added daily.',
-    isLandingPage: false,
-    blocks: [
-      {
-        id: id('shop-header'),
-        type: 'page-header',
-        data: {
-          title: 'Shop',
-          breadcrumbs: [
-            { label: 'Home', url: '/' },
-            { label: 'Shop', url: '/shop' },
-          ],
-        },
-      },
-      {
-        id: id('shop-cats'),
-        type: 'category-grid',
-        data: {
-          title: 'All Categories',
-          categories: [
-            { name: 'Electronics',     image: '', count: 248, url: '/products?cat=electronics' },
-            { name: 'Fashion',         image: '', count: 512, url: '/products?cat=fashion' },
-            { name: 'Home & Garden',   image: '', count: 189, url: '/products?cat=home' },
-            { name: 'Sports & Outdoor', image: '', count: 134, url: '/products?cat=sports' },
-            { name: 'Beauty & Health', image: '', count: 97,  url: '/products?cat=beauty' },
-            { name: 'Toys & Games',    image: '', count: 76,  url: '/products?cat=toys' },
-          ],
-        },
-      },
-      {
-        id: id('shop-grid'),
-        type: 'product-grid',
-        data: {
-          title: 'All Products',
-          subtitle: 'Discover our full range of products',
-          products: [
-            { id: 'sp1', name: 'Wireless Headphones Pro',    price: 79.99, originalPrice: 129.99, image: '', badge: 'Sale',    rating: 5 },
-            { id: 'sp2', name: 'Running Sneakers X2',        price: 54.99, originalPrice: 89.99,  image: '', badge: 'Sale',    rating: 4 },
-            { id: 'sp3', name: 'Smart Watch Series 5',       price: 149.99,                       image: '', rating: 5 },
-            { id: 'sp4', name: 'Portable Bluetooth Speaker', price: 49.99, originalPrice: 79.99,  image: '', badge: 'Hot',     rating: 5 },
-            { id: 'sp5', name: 'Denim Jacket Classic',       price: 69.99,                        image: '', badge: 'Popular', rating: 5 },
-            { id: 'sp6', name: 'Yoga Mat Premium',           price: 29.99,                        image: '', rating: 4 },
-            { id: 'sp7', name: 'Stainless Steel Bottle',     price: 19.99,                        image: '', rating: 5 },
-            { id: 'sp8', name: 'USB-C Hub 7-in-1',          price: 24.99, originalPrice: 49.99,  image: '', badge: 'Sale',    rating: 4 },
-            { id: 'sp9', name: 'Desk Organiser Set',         price: 39.99,                        image: '', rating: 4 },
-            { id: 'sp10', name: 'Cotton Crew Tee',           price: 24.99,                        image: '', rating: 4 },
-          ],
-        },
-      },
-      {
-        id: id('shop-newsletter'),
-        type: 'newsletter',
-        data: {
-          title: 'Never Miss a Deal',
-          subtitle: 'Subscribe and get exclusive discounts straight to your inbox.',
-          placeholder: 'Enter your email',
-          buttonText: 'Subscribe',
-        },
-      },
-    ],
-  },
+  // Note: no static "Shop" CMS page here — /shop is a reserved system route
+  // (see SYSTEM_PAGE_ROUTES on the web app) serving the live product listing
+  // straight from the catalog. A CMS page at that slug would be permanently
+  // shadowed by it.
 
   // ── Blog ──────────────────────────────────────────────────────────────────────
   {

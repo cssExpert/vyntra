@@ -226,7 +226,7 @@ export function ProductsView() {
             onClose={() => setPageSettingsOpen(false)}
             pageType="product-listing"
             label="Product Listing"
-            pagePath="/products"
+            pagePath="/shop"
             companyId={user!.organizationId!}
             module="store"
           />

@@ -504,10 +504,11 @@ export class DomainsService {
   }
 
   /**
-   * Everything the storefront /products page needs from CMS → Page Settings:
-   * SEO meta, Open Graph, favicon, injected scripts/CSS, and the configured
-   * page size. One read, one row — mirrors SystemPageSettingsService's own
-   * `toDto`, but only the fields safe to hand to an anonymous visitor.
+   * Everything the storefront /shop page needs from CMS → Page Settings:
+   * SEO meta, Open Graph, favicon, injected scripts/CSS, the configured
+   * page size, and the top-of-page banner. One read, one row — mirrors
+   * SystemPageSettingsService's own `toDto`, but only the fields safe to
+   * hand to an anonymous visitor.
    */
   async getPublicProductListingSettings(orgId: string) {
     const settings = await this.prisma.systemPageSettings.findUnique({
@@ -530,6 +531,10 @@ export class DomainsService {
       bodyScript: settings?.bodyScript ?? null,
       customCss: settings?.customCss ?? null,
       productsPerPage: Number.isFinite(productsPerPage) && productsPerPage > 0 ? productsPerPage : 12,
+      bannerEnabled: custom.bannerEnabled === true,
+      bannerImage: typeof custom.bannerImage === 'string' ? custom.bannerImage : null,
+      bannerTitle: typeof custom.bannerTitle === 'string' ? custom.bannerTitle : '',
+      bannerSubtitle: typeof custom.bannerSubtitle === 'string' ? custom.bannerSubtitle : '',
     };
   }
 
@@ -549,7 +554,6 @@ export class DomainsService {
     type: true,
     weight: true,
     categoryIds: true,
-    tags: true,
     seoTitle: true,
     seoDescription: true,
     seoKeywords: true,
@@ -560,13 +564,14 @@ export class DomainsService {
     },
   };
 
-  /** Full product detail for storefront /products/:slug — only active products. */
+  /** Full product detail for storefront /shop/:slug — only active products. */
   async getPublicProductDetail(orgId: string, slug: string) {
     const product = await this.prisma.product.findFirst({
       where: { organizationId: orgId, slug, status: 'active' },
       select: DomainsService.PUBLIC_PRODUCT_DETAIL_SELECT,
     });
-    return product ?? null;
+    // Product has no `tags` field yet — keep the shape the storefront expects.
+    return product ? { ...product, tags: [] as string[] } : null;
   }
 
   private static readonly PUBLIC_BLOG_SELECT = {

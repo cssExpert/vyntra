@@ -8,7 +8,7 @@ export type SystemPageType = "product-listing" | "product-detail" | "blog-listin
 
 /** slug (no leading slash) → system page type. Extend here for /cart, /checkout, etc. */
 export const SYSTEM_PAGE_ROUTES: Record<string, SystemPageType> = {
-  products: "product-listing",
+  shop: "product-listing",
   blog: "blog-listing",
 };
 
@@ -32,7 +32,7 @@ export function resolveSystemPageType(pageSlug: string): ResolvedSystemPage | nu
   const blogDetailMatch = pageSlug.match(/^blog\/([^/]+)$/);
   if (blogDetailMatch) return { pageType: "blog-detail", param: blogDetailMatch[1] };
 
-  const productDetailMatch = pageSlug.match(/^products\/([^/]+)$/);
+  const productDetailMatch = pageSlug.match(/^shop\/([^/]+)$/);
   if (productDetailMatch) return { pageType: "product-detail", param: productDetailMatch[1] };
 
   return null;

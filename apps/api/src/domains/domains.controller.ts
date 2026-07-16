@@ -198,6 +198,16 @@ export class DomainsController {
     return this.domainsService.getPublicProductFacets(orgId);
   }
 
+  // Must come before the "products/:slug" wildcard route below — otherwise
+  // Express matches "page-settings" as a slug and this handler is never reached.
+  @Public()
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 60, ttl: 60_000 } })
+  @Get('public/sites/:orgId/products/page-settings')
+  getPublicProductListingSettings(@Param('orgId') orgId: string) {
+    return this.domainsService.getPublicProductListingSettings(orgId);
+  }
+
   @Public()
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 60, ttl: 60_000 } })
@@ -215,14 +225,6 @@ export class DomainsController {
   @Get('public/sites/:orgId/categories')
   getPublicCategories(@Param('orgId') orgId: string) {
     return this.domainsService.getPublicCategories(orgId);
-  }
-
-  @Public()
-  @UseGuards(ThrottlerGuard)
-  @Throttle({ default: { limit: 60, ttl: 60_000 } })
-  @Get('public/sites/:orgId/products/page-settings')
-  getPublicProductListingSettings(@Param('orgId') orgId: string) {
-    return this.domainsService.getPublicProductListingSettings(orgId);
   }
 
   @Public()
