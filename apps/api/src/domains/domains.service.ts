@@ -558,7 +558,7 @@ export class DomainsService {
       select: { id: true, url: true, alt: true, isPrimary: true, sortOrder: true },
       orderBy: [{ isPrimary: 'desc' as const }, { sortOrder: 'asc' as const }],
     },
-  } as const;
+  };
 
   /** Full product detail for storefront /products/:slug — only active products. */
   async getPublicProductDetail(orgId: string, slug: string) {
