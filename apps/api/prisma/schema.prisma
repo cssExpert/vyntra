@@ -376,7 +376,6 @@ model Page {
   organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   layout       Layout?           @relation(fields: [layoutId], references: [id], onDelete: SetNull)
   theme        Theme?            @relation("PageTheme", fields: [themeId], references: [id], onDelete: SetNull)
-  comments     Comment[]
   translations PageTranslation[]
   groupRestrictions CustomerGroupPage[]
 
@@ -474,7 +473,6 @@ model Blog {
   updatedAt      DateTime  @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  comments     Comment[]
 
   @@unique([organizationId, slug])
   @@index([organizationId])
@@ -538,25 +536,32 @@ model TagAssignment {
   @@map("tag_assignments")
 }
 
+// Generic, polymorphic comments — one table for blog posts, pages, products,
+// etc. Discriminated by resourceType/resourceId (no FK, since it targets a
+// different table per type), mirroring the TagAssignment pattern above.
+// Delete paths for each resource type must clean up their own comments.
 model Comment {
   id             String        @id @default(cuid())
+  resourceType   String        // "blog" | "page" | "product"
+  resourceId     String
+  parentId       String?
   body           String
+  rating         Int?          // only meaningful when resourceType === "product"
   status         CommentStatus @default(PENDING)
   authorName     String?
   authorEmail    String?
-  pageId         String?
-  blogId         String?
   userId         String?
   organizationId String
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
-  page         Page?        @relation(fields: [pageId], references: [id], onDelete: Cascade)
-  blog         Blog?        @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  parent       Comment?     @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies      Comment[]    @relation("CommentReplies")
   user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([organizationId])
+  @@index([resourceType, resourceId])
   @@map("comments")
 }
 

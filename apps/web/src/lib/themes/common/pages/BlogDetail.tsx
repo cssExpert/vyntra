@@ -3,6 +3,7 @@
 import { useBlogDetail } from "@/lib/themes/useBlogDetail";
 import { useBlogListingFacets } from "@/lib/themes/useBlogListing";
 import { EmptyState } from "@/lib/themes/shared/EmptyState";
+import { CommentsSection } from "@/lib/themes/shared/CommentsSection";
 
 const BLUE = "#2563eb";
 
@@ -91,6 +92,10 @@ export default function BlogDetail({ orgId, slug }: { orgId: string; themeIdenti
                     </a>
                   ))}
                 </div>
+              )}
+
+              {post.allowComments && (
+                <CommentsSection orgId={orgId} resourceId={post.id} accentColor={BLUE} />
               )}
 
               <div className="mt-8">

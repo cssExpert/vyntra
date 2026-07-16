@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useBlogDetail } from "@/lib/themes/useBlogDetail";
 import { useBlogListingFacets } from "@/lib/themes/useBlogListing";
 import { EmptyState } from "@/lib/themes/shared/EmptyState";
+import { CommentsSection } from "@/lib/themes/shared/CommentsSection";
 
 const ORANGE = "#e4611e";
 
@@ -159,6 +160,10 @@ export default function BlogDetail({ orgId, slug }: { orgId: string; themeIdenti
                   </a>
                 ))}
               </div>
+            )}
+
+            {post.allowComments && (
+              <CommentsSection orgId={orgId} resourceId={post.id} accentColor={ORANGE} />
             )}
 
             <div className="mt-10">

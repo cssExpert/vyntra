@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { CommentStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { TagsService } from '../tags/tags.service';
 import { verifyRecaptcha } from '../common/recaptcha';
@@ -976,6 +977,46 @@ export class CmsService {
     const existing = await this.prisma.newsletterSubscriber.findFirst({ where: { id, organizationId: orgId } });
     if (!existing) throw new NotFoundException('Subscriber not found');
     await this.prisma.newsletterSubscriber.delete({ where: { id } });
+    return { ok: true };
+  }
+
+  // ── Comments (blog/page/product discussion — polymorphic, see Comment model) ─
+
+  async listComments(orgId: string) {
+    const comments = await this.prisma.comment.findMany({
+      where: { organizationId: orgId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const blogIds = [...new Set(comments.filter((c) => c.resourceType === 'blog').map((c) => c.resourceId))];
+    const blogs = blogIds.length
+      ? await this.prisma.blog.findMany({
+          where: { id: { in: blogIds } },
+          select: { id: true, title: true, slug: true },
+        })
+      : [];
+    const blogById = new Map(blogs.map((b) => [b.id, b]));
+
+    return comments.map((c) => ({
+      ...c,
+      resourceTitle: c.resourceType === 'blog' ? (blogById.get(c.resourceId)?.title ?? null) : null,
+      resourceSlug: c.resourceType === 'blog' ? (blogById.get(c.resourceId)?.slug ?? null) : null,
+    }));
+  }
+
+  async updateCommentStatus(orgId: string, id: string, status: string) {
+    if (!Object.values(CommentStatus).includes(status as CommentStatus)) {
+      throw new BadRequestException('Invalid status');
+    }
+    const existing = await this.prisma.comment.findFirst({ where: { id, organizationId: orgId } });
+    if (!existing) throw new NotFoundException('Comment not found');
+    return this.prisma.comment.update({ where: { id }, data: { status: status as CommentStatus } });
+  }
+
+  async deleteComment(orgId: string, id: string) {
+    const existing = await this.prisma.comment.findFirst({ where: { id, organizationId: orgId } });
+    if (!existing) throw new NotFoundException('Comment not found');
+    await this.prisma.comment.delete({ where: { id } });
     return { ok: true };
   }
 }

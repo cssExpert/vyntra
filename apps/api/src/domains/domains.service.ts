@@ -12,6 +12,7 @@ import { TagsService } from '../tags/tags.service';
 import { SetCustomDomainDto, SetSubdomainDto } from './dto/domain.dto';
 import { SubmitContactFormDto } from './dto/contact-submission.dto';
 import { SubscribeNewsletterDto } from './dto/newsletter-subscription.dto';
+import { COMMENT_RESOURCE_TYPES, SubmitCommentDto } from './dto/comment-submission.dto';
 import { verifyRecaptcha } from '../common/recaptcha';
 
 // Newsletter signup currently only collects an email address — until a real
@@ -884,6 +885,110 @@ export class DomainsService {
       update: {},
     });
     return { ok: true };
+  }
+
+  // ── Comments (blog/page/product discussion — polymorphic, see Comment model) ─
+
+  /**
+   * Whether comments are currently allowed for a resource. For "blog" this is
+   * the same blog.allowComments && org.blogCommentsEnabled clamp used by
+   * getPublicBlogBySlug — the global Settings toggle always wins. Page/product
+   * have no per-resource toggle yet (no editor UI exposes one), so they're
+   * allowed by default; the schema/API stay ready for that later.
+   */
+  private async resourceAllowsComments(
+    orgId: string,
+    resourceType: string,
+    resourceId: string,
+  ): Promise<boolean> {
+    if (resourceType === 'blog') {
+      const [blog, org] = await Promise.all([
+        this.prisma.blog.findFirst({
+          where: { id: resourceId, organizationId: orgId },
+          select: { allowComments: true },
+        }),
+        this.prisma.organization.findUnique({
+          where: { id: orgId },
+          select: { blogCommentsEnabled: true },
+        }),
+      ]);
+      if (!blog) return false;
+      return blog.allowComments && (org?.blogCommentsEnabled ?? true);
+    }
+    return true;
+  }
+
+  async getPublicComments(orgId: string, resourceType: string, resourceId: string) {
+    if (!(COMMENT_RESOURCE_TYPES as readonly string[]).includes(resourceType)) {
+      throw new BadRequestException('Invalid resource type');
+    }
+    if (!resourceId) throw new BadRequestException('resourceId is required');
+
+    const allowed = await this.resourceAllowsComments(orgId, resourceType, resourceId);
+    if (!allowed) return [];
+
+    const all = await this.prisma.comment.findMany({
+      where: { organizationId: orgId, resourceType, resourceId, status: 'APPROVED' },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true, parentId: true, body: true, authorName: true, rating: true, createdAt: true },
+    });
+
+    const byParent = new Map<string | null, typeof all>();
+    for (const c of all) {
+      const key = c.parentId;
+      if (!byParent.has(key)) byParent.set(key, []);
+      byParent.get(key)!.push(c);
+    }
+    const attachReplies = (c: (typeof all)[number]): unknown => ({
+      ...c,
+      replies: (byParent.get(c.id) ?? []).map(attachReplies),
+    });
+    return (byParent.get(null) ?? []).map(attachReplies);
+  }
+
+  async submitPublicComment(orgId: string, dto: SubmitCommentDto) {
+    const org = await this.prisma.organization.findUnique({
+      where: { id: orgId },
+      select: { recaptchaEnabled: true },
+    });
+    if (!org) throw new NotFoundException('Organization not found');
+
+    const allowed = await this.resourceAllowsComments(orgId, dto.resourceType, dto.resourceId);
+    if (!allowed) throw new BadRequestException('Comments are disabled for this content');
+
+    if (dto.parentId) {
+      const parent = await this.prisma.comment.findFirst({
+        where: {
+          id: dto.parentId,
+          organizationId: orgId,
+          resourceType: dto.resourceType,
+          resourceId: dto.resourceId,
+        },
+      });
+      if (!parent) throw new BadRequestException('Invalid parent comment');
+    }
+
+    if (org.recaptchaEnabled) {
+      const result = await verifyRecaptcha(dto.captchaToken);
+      if (!result.success) {
+        throw new BadRequestException('reCAPTCHA verification failed. Please try again.');
+      }
+    }
+
+    await this.prisma.comment.create({
+      data: {
+        organizationId: orgId,
+        resourceType: dto.resourceType,
+        resourceId: dto.resourceId,
+        parentId: dto.parentId,
+        authorName: dto.authorName,
+        authorEmail: dto.authorEmail,
+        body: dto.body,
+        rating: dto.resourceType === 'product' ? dto.rating : undefined,
+        status: 'PENDING',
+      },
+    });
+    return { ok: true, status: 'PENDING' as const };
   }
 
   async getPublicMenu(orgId: string, menuId: string) {
