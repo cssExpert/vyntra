@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,15 +9,19 @@ import {
   MoveLeft,
   Star,
   Check,
+  Plus,
   Image as ImageIcon,
   Calendar,
   Eye,
   X,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { loadGalleries, updateGalleryCover } from "./gallery.store";
-import { getGalleryItems, type GalleryItem } from "./gallery.items.data";
-import type { Gallery } from "./gallery.types";
+import { galleries as galleriesApi, type CmsGalleryDetail, type CmsGalleryItem } from "@/lib/api";
+import { LibraryModal } from "@/modules/cms/blog-editor/CoverImagePicker";
+import { useAuth } from "@/providers/AuthProvider";
+
+const GALLERY_FILTERS = ["all", "gallery", "general"] as const;
 
 interface Toast {
   id: number;
@@ -27,14 +32,31 @@ export function GalleryDetailView({ galleryId }: { galleryId: string }) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("cms.gallery");
   const router = useRouter();
-  const [gallery, setGallery] = useState<Gallery | null>(null);
-  const [items, setItems] = useState<GalleryItem[]>([]);
+  const { user } = useAuth();
+  const companyId = user?.organizationId ?? "superadmin";
+
+  const [gallery, setGallery] = useState<CmsGalleryDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [busyItemIds, setBusyItemIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => setMounted(true), []);
+
+  const load = () => {
+    setLoading(true);
+    galleriesApi
+      .get(galleryId)
+      .then(setGallery)
+      .catch(() => setNotFound(true))
+      .finally(() => setLoading(false));
+  };
 
   useEffect(() => {
-    const found = loadGalleries().find((g) => g.id === galleryId) ?? null;
-    setGallery(found);
-    setItems(getGalleryItems(galleryId));
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [galleryId]);
 
   const showToast = (message: string) => {
@@ -46,14 +68,80 @@ export function GalleryDetailView({ galleryId }: { galleryId: string }) {
     );
   };
 
-  const handleSetCover = (item: GalleryItem) => {
+  const handleSetCover = (item: CmsGalleryItem) => {
     if (!gallery) return;
-    updateGalleryCover(gallery.id, item.url);
-    setGallery((prev) => (prev ? { ...prev, coverUrl: item.url } : prev));
-    showToast(`"${item.label}" set as cover photo`);
+    galleriesApi
+      .update(gallery.id, { coverUrl: item.url })
+      .then(() => {
+        setGallery((prev) => (prev ? { ...prev, coverUrl: item.url } : prev));
+        showToast(`"${item.label || "Image"}" set as cover photo`);
+      })
+      .catch(() => showToast("Failed to set cover photo"));
   };
 
-  if (!gallery) {
+  const handleAddImages = async (urls: string[]) => {
+    if (!gallery) return;
+    const existingUrls = new Set(gallery.items.map((i) => i.url));
+    const fresh = urls.filter((u) => !existingUrls.has(u));
+    setPickerOpen(false);
+    if (fresh.length === 0) return;
+
+    try {
+      const created = await galleriesApi.addItems(
+        gallery.id,
+        fresh.map((url) => ({ url })),
+      );
+      setGallery((prev) =>
+        prev
+          ? {
+              ...prev,
+              items: [...prev.items, ...created],
+              itemCount: prev.itemCount + created.length,
+              coverUrl: prev.coverUrl || created[0]?.url || prev.coverUrl,
+            }
+          : prev,
+      );
+      showToast(`${created.length} image${created.length === 1 ? "" : "s"} added`);
+    } catch {
+      showToast("Failed to add images");
+    }
+  };
+
+  const handleRemoveItem = async (item: CmsGalleryItem) => {
+    if (!gallery || busyItemIds.has(item.id)) return;
+    setBusyItemIds((s) => new Set([...s, item.id]));
+    try {
+      await galleriesApi.deleteItem(gallery.id, item.id);
+      setGallery((prev) =>
+        prev
+          ? {
+              ...prev,
+              items: prev.items.filter((i) => i.id !== item.id),
+              itemCount: prev.itemCount - 1,
+              coverUrl: prev.coverUrl === item.url ? "" : prev.coverUrl,
+            }
+          : prev,
+      );
+    } catch {
+      showToast("Failed to remove image");
+    } finally {
+      setBusyItemIds((s) => {
+        const n = new Set(s);
+        n.delete(item.id);
+        return n;
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="py-24 text-center text-sm text-muted-foreground">
+        Loading gallery…
+      </div>
+    );
+  }
+
+  if (notFound || !gallery) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center gap-3">
         <ImageIcon className="w-12 h-12 text-muted-foreground/40" />
@@ -67,6 +155,8 @@ export function GalleryDetailView({ galleryId }: { galleryId: string }) {
       </div>
     );
   }
+
+  const items = gallery.items;
 
   return (
     <div className="font-sans text-foreground pb-16">
@@ -118,11 +208,17 @@ export function GalleryDetailView({ galleryId }: { galleryId: string }) {
               Current Cover
             </p>
             <div className="aspect-[4/3] rounded-xl overflow-hidden border border-border bg-muted">
-              <img
-                src={gallery.coverUrl}
-                alt="Cover"
-                className="w-full h-full object-cover"
-              />
+              {gallery.coverUrl ? (
+                <img
+                  src={gallery.coverUrl}
+                  alt="Cover"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <ImageIcon className="w-8 h-8 text-muted-foreground/30" />
+                </div>
+              )}
             </div>
           </div>
 
@@ -139,9 +235,11 @@ export function GalleryDetailView({ galleryId }: { galleryId: string }) {
               >
                 {gallery.status}
               </span>
-              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full border bg-muted text-muted-foreground border-border uppercase tracking-wider">
-                {gallery.category}
-              </span>
+              {gallery.category && (
+                <span className="text-[10px] font-bold px-2.5 py-1 rounded-full border bg-muted text-muted-foreground border-border uppercase tracking-wider">
+                  {gallery.category}
+                </span>
+              )}
             </div>
 
             <h1 className="text-2xl font-extrabold tracking-tight text-foreground mt-2">
@@ -182,9 +280,17 @@ export function GalleryDetailView({ galleryId }: { galleryId: string }) {
               to update the gallery thumbnail
             </p>
           </div>
-          <span className="text-xs px-2.5 py-1 rounded-md bg-muted text-muted-foreground font-bold border border-border">
-            {items.length} {items.length === 1 ? "item" : "items"}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs px-2.5 py-1 rounded-md bg-muted text-muted-foreground font-bold border border-border">
+              {items.length} {items.length === 1 ? "item" : "items"}
+            </span>
+            <button
+              onClick={() => setPickerOpen(true)}
+              className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              <Plus size={14} /> Add Images
+            </button>
+          </div>
         </div>
 
         {items.length === 0 ? (
@@ -194,20 +300,30 @@ export function GalleryDetailView({ galleryId }: { galleryId: string }) {
             <p className="text-sm text-muted-foreground mt-1">
               Upload images to populate this gallery.
             </p>
+            <button
+              onClick={() => setPickerOpen(true)}
+              className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              <Plus size={14} /> Add Images
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {items.map((item) => {
               const isCover = item.url === gallery.coverUrl;
+              const isBusy = busyItemIds.has(item.id);
               return (
                 <motion.div
                   key={item.id}
                   layout
-                  className="group relative aspect-square rounded-xl overflow-hidden border border-border bg-muted"
+                  className={cn(
+                    "group relative aspect-square rounded-xl overflow-hidden border border-border bg-muted",
+                    isBusy && "opacity-50 pointer-events-none",
+                  )}
                 >
                   <img
                     src={item.url}
-                    alt={item.label}
+                    alt={item.label || ""}
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     loading="lazy"
                   />
@@ -219,6 +335,15 @@ export function GalleryDetailView({ galleryId }: { galleryId: string }) {
                       Cover
                     </div>
                   )}
+
+                  {/* Remove button */}
+                  <button
+                    onClick={() => handleRemoveItem(item)}
+                    title="Remove"
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-rose-600/90 hover:bg-rose-600 text-white p-1.5 rounded-full shadow-sm"
+                  >
+                    <Trash2 size={12} />
+                  </button>
 
                   {/* Hover overlay */}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all duration-200 flex flex-col items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
@@ -234,9 +359,11 @@ export function GalleryDetailView({ galleryId }: { galleryId: string }) {
                         <Star size={13} /> Set as Cover
                       </button>
                     )}
-                    <p className="text-white text-[11px] font-medium">
-                      {item.label}
-                    </p>
+                    {item.label && (
+                      <p className="text-white text-[11px] font-medium">
+                        {item.label}
+                      </p>
+                    )}
                   </div>
                 </motion.div>
               );
@@ -244,6 +371,25 @@ export function GalleryDetailView({ galleryId }: { galleryId: string }) {
           </div>
         )}
       </div>
+
+      {mounted &&
+        pickerOpen &&
+        createPortal(
+          <LibraryModal
+            currentValue=""
+            uploadCompanyId={companyId}
+            currentSubtype="gallery"
+            module="cms"
+            filterOptions={GALLERY_FILTERS}
+            accept="image/png,image/jpeg,image/webp,image/gif"
+            multiSelect
+            excludeUrls={new Set(items.map((i) => i.url))}
+            onSelectMultiple={handleAddImages}
+            onClose={() => setPickerOpen(false)}
+            onToast={(msg) => showToast(msg)}
+          />,
+          document.body,
+        )}
     </div>
   );
 }

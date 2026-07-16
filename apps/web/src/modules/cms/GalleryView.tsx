@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
 import { Plus } from "lucide-react";
@@ -13,20 +13,21 @@ import type {
   ViewMode,
   SortKey,
 } from "./gallery/gallery.types";
-// import { INITIAL_GALLERIES } from "./gallery/gallery.data";
-import { loadGalleries, saveGalleries } from "./gallery/gallery.store";
+import { galleries as galleriesApi, tags as tagsApi } from "@/lib/api";
 import { GalleryStats } from "./gallery/GalleryStats";
 import { GalleryControls } from "./gallery/GalleryControls";
 import { GalleryGrid } from "./gallery/GalleryGrid";
 import { GalleryTable } from "./gallery/GalleryTable";
 import { GalleryCreateModal } from "./gallery/GalleryCreateModal";
+import type { CmsGallerySaveDto } from "@/lib/api";
 
 export function GalleryView() {
   const t = useTranslations("cms.gallery");
   const router = useRouter();
 
-  // Load from localStorage on first render, fall back to INITIAL_GALLERIES
-  const [galleries, setGalleries] = useState<Gallery[]>(() => loadGalleries());
+  const [galleries, setGalleries] = useState<Gallery[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -35,30 +36,60 @@ export function GalleryView() {
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
   const { toasts, addToast, dismiss } = useToaster();
 
-  // Persist to localStorage whenever galleries change
   useEffect(() => {
-    saveGalleries(galleries);
-  }, [galleries]);
+    setIsLoading(true);
+    galleriesApi
+      .list()
+      .then(setGalleries)
+      .catch(() => addToast("Failed to load galleries.", "error"))
+      .finally(() => setIsLoading(false));
+    tagsApi
+      .list()
+      .then((all) => setAvailableTags(all.map((tag) => tag.name)))
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const handleCreate = (gallery: Gallery) => {
+  const handleTagCreate = async (name: string) => {
+    try {
+      await tagsApi.findOrCreate(name);
+      setAvailableTags((prev) => (prev.includes(name) ? prev : [...prev, name].sort((a, b) => a.localeCompare(b))));
+    } catch {
+      /* tag still gets added to the gallery even if catalog sync fails */
+    }
+  };
+
+  const handleCreate = async (dto: CmsGallerySaveDto) => {
+    const gallery = await galleriesApi.create(dto);
     setGalleries((prev) => [gallery, ...prev]);
     addToast(`"${gallery.title}" created successfully!`);
   };
 
   const handleDelete = (id: string, title: string) => {
-    setGalleries((prev) => prev.filter((g) => g.id !== id));
-    addToast(`"${title}" deleted.`, "info");
     setActiveDropdownId(null);
+    galleriesApi
+      .delete(id)
+      .then(() => {
+        setGalleries((prev) => prev.filter((g) => g.id !== id));
+        addToast(`"${title}" deleted.`, "info");
+      })
+      .catch(() => addToast("Failed to delete gallery.", "error"));
   };
 
-  const handleToggleStatus = (id: string, current: GalleryStatus) => {
-    const next: GalleryStatus = current === "published" ? "draft" : "published";
-    setGalleries((prev) =>
-      prev.map((g) => (g.id === id ? { ...g, status: next } : g)),
-    );
-    addToast(`Gallery marked as ${next}.`, "info");
-    setActiveDropdownId(null);
-  };
+  const handleToggleStatus = useCallback(
+    (id: string, current: GalleryStatus) => {
+      const next: GalleryStatus = current === "published" ? "draft" : "published";
+      setActiveDropdownId(null);
+      galleriesApi
+        .update(id, { status: next })
+        .then(() => {
+          setGalleries((prev) => prev.map((g) => (g.id === id ? { ...g, status: next } : g)));
+          addToast(`Gallery marked as ${next}.`, "info");
+        })
+        .catch(() => addToast("Failed to update gallery status.", "error"));
+    },
+    [addToast],
+  );
 
   const handleNavigate = (id: string) => {
     router.push(`/cms/gallery/${id}`);
@@ -145,7 +176,9 @@ export function GalleryView() {
       />
 
       <AnimatePresence mode="wait">
-        {viewMode === "grid" ? (
+        {isLoading ? (
+          <div className="py-24 text-center text-sm text-muted-foreground">Loading galleries…</div>
+        ) : viewMode === "grid" ? (
           <GalleryGrid
             key="grid"
             galleries={processedGalleries}
@@ -176,6 +209,8 @@ export function GalleryView() {
         onClose={() => setIsModalOpen(false)}
         onCreate={handleCreate}
         onError={(msg) => addToast(msg, "error")}
+        availableTags={availableTags}
+        onTagCreate={handleTagCreate}
       />
     </div>
   );

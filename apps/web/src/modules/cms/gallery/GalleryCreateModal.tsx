@@ -3,27 +3,23 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  X,
-  Sparkles,
-  Info,
-  Tag,
-  Image as ImageIcon,
-  Globe,
-  Lock,
-  Check,
-} from "lucide-react";
+import { X, Sparkles, Info, Tag, Image as ImageIcon, Globe, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Gallery, GalleryStatus } from "./gallery.types";
-import { PRESET_COVERS, CATEGORIES } from "./gallery.data";
+import type { GalleryStatus } from "./gallery.types";
+import { CATEGORIES } from "./gallery.data";
+import { CoverImagePicker } from "@/modules/cms/blog-editor/CoverImagePicker";
+import { TagMultiSelect } from "@/components/common/TagMultiSelect";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import type { CmsGallerySaveDto } from "@/lib/api";
 
 interface GalleryCreateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreate: (gallery: Gallery) => void;
+  onCreate: (dto: CmsGallerySaveDto) => Promise<void>;
   onError: (msg: string) => void;
+  availableTags: string[];
+  onTagCreate: (name: string) => Promise<void>;
 }
 
 export function GalleryCreateModal({
@@ -31,6 +27,8 @@ export function GalleryCreateModal({
   onClose,
   onCreate,
   onError,
+  availableTags,
+  onTagCreate,
 }: GalleryCreateModalProps) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("cms.gallery");
@@ -38,57 +36,42 @@ export function GalleryCreateModal({
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("Digital Art");
   const [status, setStatus] = useState<GalleryStatus>("published");
-  const [coverUrl, setCoverUrl] = useState(PRESET_COVERS[0].url);
-  const [customCoverUrl, setCustomCoverUrl] = useState("");
-  const [tagInput, setTagInput] = useState("");
+  const [coverUrl, setCoverUrl] = useState("");
   const [tags, setTags] = useState<string[]>([]);
-  const [useCustomCover, setUseCustomCover] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const reset = () => {
     setTitle("");
     setDescription("");
     setCategory("Digital Art");
     setStatus("published");
-    setCoverUrl(PRESET_COVERS[0].url);
-    setCustomCoverUrl("");
+    setCoverUrl("");
     setTags([]);
-    setTagInput("");
-    setUseCustomCover(false);
   };
 
-  const handleAddTag = (e: React.FormEvent) => {
-    e.preventDefault();
-    const clean = tagInput.trim();
-    if (clean && !tags.includes(clean)) {
-      setTags([...tags, clean]);
-      setTagInput("");
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
       onError("Please enter a gallery title");
       return;
     }
-    const finalCover =
-      useCustomCover && customCoverUrl.trim()
-        ? customCoverUrl.trim()
-        : coverUrl;
-    onCreate({
-      id: `gal-${Date.now()}`,
-      title,
-      description: description || "No description provided.",
-      category,
-      itemCount: Math.floor(Math.random() * 20) + 1,
-      createdAt: new Date().toISOString().split("T")[0],
-      status,
-      coverUrl: finalCover,
-      tags: tags.length > 0 ? tags : ["General"],
-      views: 0,
-    });
-    reset();
-    onClose();
+    setSubmitting(true);
+    try {
+      await onCreate({
+        title,
+        description: description || "No description provided.",
+        category,
+        status,
+        coverUrl,
+        tags,
+      });
+      reset();
+      onClose();
+    } catch {
+      onError("Failed to create gallery. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // Matches Users table input style exactly
@@ -224,133 +207,35 @@ export function GalleryCreateModal({
 
                   {/* Tags */}
                   <div>
-                    <label className={labelCls}>Add Tag Chips</label>
-                    <div className="flex gap-2">
-                      <Input
-                        type="text"
-                        value={tagInput}
-                        onChange={(e) => setTagInput(e.target.value)}
-                        placeholder="Type tag & press enter..."
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault();
-                            handleAddTag(e);
-                          }
-                        }}
-                        className={cn(inputCls, "flex-1")}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={handleAddTag}
-                        className="py-2.5 h-auto rounded-sm font-bold"
-                      >
-                        Add
-                      </Button>
-                    </div>
+                    <label className={labelCls}>Tags</label>
+                    <TagMultiSelect
+                      value={tags}
+                      onChange={setTags}
+                      availableTags={availableTags}
+                      onCreateTag={onTagCreate}
+                      maxTags={8}
+                      placeholder="Search or create a tag…"
+                      onToast={(msg, type) => {
+                        if (type === "error" || type === "warning") onError(msg);
+                      }}
+                    />
                   </div>
                 </div>
-
-                {tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 p-3 bg-muted/50 border border-border rounded-sm">
-                    {tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="inline-flex items-center gap-1.5 text-xs bg-primary/10 text-primary border border-primary/20 py-1 pl-2.5 pr-1.5 rounded-full"
-                      >
-                        {tag}
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setTags(tags.filter((t) => t !== tag))}
-                          className="h-auto w-auto p-0.5 rounded-full hover:bg-primary/20"
-                        >
-                          <X className="w-3 h-3" />
-                        </Button>
-                      </span>
-                    ))}
-                  </div>
-                )}
               </div>
 
               {/* Section 3: Cover */}
               <div className="space-y-4 pt-4 border-t border-border">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1">
-                    <ImageIcon className="w-3.5 h-3.5" /> 3. Cover Visuals
-                  </h3>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground font-medium">
-                      Custom URL
-                    </span>
-                    <Button
-                      type="button"
-                      onClick={() => setUseCustomCover(!useCustomCover)}
-                      className={cn(
-                        "w-9 h-5 rounded-full p-0.5 transition-colors focus:outline-none",
-                        useCustomCover
-                          ? "bg-primary"
-                          : "bg-muted border border-border",
-                      )}
-                    >
-                      <div
-                        className={cn(
-                          "w-4 h-4 rounded-full bg-white transition-transform shadow-sm",
-                          useCustomCover ? "translate-x-4" : "translate-x-0",
-                        )}
-                      />
-                    </Button>
-                  </div>
-                </div>
-
-                {useCustomCover ? (
-                  <div>
-                    <label className={labelCls}>Direct Cover Image URL</label>
-                    <Input
-                      type="url"
-                      value={customCoverUrl}
-                      onChange={(e) => setCustomCoverUrl(e.target.value)}
-                      placeholder="https://images.unsplash.com/..."
-                      className={inputCls}
-                    />
-                    <p className="text-[10px] text-muted-foreground mt-1">
-                      Use high-quality images from Unsplash or Pexels.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5">
-                    {PRESET_COVERS.map((preset) => {
-                      const isSelected = coverUrl === preset.url;
-                      return (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          key={preset.id}
-                          onClick={() => setCoverUrl(preset.url)}
-                          className={cn(
-                            "relative aspect-square rounded-sm overflow-hidden h-auto p-0",
-                            isSelected
-                              ? "border-primary ring-2 ring-primary/50"
-                              : "border-border opacity-60 hover:opacity-100 hover:border-border/80",
-                          )}
-                        >
-                          <img
-                            src={preset.url}
-                            alt={preset.label}
-                            className="w-full h-full object-cover"
-                          />
-                          {isSelected && (
-                            <div className="absolute inset-0 bg-primary/30 flex items-center justify-center">
-                              <Check className="w-5 h-5 text-white drop-shadow-md" />
-                            </div>
-                          )}
-                        </Button>
-                      );
-                    })}
-                  </div>
-                )}
+                <h3 className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1">
+                  <ImageIcon className="w-3.5 h-3.5" /> 3. Cover Visuals
+                </h3>
+                <CoverImagePicker
+                  value={coverUrl}
+                  onChange={setCoverUrl}
+                  subtype="gallery"
+                  onToast={(msg, type) => {
+                    if (type === "error" || type === "warning") onError(msg);
+                  }}
+                />
               </div>
 
               {/* Tip */}
@@ -375,10 +260,11 @@ export function GalleryCreateModal({
               <Button
                 type="button"
                 radius="sm"
-                className="px-5 py-3 h-auto font-semibold shadow-sm"
+                disabled={submitting}
+                className="px-5 py-3 h-auto font-semibold shadow-sm disabled:opacity-60"
                 onClick={handleSubmit}
               >
-                Build Gallery
+                {submitting ? "Building…" : "Build Gallery"}
               </Button>
             </div>
           </motion.div>

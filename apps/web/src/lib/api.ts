@@ -1139,6 +1139,58 @@ export const comments = {
   delete: (id: string) => apiFetch<{ ok: boolean }>(`/cms/comments/${id}`, { method: "DELETE" }),
 };
 
+// ─── CMS Galleries ────────────────────────────────────────────────────────────
+
+export interface CmsGallery {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  itemCount: number;
+  createdAt: string;
+  status: "draft" | "published";
+  coverUrl: string;
+  tags: string[];
+  views: number;
+}
+
+export interface CmsGalleryItem {
+  id: string;
+  url: string;
+  label: string;
+  uploadedAt: string;
+}
+
+export interface CmsGalleryDetail extends CmsGallery {
+  items: CmsGalleryItem[];
+}
+
+export interface CmsGallerySaveDto {
+  title: string;
+  description?: string;
+  category?: string;
+  status?: "draft" | "published";
+  coverUrl?: string;
+  tags?: string[];
+}
+
+export const galleries = {
+  list: () => apiFetch<CmsGallery[]>("/cms/galleries"),
+  create: (dto: CmsGallerySaveDto) =>
+    apiFetch<CmsGallery>("/cms/galleries", { method: "POST", body: JSON.stringify(dto) }),
+  get: (id: string) => apiFetch<CmsGalleryDetail>(`/cms/galleries/${id}`),
+  update: (id: string, dto: Partial<CmsGallerySaveDto>) =>
+    apiFetch<CmsGallery>(`/cms/galleries/${id}`, { method: "PATCH", body: JSON.stringify(dto) }),
+  delete: (id: string) => apiFetch<{ ok: boolean }>(`/cms/galleries/${id}`, { method: "DELETE" }),
+  addItems: (id: string, items: { url: string; label?: string }[]) =>
+    apiFetch<CmsGalleryItem[]>(`/cms/galleries/${id}/items`, {
+      method: "POST",
+      body: JSON.stringify({ items }),
+    }),
+  deleteItem: (id: string, itemId: string) =>
+    apiFetch<{ ok: boolean }>(`/cms/galleries/${id}/items/${itemId}`, { method: "DELETE" }),
+};
+
 // ─── CMS Newsletter Subscribers ──────────────────────────────────────────────
 
 export interface NewsletterSubscriber {

@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { CommentStatus } from '@prisma/client';
+import { CommentStatus, GalleryStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { TagsService } from '../tags/tags.service';
 import { verifyRecaptcha } from '../common/recaptcha';
@@ -14,6 +14,15 @@ interface MenuItemInput {
   url: string;
   target?: string;
   visibility?: string[];
+}
+
+interface GalleryDto {
+  title: string;
+  description?: string;
+  category?: string;
+  status?: 'draft' | 'published';
+  coverUrl?: string;
+  tags?: string[];
 }
 
 interface BlogDto {
@@ -1017,6 +1026,148 @@ export class CmsService {
     const existing = await this.prisma.comment.findFirst({ where: { id, organizationId: orgId } });
     if (!existing) throw new NotFoundException('Comment not found');
     await this.prisma.comment.delete({ where: { id } });
+    return { ok: true };
+  }
+
+  // ── Galleries ────────────────────────────────────────────────────────────────
+
+  /** Shapes a Gallery row (+ tags already attached) into the frontend's Gallery type. */
+  private mapGallery(
+    g: {
+      id: string; title: string; description: string | null; category: string | null;
+      status: GalleryStatus; coverUrl: string | null; views: number; createdAt: Date; tags: string[];
+    },
+    itemCount: number,
+  ) {
+    return {
+      id: g.id,
+      title: g.title,
+      description: g.description ?? '',
+      category: g.category ?? '',
+      itemCount,
+      createdAt: g.createdAt.toISOString().split('T')[0],
+      status: g.status === 'PUBLISHED' ? ('published' as const) : ('draft' as const),
+      coverUrl: g.coverUrl ?? '',
+      tags: g.tags,
+      views: g.views,
+    };
+  }
+
+  async listGalleries(orgId: string) {
+    const rows = await this.prisma.gallery.findMany({
+      where: { organizationId: orgId },
+      orderBy: { createdAt: 'desc' },
+      include: { _count: { select: { items: true } } },
+    });
+    const withTags = await this.tagsService.attachTags(orgId, 'gallery', rows);
+    return withTags.map((g) => this.mapGallery(g, g._count.items));
+  }
+
+  async createGallery(orgId: string, dto: GalleryDto) {
+    const gallery = await this.prisma.gallery.create({
+      data: {
+        title: dto.title,
+        description: dto.description,
+        category: dto.category,
+        status: dto.status === 'published' ? GalleryStatus.PUBLISHED : GalleryStatus.DRAFT,
+        coverUrl: dto.coverUrl,
+        organizationId: orgId,
+      },
+    });
+    await this.tagsService.syncAssignments(orgId, 'gallery', gallery.id, dto.tags ?? []);
+    const withTags = await this.tagsService.attachTagsOne(orgId, 'gallery', gallery);
+    return this.mapGallery(withTags, 0);
+  }
+
+  async getGallery(orgId: string, id: string) {
+    const gallery = await this.prisma.gallery.findFirst({
+      where: { id, organizationId: orgId },
+      include: { items: { orderBy: { sortOrder: 'asc' } } },
+    });
+    if (!gallery) throw new NotFoundException('Gallery not found');
+    const withTags = await this.tagsService.attachTagsOne(orgId, 'gallery', gallery);
+    return {
+      ...this.mapGallery(withTags, gallery.items.length),
+      items: gallery.items.map((i) => ({
+        id: i.id,
+        url: i.url,
+        label: i.label ?? '',
+        uploadedAt: i.createdAt.toISOString().split('T')[0],
+      })),
+    };
+  }
+
+  async updateGallery(orgId: string, id: string, dto: Partial<GalleryDto>) {
+    const existing = await this.prisma.gallery.findFirst({ where: { id, organizationId: orgId } });
+    if (!existing) throw new NotFoundException('Gallery not found');
+
+    const updated = await this.prisma.gallery.update({
+      where: { id },
+      data: {
+        ...(dto.title !== undefined && { title: dto.title }),
+        ...(dto.description !== undefined && { description: dto.description }),
+        ...(dto.category !== undefined && { category: dto.category }),
+        ...(dto.status !== undefined && {
+          status: dto.status === 'published' ? GalleryStatus.PUBLISHED : GalleryStatus.DRAFT,
+        }),
+        ...(dto.coverUrl !== undefined && { coverUrl: dto.coverUrl }),
+      },
+      include: { _count: { select: { items: true } } },
+    });
+
+    if (dto.tags !== undefined) {
+      await this.tagsService.syncAssignments(orgId, 'gallery', id, dto.tags);
+    }
+    const withTags = await this.tagsService.attachTagsOne(orgId, 'gallery', updated);
+    return this.mapGallery(withTags, updated._count.items);
+  }
+
+  async deleteGallery(orgId: string, id: string) {
+    const existing = await this.prisma.gallery.findFirst({ where: { id, organizationId: orgId } });
+    if (!existing) throw new NotFoundException('Gallery not found');
+    await this.tagsService.removeAssignmentsFor(orgId, 'gallery', id);
+    await this.prisma.gallery.delete({ where: { id } });
+    return { ok: true };
+  }
+
+  async addGalleryItems(orgId: string, galleryId: string, items: { url: string; label?: string }[]) {
+    const gallery = await this.prisma.gallery.findFirst({ where: { id: galleryId, organizationId: orgId } });
+    if (!gallery) throw new NotFoundException('Gallery not found');
+    if (!items?.length) return [];
+
+    const maxOrder = await this.prisma.galleryItem.aggregate({
+      where: { galleryId },
+      _max: { sortOrder: true },
+    });
+    let nextOrder = (maxOrder._max.sortOrder ?? -1) + 1;
+
+    const created = await this.prisma.$transaction(
+      items.map((item) =>
+        this.prisma.galleryItem.create({
+          data: {
+            galleryId,
+            url: item.url,
+            label: item.label,
+            sortOrder: nextOrder++,
+            organizationId: orgId,
+          },
+        }),
+      ),
+    );
+    return created.map((i) => ({
+      id: i.id,
+      url: i.url,
+      label: i.label ?? '',
+      uploadedAt: i.createdAt.toISOString().split('T')[0],
+    }));
+  }
+
+  async deleteGalleryItem(orgId: string, galleryId: string, itemId: string) {
+    const item = await this.prisma.galleryItem.findFirst({
+      where: { id: itemId, galleryId, organizationId: orgId },
+    });
+    if (!item) throw new NotFoundException('Gallery item not found');
+    await this.prisma.galleryItem.delete({ where: { id: itemId } });
     return { ok: true };
   }
 }

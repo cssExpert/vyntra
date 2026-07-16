@@ -458,4 +458,69 @@ export class CmsController {
   deleteComment(@CurrentOrg() orgId: string | null, @Param('id') id: string) {
     return this.cmsService.deleteComment(requireOrg(orgId), id);
   }
+
+  // ── Galleries ─────────────────────────────────────────────────────────────────
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Get('galleries')
+  listGalleries(@CurrentOrg() orgId: string | null) {
+    return this.cmsService.listGalleries(requireOrg(orgId));
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Post('galleries')
+  createGallery(
+    @CurrentOrg() orgId: string | null,
+    @Body() body: {
+      title: string; description?: string; category?: string;
+      status?: 'draft' | 'published'; coverUrl?: string; tags?: string[];
+    },
+  ) {
+    return this.cmsService.createGallery(requireOrg(orgId), body);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Get('galleries/:id')
+  getGallery(@CurrentOrg() orgId: string | null, @Param('id') id: string) {
+    return this.cmsService.getGallery(requireOrg(orgId), id);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Patch('galleries/:id')
+  updateGallery(
+    @CurrentOrg() orgId: string | null,
+    @Param('id') id: string,
+    @Body() body: {
+      title?: string; description?: string; category?: string;
+      status?: 'draft' | 'published'; coverUrl?: string; tags?: string[];
+    },
+  ) {
+    return this.cmsService.updateGallery(requireOrg(orgId), id, body);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Delete('galleries/:id')
+  deleteGallery(@CurrentOrg() orgId: string | null, @Param('id') id: string) {
+    return this.cmsService.deleteGallery(requireOrg(orgId), id);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Post('galleries/:id/items')
+  addGalleryItems(
+    @CurrentOrg() orgId: string | null,
+    @Param('id') id: string,
+    @Body() body: { items: { url: string; label?: string }[] },
+  ) {
+    return this.cmsService.addGalleryItems(requireOrg(orgId), id, body.items);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Delete('galleries/:id/items/:itemId')
+  deleteGalleryItem(
+    @CurrentOrg() orgId: string | null,
+    @Param('id') id: string,
+    @Param('itemId') itemId: string,
+  ) {
+    return this.cmsService.deleteGalleryItem(requireOrg(orgId), id, itemId);
+  }
 }

@@ -149,6 +149,7 @@ model Organization {
   systemPageSettings SystemPageSettings[]
   tags               Tag[]
   tagAssignments     TagAssignment[]
+  galleries          Gallery[]
 
   // CRM (org-scoped)
   leads      Lead[]
@@ -569,6 +570,46 @@ enum CommentStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+enum GalleryStatus {
+  DRAFT
+  PUBLISHED
+}
+
+model Gallery {
+  id             String        @id @default(cuid())
+  title          String
+  description    String?
+  category       String?
+  status         GalleryStatus @default(DRAFT)
+  coverUrl       String?
+  views          Int           @default(0)
+  organizationId String
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  items        GalleryItem[]
+
+  @@index([organizationId])
+  @@map("galleries")
+}
+
+model GalleryItem {
+  id             String   @id @default(cuid())
+  galleryId      String
+  url            String
+  label          String?
+  sortOrder      Int      @default(0)
+  organizationId String
+  createdAt      DateTime @default(now())
+
+  gallery Gallery @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+
+  @@index([galleryId])
+  @@index([organizationId])
+  @@map("gallery_items")
 }
 
 model Media {
