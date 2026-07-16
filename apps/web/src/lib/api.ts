@@ -878,7 +878,7 @@ export interface SystemPageSettingsData {
   ogUrl?: string | null;
   ogImage?: string | null;
   faviconUrl?: string | null;
-  /** Free-form, pageType-specific settings — e.g. { productsPerPage } for "product-listing". */
+  /** Free-form, pageType-specific settings — e.g. { productsPerPage, bannerEnabled, bannerImage, bannerTitle, bannerSubtitle } for "product-listing". */
   customSettings?: Record<string, unknown> | null;
   headScript?: string | null;
   bodyScript?: string | null;

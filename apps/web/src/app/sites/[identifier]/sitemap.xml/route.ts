@@ -58,7 +58,7 @@ export async function GET(
 
   const entries = [
     urlEntry(origin),
-    urlEntry(`${origin}/products`),
+    urlEntry(`${origin}/shop`),
     urlEntry(`${origin}/blog`),
     ...pages.filter((p) => !p.noIndex).map((p) => urlEntry(`${origin}/${p.slug}`, p.updatedAt)),
     ...posts.map((b) => urlEntry(`${origin}/blog/${b.slug}`, b.publishedAt)),

@@ -23,10 +23,37 @@ export interface PublicCategory {
   imageUrl: string | null;
 }
 
+export interface CategoryTreeNode extends PublicCategory {
+  children: CategoryTreeNode[];
+}
+
+/** Nests a flat category list into a tree via parentId. Orphans (parentId pointing at a missing/filtered-out category) become roots. */
+export function buildCategoryTree(categories: PublicCategory[]): CategoryTreeNode[] {
+  const byId = new Map<string, CategoryTreeNode>(
+    categories.map((c) => [c.id, { ...c, children: [] }]),
+  );
+  const roots: CategoryTreeNode[] = [];
+  byId.forEach((node) => {
+    const parent = node.parentId ? byId.get(node.parentId) : undefined;
+    if (parent) parent.children.push(node);
+    else roots.push(node);
+  });
+  return roots;
+}
+
 export interface ProductFacets {
   brands: string[];
   priceRange: { min: number; max: number };
 }
+
+export interface ShopBanner {
+  enabled: boolean;
+  image: string | null;
+  title: string;
+  subtitle: string;
+}
+
+const EMPTY_BANNER: ShopBanner = { enabled: false, image: null, title: "", subtitle: "" };
 
 export interface ProductListingFilters {
   categoryId?: string;
@@ -44,32 +71,46 @@ async function getJson<T>(url: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-/** Category list + brand/price facets for the filter sidebar, plus the org's configured page size — live, from the real catalog. */
+/** Category list + brand/price facets for the filter sidebar, the org's configured page size, and the shop banner — live, from the real catalog. */
 export function useProductListingFacets(orgId: string) {
   const [categories, setCategories] = useState<PublicCategory[]>([]);
   const [facets, setFacets] = useState<ProductFacets>({ brands: [], priceRange: { min: 0, max: 0 } });
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const [banner, setBanner] = useState<ShopBanner>(EMPTY_BANNER);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([
+    // Settled independently — one endpoint failing shouldn't blank out the other two.
+    Promise.allSettled([
       getJson<{ data: PublicCategory[] }>(`${API}/public/sites/${orgId}/categories`),
       getJson<ProductFacets>(`${API}/public/sites/${orgId}/products/facets`),
-      getJson<{ productsPerPage: number }>(`${API}/public/sites/${orgId}/products/page-settings`),
-    ])
-      .then(([cats, f, ps]) => {
-        if (cancelled) return;
-        setCategories(cats.data);
-        setFacets(f);
-        setPageSize(ps.productsPerPage);
-      })
-      .catch(() => {})
-      .finally(() => { if (!cancelled) setLoading(false); });
+      getJson<{
+        productsPerPage: number;
+        bannerEnabled: boolean;
+        bannerImage: string | null;
+        bannerTitle: string;
+        bannerSubtitle: string;
+      }>(`${API}/public/sites/${orgId}/products/page-settings`),
+    ]).then(([cats, f, ps]) => {
+      if (cancelled) return;
+      if (cats.status === "fulfilled") setCategories(cats.value.data);
+      if (f.status === "fulfilled") setFacets(f.value);
+      if (ps.status === "fulfilled") {
+        setPageSize(ps.value.productsPerPage);
+        setBanner({
+          enabled: ps.value.bannerEnabled,
+          image: ps.value.bannerImage,
+          title: ps.value.bannerTitle,
+          subtitle: ps.value.bannerSubtitle,
+        });
+      }
+      setLoading(false);
+    });
     return () => { cancelled = true; };
   }, [orgId]);
 
-  return { categories, facets, pageSize, loading };
+  return { categories, facets, pageSize, banner, loading };
 }
 
 /** Filtered, sorted, "load more"-paginated product listing for the shop page — backed by the live catalog (active products only, enforced server-side). */

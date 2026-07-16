@@ -46,7 +46,7 @@ export default function ProductDetail({
         </svg>
         <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">Product not found</p>
         { }
-        <a href="/products" className="text-sm underline" style={{ color: ORANGE }}>Back to all products</a>
+        <a href="/shop" className="text-sm underline" style={{ color: ORANGE }}>Back to all products</a>
       </section>
     );
   }
@@ -75,7 +75,7 @@ export default function ProductDetail({
           <a href="/" className="hover:text-gray-800 dark:hover:text-gray-200">Home</a>
           <span>/</span>
           { }
-          <a href="/products" className="hover:text-gray-800 dark:hover:text-gray-200">Products</a>
+          <a href="/shop" className="hover:text-gray-800 dark:hover:text-gray-200">Shop</a>
           <span>/</span>
           <span className="text-gray-800 dark:text-gray-200 font-medium line-clamp-1">{product.name}</span>
         </nav>

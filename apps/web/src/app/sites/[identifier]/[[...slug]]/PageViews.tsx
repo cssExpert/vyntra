@@ -255,7 +255,7 @@ export async function PageView({
   );
 }
 
-/** Renders an app-driven system page (e.g. /products) with the site's normal nav/footer chrome. */
+/** Renders an app-driven system page (e.g. /shop) with the site's normal nav/footer chrome. */
 export async function SystemPageView({
   org,
   layout,

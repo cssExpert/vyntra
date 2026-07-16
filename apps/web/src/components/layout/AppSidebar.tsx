@@ -29,6 +29,7 @@ import {
   Boxes,
   ChevronLeft,
   ChevronDown,
+  ExternalLink,
   LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -41,6 +42,7 @@ import {
 import type { NavItem } from "@/types";
 import Icon from "@/components/common/Icon";
 import { useAuth } from "@/providers/AuthProvider";
+import { useSitePreviewUrl } from "@/hooks/useSitePreviewUrl";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   LayoutDashboard,
@@ -72,17 +74,24 @@ interface AppSidebarProps {
 }
 
 /* ─── Sub-item (bullet style) ───────────────────────────────── */
-function SubNavItem({ item, isActive }: { item: NavItem; isActive: boolean }) {
-  return (
-    <Link
-      href={item.href}
-      className={cn(
-        "flex items-center gap-2.5 pl-9 pr-3 py-1.5 rounded-lg text-sm transition-colors duration-150",
-        isActive
-          ? "text-foreground font-semibold"
-          : "text-muted-foreground hover:text-foreground",
-      )}
-    >
+function SubNavItem({
+  item,
+  isActive,
+  externalHref,
+}: {
+  item: NavItem;
+  isActive: boolean;
+  externalHref?: string | null;
+}) {
+  const className = cn(
+    "flex items-center gap-2.5 pl-9 pr-3 py-1.5 rounded-lg text-sm transition-colors duration-150",
+    isActive
+      ? "text-foreground font-semibold"
+      : "text-muted-foreground hover:text-foreground",
+  );
+
+  const inner = (
+    <>
       <span
         className={cn(
           "h-1.5 w-1.5 rounded-full flex-shrink-0 transition-colors duration-150",
@@ -90,6 +99,29 @@ function SubNavItem({ item, isActive }: { item: NavItem; isActive: boolean }) {
         )}
       />
       <span className="truncate">{item.label}</span>
+      {item.external && (
+        <ExternalLink className="ml-auto h-3.5 w-3.5 flex-shrink-0 opacity-60" />
+      )}
+    </>
+  );
+
+  if (item.external) {
+    return (
+      <a
+        href={externalHref ?? "#"}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-disabled={!externalHref}
+        className={cn(className, !externalHref && "pointer-events-none opacity-50")}
+      >
+        {inner}
+      </a>
+    );
+  }
+
+  return (
+    <Link href={item.href} className={className}>
+      {inner}
     </Link>
   );
 }
@@ -273,6 +305,7 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const pathname = usePathname();
   const { hasModule, moduleLabel, user, isSuperAdmin } = useAuth();
+  const { previewUrl } = useSitePreviewUrl();
 
   const sections = useMemo(() => {
     if (isSuperAdmin) return SUPER_ADMIN_NAV;
@@ -424,14 +457,19 @@ export function AppSidebar({
                                 child.href.split("/").filter(Boolean).length >
                                 1;
                               const childActive =
-                                pathname === child.href ||
-                                (childHasSubPath &&
-                                  pathname.startsWith(child.href));
+                                !child.external &&
+                                (pathname === child.href ||
+                                  (childHasSubPath &&
+                                    pathname.startsWith(child.href)));
+                              const childExternalHref = child.external
+                                ? previewUrl(child.href.replace(/^\//, ""))
+                                : null;
                               return (
                                 <SubNavItem
                                   key={child.id}
                                   item={child}
                                   isActive={childActive}
+                                  externalHref={childExternalHref}
                                 />
                               );
                             })}

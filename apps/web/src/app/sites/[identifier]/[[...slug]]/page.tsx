@@ -96,7 +96,7 @@ async function fetchActiveTheme(orgId: string, previewId?: string): Promise<stri
   }
 }
 
-/** SEO/OG/Favicon/Scripts/Styles/page-size for the /products system page, set via CMS → Page Settings. */
+/** SEO/OG/Favicon/Scripts/Styles/page-size for the /shop system page, set via CMS → Page Settings. */
 async function fetchProductListingPageSettings(orgId: string): Promise<SystemPageSettingsPublic | null> {
   try {
     const res = await fetch(`${API}/public/sites/${orgId}/products/page-settings`, { cache: "no-store" });
@@ -287,7 +287,7 @@ export default async function PublicSitePage({
 
   const pageSlug = slug.join("/");
 
-  // System routes (e.g. /products, /blog, /blog/:slug) are app-driven, resolved before any CMS page lookup.
+  // System routes (e.g. /shop, /blog, /blog/:slug) are app-driven, resolved before any CMS page lookup.
   const resolved = resolveSystemPageType(pageSlug);
   if (resolved) {
     const [layout, pageSettings] = await Promise.all([
