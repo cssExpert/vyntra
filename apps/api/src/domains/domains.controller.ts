@@ -20,6 +20,7 @@ import { SuperAdminOnly } from '../common/decorators/super-admin.decorator';
 import { SetCustomDomainDto, SetSubdomainDto } from './dto/domain.dto';
 import { SubmitContactFormDto } from './dto/contact-submission.dto';
 import { SubscribeNewsletterDto } from './dto/newsletter-subscription.dto';
+import { SubmitCommentDto } from './dto/comment-submission.dto';
 import { DomainsService } from './domains.service';
 
 @Controller()
@@ -326,5 +327,24 @@ export class DomainsController {
     @Body() body: SubscribeNewsletterDto,
   ) {
     return this.domainsService.subscribeToNewsletter(orgId, body);
+  }
+
+  @Public()
+  @Get('public/sites/:orgId/comments')
+  getPublicComments(
+    @Param('orgId') orgId: string,
+    @Query('resourceType') resourceType: string,
+    @Query('resourceId') resourceId: string,
+  ) {
+    return this.domainsService.getPublicComments(orgId, resourceType, resourceId);
+  }
+
+  @Public()
+  @Post('public/sites/:orgId/comments')
+  submitPublicComment(
+    @Param('orgId') orgId: string,
+    @Body() body: SubmitCommentDto,
+  ) {
+    return this.domainsService.submitPublicComment(orgId, body);
   }
 }

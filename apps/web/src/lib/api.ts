@@ -1109,6 +1109,36 @@ export const contactRequests = {
     apiFetch<{ ok: boolean }>(`/cms/contact-requests/${id}`, { method: "DELETE" }),
 };
 
+// ─── CMS Comments (blog/page/product discussion) ─────────────────────────────
+
+export interface CmsComment {
+  id: string;
+  organizationId: string;
+  resourceType: "blog" | "page" | "product";
+  resourceId: string;
+  parentId: string | null;
+  body: string;
+  rating: number | null;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  authorName: string | null;
+  authorEmail: string | null;
+  userId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  resourceTitle: string | null;
+  resourceSlug: string | null;
+}
+
+export const comments = {
+  list: () => apiFetch<CmsComment[]>("/cms/comments"),
+  updateStatus: (id: string, status: string) =>
+    apiFetch<CmsComment>(`/cms/comments/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    }),
+  delete: (id: string) => apiFetch<{ ok: boolean }>(`/cms/comments/${id}`, { method: "DELETE" }),
+};
+
 // ─── CMS Newsletter Subscribers ──────────────────────────────────────────────
 
 export interface NewsletterSubscriber {

@@ -434,4 +434,28 @@ export class CmsController {
   deleteNewsletterSubscriber(@CurrentOrg() orgId: string | null, @Param('id') id: string) {
     return this.cmsService.deleteNewsletterSubscriber(requireOrg(orgId), id);
   }
+
+  // ── Comments (blog/page/product discussion) ─────────────────────────────────
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Get('comments')
+  listComments(@CurrentOrg() orgId: string | null) {
+    return this.cmsService.listComments(requireOrg(orgId));
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Patch('comments/:id')
+  updateCommentStatus(
+    @CurrentOrg() orgId: string | null,
+    @Param('id') id: string,
+    @Body() body: { status: string },
+  ) {
+    return this.cmsService.updateCommentStatus(requireOrg(orgId), id, body.status);
+  }
+
+  @Roles(Role.ORG_ADMIN, Role.EDITOR)
+  @Delete('comments/:id')
+  deleteComment(@CurrentOrg() orgId: string | null, @Param('id') id: string) {
+    return this.cmsService.deleteComment(requireOrg(orgId), id);
+  }
 }
