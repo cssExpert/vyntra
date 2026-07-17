@@ -872,12 +872,12 @@ async function main() {
     const blogId = blogIdBySlug[c.slug];
     if (!blogId) continue;
     const existing = await prisma.comment.findFirst({
-      where: { blogId, authorEmail: c.authorEmail, body: c.body },
+      where: { resourceType: "blog", resourceId: blogId, authorEmail: c.authorEmail, body: c.body },
     });
     if (!existing) {
       await prisma.comment.create({
         data: {
-          blogId, organizationId: org.id, body: c.body,
+          resourceType: "blog", resourceId: blogId, organizationId: org.id, body: c.body,
           authorName: c.authorName, authorEmail: c.authorEmail, status: c.status,
         },
       });
@@ -1395,24 +1395,45 @@ async function main() {
   console.log("   ✓ Products (9 sample products — all 8 types covered)");
 
   // ── Store customers (for Customers / Credits / Rewards pages) ──
+  // hasPassword: true → this customer can log into the storefront (/account)
+  // with SEED_PASSWORD, same as the staff accounts below. The rest are
+  // guest-only (no passwordHash), matching a realistic mix of registered vs.
+  // guest-checkout customers.
   const storeCustomers = [
-    { key: "cust1", name: "Sarah Mitchell", email: "sarah.mitchell@example.com", status: "active", segment: "vip", isVip: true, storeCredit: 25.0, rewardPoints: 2450, phone: "+1 555-0101" },
-    { key: "cust2", name: "Priya Nair", email: "priya.nair@example.com", status: "active", segment: "regular", isVip: false, storeCredit: 50.0, rewardPoints: 680, phone: "+1 555-0102" },
-    { key: "cust3", name: "Emma Davis", email: "emma.davis@example.com", status: "active", segment: "regular", isVip: false, storeCredit: 20.71, rewardPoints: 210, phone: "+1 555-0103" },
-    { key: "cust4", name: "Aisha Johnson", email: "aisha.johnson@example.com", status: "active", segment: "at_risk", isVip: false, storeCredit: 10.0, rewardPoints: 90, phone: "+1 555-0104" },
-    { key: "cust5", name: "James Cooper", email: "james.cooper@example.com", status: "active", segment: "new", isVip: false, storeCredit: 0, rewardPoints: 0, phone: "+1 555-0105" },
-    { key: "cust6", name: "Wei Zhang", email: "wei.zhang@example.com", status: "unverified", segment: "new", isVip: false, storeCredit: 0, rewardPoints: 0, phone: null },
+    { key: "cust1", name: "Sarah Mitchell", email: "sarah.mitchell@example.com", status: "active", segment: "vip", isVip: true, storeCredit: 25.0, rewardPoints: 2450, phone: "+1 555-0101", hasPassword: true },
+    { key: "cust2", name: "Priya Nair", email: "priya.nair@example.com", status: "active", segment: "regular", isVip: false, storeCredit: 50.0, rewardPoints: 680, phone: "+1 555-0102", hasPassword: true },
+    { key: "cust3", name: "Emma Davis", email: "emma.davis@example.com", status: "active", segment: "regular", isVip: false, storeCredit: 20.71, rewardPoints: 210, phone: "+1 555-0103", hasPassword: false },
+    { key: "cust4", name: "Aisha Johnson", email: "aisha.johnson@example.com", status: "active", segment: "at_risk", isVip: false, storeCredit: 10.0, rewardPoints: 90, phone: "+1 555-0104", hasPassword: false },
+    { key: "cust5", name: "James Cooper", email: "james.cooper@example.com", status: "active", segment: "new", isVip: false, storeCredit: 0, rewardPoints: 0, phone: "+1 555-0105", hasPassword: false },
+    { key: "cust6", name: "Wei Zhang", email: "wei.zhang@example.com", status: "unverified", segment: "new", isVip: false, storeCredit: 0, rewardPoints: 0, phone: null, hasPassword: false },
   ];
   const custMap: Record<string, string> = {};
   for (const c of storeCustomers) {
     const rec = await prisma.storeCustomer.upsert({
       where: { organizationId_email: { organizationId: org.id, email: c.email } },
-      update: { name: c.name, status: c.status, segment: c.segment, isVip: c.isVip, storeCredit: c.storeCredit, rewardPoints: c.rewardPoints, phone: c.phone },
-      create: { organizationId: org.id, name: c.name, email: c.email, status: c.status, segment: c.segment, isVip: c.isVip, storeCredit: c.storeCredit, rewardPoints: c.rewardPoints, phone: c.phone },
+      update: { name: c.name, status: c.status, segment: c.segment, isVip: c.isVip, storeCredit: c.storeCredit, rewardPoints: c.rewardPoints, phone: c.phone, ...(c.hasPassword && { passwordHash }) },
+      create: { organizationId: org.id, name: c.name, email: c.email, status: c.status, segment: c.segment, isVip: c.isVip, storeCredit: c.storeCredit, rewardPoints: c.rewardPoints, phone: c.phone, ...(c.hasPassword && { passwordHash }) },
     });
     custMap[c.key] = rec.id;
   }
-  console.log("   ✓ Store customers (6 sample customers with credit/reward balances)");
+  console.log("   ✓ Store customers (6 sample customers with credit/reward balances; sarah.mitchell@example.com and priya.nair@example.com can sign in to /account with SEED_PASSWORD)");
+
+  // ── Customer addresses (for the storefront /account/addresses tab) ──
+  const customerAddresses = [
+    { customerKey: "cust1", label: "Home", name: "Sarah Mitchell", line1: "482 Maple Grove Ave", line2: null, city: "Austin", state: "TX", country: "US", zip: "78701", phone: "+1 555-0101", isDefaultShipping: true, isDefaultBilling: true },
+    { customerKey: "cust2", label: "Home", name: "Priya Nair", line1: "129 Cedar Ridge Rd", line2: "Apt 4B", city: "Seattle", state: "WA", country: "US", zip: "98101", phone: "+1 555-0102", isDefaultShipping: true, isDefaultBilling: true },
+  ];
+  for (const a of customerAddresses) {
+    const customerId = custMap[a.customerKey];
+    const existing = await prisma.customerAddress.findFirst({ where: { customerId, label: a.label } });
+    const data = { customerId, label: a.label, name: a.name, line1: a.line1, line2: a.line2, city: a.city, state: a.state, country: a.country, zip: a.zip, phone: a.phone, isDefaultShipping: a.isDefaultShipping, isDefaultBilling: a.isDefaultBilling };
+    if (existing) {
+      await prisma.customerAddress.update({ where: { id: existing.id }, data });
+    } else {
+      await prisma.customerAddress.create({ data });
+    }
+  }
+  console.log("   ✓ Customer addresses (2 sample saved addresses)");
 
   // ── Coupons ──────────────────────────────────────────────
   const coupons = [
