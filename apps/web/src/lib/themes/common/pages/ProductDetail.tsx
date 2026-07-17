@@ -1,9 +1,30 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { useProductDetail } from "@/lib/themes/useProductDetail";
+import { useCartStore } from "@/store/cartStore";
+import { useStorefrontToastStore } from "@/store/storefrontToastStore";
+import { ApiError } from "@/lib/storefrontApi";
 
 export default function ProductDetail({ orgId, slug }: { orgId: string; slug?: string }) {
   const { product, loading, notFound } = useProductDetail(orgId, slug ?? "");
+  const addItem = useCartStore((s) => s.addItem);
+  const addToast = useStorefrontToastStore((s) => s.addToast);
+  const [selectedAttrs, setSelectedAttrs] = useState<Record<string, string>>({});
+  const [quantity, setQuantity] = useState(1);
+  const [adding, setAdding] = useState(false);
+
+  const attributeOptions = useMemo(() => {
+    if (!product) return {};
+    const options: Record<string, Set<string>> = {};
+    for (const variant of product.variants) {
+      for (const [key, value] of Object.entries(variant.attributes)) {
+        if (!options[key]) options[key] = new Set();
+        options[key].add(value);
+      }
+    }
+    return Object.fromEntries(Object.entries(options).map(([k, v]) => [k, Array.from(v)]));
+  }, [product]);
 
   if (loading) {
     return (
@@ -31,8 +52,34 @@ export default function ProductDetail({ orgId, slug }: { orgId: string; slug?: s
     );
   }
 
-  const discount = product.compareAtPrice
-    ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
+  const hasVariants = product.variants.length > 0;
+  const attributeKeys = Object.keys(attributeOptions);
+  const allAttrsSelected = attributeKeys.every((k) => selectedAttrs[k]);
+  const selectedVariant = hasVariants && allAttrsSelected
+    ? (product.variants.find((v) => attributeKeys.every((k) => v.attributes[k] === selectedAttrs[k])) ?? null)
+    : null;
+
+  const displayPrice = selectedVariant?.price ?? product.price;
+  const displayCompareAt = selectedVariant?.compareAtPrice ?? product.compareAtPrice;
+  const displayStock = selectedVariant?.stock ?? product.stock;
+  const inStock = hasVariants ? (selectedVariant ? selectedVariant.stock > 0 : true) : product.stockStatus !== "out_of_stock";
+  const canAddToCart = inStock && (!hasVariants || !!selectedVariant) && displayStock > 0;
+
+  const handleAddToCart = async () => {
+    if (!canAddToCart) return;
+    setAdding(true);
+    try {
+      await addItem(orgId, { productId: product.id, variantId: selectedVariant?.id, quantity });
+      addToast(`${product.name} added to cart`, "success");
+    } catch (err) {
+      addToast(err instanceof ApiError ? err.message : "Couldn't add to cart", "error");
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  const discount = displayCompareAt
+    ? Math.round(((displayCompareAt - displayPrice) / displayCompareAt) * 100)
     : null;
 
   return (
@@ -65,9 +112,9 @@ export default function ProductDetail({ orgId, slug }: { orgId: string; slug?: s
           {product.brand && <p className="text-sm font-medium" style={{ color: "var(--muted-foreground, #6b7280)" }}>{product.brand}</p>}
           <h1 className="text-2xl font-bold" style={{ color: "var(--foreground, #111827)" }}>{product.name}</h1>
           <div className="flex items-baseline gap-3">
-            <span className="text-2xl font-bold" style={{ color: "var(--foreground, #111827)" }}>${product.price.toFixed(2)}</span>
-            {product.compareAtPrice != null && (
-              <span className="text-base line-through" style={{ color: "var(--muted-foreground, #9ca3af)" }}>${product.compareAtPrice.toFixed(2)}</span>
+            <span className="text-2xl font-bold" style={{ color: "var(--foreground, #111827)" }}>${displayPrice.toFixed(2)}</span>
+            {displayCompareAt != null && (
+              <span className="text-base line-through" style={{ color: "var(--muted-foreground, #9ca3af)" }}>${displayCompareAt.toFixed(2)}</span>
             )}
             {discount !== null && discount > 0 && (
               <span className="text-sm font-medium" style={{ color: "var(--primary, #3b82f6)" }}>{discount}% off</span>
@@ -76,9 +123,54 @@ export default function ProductDetail({ orgId, slug }: { orgId: string; slug?: s
           {product.shortDescription && (
             <p className="leading-relaxed" style={{ color: "var(--muted-foreground, #6b7280)" }}>{product.shortDescription}</p>
           )}
-          <p className="text-sm" style={{ color: product.stockStatus === "out_of_stock" ? "var(--destructive, #ef4444)" : "var(--muted-foreground, #22c55e)" }}>
-            {product.stockStatus === "out_of_stock" ? "Out of Stock" : "In Stock"}
+          <p className="text-sm" style={{ color: !inStock ? "var(--destructive, #ef4444)" : "var(--muted-foreground, #22c55e)" }}>
+            {hasVariants && !selectedVariant ? "Select options to check availability" : !inStock ? "Out of Stock" : "In Stock"}
           </p>
+
+          {attributeKeys.length > 0 && (
+            <div className="space-y-3">
+              {attributeKeys.map((key) => (
+                <div key={key}>
+                  <p className="text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--muted-foreground, #6b7280)" }}>{key}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {attributeOptions[key].map((value) => {
+                      const isSelected = selectedAttrs[key] === value;
+                      return (
+                        <button
+                          key={value}
+                          onClick={() => setSelectedAttrs((prev) => ({ ...prev, [key]: value }))}
+                          className="px-3 py-1.5 text-xs font-medium rounded border transition-colors"
+                          style={
+                            isSelected
+                              ? { backgroundColor: "var(--primary, #3b82f6)", borderColor: "var(--primary, #3b82f6)", color: "#fff" }
+                              : { borderColor: "var(--border, #e5e7eb)", color: "var(--foreground, #374151)" }
+                          }
+                        >
+                          {value}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="flex items-center gap-3 pt-2">
+            <div className="flex items-center gap-3 border rounded px-1" style={{ borderColor: "var(--border, #e5e7eb)" }}>
+              <button onClick={() => setQuantity((q) => Math.max(1, q - 1))} className="w-8 h-8" aria-label="Decrease quantity">−</button>
+              <span className="text-sm font-semibold w-5 text-center">{quantity}</span>
+              <button onClick={() => setQuantity((q) => Math.min(displayStock || 99, q + 1))} className="w-8 h-8" aria-label="Increase quantity">+</button>
+            </div>
+            <button
+              disabled={!canAddToCart || adding}
+              onClick={handleAddToCart}
+              className="flex-1 py-3 text-sm font-semibold rounded disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ backgroundColor: "var(--primary, #3b82f6)", color: "#fff" }}
+            >
+              {!inStock ? "Out of Stock" : hasVariants && !selectedVariant ? "Select Options" : adding ? "Adding…" : "Add to Cart"}
+            </button>
+          </div>
         </div>
       </div>
 

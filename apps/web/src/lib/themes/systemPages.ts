@@ -4,12 +4,22 @@
 // site route checks this map before falling back to a CMS page lookup, and CMS page
 // creation rejects any slug found here.
 
-export type SystemPageType = "product-listing" | "product-detail" | "blog-listing" | "blog-detail";
+export type SystemPageType =
+  | "product-listing"
+  | "product-detail"
+  | "blog-listing"
+  | "blog-detail"
+  | "cart"
+  | "checkout"
+  | "account";
 
-/** slug (no leading slash) → system page type. Extend here for /cart, /checkout, etc. */
+/** slug (no leading slash) → system page type. */
 export const SYSTEM_PAGE_ROUTES: Record<string, SystemPageType> = {
   shop: "product-listing",
   blog: "blog-listing",
+  cart: "cart",
+  checkout: "checkout",
+  account: "account",
 };
 
 export const RESERVED_SYSTEM_SLUGS = Object.keys(SYSTEM_PAGE_ROUTES);
@@ -34,6 +44,11 @@ export function resolveSystemPageType(pageSlug: string): ResolvedSystemPage | nu
 
   const productDetailMatch = pageSlug.match(/^shop\/([^/]+)$/);
   if (productDetailMatch) return { pageType: "product-detail", param: productDetailMatch[1] };
+
+  // "account/orders", "account/orders/:id", "account/addresses" — the sub-view
+  // (and optional id) is carried in `param` as "orders" / "orders/abc123".
+  const accountMatch = pageSlug.match(/^account\/([^/]+(?:\/[^/]+)?)$/);
+  if (accountMatch) return { pageType: "account", param: accountMatch[1] };
 
   return null;
 }

@@ -4,6 +4,7 @@ import Script from "next/script";
 import { NodeRenderer } from "./NodeRenderer";
 import { SiteNavbar, SiteFooter } from "./SiteLayout";
 import { BlockRenderer } from "./BlockRenderer";
+import { StorefrontChrome } from "./StorefrontChrome";
 import { parseTypedBlocks } from "@/lib/themes/parseTypedBlocks";
 import { resolveThemeSystemPage } from "@/lib/themes/themeSystemPageResolver";
 import type { SystemPageType } from "@/lib/themes/systemPages";
@@ -149,6 +150,7 @@ export async function PageView({
         <BlockRenderer blocks={typedBlocks} themeIdentifier={themeIdentifier} orgId={org.id} />
         <SiteFooter org={org} layout={layout} themeIdentifier={themeIdentifier} />
         {page.bodyScript && <script dangerouslySetInnerHTML={{ __html: page.bodyScript }} />}
+        <StorefrontChrome orgId={org.id} />
       </div>
     );
   }
@@ -164,6 +166,7 @@ export async function PageView({
         <NodeRenderer nodes={nodes} orgId={org.id} themeIdentifier={themeIdentifier} />
         {hasLayout && <SiteFooter org={org} layout={layout} themeIdentifier={themeIdentifier} />}
         {page.bodyScript && <script dangerouslySetInnerHTML={{ __html: page.bodyScript }} />}
+        <StorefrontChrome orgId={org.id} />
       </div>
     );
   }
@@ -251,6 +254,7 @@ export async function PageView({
         </footer>
       )}
       {page.bodyScript && <script dangerouslySetInnerHTML={{ __html: page.bodyScript }} />}
+      <StorefrontChrome orgId={org.id} />
     </div>
   );
 }
@@ -287,6 +291,7 @@ export async function SystemPageView({
       <SystemPage orgId={org.id} themeIdentifier={themeIdentifier} slug={slug} />
       <SiteFooter org={org} layout={layout} themeIdentifier={themeIdentifier} />
       {pageSettings?.bodyScript && <script dangerouslySetInnerHTML={{ __html: pageSettings.bodyScript }} />}
+      <StorefrontChrome orgId={org.id} />
     </div>
   );
 }
@@ -383,6 +388,7 @@ export async function SiteHome({
           © {new Date().getFullYear()} {org.name}
         </footer>
       )}
+      <StorefrontChrome orgId={org.id} />
     </div>
   );
 }

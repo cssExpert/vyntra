@@ -9,6 +9,12 @@ import ShopingoBlogListing from "./shopingo/pages/BlogListing";
 import CommonBlogListing from "./common/pages/BlogListing";
 import ShopingoBlogDetail from "./shopingo/pages/BlogDetail";
 import CommonBlogDetail from "./common/pages/BlogDetail";
+import ShopingoCart from "./shopingo/pages/Cart";
+import CommonCart from "./common/pages/Cart";
+import ShopingoCheckout from "./shopingo/pages/Checkout";
+import CommonCheckout from "./common/pages/Checkout";
+import ShopingoAccount from "./shopingo/pages/Account";
+import CommonAccount from "./common/pages/Account";
 
 export interface SystemPageProps {
   orgId: string;
@@ -24,6 +30,9 @@ const COMMON_SYSTEM_PAGES: Record<SystemPageType, AnySystemPage> = {
   "product-detail":  CommonProductDetail,
   "blog-listing":    CommonBlogListing,
   "blog-detail":     CommonBlogDetail,
+  cart:              CommonCart,
+  checkout:          CommonCheckout,
+  account:           CommonAccount,
 };
 
 const THEME_SYSTEM_PAGES: Record<string, Partial<Record<SystemPageType, AnySystemPage>>> = {
@@ -32,6 +41,9 @@ const THEME_SYSTEM_PAGES: Record<string, Partial<Record<SystemPageType, AnySyste
     "product-detail":  ShopingoProductDetail,
     "blog-listing":    ShopingoBlogListing,
     "blog-detail":     ShopingoBlogDetail,
+    cart:              ShopingoCart,
+    checkout:          ShopingoCheckout,
+    account:           ShopingoAccount,
   },
 };
 

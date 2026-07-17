@@ -4,6 +4,9 @@ import { useState } from "react";
 import type { ProductTabsData, ProductItem } from "@/lib/themes/types";
 import { useActiveTabProducts } from "@/lib/themes/useProductTabs";
 import { EmptyState } from "@/lib/themes/shared/EmptyState";
+import { useCartStore } from "@/store/cartStore";
+import { useStorefrontToastStore } from "@/store/storefrontToastStore";
+import { ApiError } from "@/lib/storefrontApi";
 
 const ORANGE = "#e4611e";
 
@@ -19,10 +22,27 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-function ProductCard({ product }: { product: ProductItem }) {
+function ProductCard({ product, orgId }: { product: ProductItem; orgId?: string }) {
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : null;
+  const addItem = useCartStore((s) => s.addItem);
+  const addToast = useStorefrontToastStore((s) => s.addToast);
+  const [adding, setAdding] = useState(false);
+
+  const handleAddToCart = async () => {
+    if (!orgId || adding) return;
+    setAdding(true);
+    try {
+      await addItem(orgId, { productId: product.id, quantity: 1 });
+      addToast(`${product.name} added to cart`, "success");
+    } catch (err) {
+      addToast(err instanceof ApiError ? err.message : "Couldn't add to cart", "error");
+    } finally {
+      setAdding(false);
+    }
+  };
+
   return (
     <div className="group bg-white dark:bg-[#1c1c1e] border border-gray-200 dark:border-gray-700 rounded overflow-hidden hover:shadow-lg transition-shadow">
       <div className="relative overflow-hidden bg-gray-50 dark:bg-[#2a2a2e] aspect-square">
@@ -44,8 +64,12 @@ function ProductCard({ product }: { product: ProductItem }) {
           </span>
         )}
         <div className="absolute inset-x-0 bottom-0 flex gap-1 p-2 translate-y-full group-hover:translate-y-0 transition-transform duration-200">
-          <button className="flex-1 py-2 text-xs font-semibold text-white bg-[#e4611e] transition-opacity hover:opacity-85">
-            Add to Cart
+          <button
+            onClick={handleAddToCart}
+            disabled={adding}
+            className="flex-1 py-2 text-xs font-semibold text-white bg-[#e4611e] transition-opacity hover:opacity-85 disabled:opacity-60"
+          >
+            {adding ? "Adding…" : "Add to Cart"}
           </button>
           <button className="w-9 h-8 flex items-center justify-center bg-white dark:bg-[#2a2a2e] border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:text-red-500 transition-colors">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
@@ -96,7 +120,7 @@ export default function ProductTabs({ data, orgId }: { data: ProductTabsData; or
           <EmptyState title="No products found" message="Try a different category or product type." />
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {products.map((p) => <ProductCard key={p.id} product={p} />)}
+            {products.map((p) => <ProductCard key={p.id} product={p} orgId={orgId} />)}
           </div>
         )}
       </div>

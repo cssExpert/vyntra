@@ -3,6 +3,15 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { CreateOrderDto, UpdateOrderDto } from '../dto';
 import { StoreJobsService } from './store-jobs.service';
 
+/** Flattens ProductVariant.attributes ({"Size":"M","Color":"Red"}) into a display label ("M / Red"). */
+function variantLabelFrom(attributes: unknown): string | null {
+  if (!attributes || typeof attributes !== 'object') return null;
+  const values = Object.values(attributes as Record<string, unknown>).filter(
+    (v): v is string => typeof v === 'string' && v.length > 0,
+  );
+  return values.length ? values.join(' / ') : null;
+}
+
 @Injectable()
 export class OrdersService {
   constructor(
@@ -32,73 +41,94 @@ export class OrdersService {
     });
     const productById = new Map(products.map((p) => [p.id, p]));
 
-    // Create order with items and timeline
-    const order = await this.prisma.order.create({
-      data: {
-        ...orderData,
-        organizationId,
-        orderNumber,
-        items: {
-          create: items.map((item) => {
-            const product = productById.get(item.productId);
-            const variant = item.variantId
-              ? product?.variants.find((v) => v.id === item.variantId)
-              : undefined;
-            return {
-              productId: item.productId,
-              variantId: item.variantId,
-              quantity: item.quantity,
-              unitPrice: item.unitPrice,
-              totalPrice: item.quantity * item.unitPrice,
-              productName: product?.name ?? '',
-              sku: variant?.sku ?? product?.sku ?? '',
-              imageUrl: variant?.imageUrl ?? product?.featuredImage ?? null,
-            };
-          }),
-        },
-        timeline: {
-          create: {
-            status: 'pending',
-            message: 'Order created',
+    // Stock check up front — before writing anything — so a caller gets a clean
+    // 400 instead of a half-created order when something's oversold.
+    for (const item of items) {
+      const product = productById.get(item.productId);
+      const variant = item.variantId ? product?.variants.find((v) => v.id === item.variantId) : undefined;
+      const available = variant ? variant.stock : (product?.stock ?? 0);
+      if (available < item.quantity) {
+        throw new BadRequestException(`Insufficient stock for ${product?.name ?? item.productId}`);
+      }
+    }
+
+    // Order creation + address linking + stock decrement all happen atomically:
+    // a public checkout endpoint reaches this with no moderation, so oversell
+    // prevention has to hold even under concurrent requests for the same item.
+    const orderId = await this.prisma.$transaction(async (tx) => {
+      const order = await tx.order.create({
+        data: {
+          ...orderData,
+          organizationId,
+          orderNumber,
+          items: {
+            create: items.map((item) => {
+              const product = productById.get(item.productId);
+              const variant = item.variantId
+                ? product?.variants.find((v) => v.id === item.variantId)
+                : undefined;
+              return {
+                productId: item.productId,
+                variantId: item.variantId,
+                quantity: item.quantity,
+                unitPrice: item.unitPrice,
+                totalPrice: item.quantity * item.unitPrice,
+                productName: product?.name ?? '',
+                sku: variant?.sku ?? product?.sku ?? '',
+                imageUrl: variant?.imageUrl ?? product?.featuredImage ?? null,
+                variantLabel: variant ? variantLabelFrom(variant.attributes) : null,
+              };
+            }),
+          },
+          timeline: {
+            create: {
+              status: 'pending',
+              message: 'Order created',
+            },
           },
         },
-      },
-      include: {
-        items: { include: { product: true } },
-        timeline: true,
-        payments: true,
-      },
+      });
+
+      if (shippingAddress) {
+        const addr = await tx.orderAddress.create({ data: shippingAddress as any });
+        await tx.order.update({ where: { id: order.id }, data: { shippingAddressId: addr.id } });
+      }
+      if (billingAddress) {
+        const addr = await tx.orderAddress.create({ data: billingAddress as any });
+        await tx.order.update({ where: { id: order.id }, data: { billingAddressId: addr.id } });
+      }
+
+      // Decrements the denormalized Product/ProductVariant.stock fields (what
+      // the storefront listing/detail pages and stockStatus actually read).
+      // Deliberately does not also touch the separate Inventory/InventoryHistory
+      // audit model here — InventoryService requires an initialized Inventory
+      // row per product and isn't safe to assume exists for every product, so
+      // wiring it into this transaction risked breaking checkout for products
+      // that were never inventory-initialized. Admin Inventory view may drift
+      // from Product.stock as a result; reconciling the two is a follow-up.
+      for (const item of items) {
+        if (item.variantId) {
+          await tx.productVariant.update({
+            where: { id: item.variantId },
+            data: { stock: { decrement: item.quantity } },
+          });
+        } else {
+          await tx.product.update({
+            where: { id: item.productId },
+            data: { stock: { decrement: item.quantity } },
+          });
+        }
+      }
+
+      return order.id;
     });
 
-    // Create addresses separately if provided
-    if (shippingAddress) {
-      const addr = await this.prisma.orderAddress.create({
-        data: shippingAddress as any,
-      });
-
-      await this.prisma.order.update({
-        where: { id: order.id },
-        data: { shippingAddressId: addr.id },
-      });
-    }
-
-    if (billingAddress) {
-      const addr = await this.prisma.orderAddress.create({
-        data: billingAddress as any,
-      });
-
-      await this.prisma.order.update({
-        where: { id: order.id },
-        data: { billingAddressId: addr.id },
-      });
-    }
-
     // Fetch complete order with addresses
-    const completeOrder = await this.findById(organizationId, order.id);
+    const completeOrder = await this.findById(organizationId, orderId);
 
     // Queue order confirmation email asynchronously (fire-and-forget)
-    this.storeJobs.queueOrderConfirmation(order.id).catch((error) => {
-      console.error(`Failed to queue order confirmation for ${order.id}:`, error);
+    this.storeJobs.queueOrderConfirmation(orderId).catch((error) => {
+      console.error(`Failed to queue order confirmation for ${orderId}:`, error);
     });
 
     return completeOrder;

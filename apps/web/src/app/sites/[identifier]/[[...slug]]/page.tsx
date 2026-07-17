@@ -119,10 +119,20 @@ async function fetchBlogListingPageSettings(orgId: string): Promise<SystemPageSe
 }
 
 async function fetchSystemPageSettings(orgId: string, pageType: SystemPageType): Promise<SystemPageSettingsPublic | null> {
-  return pageType === "blog-listing"
-    ? fetchBlogListingPageSettings(orgId)
-    : fetchProductListingPageSettings(orgId);
+  // cart/checkout/account have no dedicated Page Settings row (and shouldn't
+  // silently inherit the shop page's custom CSS/scripts/SEO) — only
+  // product-listing and blog-listing have a settings mechanism today.
+  if (pageType === "blog-listing") return fetchBlogListingPageSettings(orgId);
+  if (pageType === "product-listing") return fetchProductListingPageSettings(orgId);
+  return null;
 }
+
+const SYSTEM_PAGE_DEFAULT_TITLES: Partial<Record<SystemPageType, string>> = {
+  "blog-listing": "Blog",
+  cart: "Cart",
+  checkout: "Checkout",
+  account: "My Account",
+};
 
 /** A single published post for /blog/[slug] — null if not found/not public. */
 async function fetchBlogDetail(orgId: string, slug: string): Promise<PublicBlogDetailPost | null> {
@@ -216,7 +226,7 @@ async function resolvePageMetadata(
     }
 
     const settings = await fetchSystemPageSettings(org.id, resolved.pageType);
-    const defaultTitle = resolved.pageType === "blog-listing" ? `Blog — ${org.name}` : `Shop — ${org.name}`;
+    const defaultTitle = `${SYSTEM_PAGE_DEFAULT_TITLES[resolved.pageType] ?? "Shop"} — ${org.name}`;
     const title = settings?.metaTitle || defaultTitle;
     const description = settings?.metaDesc ?? undefined;
     return {

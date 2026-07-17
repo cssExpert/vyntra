@@ -10,6 +10,16 @@ export interface PublicProductMedia {
   sortOrder: number;
 }
 
+export interface PublicProductVariant {
+  id: string;
+  sku: string;
+  attributes: Record<string, string>;
+  price: number;
+  compareAtPrice: number | null;
+  stock: number;
+  imageUrl: string | null;
+}
+
 export interface PublicProductDetail {
   id: string;
   name: string;
@@ -22,6 +32,7 @@ export interface PublicProductDetail {
   featuredImage: string | null;
   brand: string | null;
   sku: string | null;
+  stock: number;
   stockStatus: string;
   type: string;
   weight: number | null;
@@ -32,6 +43,7 @@ export interface PublicProductDetail {
   seoKeywords: string | null;
   publishedAt: string | null;
   media: PublicProductMedia[];
+  variants: PublicProductVariant[];
 }
 
 export function useProductDetail(orgId: string, slug: string) {

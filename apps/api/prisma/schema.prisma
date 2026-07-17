@@ -164,6 +164,7 @@ model Organization {
   categories        ProductCategory[]
   productReviews    ProductReview[]
   storeCustomers    StoreCustomer[]
+  carts             Cart[]
   orders            Order[]
   payments          Payment[]
   coupons           CouponCode[]
@@ -974,6 +975,7 @@ model Product {
   variants        ProductVariant[]
   inventory       Inventory[]
   orderItems      OrderItem[]
+  cartItems       CartItem[]
   reviews         ProductReview[]
   tierPrices        ProductTierPrice[]
   groupRestrictions CustomerGroupProduct[]
@@ -1308,7 +1310,7 @@ model StoreCustomer {
   organizationId String
 
   name      String
-  email     String  @unique
+  email     String
   phone     String?
   avatarUrl String?
 
@@ -1316,6 +1318,13 @@ model StoreCustomer {
   tags    String[] @default([])
   segment String?
   isVip   Boolean  @default(false)
+
+  // Storefront customer auth (nullable — a null passwordHash means this is a
+  // guest/admin-created record with no login capability yet; set the moment
+  // a shopper registers or a guest checkout is later "claimed").
+  passwordHash    String?
+  emailVerifiedAt DateTime?
+  lastLoginAt     DateTime?
 
   rewardPoints Int    @default(0)
   storeCredit  Float  @default(0)
@@ -1330,6 +1339,8 @@ model StoreCustomer {
   creditTransactions StoreCreditTransaction[]
   rewardTransactions RewardPointTransaction[]
   reviews            ProductReview[]
+  addresses          CustomerAddress[]
+  carts              Cart[]
 
   registeredAt DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -1343,6 +1354,91 @@ model StoreCustomer {
   @@index([organizationId])
   @@index([customerGroupId])
   @@map("store_customers")
+}
+
+model CustomerAddress {
+  id         String  @id @default(cuid())
+  customerId String
+  label      String?
+  name       String
+  line1      String
+  line2      String?
+  city       String
+  state      String
+  country    String
+  zip        String
+  phone      String?
+
+  isDefaultShipping Boolean @default(false)
+  isDefaultBilling  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  customer StoreCustomer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId])
+  @@map("customer_addresses")
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  Store: Cart (server-persisted, guest or customer-owned)
+// ════════════════════════════════════════════════════════════════════
+
+model Cart {
+  id             String @id @default(cuid())
+  organizationId String
+
+  customerId String?
+  guestToken String?
+
+  currencyCode String  @default("USD")
+  couponCode   String?
+
+  status           String  @default("active") // active | converted | abandoned
+  convertedOrderId String?
+
+  items CartItem[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  expiresAt DateTime?
+
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customer     StoreCustomer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, guestToken])
+  @@index([organizationId, customerId])
+  @@index([organizationId, status])
+  @@map("carts")
+}
+
+model CartItem {
+  id        String  @id @default(cuid())
+  cartId    String
+  productId String
+  variantId String?
+
+  quantity Int
+
+  // Snapshot fields captured at add-time, for display without re-joining
+  // Product/ProductVariant on every render; the live price is always
+  // recomputed server-side at checkout, never trusted from this snapshot.
+  productName  String
+  sku          String
+  unitPrice    Float
+  imageUrl     String?
+  variantLabel String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cart    Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, productId, variantId])
+  @@index([cartId])
+  @@map("cart_items")
 }
 
 // ════════════════════════════════════════════════════════════════════

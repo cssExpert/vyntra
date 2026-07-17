@@ -551,6 +551,7 @@ export class DomainsService {
     featuredImage: true,
     brand: true,
     sku: true,
+    stock: true,
     stockStatus: true,
     type: true,
     weight: true,
@@ -562,6 +563,18 @@ export class DomainsService {
     media: {
       select: { id: true, url: true, alt: true, isPrimary: true, sortOrder: true },
       orderBy: [{ isPrimary: 'desc' as const }, { sortOrder: 'asc' as const }],
+    },
+    variants: {
+      select: {
+        id: true,
+        sku: true,
+        attributes: true,
+        price: true,
+        compareAtPrice: true,
+        stock: true,
+        imageUrl: true,
+      },
+      orderBy: { createdAt: 'asc' as const },
     },
   };
 

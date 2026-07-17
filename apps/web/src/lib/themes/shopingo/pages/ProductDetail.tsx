@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useProductDetail } from "@/lib/themes/useProductDetail";
+import { useCartStore } from "@/store/cartStore";
+import { useStorefrontToastStore } from "@/store/storefrontToastStore";
+import { ApiError } from "@/lib/storefrontApi";
 
 const ORANGE = "#e4611e";
 
@@ -33,8 +36,37 @@ export default function ProductDetail({
   slug?: string;
 }) {
   const { product, loading, notFound } = useProductDetail(orgId, slug ?? "");
+  const addItem = useCartStore((s) => s.addItem);
+  const addToast = useStorefrontToastStore((s) => s.addToast);
   const [activeImg, setActiveImg] = useState(0);
   const [activeTab, setActiveTab] = useState<"description" | "specification">("description");
+  const [selectedAttrs, setSelectedAttrs] = useState<Record<string, string>>({});
+  const [quantity, setQuantity] = useState(1);
+  const [adding, setAdding] = useState(false);
+
+  // Attribute options derived from every variant (e.g. { Size: ["S","M"], Color: ["Red","Blue"] })
+  const attributeOptions = useMemo(() => {
+    if (!product) return {};
+    const options: Record<string, Set<string>> = {};
+    for (const variant of product.variants) {
+      for (const [key, value] of Object.entries(variant.attributes)) {
+        if (!options[key]) options[key] = new Set();
+        options[key].add(value);
+      }
+    }
+    return Object.fromEntries(Object.entries(options).map(([k, v]) => [k, Array.from(v)]));
+  }, [product]);
+
+  const hasVariants = product ? product.variants.length > 0 : false;
+  const attributeKeys = Object.keys(attributeOptions);
+  const allAttrsSelected = attributeKeys.every((k) => selectedAttrs[k]);
+
+  const selectedVariant = useMemo(() => {
+    if (!product || !hasVariants || !allAttrsSelected) return null;
+    return (
+      product.variants.find((v) => attributeKeys.every((k) => v.attributes[k] === selectedAttrs[k])) ?? null
+    );
+  }, [product, hasVariants, allAttrsSelected, attributeKeys, selectedAttrs]);
 
   if (loading) return <SkeletonDetail />;
 
@@ -59,11 +91,32 @@ export default function ProductDetail({
 
   const currentImg = allImages[activeImg] ?? null;
 
-  const discount = product.compareAtPrice
-    ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
+  const displayPrice = selectedVariant?.price ?? product.price;
+  const displayCompareAt = selectedVariant?.compareAtPrice ?? product.compareAtPrice;
+  const displayStock = selectedVariant?.stock ?? product.stock;
+
+  const discount = displayCompareAt
+    ? Math.round(((displayCompareAt - displayPrice) / displayCompareAt) * 100)
     : null;
 
-  const inStock = product.stockStatus !== "out_of_stock";
+  const inStock = hasVariants
+    ? (selectedVariant ? selectedVariant.stock > 0 : true) // unknown until a variant is picked — don't block the button
+    : product.stockStatus !== "out_of_stock";
+
+  const canAddToCart = inStock && (!hasVariants || !!selectedVariant) && displayStock > 0;
+
+  const handleAddToCart = async () => {
+    if (!canAddToCart) return;
+    setAdding(true);
+    try {
+      await addItem(orgId, { productId: product.id, variantId: selectedVariant?.id, quantity });
+      addToast(`${product.name} added to cart`, "success");
+    } catch (err) {
+      addToast(err instanceof ApiError ? err.message : "Couldn't add to cart", "error");
+    } finally {
+      setAdding(false);
+    }
+  };
 
   return (
     <section className="py-8 bg-white dark:bg-[#121214] min-h-screen">
@@ -145,9 +198,9 @@ export default function ProductDetail({
 
             {/* Price */}
             <div className="flex flex-wrap items-baseline gap-3">
-              <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">${product.price.toFixed(2)}</span>
-              {product.compareAtPrice != null && (
-                <span className="text-xl text-gray-400 dark:text-gray-500 line-through">${product.compareAtPrice.toFixed(2)}</span>
+              <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">${displayPrice.toFixed(2)}</span>
+              {displayCompareAt != null && (
+                <span className="text-xl text-gray-400 dark:text-gray-500 line-through">${displayCompareAt.toFixed(2)}</span>
               )}
               {discount !== null && discount > 0 && (
                 <span className="text-sm font-semibold px-2 py-0.5 rounded" style={{ backgroundColor: `${ORANGE}20`, color: ORANGE }}>
@@ -160,13 +213,13 @@ export default function ProductDetail({
             <div className="flex items-center gap-2">
               <span className={`w-2 h-2 rounded-full ${inStock ? "bg-green-500" : "bg-gray-400"}`} />
               <span className="text-sm text-gray-600 dark:text-gray-400">
-                {product.stockStatus === "in_stock"
-                  ? "In Stock"
-                  : product.stockStatus === "low_stock"
-                    ? "Low Stock"
-                    : product.stockStatus === "backorder"
-                      ? "Available on Backorder"
-                      : "Out of Stock"}
+                {hasVariants && !selectedVariant
+                  ? "Select options to check availability"
+                  : !inStock
+                    ? "Out of Stock"
+                    : displayStock <= 10
+                      ? "Low Stock"
+                      : "In Stock"}
               </span>
             </div>
 
@@ -176,7 +229,7 @@ export default function ProductDetail({
 
             {/* SKU */}
             {product.sku && (
-              <p className="text-xs text-gray-400 dark:text-gray-500">SKU: <span className="font-mono">{product.sku}</span></p>
+              <p className="text-xs text-gray-400 dark:text-gray-500">SKU: <span className="font-mono">{selectedVariant?.sku ?? product.sku}</span></p>
             )}
 
             {/* Tags */}
@@ -190,16 +243,69 @@ export default function ProductDetail({
               </div>
             )}
 
-            {/* CTA */}
-            <div className="pt-2">
+            {/* Variant selectors */}
+            {attributeKeys.length > 0 && (
+              <div className="space-y-4">
+                {attributeKeys.map((key) => (
+                  <div key={key}>
+                    <p className="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">{key}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {attributeOptions[key].map((value) => {
+                        const isSelected = selectedAttrs[key] === value;
+                        return (
+                          <button
+                            key={value}
+                            onClick={() => setSelectedAttrs((prev) => ({ ...prev, [key]: value }))}
+                            className={`px-4 py-2 text-xs font-semibold border rounded transition-colors ${
+                              isSelected
+                                ? "text-white border-transparent"
+                                : "border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-500"
+                            }`}
+                            style={isSelected ? { backgroundColor: ORANGE } : undefined}
+                          >
+                            {value}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Quantity + CTA */}
+            <div className="pt-2 flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-3 border border-gray-300 dark:border-gray-700 rounded px-1">
+                <button
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  className="w-9 h-9 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                  aria-label="Decrease quantity"
+                >
+                  −
+                </button>
+                <span className="text-sm font-semibold w-6 text-center">{quantity}</span>
+                <button
+                  onClick={() => setQuantity((q) => Math.min(displayStock || 99, q + 1))}
+                  className="w-9 h-9 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                  aria-label="Increase quantity"
+                >
+                  +
+                </button>
+              </div>
               <button
-                disabled={!inStock}
-                className="w-full sm:w-auto px-8 py-3.5 text-sm font-bold uppercase tracking-wide text-white transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-                style={{ backgroundColor: inStock ? ORANGE : "#9ca3af" }}
+                disabled={!canAddToCart || adding}
+                onClick={handleAddToCart}
+                className="flex-1 sm:flex-none px-8 py-3.5 text-sm font-bold uppercase tracking-wide text-white transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+                style={{ backgroundColor: canAddToCart ? ORANGE : "#9ca3af" }}
               >
-                {inStock ? "Add to Cart" : "Out of Stock"}
+                {!inStock
+                  ? "Out of Stock"
+                  : hasVariants && !selectedVariant
+                    ? "Select Options"
+                    : adding
+                      ? "Adding…"
+                      : "Add to Cart"}
               </button>
-              <p className="mt-2 text-[11px] text-gray-400 dark:text-gray-500">Cart & checkout coming soon</p>
             </div>
           </div>
         </div>

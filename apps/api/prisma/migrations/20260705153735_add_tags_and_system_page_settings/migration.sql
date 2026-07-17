@@ -2,7 +2,7 @@
 ALTER TABLE "blog_tags" DROP CONSTRAINT "blog_tags_organizationId_fkey";
 
 -- AlterTable
-ALTER TABLE "blogs" DROP COLUMN "tags";
+ALTER TABLE "blogs" DROP COLUMN IF EXISTS "tags";
 
 -- AlterTable
 ALTER TABLE "organizations" ADD COLUMN     "blogCommentsEnabled" BOOLEAN NOT NULL DEFAULT true,
@@ -10,7 +10,7 @@ ADD COLUMN     "blogFeaturedEnabled" BOOLEAN NOT NULL DEFAULT true,
 ADD COLUMN     "blogPinToTopEnabled" BOOLEAN NOT NULL DEFAULT true;
 
 -- AlterTable
-ALTER TABLE "products" DROP COLUMN "tags";
+ALTER TABLE "products" DROP COLUMN IF EXISTS "tags";
 
 -- DropTable
 DROP TABLE "blog_tags";

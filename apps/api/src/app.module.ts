@@ -22,6 +22,7 @@ import { TagsModule } from './tags/tags.module';
 import { UploadModule } from './upload/upload.module';
 import { UsersModule } from './users/users.module';
 import { StoreModule } from './store/store.module';
+import { PublicStoreModule } from './store/public/public-store.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { StoreModule } from './store/store.module';
     ThemesModule,
     UploadModule,
     StoreModule,
+    PublicStoreModule,
     SystemPageSettingsModule,
     TagsModule,
     // CrmModule added in the next phase.
