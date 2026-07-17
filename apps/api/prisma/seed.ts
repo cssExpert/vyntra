@@ -872,13 +872,23 @@ async function main() {
     const blogId = blogIdBySlug[c.slug];
     if (!blogId) continue;
     const existing = await prisma.comment.findFirst({
-      where: { blogId, authorEmail: c.authorEmail, body: c.body },
+      where: {
+        resourceType: "blog",
+        resourceId: blogId,
+        authorEmail: c.authorEmail,
+        body: c.body,
+      },
     });
     if (!existing) {
       await prisma.comment.create({
         data: {
-          blogId, organizationId: org.id, body: c.body,
-          authorName: c.authorName, authorEmail: c.authorEmail, status: c.status,
+          resourceType: "blog",
+          resourceId: blogId,
+          organizationId: org.id,
+          body: c.body,
+          authorName: c.authorName,
+          authorEmail: c.authorEmail,
+          status: c.status,
         },
       });
     }
