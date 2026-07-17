@@ -3,7 +3,15 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "framer-motion";
-import { X, Sparkles, Info, Tag, Image as ImageIcon, Globe, Lock } from "lucide-react";
+import {
+  X,
+  Sparkles,
+  Info,
+  Tag,
+  Image as ImageIcon,
+  Globe,
+  Lock,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { GalleryStatus } from "./gallery.types";
 import { CATEGORIES } from "./gallery.data";
@@ -30,7 +38,7 @@ export function GalleryCreateModal({
   availableTags,
   onTagCreate,
 }: GalleryCreateModalProps) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = useTranslations("cms.gallery");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -76,7 +84,7 @@ export function GalleryCreateModal({
 
   // Matches Users table input style exactly
   const inputCls =
-    "w-full px-3 py-2.5 bg-background text-foreground placeholder:text-muted-foreground border border-border rounded-sm text-sm outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200 shadow-sm";
+    "w-full px-3 py-2.5 h-10.5 bg-background text-foreground placeholder:text-muted-foreground border border-border rounded-sm text-sm outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200";
   const labelCls =
     "block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5";
 
@@ -179,7 +187,7 @@ export function GalleryCreateModal({
                 <h3 className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1">
                   <Tag className="w-3.5 h-3.5" /> 2. Metadata & State
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   {/* Status */}
                   <div>
                     <label className={labelCls}>Status Visibility</label>
@@ -216,7 +224,8 @@ export function GalleryCreateModal({
                       maxTags={8}
                       placeholder="Search or create a tag…"
                       onToast={(msg, type) => {
-                        if (type === "error" || type === "warning") onError(msg);
+                        if (type === "error" || type === "warning")
+                          onError(msg);
                       }}
                     />
                   </div>
@@ -251,7 +260,10 @@ export function GalleryCreateModal({
 
             {/* Footer */}
             <div className="px-6 py-4 border-t border-border bg-muted/60 flex justify-end gap-3">
-              <Button variant="ghost" radius="sm" className="h-auto py-3 font-semibold text-muted-foreground hover:text-foreground"
+              <Button
+                variant="ghost"
+                radius="sm"
+                className="h-auto py-3 font-semibold text-muted-foreground hover:text-foreground"
                 type="button"
                 onClick={onClose}
               >

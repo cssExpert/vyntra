@@ -1098,7 +1098,8 @@ export function MenusView() {
           onClick={openCreate}
           className="group inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 transition-colors"
         >
-          <Plus className="w-4 h-4" /> New Menu
+          <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4 shrink-0" />{" "}
+          New Menu
         </button>
       </PageHeader>
 
@@ -1126,7 +1127,8 @@ export function MenusView() {
               onClick={openCreate}
               className="group mt-2 inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 transition-colors"
             >
-              <Plus className="w-4 h-4" /> Create your first menu
+              <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4 shrink-0" />{" "}
+              Create your first menu
             </button>
           </div>
         ) : (

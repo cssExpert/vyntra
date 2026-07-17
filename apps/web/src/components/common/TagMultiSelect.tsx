@@ -15,7 +15,10 @@ export interface TagMultiSelectProps {
   onCreateTag: (name: string) => Promise<void>;
   maxTags?: number;
   placeholder?: string;
-  onToast?: (msg: string, type?: "success" | "error" | "info" | "warning") => void;
+  onToast?: (
+    msg: string,
+    type?: "success" | "error" | "info" | "warning",
+  ) => void;
   className?: string;
 }
 
@@ -44,10 +47,13 @@ export function TagMultiSelect({
   const cleanSearch = tagSearch.trim().replace(/[^a-zA-Z0-9\s\-_]/g, "");
 
   const filtered = availableTags.filter(
-    (t) => !value.includes(t) && t.toLowerCase().includes(cleanSearch.toLowerCase()),
+    (t) =>
+      !value.includes(t) && t.toLowerCase().includes(cleanSearch.toLowerCase()),
   );
 
-  const exactMatch = availableTags.some((t) => t.toLowerCase() === cleanSearch.toLowerCase());
+  const exactMatch = availableTags.some(
+    (t) => t.toLowerCase() === cleanSearch.toLowerCase(),
+  );
   const canCreate = cleanSearch.length > 0 && !exactMatch;
 
   const addTag = async (name: string) => {
@@ -57,7 +63,9 @@ export function TagMultiSelect({
     }
     if (value.includes(name)) return;
 
-    const isNew = !availableTags.some((t) => t.toLowerCase() === name.toLowerCase());
+    const isNew = !availableTags.some(
+      (t) => t.toLowerCase() === name.toLowerCase(),
+    );
 
     onChange([...value, name]);
     setTagSearch("");
@@ -75,7 +83,9 @@ export function TagMultiSelect({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if ((e.key === "Enter" || e.key === ",") && cleanSearch) {
       e.preventDefault();
-      const match = availableTags.find((t) => t.toLowerCase() === cleanSearch.toLowerCase());
+      const match = availableTags.find(
+        (t) => t.toLowerCase() === cleanSearch.toLowerCase(),
+      );
       addTag(match ?? cleanSearch);
     }
     if (e.key === "Escape") {
@@ -134,9 +144,14 @@ export function TagMultiSelect({
             }}
             onFocus={() => setShowDropdown(true)}
             onKeyDown={handleKeyDown}
-            placeholder={atLimit ? `Tag limit reached` : (placeholder ?? "Search or create a tag…")}
+            placeholder={
+              atLimit
+                ? `Tag limit reached`
+                : (placeholder ?? "Search or create a tag…")
+            }
             disabled={atLimit}
             className="!pl-9 text-xs disabled:opacity-50"
+            size="lg"
           />
           {creating && (
             <span className="absolute right-3 text-[9px] text-muted-foreground font-bold animate-pulse">

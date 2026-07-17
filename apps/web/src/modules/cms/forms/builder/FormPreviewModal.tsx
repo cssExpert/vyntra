@@ -7,8 +7,10 @@ import { Eye, Star, Upload, Check, Send } from "lucide-react";
 
 import { Modal } from "@/components/common/Modal";
 import { Button } from "@/components/ui/button";
-import type { CmsForm, FormField } from "../forms.types";
+import { htmlHasContent, type CmsForm, type FormField } from "../forms.types";
 import { Input } from "@/components/ui/input";
+import { DatePickerField } from "@/components/common/DatePickerField";
+import { FormSeparator } from "../FormSeparator";
 
 const inputCls =
   "w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all";
@@ -43,6 +45,12 @@ function RatingInput() {
   );
 }
 
+/** Local-state wrapper so the preview date picker is interactive. */
+function PreviewDate() {
+  const [value, setValue] = useState("");
+  return <DatePickerField value={value} onChange={setValue} />;
+}
+
 function PreviewField({ field }: { field: FormField }) {
   switch (field.type) {
     case "long_text":
@@ -56,7 +64,13 @@ function PreviewField({ field }: { field: FormField }) {
     case "multiple_choice":
     case "checkboxes":
       return (
-        <div className="space-y-2">
+        <div
+          className={
+            field.optionsLayout === "inline"
+              ? "flex flex-wrap gap-2"
+              : "space-y-2"
+          }
+        >
           {field.options.map((opt, i) => (
             <label
               key={i}
@@ -111,7 +125,7 @@ function PreviewField({ field }: { field: FormField }) {
         />
       );
     case "date":
-      return <Input type="date" className={inputCls} />;
+      return <PreviewDate />;
     default:
       return (
         <Input
@@ -205,18 +219,50 @@ export function FormPreviewModal({ form, onClose }: FormPreviewModalProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.05 + i * 0.05, duration: 0.25 }}
               >
-                <label className="block text-sm font-semibold text-foreground mb-1.5">
-                  {field.label || `Question ${i + 1}`}
-                  {field.required && (
-                    <span className="text-rose-500 ml-0.5">*</span>
-                  )}
-                </label>
-                {field.helpText && (
-                  <p className="text-xs text-muted-foreground mb-2">
-                    {field.helpText}
-                  </p>
+                {field.type === "separator" ? (
+                  <div className="py-1">
+                    <FormSeparator
+                      label={field.label}
+                      lineColor={field.lineColor}
+                      textColor={field.textColor}
+                    />
+                  </div>
+                ) : field.type === "long_text" ? (
+                  <div className="space-y-1.5">
+                    {field.label && (
+                      <p className="text-sm font-semibold text-foreground">
+                        {field.label}
+                      </p>
+                    )}
+                    {htmlHasContent(field.content) && (
+                      <div
+                        className="tiptap text-sm text-foreground"
+                        dangerouslySetInnerHTML={{ __html: field.content! }}
+                      />
+                    )}
+                    {htmlHasContent(field.placeholder) && (
+                      <div
+                        className="tiptap text-xs text-muted-foreground"
+                        dangerouslySetInnerHTML={{ __html: field.placeholder! }}
+                      />
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    <label className="block text-sm font-semibold text-foreground mb-1.5">
+                      {field.label || `Question ${i + 1}`}
+                      {field.required && (
+                        <span className="text-rose-500 ml-0.5">*</span>
+                      )}
+                    </label>
+                    {field.helpText && (
+                      <p className="text-xs text-muted-foreground mb-2">
+                        {field.helpText}
+                      </p>
+                    )}
+                    <PreviewField field={field} />
+                  </>
                 )}
-                <PreviewField field={field} />
               </motion.div>
             ))}
 

@@ -12,6 +12,7 @@ import {
   Calendar,
   Star,
   Upload,
+  Minus,
 } from "lucide-react";
 import Icon from "@/components/common/Icon";
 import type { IconNames } from "@/components/common/Icons";
@@ -68,8 +69,8 @@ export const FIELD_TYPES: FieldTypeMeta[] = [
   },
   {
     type: "long_text",
-    label: "Paragraph",
-    hint: "Long form text",
+    label: "Text",
+    hint: "Formatted text / heading block",
     icon: AlignLeft,
   },
   {
@@ -117,6 +118,12 @@ export const FIELD_TYPES: FieldTypeMeta[] = [
     label: "File upload",
     hint: "Attach a document",
     icon: Upload,
+  },
+  {
+    type: "separator",
+    label: "Separator",
+    hint: "Horizontal divider line",
+    icon: Minus,
   },
 ];
 

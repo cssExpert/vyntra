@@ -5,7 +5,8 @@ import Script from "next/script";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, Upload, Send, Check, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { FormField } from "./forms.types";
+import { htmlHasContent, isLayoutField, type FormField } from "./forms.types";
+import { FormSeparator } from "./FormSeparator";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
@@ -96,7 +97,13 @@ function FieldInput({
 
     case "multiple_choice":
       return (
-        <div className="space-y-2">
+        <div
+          className={
+            field.optionsLayout === "inline"
+              ? "flex flex-wrap gap-2"
+              : "space-y-2"
+          }
+        >
           {field.options.map((opt) => (
             <label
               key={opt}
@@ -129,7 +136,13 @@ function FieldInput({
         onChange(next);
       };
       return (
-        <div className="space-y-2">
+        <div
+          className={
+            field.optionsLayout === "inline"
+              ? "flex flex-wrap gap-2"
+              : "space-y-2"
+          }
+        >
           {field.options.map((opt) => (
             <label
               key={opt}
@@ -254,14 +267,16 @@ type FieldValues = Record<string, string | string[]>;
 
 function emptyValues(fields: FormField[]): FieldValues {
   return Object.fromEntries(
-    fields.map((f) => [f.id, f.type === "checkboxes" ? [] : ""]),
+    fields
+      .filter((f) => !isLayoutField(f.type))
+      .map((f) => [f.id, f.type === "checkboxes" ? [] : ""]),
   );
 }
 
 function validate(fields: FormField[], values: FieldValues): Set<string> {
   const errors = new Set<string>();
   for (const f of fields) {
-    if (!f.required) continue;
+    if (isLayoutField(f.type) || !f.required) continue;
     const v = values[f.id];
     if (f.type === "checkboxes") {
       if (!Array.isArray(v) || v.length === 0) errors.add(f.id);
@@ -417,27 +432,59 @@ export function PublicFormView({ form, orgId }: PublicFormViewProps) {
                   transition={{ delay: 0.04 + i * 0.04, duration: 0.25 }}
                   className="space-y-1.5"
                 >
-                  <label className="block text-sm font-semibold text-foreground">
-                    {field.label || `Question ${i + 1}`}
-                    {field.required && (
-                      <span className="text-rose-500 ml-0.5">*</span>
-                    )}
-                  </label>
-                  {field.helpText && (
-                    <p className="text-xs text-muted-foreground">{field.helpText}</p>
-                  )}
-                  <FieldInput
-                    field={field}
-                    value={values[field.id] ?? (field.type === "checkboxes" ? [] : "")}
-                    onChange={(v) => setField(field.id, v)}
-                    error={errors.has(field.id)}
-                    disabled={submitting}
-                  />
-                  {errors.has(field.id) && (
-                    <p className="flex items-center gap-1 text-xs text-rose-500 mt-1">
-                      <AlertCircle size={12} />
-                      This field is required
-                    </p>
+                  {field.type === "separator" ? (
+                    <div className="py-1">
+                      <FormSeparator
+                        label={field.label}
+                        lineColor={field.lineColor}
+                        textColor={field.textColor}
+                      />
+                    </div>
+                  ) : field.type === "long_text" ? (
+                    <div className="space-y-1.5">
+                      {field.label && (
+                        <p className="text-sm font-semibold text-foreground">
+                          {field.label}
+                        </p>
+                      )}
+                      {htmlHasContent(field.content) && (
+                        <div
+                          className="tiptap text-sm text-foreground"
+                          dangerouslySetInnerHTML={{ __html: field.content! }}
+                        />
+                      )}
+                      {htmlHasContent(field.placeholder) && (
+                        <div
+                          className="tiptap text-xs text-muted-foreground"
+                          dangerouslySetInnerHTML={{ __html: field.placeholder! }}
+                        />
+                      )}
+                    </div>
+                  ) : (
+                    <>
+                      <label className="block text-sm font-semibold text-foreground">
+                        {field.label || `Question ${i + 1}`}
+                        {field.required && (
+                          <span className="text-rose-500 ml-0.5">*</span>
+                        )}
+                      </label>
+                      {field.helpText && (
+                        <p className="text-xs text-muted-foreground">{field.helpText}</p>
+                      )}
+                      <FieldInput
+                        field={field}
+                        value={values[field.id] ?? (field.type === "checkboxes" ? [] : "")}
+                        onChange={(v) => setField(field.id, v)}
+                        error={errors.has(field.id)}
+                        disabled={submitting}
+                      />
+                      {errors.has(field.id) && (
+                        <p className="flex items-center gap-1 text-xs text-rose-500 mt-1">
+                          <AlertCircle size={12} />
+                          This field is required
+                        </p>
+                      )}
+                    </>
                   )}
                 </motion.div>
               ))}
