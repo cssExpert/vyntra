@@ -138,6 +138,8 @@ export interface SubmitButtonConfig {
   fullWidth?: boolean;
   /** Corner style — rounded (default), pill, or sharp. */
   shape?: "rounded" | "pill" | "sharp";
+  /** Button size / height — small, medium (default), large, or extra-large. */
+  size?: "sm" | "md" | "lg" | "xl";
   /** Hide the form's built-in submit button (compose buttons as fields instead). */
   hidden?: boolean;
 }

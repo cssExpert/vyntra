@@ -114,6 +114,19 @@ export function ButtonFieldEditor({
           />
         </Field>
 
+        <Field label="Size">
+          <SegmentedControl
+            value={cfg.size ?? "md"}
+            onChange={(v) => patch({ size: v })}
+            options={[
+              { value: "sm", label: "S" },
+              { value: "md", label: "M" },
+              { value: "lg", label: "L" },
+              { value: "xl", label: "XL" },
+            ]}
+          />
+        </Field>
+
         <Field label="Alignment">
           <SegmentedControl
             value={cfg.align ?? "left"}
