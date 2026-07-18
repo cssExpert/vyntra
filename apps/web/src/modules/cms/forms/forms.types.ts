@@ -3,20 +3,104 @@ import type { CSSProperties } from "react";
 export type FieldType =
   | "short_text"
   | "long_text"
+  | "textarea"
+  | "phone"
+  | "toggle"
   | "multiple_choice"
   | "checkboxes"
   | "dropdown"
+  | "multiselect"
+  | "autocomplete"
   | "email"
   | "number"
   | "date"
+  | "time"
+  | "datetime"
+  | "month"
+  | "year"
   | "rating"
+  | "slider"
+  | "nps"
+  | "emoji"
   | "file"
   | "separator"
+  | "spacer"
   | "password"
   | "image"
+  | "card_preview"
+  | "accordion"
+  | "tabs"
   | "button";
 
+/**
+ * Visual style for choice fields (multiple_choice / checkboxes):
+ * - "list"      — bordered radio/checkbox rows (default)
+ * - "pills"     — compact rounded buttons
+ * - "segmented" — a connected segmented control (single-select)
+ * - "cards"     — option cards with an optional detail line (e.g. a price)
+ * - "terms"     — plain inline checkbox(es) with no box and no question label,
+ *                 for a consent / "I agree to the Terms" statement
+ */
+export type ChoiceStyle = "list" | "pills" | "segmented" | "cards" | "terms";
+
+/**
+ * Input mask applied to text-like fields as the respondent types:
+ * - "card"   — "1234 5678 9012 3456"
+ * - "expiry" — "MM/YY"
+ * - "cvc"    — up to 4 digits
+ * - "phone"  — grouped phone number
+ */
+export type FieldMask = "none" | "card" | "expiry" | "cvc" | "phone";
+
 export type FormStatus = "Published" | "Draft" | "Closed";
+
+/**
+ * Field width within the form's responsive 12-column grid. Fields flow left to
+ * right and wrap, so two "half" fields share a row, a "full" field takes its
+ * own, etc. All widths collapse to full-width on small screens.
+ */
+export type FieldWidth = "full" | "half" | "third" | "twoThirds";
+
+/** Tailwind column-span class for a field width (12-col grid, sm+ breakpoint). */
+export function fieldColSpan(width?: FieldWidth): string {
+  switch (width) {
+    case "half":
+      return "sm:col-span-6";
+    case "third":
+      return "sm:col-span-4";
+    case "twoThirds":
+      return "sm:col-span-8";
+    default:
+      return "sm:col-span-12";
+  }
+}
+
+/**
+ * Leading icon for an input field (short answer, email, number, date). Rendered
+ * inside the input on its left edge. "none" (or unset) shows no icon. The name →
+ * component map lives in `field-icons.tsx`.
+ */
+export type FormFieldIcon =
+  | "none"
+  | "user"
+  | "mail"
+  | "phone"
+  | "building"
+  | "mapPin"
+  | "home"
+  | "globe"
+  | "link"
+  | "calendar"
+  | "clock"
+  | "lock"
+  | "creditCard"
+  | "hash"
+  | "dollar"
+  | "atSign"
+  | "briefcase"
+  | "tag"
+  | "search"
+  | "message";
 
 export type SubmitButtonIcon =
   | "none"
@@ -58,6 +142,16 @@ export interface SubmitButtonConfig {
   hidden?: boolean;
 }
 
+/**
+ * A titled group of fields inside a container field (accordion / tabs). Nesting
+ * is one level deep — a section's fields are leaf/simple fields, not containers.
+ */
+export interface FieldSection {
+  id: string;
+  title: string;
+  fields: FormField[];
+}
+
 export interface FormField {
   id: string;
   type: FieldType;
@@ -93,6 +187,69 @@ export interface FormField {
   button?: ButtonFieldConfig;
   /** Password field only — show the show/hide (eye) toggle. Defaults to true. */
   passwordToggle?: boolean;
+  /** Leading icon for text-like inputs (short answer / email / number / date). */
+  icon?: FormFieldIcon;
+  /** Width within the form's 12-column grid (default "full"). */
+  width?: FieldWidth;
+  /** Choice fields only — visual style (list / pills / segmented / cards). */
+  choiceStyle?: ChoiceStyle;
+  /** Choice fields in "cards" style — optional detail line per option (e.g. a
+   *  price), aligned by index with `options`. */
+  optionDetails?: string[];
+  /** Single-choice fields — reveal a free-text input when the trigger option is
+   *  picked (e.g. an "Other"/"Custom" amount). */
+  allowCustom?: boolean;
+  /** The option label that reveals the custom input (default "Custom"). */
+  customOption?: string;
+  /** Label shown above the revealed custom input (e.g. "Custom Amount ($)"). */
+  customLabel?: string;
+  /** Placeholder for the revealed custom input. */
+  customPlaceholder?: string;
+  /** Slider only — range bounds and step (default 0 / 100 / 1). */
+  min?: number;
+  max?: number;
+  step?: number;
+  /** Spacer only — vertical height in px (default 24). */
+  spacerHeight?: number;
+  /** Input mask for text-like fields (card / expiry / cvc / phone). */
+  mask?: FieldMask;
+  /** Container fields (accordion / tabs) — the grouped, collapsible sections. */
+  sections?: FieldSection[];
+  /** Accordion visual style — boxed cards (default) or flush FAQ-style rows. */
+  accordionStyle?: "boxed" | "flush";
+  /** Container fields — font weight of the section / tab trigger text. */
+  triggerWeight?: "bold" | "normal";
+  /** Container fields — font weight of nested field labels. */
+  labelWeight?: "bold" | "normal";
+}
+
+/** Tailwind class overriding nested field label weight inside a container. */
+export function labelWeightClass(weight?: "bold" | "normal"): string {
+  return weight === "normal" ? "[&_label]:font-normal" : "[&_label]:font-semibold";
+}
+
+/** Container field types that hold nested {@link FieldSection}s. */
+export const CONTAINER_FIELD_TYPES: FieldType[] = ["accordion", "tabs"];
+
+export function isContainerField(type: FieldType): boolean {
+  return CONTAINER_FIELD_TYPES.includes(type);
+}
+
+/**
+ * Flattens a field tree into its value-bearing leaf fields — recurses into
+ * container sections so form value init / validation / submission see every
+ * nested input. Container fields themselves are omitted.
+ */
+export function flattenFields(fields: FormField[]): FormField[] {
+  const out: FormField[] = [];
+  for (const f of fields) {
+    if (isContainerField(f.type) && f.sections) {
+      for (const s of f.sections) out.push(...flattenFields(s.fields));
+    } else {
+      out.push(f);
+    }
+  }
+  return out;
 }
 
 // ── Form-level appearance settings ───────────────────────────────────────────
@@ -183,6 +340,8 @@ export const CHOICE_FIELD_TYPES: FieldType[] = [
   "multiple_choice",
   "checkboxes",
   "dropdown",
+  "multiselect",
+  "autocomplete",
 ];
 
 export function isChoiceField(type: FieldType): boolean {
@@ -196,8 +355,12 @@ export function isChoiceField(type: FieldType): boolean {
  */
 export const LAYOUT_FIELD_TYPES: FieldType[] = [
   "separator",
+  "spacer",
   "long_text",
   "image",
+  "card_preview",
+  "accordion",
+  "tabs",
   "button",
 ];
 

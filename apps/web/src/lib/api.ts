@@ -1036,6 +1036,10 @@ export interface CmsFormField {
   helpText?: string;
   required: boolean;
   options: string[];
+  icon?: string;
+  width?: string;
+  /** Container fields (accordion) — nested sections stored as-is. */
+  sections?: unknown;
 }
 
 export interface CmsFormItem {

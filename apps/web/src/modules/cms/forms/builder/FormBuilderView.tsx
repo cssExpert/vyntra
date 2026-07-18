@@ -13,15 +13,56 @@ import { FormPreviewModal } from "./FormPreviewModal";
 import { SubmitButtonEditor } from "./SubmitButtonEditor";
 import { FormSettingsModal } from "./FormSettingsModal";
 import { createField } from "./field-config";
+import { blueprintToForm, getBlueprint } from "../form-blueprints";
 import { cmsForms } from "@/lib/api";
 import { loadGoogleFont } from "@/lib/googleFont";
 import {
   formFontVars,
   type FieldType,
+  type FieldWidth,
   type FormField,
   type FormStatus,
   type CmsForm,
 } from "../forms.types";
+
+interface RowInfo {
+  row: number;
+  shared: boolean;
+  start: boolean;
+  end: boolean;
+}
+
+/** The grid row each field lands on (matching the 12-col preview flow), whether
+ *  that row holds more than one field, and whether the field starts/ends its
+ *  row-group — used to draw the colored connector brackets in the builder. */
+function computeRowInfo(fields: FormField[]): RowInfo[] {
+  const spanOf = (w?: FieldWidth) =>
+    w === "half" ? 6 : w === "third" ? 4 : w === "twoThirds" ? 8 : 12;
+  const rows: number[] = [];
+  let used = 0;
+  let row = 1;
+  for (const f of fields) {
+    const span = spanOf(f.width);
+    if (used + span > 12) {
+      row += 1;
+      used = 0;
+    }
+    rows.push(row);
+    used += span;
+    if (used >= 12) {
+      row += 1;
+      used = 0;
+    }
+  }
+  const count = new Map<number, number>();
+  rows.forEach((r) => count.set(r, (count.get(r) ?? 0) + 1));
+  return rows.map((r, i) => ({
+    row: r,
+    shared: (count.get(r) ?? 0) > 1,
+    start: i === 0 || rows[i - 1] !== r,
+    end: i === rows.length - 1 || rows[i + 1] !== r,
+  }));
+}
 
 function slugify(name: string): string {
   return (
@@ -72,7 +113,15 @@ export function FormBuilderView({ formId }: FormBuilderViewProps) {
         setForm(blankForm());
       });
     } else {
-      const fresh = blankForm();
+      // A blueprint may be requested via ?blueprint=<key> from the picker.
+      const blueprintKey =
+        typeof window !== "undefined"
+          ? new URLSearchParams(window.location.search).get("blueprint")
+          : null;
+      const blueprint = getBlueprint(blueprintKey);
+      const fresh = blueprint
+        ? blueprintToForm(blueprint, { freshIds: true })
+        : blankForm();
       setForm(fresh);
       setActiveFieldId(fresh.fields[0]?.id ?? null);
     }
@@ -328,18 +377,25 @@ export function FormBuilderView({ formId }: FormBuilderViewProps) {
               className="space-y-3"
             >
               <AnimatePresence initial={false}>
-                {form.fields.map((field, index) => (
-                  <FieldCard
-                    key={field.id}
-                    field={field}
-                    index={index}
-                    isActive={activeFieldId === field.id}
-                    onActivate={() => setActiveFieldId(field.id)}
-                    onChange={(patch) => patchField(field.id, patch)}
-                    onDuplicate={() => duplicateField(field.id)}
-                    onDelete={() => deleteField(field.id)}
-                  />
-                ))}
+                {(() => {
+                  const rowInfo = computeRowInfo(form.fields);
+                  return form.fields.map((field, index) => (
+                    <FieldCard
+                      key={field.id}
+                      field={field}
+                      index={index}
+                      isActive={activeFieldId === field.id}
+                      onActivate={() => setActiveFieldId(field.id)}
+                      onChange={(patch) => patchField(field.id, patch)}
+                      onDuplicate={() => duplicateField(field.id)}
+                      onDelete={() => deleteField(field.id)}
+                      rowIndex={rowInfo[index]?.row}
+                      rowShared={rowInfo[index]?.shared}
+                      rowStart={rowInfo[index]?.start}
+                      rowEnd={rowInfo[index]?.end}
+                    />
+                  ));
+                })()}
               </AnimatePresence>
             </Reorder.Group>
           ) : (

@@ -41,6 +41,7 @@ import {
   formNameFilter,
 } from "./forms-table-config";
 import { FormsTable } from "./FormsTable";
+import { NewFormModal } from "./NewFormModal";
 import { cmsForms, orgDomain, type OrgDomain } from "@/lib/api";
 import { useSettings } from "@/providers/SettingsProvider";
 import { Toaster, useToaster } from "@/components/common/Toaster";
@@ -82,6 +83,7 @@ export function FormsView() {
     pageSize: 10,
   });
   const [deletingForm, setDeletingForm] = useState<CmsForm | null>(null);
+  const [newFormOpen, setNewFormOpen] = useState(false);
   const [filterDraft, setFilterDraft] = useState<FormFilters>(DEFAULT_FILTERS);
   const [activeFilters, setActiveFilters] =
     useState<FormFilters>(DEFAULT_FILTERS);
@@ -109,7 +111,7 @@ export function FormsView() {
     return orgSlug
       ? `${window.location.origin}/sites/${orgSlug}/form/${formSlug}`
       : "#";
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [domain, settings]);
 
   // Lock outer scroll while table is mounted
@@ -231,6 +233,15 @@ export function FormsView() {
     getPaginationRowModel: getPaginationRowModel(),
     enableRowSelection: true,
   });
+
+  const handleChooseBlueprint = (blueprintKey: string | null) => {
+    setNewFormOpen(false);
+    router.push(
+      blueprintKey
+        ? `/cms/forms/new?blueprint=${blueprintKey}`
+        : "/cms/forms/new",
+    );
+  };
 
   const handleConfirmDelete = () => {
     if (!deletingForm) return;
@@ -368,7 +379,7 @@ export function FormsView() {
 
               {/* New form */}
               <Button
-                onClick={() => router.push("/cms/forms/new")}
+                onClick={() => setNewFormOpen(true)}
                 radius="sm"
                 size="md"
                 className="px-4 font-semibold active:scale-[0.98] group"
@@ -397,7 +408,14 @@ export function FormsView() {
           <FormsTable
             table={table}
             hasFiltersApplied={hasFiltersApplied}
-            onCreateFirst={() => router.push("/cms/forms/new")}
+            onCreateFirst={() => setNewFormOpen(true)}
+          />
+
+          {/* ── New form blueprint picker ───────────────────────────────── */}
+          <NewFormModal
+            isOpen={newFormOpen}
+            onClose={() => setNewFormOpen(false)}
+            onChoose={handleChooseBlueprint}
           />
 
           <Toaster toasts={toasts} onDismiss={dismiss} />
