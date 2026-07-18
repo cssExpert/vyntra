@@ -6,7 +6,7 @@ import {
   motion,
   AnimatePresence,
 } from "framer-motion";
-import { GripVertical, Plus, X, Copy, Trash2 } from "lucide-react";
+import { GripVertical, Plus, X, Copy, Trash2, Eye } from "lucide-react";
 
 import { FIELD_TYPES, getFieldMeta, renderFieldIcon } from "./field-config";
 import { isChoiceField, type FieldType, type FormField } from "../forms.types";
@@ -14,6 +14,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { FormRichTextEditor } from "./FormRichTextEditor";
 import { ColorPickerPopover } from "./ColorPickerPopover";
+import { SegmentedControl } from "./controls";
+import { ImageFieldEditor } from "./ImageFieldEditor";
+import { ButtonFieldEditor } from "./ButtonFieldEditor";
 import { FormSeparator } from "../FormSeparator";
 
 interface FieldCardProps {
@@ -29,15 +32,20 @@ interface FieldCardProps {
 function RequiredToggle({
   checked,
   onChange,
+  label = "Required",
 }: {
   checked: boolean;
   onChange: (v: boolean) => void;
+  label?: string;
 }) {
   return (
     <Button
       type="button"
       variant="ghost"
-      onClick={() => onChange(!checked)}
+      onClick={(e) => {
+        e.stopPropagation();
+        onChange(!checked);
+      }}
       className="flex items-center gap-2 h-auto p-0 select-none hover:bg-transparent"
     >
       <span
@@ -50,7 +58,7 @@ function RequiredToggle({
         />
       </span>
       <span className="text-xs font-medium text-muted-foreground">
-        Required
+        {label}
       </span>
     </Button>
   );
@@ -280,6 +288,61 @@ export function FieldCard({
     );
   }
 
+  // Image and Button are display/action blocks — a compact header row plus a
+  // dedicated editor, no question label / required toggle.
+  if (field.type === "image" || field.type === "button") {
+    return (
+      <Reorder.Item
+        value={field}
+        dragListener={false}
+        dragControls={dragControls}
+        layout="position"
+        initial={{ opacity: 0, y: 12, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.96 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        onClick={onActivate}
+        className={`relative bg-card border rounded-xl overflow-hidden transition-shadow ${
+          isActive
+            ? "border-primary/40 shadow-[0_4px_20px_rgba(0,0,0,0.08)]"
+            : "border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:border-primary/20"
+        }`}
+      >
+        <div className="flex items-start gap-3 p-4">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onPointerDown={(e) => dragControls.start(e)}
+            className="mt-1.5 h-auto w-auto p-0 text-muted-foreground/40 hover:text-muted-foreground cursor-grab active:cursor-grabbing touch-none"
+            aria-label="Reorder field"
+          >
+            <GripVertical size={16} />
+          </Button>
+
+          <div className="flex-1 min-w-0 space-y-3">
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className="inline-flex items-center justify-center w-9 h-9 rounded-md bg-primary/10 shrink-0">
+                {renderFieldIcon(meta.icon, "w-5 h-5 text-primary")}
+              </span>
+              <span className="flex-1 min-w-[120px] text-sm font-medium text-muted-foreground">
+                {field.type === "image" ? "Image block" : "Button"}
+              </span>
+              {typeSelect}
+              {rowActions}
+            </div>
+
+            {field.type === "image" ? (
+              <ImageFieldEditor field={field} onChange={onChange} />
+            ) : (
+              <ButtonFieldEditor field={field} onChange={onChange} />
+            )}
+          </div>
+        </div>
+      </Reorder.Item>
+    );
+  }
+
   const setOption = (i: number, value: string) =>
     onChange({
       options: field.options.map((o, idx) => (idx === i ? value : o)),
@@ -410,35 +473,36 @@ export function FieldCard({
                         <span className="text-xs font-medium text-muted-foreground">
                           Layout
                         </span>
-                        <div className="inline-flex rounded-md border border-border overflow-hidden">
-                          {(
-                            [
-                              { key: "stacked", label: "Stacked" },
-                              { key: "inline", label: "Inline" },
-                            ] as const
-                          ).map((opt) => {
-                            const active =
-                              (field.optionsLayout ?? "stacked") === opt.key;
-                            return (
-                              <button
-                                key={opt.key}
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  onChange({ optionsLayout: opt.key });
-                                }}
-                                className={`px-2.5 py-1 text-xs font-medium transition-colors ${
-                                  active
-                                    ? "bg-primary text-primary-foreground"
-                                    : "bg-background text-muted-foreground hover:text-foreground"
-                                }`}
-                              >
-                                {opt.label}
-                              </button>
-                            );
-                          })}
-                        </div>
+                        <SegmentedControl
+                          size="sm"
+                          value={field.optionsLayout ?? "stacked"}
+                          onChange={(v) => onChange({ optionsLayout: v })}
+                          options={[
+                            { value: "stacked", label: "Stacked" },
+                            { value: "inline", label: "Inline" },
+                          ]}
+                        />
                       </div>
+                    )}
+                  </div>
+                ) : field.type === "password" ? (
+                  <div className="relative">
+                    <Input
+                      value={field.placeholder ?? ""}
+                      onChange={(e) =>
+                        onChange({ placeholder: e.target.value })
+                      }
+                      placeholder="Placeholder text (optional)"
+                      size="lg"
+                      className={`w-full bg-muted/40 border border-border rounded-lg px-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all ${
+                        field.passwordToggle !== false ? "pr-10" : ""
+                      }`}
+                    />
+                    {field.passwordToggle !== false && (
+                      <Eye
+                        size={16}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 pointer-events-none"
+                      />
                     )}
                   </div>
                 ) : (
@@ -465,10 +529,19 @@ export function FieldCard({
 
                 {/* Footer actions */}
                 <div className="flex items-center justify-between pt-2 border-t border-border">
-                  <RequiredToggle
-                    checked={field.required}
-                    onChange={(required) => onChange({ required })}
-                  />
+                  <div className="flex items-center gap-5">
+                    <RequiredToggle
+                      checked={field.required}
+                      onChange={(required) => onChange({ required })}
+                    />
+                    {field.type === "password" && (
+                      <RequiredToggle
+                        label="Eye toggle"
+                        checked={field.passwordToggle !== false}
+                        onChange={(v) => onChange({ passwordToggle: v })}
+                      />
+                    )}
+                  </div>
                   {rowActions}
                 </div>
               </div>

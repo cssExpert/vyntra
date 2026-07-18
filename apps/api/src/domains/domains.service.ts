@@ -811,6 +811,8 @@ export class DomainsService {
           slug: true,
           fields: true,
           captchaEnabled: true,
+          submitButton: true,
+          settings: true,
         },
       }),
       this.prisma.organization.findUnique({

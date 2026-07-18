@@ -45,7 +45,7 @@ const SWATCH_PRESETS = [
 
 // ── Google Fonts list ─────────────────────────────────────────────────────────
 
-const GOOGLE_FONTS = [
+export const GOOGLE_FONTS = [
   "Inter",
   "Roboto",
   "Open Sans",
@@ -218,7 +218,7 @@ function ColorField({
 
 type FontPickerTab = "google" | "custom";
 
-function FontPicker({
+export function FontPicker({
   label,
   value,
   onChange,

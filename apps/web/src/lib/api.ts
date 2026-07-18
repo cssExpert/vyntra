@@ -1046,6 +1046,8 @@ export interface CmsFormItem {
   status: string;
   fields: CmsFormField[];
   captchaEnabled: boolean;
+  submitButton?: unknown;
+  settings?: unknown;
   responses: number;
   createdAt: string;
   updatedAt: string;
@@ -1058,6 +1060,8 @@ export interface CmsFormSaveDto {
   status?: string;
   fields?: CmsFormField[];
   captchaEnabled?: boolean;
+  submitButton?: unknown;
+  settings?: unknown;
 }
 
 export const cmsForms = {

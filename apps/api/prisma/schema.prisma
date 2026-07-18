@@ -692,6 +692,10 @@ model CmsForm {
   status         String   @default("Draft")
   fields         Json     @default("[]")
   captchaEnabled Boolean  @default(false)
+  // Submit button config: { label, color, align, icon, iconPosition }
+  submitButton   Json?
+  // Appearance/layout config: { width, maxWidth, boxed, shadow, headerFont, bodyFont }
+  settings       Json?
   organizationId String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt

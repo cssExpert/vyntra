@@ -4,15 +4,24 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
-import { MoveLeft, Eye, Save, Plus, Sparkles, Check, Loader2, ShieldCheck } from "lucide-react";
+import { MoveLeft, Eye, Save, Plus, Sparkles, Check, Loader2, ShieldCheck, Settings } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { FieldPalette } from "./FieldPalette";
 import { FieldCard } from "./FieldCard";
 import { FormPreviewModal } from "./FormPreviewModal";
+import { SubmitButtonEditor } from "./SubmitButtonEditor";
+import { FormSettingsModal } from "./FormSettingsModal";
 import { createField } from "./field-config";
 import { cmsForms } from "@/lib/api";
-import type { FieldType, FormField, FormStatus, CmsForm } from "../forms.types";
+import { loadGoogleFont } from "@/lib/googleFont";
+import {
+  formFontVars,
+  type FieldType,
+  type FormField,
+  type FormStatus,
+  type CmsForm,
+} from "../forms.types";
 
 function slugify(name: string): string {
   return (
@@ -51,6 +60,7 @@ export function FormBuilderView({ formId }: FormBuilderViewProps) {
   const [form, setForm] = useState<CmsForm | null>(null);
   const [activeFieldId, setActiveFieldId] = useState<string | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
 
@@ -67,6 +77,11 @@ export function FormBuilderView({ formId }: FormBuilderViewProps) {
       setActiveFieldId(fresh.fields[0]?.id ?? null);
     }
   }, [formId]);
+
+  useEffect(() => {
+    loadGoogleFont(form?.settings?.headerFont);
+    loadGoogleFont(form?.settings?.bodyFont);
+  }, [form?.settings?.headerFont, form?.settings?.bodyFont]);
 
   if (!form) return null;
 
@@ -118,6 +133,8 @@ export function FormBuilderView({ formId }: FormBuilderViewProps) {
         status: form.status,
         fields: form.fields,
         captchaEnabled: form.captchaEnabled,
+        submitButton: form.submitButton ?? undefined,
+        settings: form.settings ?? undefined,
       };
 
       if (formId && form.id) {
@@ -269,13 +286,24 @@ export function FormBuilderView({ formId }: FormBuilderViewProps) {
           }
         />
 
-        <div className="max-w-3xl w-full mx-auto space-y-3">
+        <div
+          className="form-fonts max-w-3xl w-full mx-auto space-y-3"
+          style={formFontVars(form.settings)}
+        >
           {/* Form title card */}
           <motion.div
             layout
-            className="bg-card border border-border rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden"
+            className="relative bg-card border border-border rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden"
           >
-            <div className="p-5 space-y-2">
+            <button
+              type="button"
+              onClick={() => setSettingsOpen(true)}
+              title="Form settings"
+              className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            >
+              <Settings size={17} />
+            </button>
+            <div className="p-5 pr-14 space-y-2">
               <input
                 value={form.name}
                 onChange={(e) => patchForm({ name: e.target.value })}
@@ -344,12 +372,27 @@ export function FormBuilderView({ formId }: FormBuilderViewProps) {
             />
             Add field
           </motion.button>
+
+          {/* Submit button configuration */}
+          <SubmitButtonEditor
+            value={form.submitButton}
+            onChange={(submitButton) => patchForm({ submitButton })}
+          />
         </div>
       </div>
 
       <FormPreviewModal
         form={previewOpen ? form : null}
         onClose={() => setPreviewOpen(false)}
+      />
+
+      <FormSettingsModal
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        settings={form.settings}
+        onChange={(settings) => patchForm({ settings })}
+        slug={form.slug || slugify(form.name || "form")}
+        name={form.name}
       />
     </motion.div>
   );

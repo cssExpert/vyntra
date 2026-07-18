@@ -1,7 +1,11 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { PublicFormView } from "@/modules/cms/forms/PublicFormView";
-import type { FormField } from "@/modules/cms/forms/forms.types";
+import type {
+  FormField,
+  SubmitButtonConfig,
+  FormSettings,
+} from "@/modules/cms/forms/forms.types";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +37,8 @@ async function fetchPublicForm(orgId: string, slug: string): Promise<{
   slug: string;
   fields: FormField[];
   captchaEnabled: boolean;
+  submitButton?: SubmitButtonConfig | null;
+  settings?: FormSettings | null;
 } | null> {
   try {
     const res = await fetch(

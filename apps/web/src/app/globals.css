@@ -650,6 +650,19 @@
 .tiptap li p {
   margin: 0;
 }
+.tiptap a {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+/* Form-scope fonts: headings use the header font, body uses the body font. */
+.form-fonts .tiptap {
+  font-family: var(--form-body-font, inherit);
+}
+.form-fonts .tiptap :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--form-heading-font, inherit);
+}
 /* Task list (to-do) */
 .tiptap ul[data-type="taskList"] {
   list-style: none;

@@ -7,6 +7,8 @@ import StarterKit from "@tiptap/starter-kit";
 import TextStyle from "@tiptap/extension-text-style";
 import { Color } from "@tiptap/extension-color";
 import UnderlineExt from "@tiptap/extension-underline";
+import LinkExt from "@tiptap/extension-link";
+import TextAlign from "@tiptap/extension-text-align";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Sketch } from "@uiw/react-color";
 import {
@@ -14,6 +16,10 @@ import {
   List,
   ListOrdered,
   Underline as UnderlineIcon,
+  Link2Icon,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
 } from "lucide-react";
 import {
   Tooltip,
@@ -83,6 +89,16 @@ export function FormRichTextEditor({
   const triggerRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
 
+  // Themed link editor popover.
+  const [linkOpen, setLinkOpen] = useState(false);
+  const [linkUrl, setLinkUrl] = useState("");
+  const [linkCoords, setLinkCoords] = useState<{ top: number; left: number }>({
+    top: 0,
+    left: 0,
+  });
+  const linkPopRef = useRef<HTMLDivElement>(null);
+  const linkInputRef = useRef<HTMLInputElement>(null);
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -90,6 +106,16 @@ export function FormRichTextEditor({
       TextStyle,
       Color,
       UnderlineExt,
+      LinkExt.configure({
+        openOnClick: false,
+        autolink: true,
+        HTMLAttributes: {
+          class: "text-primary underline underline-offset-2",
+          rel: "noopener noreferrer",
+          target: "_blank",
+        },
+      }),
+      TextAlign.configure({ types: ["heading", "paragraph"] }),
       Placeholder.configure({ placeholder: "Write formatted text…" }),
     ],
     content: value || "",
@@ -117,6 +143,32 @@ export function FormRichTextEditor({
   const activeColor = editor?.getAttributes("textStyle")?.color as
     | string
     | undefined;
+
+  /** Open the themed link editor anchored to the clicked button. */
+  const openLink = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!editor) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    setLinkCoords({
+      top: r.bottom + 6,
+      left: Math.min(r.left, window.innerWidth - 340),
+    });
+    setLinkUrl((editor.getAttributes("link").href as string) ?? "https://");
+    setLinkOpen(true);
+  };
+
+  const applyLink = () => {
+    if (!editor) return;
+    const url = linkUrl.trim();
+    const chain = editor.chain().focus().extendMarkRange("link");
+    if (url === "") chain.unsetLink().run();
+    else chain.setLink({ href: url }).run();
+    setLinkOpen(false);
+  };
+
+  const removeLink = () => {
+    editor?.chain().focus().extendMarkRange("link").unsetLink().run();
+    setLinkOpen(false);
+  };
 
   const toggleColor = () => {
     if (!colorOpen && triggerRef.current) {
@@ -153,6 +205,22 @@ export function FormRichTextEditor({
     return () => document.removeEventListener("mousedown", handler);
   }, [colorOpen]);
 
+  // Focus the link input on open; close on outside click.
+  useEffect(() => {
+    if (!linkOpen) return;
+    const id = window.setTimeout(() => linkInputRef.current?.focus(), 0);
+    const handler = (e: MouseEvent) => {
+      if (linkPopRef.current && !linkPopRef.current.contains(e.target as Node)) {
+        setLinkOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => {
+      window.clearTimeout(id);
+      document.removeEventListener("mousedown", handler);
+    };
+  }, [linkOpen]);
+
   /** A toolbar pill button with a tooltip. */
   const TBtn = ({
     tip,
@@ -163,7 +231,7 @@ export function FormRichTextEditor({
   }: {
     tip: string;
     active?: boolean;
-    onClick: () => void;
+    onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
     className?: string;
     children: ReactNode;
   }) => (
@@ -173,7 +241,7 @@ export function FormRichTextEditor({
           type="button"
           onMouseDown={(e) => {
             e.preventDefault();
-            onClick();
+            onClick(e);
           }}
           className={cn(pill(active), className)}
         >
@@ -231,7 +299,7 @@ export function FormRichTextEditor({
                   tip={b.tip}
                   active={b.active}
                   onClick={b.run}
-                  className="px-3 border-r border-border last:border-r-0 font-semibold"
+                  className="px-2.5 border-r border-border last:border-r-0 font-semibold text-xs"
                 >
                   {b.label}
                 </TBtn>
@@ -245,7 +313,7 @@ export function FormRichTextEditor({
               tip="Bold"
               active={editor?.isActive("bold")}
               onClick={() => editor?.chain().focus().toggleBold().run()}
-              className="px-3 font-bold border-r border-border"
+              className="px-2.5 font-bold border-r border-border text-xs"
             >
               Bold
             </TBtn>
@@ -253,7 +321,7 @@ export function FormRichTextEditor({
               tip="Italic"
               active={editor?.isActive("italic")}
               onClick={() => editor?.chain().focus().toggleItalic().run()}
-              className="px-3 italic border-r border-border"
+              className="px-2.5 italic border-r border-border text-xs"
             >
               Italic
             </TBtn>
@@ -261,9 +329,17 @@ export function FormRichTextEditor({
               tip="Underline"
               active={editor?.isActive("underline")}
               onClick={() => editor?.chain().focus().toggleUnderline().run()}
-              className="px-2.5"
+              className="px-2.5 border-r border-border"
             >
               <UnderlineIcon className="w-3.5 h-3.5" />
+            </TBtn>
+            <TBtn
+              tip="Insert link"
+              active={editor?.isActive("link")}
+              onClick={openLink}
+              className="px-2.5"
+            >
+              <Link2Icon className="w-3.5 h-3.5" />
             </TBtn>
           </div>
 
@@ -287,6 +363,34 @@ export function FormRichTextEditor({
             </TBtn>
           </div>
 
+          {/* Alignment */}
+          <div className={GROUP}>
+            <TBtn
+              tip="Align left"
+              active={editor?.isActive({ textAlign: "left" })}
+              onClick={() => editor?.chain().focus().setTextAlign("left").run()}
+              className="px-2.5 border-r border-border"
+            >
+              <AlignLeft className="w-3.5 h-3.5" />
+            </TBtn>
+            <TBtn
+              tip="Align center"
+              active={editor?.isActive({ textAlign: "center" })}
+              onClick={() => editor?.chain().focus().setTextAlign("center").run()}
+              className="px-2.5 border-r border-border"
+            >
+              <AlignCenter className="w-3.5 h-3.5" />
+            </TBtn>
+            <TBtn
+              tip="Align right"
+              active={editor?.isActive({ textAlign: "right" })}
+              onClick={() => editor?.chain().focus().setTextAlign("right").run()}
+              className="px-2.5"
+            >
+              <AlignRight className="w-3.5 h-3.5" />
+            </TBtn>
+          </div>
+
           {/* Colour picker (Settings' Sketch) */}
           <div ref={triggerRef} className="shrink-0">
             <Tooltip>
@@ -296,7 +400,7 @@ export function FormRichTextEditor({
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={toggleColor}
                   className={cn(
-                    "h-8 inline-flex items-center gap-2 rounded-lg border px-3 text-sm font-medium text-foreground transition-colors shrink-0",
+                    "h-8 inline-flex items-center gap-1.5 rounded-lg border px-2.5 text-sm font-medium text-foreground transition-colors shrink-0",
                     colorOpen
                       ? "border-primary bg-muted"
                       : "border-border bg-background hover:bg-muted",
@@ -306,7 +410,6 @@ export function FormRichTextEditor({
                     className="w-4 h-4 rounded-full border border-border/60"
                     style={{ backgroundColor: activeColor || "#111827" }}
                   />
-                  Color
                   <ChevronDown
                     className={cn(
                       "w-3.5 h-3.5 text-muted-foreground transition-transform duration-150",
@@ -348,6 +451,67 @@ export function FormRichTextEditor({
                 } as React.CSSProperties
               }
             />
+          </div>,
+          document.body,
+        )}
+
+      {/* Themed link editor popover */}
+      {linkOpen &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            ref={linkPopRef}
+            style={{
+              position: "fixed",
+              top: linkCoords.top,
+              left: linkCoords.left,
+              zIndex: 9999,
+            }}
+            className="w-80 max-w-[calc(100vw-1.5rem)] rounded-lg border border-border bg-popover p-3 shadow-[0_8px_30px_rgba(0,0,0,0.18)]"
+          >
+            <p className="text-xs font-semibold text-muted-foreground mb-1.5">
+              Link URL
+            </p>
+            <input
+              ref={linkInputRef}
+              value={linkUrl}
+              onChange={(e) => setLinkUrl(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  applyLink();
+                } else if (e.key === "Escape") {
+                  setLinkOpen(false);
+                }
+              }}
+              placeholder="https://…"
+              className="w-full h-9 rounded-lg border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-ring focus:ring-2 focus:ring-ring/20 transition-all"
+            />
+            <div className="mt-3 flex items-center justify-end gap-2">
+              {editor?.isActive("link") && (
+                <button
+                  type="button"
+                  onClick={removeLink}
+                  className="mr-auto text-xs font-medium text-rose-500 hover:text-rose-600 transition-colors"
+                >
+                  Remove
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setLinkOpen(false)}
+                className="h-8 px-3 rounded-lg text-xs font-medium text-muted-foreground hover:bg-muted transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={applyLink}
+                className="h-8 px-4 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+              >
+                Apply
+              </button>
+            </div>
           </div>,
           document.body,
         )}

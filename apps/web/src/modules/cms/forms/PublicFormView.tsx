@@ -1,12 +1,24 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import Script from "next/script";
 import { motion, AnimatePresence } from "framer-motion";
-import { Star, Upload, Send, Check, AlertCircle } from "lucide-react";
+import { Star, Upload, Check, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { htmlHasContent, isLayoutField, type FormField } from "./forms.types";
+import {
+  htmlHasContent,
+  isLayoutField,
+  resolveFormAppearance,
+  type FormField,
+  type FormSettings,
+  type SubmitButtonConfig,
+} from "./forms.types";
 import { FormSeparator } from "./FormSeparator";
+import { SubmitButtonView } from "./SubmitButtonView";
+import { PasswordInput } from "./PasswordInput";
+import { FormImage } from "./FormImage";
+import { loadGoogleFont } from "@/lib/googleFont";
+import { cn } from "@/lib/utils";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
@@ -212,6 +224,18 @@ function FieldInput({
         />
       );
 
+    case "password":
+      return (
+        <PasswordInput
+          value={value as string}
+          onChange={(v) => onChange(v)}
+          placeholder={field.placeholder || "Enter your password"}
+          disabled={disabled}
+          showToggle={field.passwordToggle !== false}
+          className={`${inputCls} ${borderCls}`}
+        />
+      );
+
     case "number":
       return (
         <input
@@ -259,6 +283,8 @@ interface PublicFormViewProps {
     slug: string;
     fields: FormField[];
     captchaEnabled: boolean;
+    submitButton?: SubmitButtonConfig | null;
+    settings?: FormSettings | null;
   };
   orgId: string;
 }
@@ -296,6 +322,12 @@ export function PublicFormView({ form, orgId }: PublicFormViewProps) {
   const recaptchaReady = useRef(false);
 
   const captchaActive = form.captchaEnabled && !!RECAPTCHA_SITE_KEY;
+  const appearance = resolveFormAppearance(form.settings);
+
+  useEffect(() => {
+    loadGoogleFont(form.settings?.headerFont);
+    loadGoogleFont(form.settings?.bodyFont);
+  }, [form.settings?.headerFont, form.settings?.bodyFont]);
 
   const setField = useCallback((id: string, v: string | string[]) => {
     setValues((prev) => ({ ...prev, [id]: v }));
@@ -401,14 +433,14 @@ export function PublicFormView({ form, orgId }: PublicFormViewProps) {
   return (
     <div className="min-h-screen bg-background py-12 px-4">
       {recaptchaScript}
-      <div className="max-w-xl mx-auto">
+      <div className={cn("form-fonts mx-auto", appearance.containerClass)} style={appearance.containerStyle}>
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-2xl font-bold text-foreground">
+          <h1 className="text-2xl font-bold text-foreground" style={appearance.headerFontStyle}>
             {form.name || "Untitled form"}
           </h1>
           {form.description && (
@@ -440,6 +472,10 @@ export function PublicFormView({ form, orgId }: PublicFormViewProps) {
                         textColor={field.textColor}
                       />
                     </div>
+                  ) : field.type === "image" ? (
+                    <FormImage field={field} />
+                  ) : field.type === "button" ? (
+                    <SubmitButtonView config={field.button} block />
                   ) : field.type === "long_text" ? (
                     <div className="space-y-1.5">
                       {field.label && (
@@ -499,21 +535,21 @@ export function PublicFormView({ form, orgId }: PublicFormViewProps) {
             )}
 
             {/* Submit button */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.04 + form.fields.length * 0.04 }}
-            >
-              <Button
-                onClick={handleSubmit}
-                disabled={submitting}
-                radius="sm"
-                className="px-6 font-semibold active:scale-95"
-                startIcon={<Send size={14} />}
+            {!form.submitButton?.hidden && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.04 + form.fields.length * 0.04 }}
               >
-                {submitting ? "Submitting…" : "Submit"}
-              </Button>
-            </motion.div>
+                <SubmitButtonView
+                  config={form.submitButton}
+                  loading={submitting}
+                  loadingLabel="Submitting…"
+                  onClick={handleSubmit}
+                  block
+                />
+              </motion.div>
+            )}
           </div>
         )}
       </div>

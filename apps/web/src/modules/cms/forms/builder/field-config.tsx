@@ -13,6 +13,9 @@ import {
   Star,
   Upload,
   Minus,
+  Lock,
+  Image as ImageIcon,
+  SquareMousePointer,
 } from "lucide-react";
 import Icon from "@/components/common/Icon";
 import type { IconNames } from "@/components/common/Icons";
@@ -110,6 +113,7 @@ export const FIELD_TYPES: FieldTypeMeta[] = [
     ),
   },
   { type: "email", label: "Email", hint: "Validated email input", icon: Mail },
+  { type: "password", label: "Password", hint: "Masked password input", icon: Lock },
   { type: "number", label: "Number", hint: "Numeric input", icon: Hash },
   { type: "date", label: "Date", hint: "Date picker", icon: Calendar },
   { type: "rating", label: "Rating", hint: "1-5 star scale", icon: Star },
@@ -124,6 +128,18 @@ export const FIELD_TYPES: FieldTypeMeta[] = [
     label: "Separator",
     hint: "Horizontal divider line",
     icon: Minus,
+  },
+  {
+    type: "image",
+    label: "Image",
+    hint: "Logo or picture",
+    icon: ImageIcon,
+  },
+  {
+    type: "button",
+    label: "Button",
+    hint: "Link or social button",
+    icon: SquareMousePointer,
   },
 ];
 

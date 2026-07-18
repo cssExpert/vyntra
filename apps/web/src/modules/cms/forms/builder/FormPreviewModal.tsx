@@ -3,14 +3,23 @@
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
-import { Eye, Star, Upload, Check, Send } from "lucide-react";
+import { Eye, Star, Upload, Check } from "lucide-react";
 
 import { Modal } from "@/components/common/Modal";
 import { Button } from "@/components/ui/button";
-import { htmlHasContent, type CmsForm, type FormField } from "../forms.types";
+import {
+  htmlHasContent,
+  formFontStyle,
+  type CmsForm,
+  type FormField,
+} from "../forms.types";
+import { loadGoogleFont } from "@/lib/googleFont";
 import { Input } from "@/components/ui/input";
 import { DatePickerField } from "@/components/common/DatePickerField";
 import { FormSeparator } from "../FormSeparator";
+import { SubmitButtonView } from "../SubmitButtonView";
+import { FormImage } from "../FormImage";
+import { PasswordInput } from "../PasswordInput";
 
 const inputCls =
   "w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all";
@@ -49,6 +58,20 @@ function RatingInput() {
 function PreviewDate() {
   const [value, setValue] = useState("");
   return <DatePickerField value={value} onChange={setValue} />;
+}
+
+/** Local-state wrapper so the preview password field is interactive. */
+function PreviewPassword({ field }: { field: FormField }) {
+  const [value, setValue] = useState("");
+  return (
+    <PasswordInput
+      value={value}
+      onChange={setValue}
+      placeholder={field.placeholder || "Enter your password"}
+      showToggle={field.passwordToggle !== false}
+      className={inputCls}
+    />
+  );
 }
 
 function PreviewField({ field }: { field: FormField }) {
@@ -126,6 +149,8 @@ function PreviewField({ field }: { field: FormField }) {
       );
     case "date":
       return <PreviewDate />;
+    case "password":
+      return <PreviewPassword field={field} />;
     default:
       return (
         <Input
@@ -151,14 +176,17 @@ export function FormPreviewModal({ form, onClose }: FormPreviewModalProps) {
     setSubmitted(false);
   }, [form?.id]);
 
+  useEffect(() => {
+    loadGoogleFont(form?.settings?.headerFont);
+    loadGoogleFont(form?.settings?.bodyFont);
+  }, [form?.settings?.headerFont, form?.settings?.bodyFont]);
+
   return (
     <Modal
       isOpen={!!form}
       onClose={onClose}
-      title={form?.name?.trim() || "Untitled form"}
-      description={
-        form?.description || "Form preview — responses are not saved."
-      }
+      title="Form preview"
+      description="Responses are not saved."
       icon={<Eye size={18} />}
       maxWidth="xl"
       footer={
@@ -180,15 +208,11 @@ export function FormPreviewModal({ form, onClose }: FormPreviewModalProps) {
               Close
             </Button>
           </>
-        ) : form && form.fields.length > 0 ? (
-          <Button
-            radius="sm"
+        ) : form && form.fields.length > 0 && !form.submitButton?.hidden ? (
+          <SubmitButtonView
+            config={form.submitButton}
             onClick={() => setSubmitted(true)}
-            className="px-5 font-semibold active:scale-95"
-            startIcon={<Send size={14} />}
-          >
-            Submit
-          </Button>
+          />
         ) : undefined
       }
     >
@@ -211,7 +235,25 @@ export function FormPreviewModal({ form, onClose }: FormPreviewModalProps) {
             </p>
           </div>
         ) : (
-          <div className="p-6 space-y-5">
+          <div
+            className="p-6 space-y-5 form-fonts"
+            style={formFontStyle(form.settings)}
+          >
+            {(form.name?.trim() || form.description) && (
+              <div>
+                <h1
+                  className="text-2xl font-bold text-foreground"
+                  style={{ fontFamily: "var(--form-heading-font)" }}
+                >
+                  {form.name?.trim() || "Untitled form"}
+                </h1>
+                {form.description && (
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {form.description}
+                  </p>
+                )}
+              </div>
+            )}
             {form.fields.map((field, i) => (
               <motion.div
                 key={field.id}
@@ -227,6 +269,10 @@ export function FormPreviewModal({ form, onClose }: FormPreviewModalProps) {
                       textColor={field.textColor}
                     />
                   </div>
+                ) : field.type === "image" ? (
+                  <FormImage field={field} />
+                ) : field.type === "button" ? (
+                  <SubmitButtonView config={field.button} block />
                 ) : field.type === "long_text" ? (
                   <div className="space-y-1.5">
                     {field.label && (

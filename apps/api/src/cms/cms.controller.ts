@@ -365,7 +365,7 @@ export class CmsController {
   @Post('forms')
   createForm(
     @CurrentOrg() orgId: string | null,
-    @Body() body: { name: string; description?: string; slug: string; status?: string; fields?: unknown[]; captchaEnabled?: boolean },
+    @Body() body: { name: string; description?: string; slug: string; status?: string; fields?: unknown[]; captchaEnabled?: boolean; submitButton?: unknown; settings?: unknown },
   ) {
     return this.cmsService.createForm(requireOrg(orgId), body);
   }
@@ -375,7 +375,7 @@ export class CmsController {
   updateForm(
     @CurrentOrg() orgId: string | null,
     @Param('id') id: string,
-    @Body() body: { name?: string; description?: string; slug?: string; status?: string; fields?: unknown[]; captchaEnabled?: boolean },
+    @Body() body: { name?: string; description?: string; slug?: string; status?: string; fields?: unknown[]; captchaEnabled?: boolean; submitButton?: unknown; settings?: unknown },
   ) {
     return this.cmsService.updateForm(requireOrg(orgId), id, body);
   }

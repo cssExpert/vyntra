@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { Sketch } from "@uiw/react-color";
 import { ChevronDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CONTROL_H } from "./controls";
 
 /** Preset swatches — same set as the Settings colour pickers. */
 const SWATCH_PRESETS = [
@@ -93,7 +94,8 @@ export function ColorPickerPopover({
           toggle();
         }}
         className={cn(
-          "h-8 inline-flex items-center gap-2 rounded-lg border px-2.5 text-xs font-medium text-foreground transition-colors",
+          CONTROL_H,
+          "inline-flex items-center gap-2 rounded-lg border px-2.5 text-xs font-medium text-foreground transition-colors",
           open ? "border-primary bg-muted" : "border-border bg-background hover:bg-muted",
         )}
       >

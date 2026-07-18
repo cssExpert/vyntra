@@ -855,7 +855,7 @@ export class CmsService {
 
   // ── CMS Forms ────────────────────────────────────────────────────────────────
 
-  private formatForm(f: { id: string; name: string; description: string | null; slug: string; status: string; fields: unknown; captchaEnabled: boolean; createdAt: Date; updatedAt: Date; _count: { submissions: number } }) {
+  private formatForm(f: { id: string; name: string; description: string | null; slug: string; status: string; fields: unknown; captchaEnabled: boolean; submitButton: unknown; settings: unknown; createdAt: Date; updatedAt: Date; _count: { submissions: number } }) {
     return {
       id: f.id,
       name: f.name,
@@ -864,6 +864,8 @@ export class CmsService {
       status: f.status,
       fields: f.fields,
       captchaEnabled: f.captchaEnabled,
+      submitButton: f.submitButton ?? null,
+      settings: f.settings ?? null,
       responses: f._count.submissions,
       createdAt: f.createdAt.toISOString(),
       updatedAt: f.updatedAt.toISOString(),
@@ -888,7 +890,7 @@ export class CmsService {
     return this.formatForm(form);
   }
 
-  async createForm(orgId: string, dto: { name: string; description?: string; slug: string; status?: string; fields?: unknown[]; captchaEnabled?: boolean }) {
+  async createForm(orgId: string, dto: { name: string; description?: string; slug: string; status?: string; fields?: unknown[]; captchaEnabled?: boolean; submitButton?: unknown; settings?: unknown }) {
     const form = await this.prisma.cmsForm.create({
       data: {
         name: dto.name,
@@ -897,6 +899,8 @@ export class CmsService {
         status: dto.status ?? 'Draft',
         fields: (dto.fields ?? []) as object,
         captchaEnabled: dto.captchaEnabled ?? false,
+        submitButton: (dto.submitButton ?? undefined) as object | undefined,
+        settings: (dto.settings ?? undefined) as object | undefined,
         organizationId: orgId,
       },
       include: { _count: { select: { submissions: true } } },
@@ -904,7 +908,7 @@ export class CmsService {
     return this.formatForm(form);
   }
 
-  async updateForm(orgId: string, id: string, dto: { name?: string; description?: string; slug?: string; status?: string; fields?: unknown[]; captchaEnabled?: boolean }) {
+  async updateForm(orgId: string, id: string, dto: { name?: string; description?: string; slug?: string; status?: string; fields?: unknown[]; captchaEnabled?: boolean; submitButton?: unknown; settings?: unknown }) {
     const existing = await this.prisma.cmsForm.findFirst({ where: { id, organizationId: orgId } });
     if (!existing) throw new NotFoundException('Form not found');
     const form = await this.prisma.cmsForm.update({
@@ -916,6 +920,8 @@ export class CmsService {
         ...(dto.status !== undefined && { status: dto.status }),
         ...(dto.fields !== undefined && { fields: dto.fields as object }),
         ...(dto.captchaEnabled !== undefined && { captchaEnabled: dto.captchaEnabled }),
+        ...(dto.submitButton !== undefined && { submitButton: dto.submitButton as object }),
+        ...(dto.settings !== undefined && { settings: dto.settings as object }),
       },
       include: { _count: { select: { submissions: true } } },
     });
@@ -940,6 +946,8 @@ export class CmsService {
         status: 'Draft',
         fields: source.fields as object,
         captchaEnabled: source.captchaEnabled,
+        submitButton: (source.submitButton ?? undefined) as object | undefined,
+        settings: (source.settings ?? undefined) as object | undefined,
         organizationId: orgId,
       },
       include: { _count: { select: { submissions: true } } },
