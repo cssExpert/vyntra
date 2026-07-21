@@ -276,6 +276,18 @@ export const SUPER_ADMIN_NAV: NavSection[] = [
         icon: "Palette",
       },
       {
+        id: "sa-blocks",
+        label: "Blocks",
+        href: "/admin/blocks",
+        icon: "Layers",
+      },
+      {
+        id: "sa-templates",
+        label: "Templates",
+        href: "/admin/templates",
+        icon: "LayoutTemplate",
+      },
+      {
         id: "sa-settings",
         label: "Settings",
         href: "/admin/settings",

@@ -524,6 +524,22 @@
       "created": "Theme created.",
       "updated": "Theme updated."
     },
+    "blocks": {
+      "title": "Blocks",
+      "description": "Reusable block presets — global or theme-specific — used to compose Templates.",
+      "add": "New Block",
+      "cancel": "Cancel",
+      "saving": "Saving…",
+      "saveBlock": "Save Block"
+    },
+    "templates": {
+      "title": "Templates",
+      "description": "Global and theme-specific page templates, composed from Blocks, offered in the CMS page editor's Pick a Template picker.",
+      "add": "New Template",
+      "cancel": "Cancel",
+      "saving": "Saving…",
+      "saveTemplate": "Save Template"
+    },
     "crm": {
       "title": "CRM",
       "description": "Customer Relationship Management",

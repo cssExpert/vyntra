@@ -12,6 +12,7 @@ import { AuditLogInterceptor } from './common/interceptors/audit-log.interceptor
 import { CmsModule } from './cms/cms.module';
 import { DomainsModule } from './domains/domains.module';
 import { ThemesModule } from './themes/themes.module';
+import { TemplatesModule } from './templates/templates.module';
 import { HealthModule } from './health/health.module';
 import { ModulesModule } from './modules/modules.module';
 import { OrganizationsModule } from './organizations/organizations.module';
@@ -41,6 +42,7 @@ import { StoreModule } from './store/store.module';
     DomainsModule,
     CmsModule,
     ThemesModule,
+    TemplatesModule,
     UploadModule,
     StoreModule,
     SystemPageSettingsModule,

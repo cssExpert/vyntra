@@ -564,6 +564,24 @@ export const admin = {
     apiFetch<DbTheme>(`/admin/themes/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
   deleteTheme: (id: string) =>
     apiFetch<{ ok: boolean }>(`/admin/themes/${id}`, { method: "DELETE" }),
+
+  // Global Blocks (building material for Templates)
+  listBlocks: () => apiFetch<DbBlock[]>("/admin/blocks"),
+  createBlock: (body: DbBlockSaveDto) =>
+    apiFetch<DbBlock>("/admin/blocks", { method: "POST", body: JSON.stringify(body) }),
+  updateBlock: (id: string, body: Partial<DbBlockSaveDto>) =>
+    apiFetch<DbBlock>(`/admin/blocks/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
+  deleteBlock: (id: string) =>
+    apiFetch<{ ok: boolean }>(`/admin/blocks/${id}`, { method: "DELETE" }),
+
+  // Global Templates (ordered compositions of Blocks)
+  listTemplates: () => apiFetch<DbTemplate[]>("/admin/templates"),
+  createTemplate: (body: DbTemplateSaveDto) =>
+    apiFetch<DbTemplate>("/admin/templates", { method: "POST", body: JSON.stringify(body) }),
+  updateTemplate: (id: string, body: Partial<DbTemplateSaveDto>) =>
+    apiFetch<DbTemplate>(`/admin/templates/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
+  deleteTemplate: (id: string) =>
+    apiFetch<{ ok: boolean }>(`/admin/templates/${id}`, { method: "DELETE" }),
 };
 
 // ─── CMS pages ───────────────────────────────────────────
@@ -977,6 +995,62 @@ export interface DbTheme {
   updatedAt: string;
 }
 
+export interface DbBlock {
+  id: string;
+  name: string;
+  description: string | null;
+  thumbnail: string | null;
+  category: string | null;
+  blockType: string;
+  data: Record<string, unknown>;
+  isGlobal: boolean;
+  themeIdentifier: string | null;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DbBlockSaveDto {
+  name: string;
+  description?: string;
+  thumbnail?: string;
+  category?: string;
+  blockType: string;
+  data?: Record<string, unknown>;
+  isGlobal?: boolean;
+  themeIdentifier?: string | null;
+  sortOrder?: number;
+}
+
+export interface DbTemplateBlock {
+  id: string;
+  sortOrder: number;
+  block: DbBlock;
+}
+
+export interface DbTemplate {
+  id: string;
+  name: string;
+  description: string | null;
+  thumbnail: string | null;
+  category: string | null;
+  isGlobal: boolean;
+  themeIdentifier: string | null;
+  createdAt: string;
+  updatedAt: string;
+  blocks: DbTemplateBlock[];
+}
+
+export interface DbTemplateSaveDto {
+  name: string;
+  description?: string;
+  thumbnail?: string;
+  category?: string;
+  isGlobal?: boolean;
+  themeIdentifier?: string | null;
+  blockIds?: string[];
+}
+
 export interface ThemeListResponse {
   activeThemeId: string | null;
   global: DbTheme[];
@@ -1189,6 +1263,26 @@ export const galleries = {
     }),
   deleteItem: (id: string, itemId: string) =>
     apiFetch<{ ok: boolean }>(`/cms/galleries/${id}/items/${itemId}`, { method: "DELETE" }),
+};
+
+// ─── CMS Templates (page editor's "Pick a Template" picker) ──────────────────
+
+export interface CmsTemplateBlock {
+  blockType: string;
+  data: Record<string, unknown>;
+}
+
+export interface CmsTemplate {
+  id: string;
+  name: string;
+  description: string | null;
+  thumbnail: string | null;
+  category: string | null;
+  blocks: CmsTemplateBlock[];
+}
+
+export const templates = {
+  list: () => apiFetch<CmsTemplate[]>("/cms/templates"),
 };
 
 // ─── CMS Newsletter Subscribers ──────────────────────────────────────────────

@@ -1522,6 +1522,170 @@ async function main() {
   }
   console.log("   ✓ Orders (5 sample orders — delivered/processing/pending/cancelled)");
 
+  // ── Blocks + Templates (CMS page editor's "Pick a Template" catalog) ────────
+  // Global blocks/templates show for every org; shopingo-scoped ones only show
+  // for orgs whose active theme identifier is "shopingo". Data shapes mirror
+  // apps/web/src/lib/themes/types.ts's BlockDataMap.
+  if ((await prisma.block.count()) === 0) {
+    const globalBlocks = [
+      {
+        name: "Big Sale Hero", category: "Hero", blockType: "hero-carousel",
+        data: {
+          slides: [{
+            title: "Big Sale — Up to 50% Off", subtitle: "Shop the latest arrivals at unbeatable prices.",
+            badge: "Limited Offer", ctaText: "Shop Now", ctaUrl: "/shop", image: "",
+          }],
+          autoPlayMs: 4000,
+        },
+      },
+      {
+        name: "Shipping & Support Features", category: "Content", blockType: "features-banner",
+        data: {
+          features: [
+            { icon: "truck", title: "Free Shipping", description: "Free delivery on all orders over $99." },
+            { icon: "refresh", title: "100% Back Guarantee", description: "Return it within 30 days for a full refund." },
+            { icon: "headphones", title: "Online Support 24/7", description: "Our team is always available to help." },
+          ],
+        },
+      },
+      {
+        name: "Featured Products Grid", category: "Product", blockType: "product-grid",
+        data: {
+          title: "Featured Products", subtitle: "Hand-picked products just for you",
+          source: { sort: "newest", limit: 8 },
+        },
+      },
+      {
+        name: "Newsletter Signup", category: "Footer", blockType: "newsletter",
+        data: {
+          title: "Get Latest Updates", subtitle: "Subscribe for the latest offers & deals",
+          placeholder: "Enter your email address", buttonText: "Subscribe",
+        },
+      },
+    ];
+    const shopingoBlocks = [
+      {
+        name: "New Arrivals / Featured / Sale Tabs", category: "Product", blockType: "product-tabs",
+        data: { tabs: [{ label: "New Arrivals", source: { sort: "newest", limit: 8 } }, { label: "Featured", source: { limit: 8 } }] },
+      },
+      {
+        name: "Shop by Category", category: "Content", blockType: "category-grid",
+        data: { title: "Shop by Category", categories: [], limit: 6 },
+      },
+      {
+        name: "Summer Collection Promo", category: "Hero", blockType: "promo-banner",
+        data: {
+          title: "Exclusive Summer Collection", subtitle: "New Season",
+          description: "Discover the latest trends with up to 40% off.",
+          primaryCtaText: "Shop Collection", primaryCtaUrl: "/shop",
+          secondaryCtaText: "View Lookbook", secondaryCtaUrl: "/lookbook",
+          image: "", badge: "Summer 2026",
+        },
+      },
+      {
+        name: "Page Header Banner", category: "Hero", blockType: "page-header",
+        data: {
+          title: "Page Title", subtitle: "",
+          breadcrumbs: [{ label: "Home", url: "/" }, { label: "Page Title", url: "#" }],
+          backgroundImage: "",
+        },
+      },
+      {
+        name: "Trusted Brands Strip", category: "Discovery", blockType: "brand-carousel",
+        data: {
+          title: "Trusted Brands",
+          brands: [{ name: "Nike", logo: "", url: "#" }, { name: "Adidas", logo: "", url: "#" }, { name: "Puma", logo: "", url: "#" }],
+        },
+      },
+      {
+        name: "Our Story Section", category: "Content", blockType: "text-image",
+        data: {
+          heading: "Our Story",
+          paragraphs: [
+            "We started with a simple idea — make quality products accessible to everyone.",
+            "Today we serve thousands of happy customers across the world with fast, reliable delivery.",
+          ],
+          image: "", imagePosition: "right", ctaText: "Shop Now", ctaUrl: "/shop",
+        },
+      },
+      {
+        name: "From Our Blog", category: "Content", blockType: "blog-section",
+        data: {
+          title: "From Our Blog", subtitle: "Tips, guides and inspiration",
+          posts: [], source: { sort: "newest", limit: 12 }, postsCount: 3,
+          titleStyle: "default", displayMode: "grid", animateCards: false,
+          showNavigation: true, showPagination: true, showPaging: false,
+        },
+      },
+      {
+        name: "Contact Form + Map", category: "Engagement", blockType: "contact-form",
+        data: {
+          formTitle: "Send Us a Message", formSubtitle: "Fill out the form and we'll get back to you within 24 hours.",
+          infoTitle: "Contact Information",
+          address: "123 Commerce Street\nNew York, NY 10001\nUnited States",
+          phone: "+1 (800) 123-4567", email: "hello@yourstore.com",
+          hours: [
+            { day: "Monday – Friday", time: "9:00 AM – 6:00 PM" },
+            { day: "Saturday", time: "10:00 AM – 4:00 PM" },
+            { day: "Sunday", time: "Closed" },
+          ],
+          mapEmbedUrl: "",
+          subjects: ["Order Inquiry", "Return & Refund", "Product Question", "Partnership", "Other"],
+        },
+      },
+      {
+        name: "Simple Contact Form", category: "Engagement", blockType: "contact-form-info",
+        data: {
+          formTitle: "Drop Us a Line", formSubtitle: "Fill out the form below and we will get back to you as soon as possible.",
+          submitText: "Send Message", infoTitle: "Get In Touch",
+          addressLabel: "Address", address: "123 Street Name, City, Australia",
+          phoneLabel: "Phone", phoneLines: ["Toll Free (123) 472-796", "Mobile : +91-9910XXXX"],
+          emailLabel: "Email", email: "mail@example.com",
+          workingDaysLabel: "Working Days", workingDays: "Mon - FRI / 9:30 AM - 6:30 PM",
+        },
+      },
+      {
+        name: "Store Location Map", category: "Engagement", blockType: "google-map",
+        data: { title: "Find Us Map", address: "Melbourne VIC, Australia", zoom: 11, height: 420 },
+      },
+      {
+        name: "Custom HTML Snippet", category: "Engagement", blockType: "custom-html",
+        data: { html: "<!-- Paste your HTML here -->" },
+      },
+    ];
+
+    const createdGlobal = await Promise.all(
+      globalBlocks.map((b) => prisma.block.create({ data: { ...b, isGlobal: true } })),
+    );
+    const createdShopingo = await Promise.all(
+      shopingoBlocks.map((b) => prisma.block.create({ data: { ...b, isGlobal: false, themeIdentifier: "shopingo" } })),
+    );
+
+    const starterOrder = [
+      createdGlobal[0], // hero-carousel
+      createdGlobal[1], // features-banner
+      createdShopingo[0], // product-tabs
+      createdShopingo[1], // category-grid
+      createdGlobal[2], // product-grid
+      createdGlobal[3], // newsletter
+    ];
+    const starterTemplate = await prisma.template.create({
+      data: {
+        name: "Shopingo Home Starter",
+        description: "A ready-to-go homepage layout: hero, features, product tabs, categories, and newsletter.",
+        category: "Business",
+        isGlobal: false,
+        themeIdentifier: "shopingo",
+      },
+    });
+    await prisma.templateBlock.createMany({
+      data: starterOrder.map((block, index) => ({
+        templateId: starterTemplate.id, blockId: block.id, sortOrder: index,
+      })),
+    });
+    console.log("   ✓ Blocks (6 presets) + Templates (1 shopingo starter)");
+  }
+
   const platformDomain = process.env.PLATFORM_DOMAIN ?? "lvh.me";
   console.log(`✅ Seed complete  (password for all accounts: ${PASSWORD})`);
   console.log("   SUPER_ADMIN : superadmin@vyntra.com");

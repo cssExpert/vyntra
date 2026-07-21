@@ -27,6 +27,8 @@ import {
   Building2,
   Package,
   Boxes,
+  Layers,
+  LayoutTemplate,
   ChevronLeft,
   ChevronDown,
   ExternalLink,
@@ -60,6 +62,8 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Building2,
   Package,
   Boxes,
+  Layers,
+  LayoutTemplate,
 };
 
 /* Shared fade transition constants */

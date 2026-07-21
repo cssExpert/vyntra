@@ -524,6 +524,22 @@
       "created": "Thème créé.",
       "updated": "Thème mis à jour."
     },
+    "blocks": {
+      "title": "Blocs",
+      "description": "Préréglages de blocs réutilisables — globaux ou spécifiques à un thème — utilisés pour composer des modèles.",
+      "add": "Nouveau bloc",
+      "cancel": "Annuler",
+      "saving": "Enregistrement…",
+      "saveBlock": "Enregistrer le bloc"
+    },
+    "templates": {
+      "title": "Modèles",
+      "description": "Modèles de page globaux et spécifiques à un thème, composés de blocs, proposés dans le sélecteur de modèles de l'éditeur de page CMS.",
+      "add": "Nouveau modèle",
+      "cancel": "Annuler",
+      "saving": "Enregistrement…",
+      "saveTemplate": "Enregistrer le modèle"
+    },
     "crm": {
       "title": "CRM",
       "description": "Gestion de la relation client",
