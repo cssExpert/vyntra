@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BLOCK_META } from "@/lib/themes/shopingo/blockDefaults";
+import { getBlockMeta, getBlockGroups, getThemeLabel } from "@/lib/themes/blockDefaultsResolver";
 import type { BlockType } from "@/lib/themes/types";
 
 const ORANGE = "#e4611e";
@@ -200,6 +200,7 @@ function BlockThumbnail({ icon }: { icon: string }) {
 
 interface Props {
   onAdd: (type: BlockType) => void;
+  themeIdentifier?: string;
 }
 
 interface BlockGroup {
@@ -207,48 +208,27 @@ interface BlockGroup {
   types: BlockType[];
 }
 
-const BLOCK_GROUPS: BlockGroup[] = [
-  {
-    label: "Hero",
-    types: ["hero-carousel"],
-  },
-  {
-    label: "Products",
-    types: ["product-grid", "product-tabs"],
-  },
-  {
-    label: "Content",
-    types: ["page-header", "text-image", "features-banner", "promo-banner", "brand-carousel", "category-grid"],
-  },
-  {
-    label: "Blog",
-    types: ["blog-section"],
-  },
-  {
-    label: "Other",
-    types: ["newsletter", "contact-form", "contact-form-info", "google-map", "custom-html"],
-  },
-];
+type BlockMetaMap = Record<BlockType, { label: string; description: string; icon: string }>;
 
-function BlockCard({ type, onAdd }: { type: BlockType; onAdd: (t: BlockType) => void }) {
-  const meta = BLOCK_META[type];
+function BlockCard({ type, meta, onAdd }: { type: BlockType; meta: BlockMetaMap; onAdd: (t: BlockType) => void }) {
+  const blockMeta = meta[type];
   return (
     <button
       onClick={() => onAdd(type)}
       className="w-full text-left rounded-lg border border-border bg-background hover:border-orange-400 hover:shadow-sm transition-all group overflow-hidden"
     >
       <div className="h-[72px] overflow-hidden bg-gray-50 dark:bg-muted border-b border-border">
-        <BlockThumbnail icon={meta.icon} />
+        <BlockThumbnail icon={blockMeta.icon} />
       </div>
       <div className="p-2.5">
-        <p className="text-xs font-semibold text-foreground group-hover:text-orange-600 transition-colors">{meta.label}</p>
-        <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug line-clamp-2">{meta.description}</p>
+        <p className="text-xs font-semibold text-foreground group-hover:text-orange-600 transition-colors">{blockMeta.label}</p>
+        <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug line-clamp-2">{blockMeta.description}</p>
       </div>
     </button>
   );
 }
 
-function GroupSection({ group, onAdd }: { group: BlockGroup; onAdd: (t: BlockType) => void }) {
+function GroupSection({ group, meta, onAdd }: { group: BlockGroup; meta: BlockMetaMap; onAdd: (t: BlockType) => void }) {
   const [open, setOpen] = useState(true);
   return (
     <div>
@@ -273,7 +253,7 @@ function GroupSection({ group, onAdd }: { group: BlockGroup; onAdd: (t: BlockTyp
       {open && (
         <div className="space-y-2 mt-1">
           {group.types.map((type) => (
-            <BlockCard key={type} type={type} onAdd={onAdd} />
+            <BlockCard key={type} type={type} meta={meta} onAdd={onAdd} />
           ))}
         </div>
       )}
@@ -281,15 +261,18 @@ function GroupSection({ group, onAdd }: { group: BlockGroup; onAdd: (t: BlockTyp
   );
 }
 
-export function BlockPalette({ onAdd }: Props) {
+export function BlockPalette({ onAdd, themeIdentifier = "shopingo" }: Props) {
+  const meta = getBlockMeta(themeIdentifier);
+  const groups = getBlockGroups(themeIdentifier);
+  const themeLabel = getThemeLabel(themeIdentifier);
   return (
     <aside className="w-72 flex-shrink-0 border-r border-border bg-background flex flex-col h-full overflow-hidden">
       <div className="px-4 py-3.5 border-b border-border shrink-0">
-        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Shopingo Blocks</p>
+        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{themeLabel} Blocks</p>
       </div>
       <div className="flex-1 overflow-y-auto p-3 space-y-3">
-        {BLOCK_GROUPS.map((group) => (
-          <GroupSection key={group.label} group={group} onAdd={onAdd} />
+        {groups.map((group) => (
+          <GroupSection key={group.label} group={group} meta={meta} onAdd={onAdd} />
         ))}
       </div>
     </aside>

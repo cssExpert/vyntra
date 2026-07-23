@@ -150,12 +150,3 @@ export const SHOPINGO_PAGE_DEFAULTS: Record<string, SeedBlock[]> = {
     b("nl1", "newsletter", BLOCK_DEFAULTS["newsletter"] as unknown as Record<string, unknown>),
   ],
 };
-
-// Registry: theme identifier → page defaults map
-const THEME_PAGE_DEFAULTS: Record<string, Record<string, SeedBlock[]>> = {
-  shopingo: SHOPINGO_PAGE_DEFAULTS,
-};
-
-export function getThemePageDefaults(themeIdentifier: string): Record<string, SeedBlock[]> {
-  return THEME_PAGE_DEFAULTS[themeIdentifier.toLowerCase()] ?? {};
-}

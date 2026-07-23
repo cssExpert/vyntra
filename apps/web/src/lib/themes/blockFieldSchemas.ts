@@ -469,4 +469,380 @@ export const BLOCK_SCHEMAS: Record<string, BlockSection[]> = {
     },
   ],
 
+  'hero-banner': [
+    {
+      title: 'Content',
+      fields: [
+        { type: 'text',     key: 'eyebrow', label: 'Eyebrow',  placeholder: 'About Our School' },
+        { type: 'text',     key: 'heading', label: 'Heading',  placeholder: 'Built on faith, small classes…' },
+        { type: 'textarea', key: 'body',    label: 'Body',     rows: 3, placeholder: 'Supporting paragraph…' },
+        {
+          type: 'select', key: 'tone', label: 'Tone',
+          options: [{ value: 'light', label: 'Light — background image' }, { value: 'navy', label: 'Navy — no image, gradient' }],
+        },
+      ],
+    },
+    {
+      title: 'Background',
+      defaultOpen: false,
+      fields: [
+        { type: 'image', key: 'backgroundImage', label: 'Background Image (optional)' },
+      ],
+    },
+    {
+      title: 'Buttons',
+      defaultOpen: false,
+      fields: [
+        { type: 'text', key: 'primaryCtaText',   label: 'Primary Button',   placeholder: 'Book a Tour' },
+        { type: 'url',  key: 'primaryCtaUrl',    label: 'Primary URL',      placeholder: '/admissions' },
+        { type: 'text', key: 'secondaryCtaText', label: 'Secondary Button', placeholder: 'Apply Now' },
+        { type: 'url',  key: 'secondaryCtaUrl',  label: 'Secondary URL',    placeholder: '/admissions' },
+      ],
+    },
+  ],
+
+  'stats-counter': [
+    {
+      title: 'Content',
+      fields: [
+        { type: 'text', key: 'eyebrow',  label: 'Eyebrow',  placeholder: 'Academic Excellence' },
+        { type: 'text', key: 'title',    label: 'Title',    placeholder: 'Rigor that prepares, not just occupies.' },
+        { type: 'text', key: 'subtitle', label: 'Subtitle', placeholder: 'Measured, benchmarked, and relentlessly personal.' },
+        { type: 'text', key: 'linkText', label: 'Link Text', placeholder: 'Explore Academics →' },
+        { type: 'url',  key: 'linkUrl',  label: 'Link URL',  placeholder: '/academics' },
+      ],
+    },
+    {
+      title: 'Stats',
+      fields: [
+        {
+          type: 'array',
+          key: 'stats',
+          label: 'Stats',
+          itemLabel: 'Stat',
+          addLabel: 'Add Stat',
+          defaultItem: { value: '13', label: 'Max per grade' },
+          fields: [
+            { type: 'text', key: 'value', label: 'Value', placeholder: '13' },
+            { type: 'text', key: 'label', label: 'Label', placeholder: 'Max per grade' },
+          ],
+        },
+      ],
+    },
+  ],
+
+  'admissions-steps': [
+    {
+      title: 'Content',
+      fields: [
+        { type: 'text', key: 'eyebrow', label: 'Eyebrow', placeholder: 'Admissions Process' },
+        { type: 'text', key: 'title',   label: 'Title',   placeholder: 'Four steps to belonging.' },
+        { type: 'text', key: 'ctaText', label: 'Button Text', placeholder: 'Start the Admissions Process' },
+        { type: 'url',  key: 'ctaUrl',  label: 'Button URL',  placeholder: '/admissions' },
+      ],
+    },
+    {
+      title: 'Steps',
+      fields: [
+        {
+          type: 'array',
+          key: 'steps',
+          label: 'Steps',
+          itemLabel: 'Step',
+          addLabel: 'Add Step',
+          defaultItem: { number: '1', title: 'Inquire', description: 'Tell us about your family and your child\'s needs.' },
+          fields: [
+            { type: 'text',     key: 'number',      label: 'Number', placeholder: '1' },
+            { type: 'text',     key: 'title',       label: 'Title',  placeholder: 'Inquire' },
+            { type: 'textarea', key: 'description', label: 'Description', rows: 2 },
+          ],
+        },
+      ],
+    },
+  ],
+
+  'timeline-steps': [
+    {
+      title: 'Content',
+      fields: [
+        { type: 'text', key: 'eyebrow',  label: 'Eyebrow',  placeholder: 'A Day in the Life' },
+        { type: 'text', key: 'title',    label: 'Title',    placeholder: 'What a school day looks like.' },
+        { type: 'text', key: 'subtitle', label: 'Subtitle', placeholder: 'Optional supporting line' },
+      ],
+    },
+    {
+      title: 'Steps',
+      fields: [
+        {
+          type: 'array',
+          key: 'steps',
+          label: 'Steps',
+          itemLabel: 'Step',
+          addLabel: 'Add Step',
+          defaultItem: { marker: '7:45–8:00 AM', title: 'Arrival & Morning Circle', description: '' },
+          fields: [
+            { type: 'text',     key: 'marker',      label: 'Marker (time or date)', placeholder: '7:45–8:00 AM' },
+            { type: 'text',     key: 'title',       label: 'Title', placeholder: 'Arrival & Morning Circle' },
+            { type: 'textarea', key: 'description', label: 'Description', rows: 2 },
+          ],
+        },
+      ],
+    },
+  ],
+
+  'academics-programs': [
+    {
+      title: 'Content',
+      fields: [
+        { type: 'text', key: 'eyebrow',  label: 'Eyebrow',  placeholder: 'Curriculum' },
+        { type: 'text', key: 'title',    label: 'Title',    placeholder: 'A curriculum that builds year over year.' },
+        { type: 'text', key: 'subtitle', label: 'Subtitle', placeholder: 'Optional supporting line' },
+      ],
+    },
+    {
+      title: 'Cards',
+      fields: [
+        {
+          type: 'array',
+          key: 'cards',
+          label: 'Cards',
+          itemLabel: 'Card',
+          addLabel: 'Add Card',
+          defaultItem: { name: 'Grade 6 — "Foundations & Habits"', subjects: [], differentiator: '', description: '' },
+          fields: [
+            { type: 'text',        key: 'name',           label: 'Name', placeholder: 'Grade 6 — "Foundations & Habits"' },
+            { type: 'text',        key: 'tagline',        label: 'Tagline (optional)' },
+            { type: 'string-list', key: 'subjects',       label: 'Subjects', placeholder: 'English Language Arts', addLabel: 'Add Subject' },
+            { type: 'textarea',    key: 'differentiator', label: 'Differentiator', rows: 2 },
+            { type: 'textarea',    key: 'description',    label: 'Description (optional)', rows: 2 },
+          ],
+        },
+      ],
+    },
+  ],
+
+  'faculty-grid': [
+    {
+      title: 'Content',
+      fields: [
+        { type: 'text',     key: 'eyebrow',  label: 'Eyebrow',  placeholder: 'Governance' },
+        { type: 'text',     key: 'title',    label: 'Title',    placeholder: 'Board of Directors.' },
+        { type: 'textarea', key: 'intro',    label: 'Intro',    rows: 2 },
+      ],
+    },
+    {
+      title: 'Members',
+      fields: [
+        {
+          type: 'array',
+          key: 'members',
+          label: 'Members',
+          itemLabel: 'Member',
+          addLabel: 'Add Member',
+          defaultItem: { name: 'New Member', role: 'Board Member', bio: '', image: '' },
+          fields: [
+            { type: 'text',     key: 'name',  label: 'Name' },
+            { type: 'text',     key: 'role',  label: 'Role' },
+            { type: 'textarea', key: 'bio',   label: 'Bio', rows: 2 },
+            { type: 'image',    key: 'image', label: 'Photo' },
+          ],
+        },
+      ],
+    },
+  ],
+
+  'photo-gallery': [
+    {
+      title: 'Content',
+      fields: [
+        { type: 'text', key: 'eyebrow',  label: 'Eyebrow',  placeholder: 'Photo Gallery' },
+        { type: 'text', key: 'title',    label: 'Title',    placeholder: 'Take a look around.' },
+        { type: 'text', key: 'subtitle', label: 'Subtitle' },
+        { type: 'text', key: 'linkText', label: 'Link Text', placeholder: 'View the Full Gallery →' },
+        { type: 'url',  key: 'linkUrl',  label: 'Link URL' },
+      ],
+    },
+    {
+      title: 'Images',
+      fields: [
+        {
+          type: 'array',
+          key: 'images',
+          label: 'Images',
+          itemLabel: 'Image',
+          addLabel: 'Add Image',
+          defaultItem: { image: '', caption: '' },
+          fields: [
+            { type: 'image', key: 'image',   label: 'Image' },
+            { type: 'text',  key: 'caption',  label: 'Caption' },
+          ],
+        },
+      ],
+    },
+  ],
+
+  'testimonials': [
+    {
+      title: 'Content',
+      fields: [
+        { type: 'text', key: 'eyebrow',  label: 'Eyebrow',  placeholder: 'Testimonials' },
+        { type: 'text', key: 'title',    label: 'Title',    placeholder: 'Parents notice the difference in weeks, not years.' },
+        { type: 'text', key: 'subtitle', label: 'Subtitle' },
+      ],
+    },
+    {
+      title: 'Quotes',
+      fields: [
+        {
+          type: 'array',
+          key: 'items',
+          label: 'Quotes',
+          itemLabel: 'Quote',
+          addLabel: 'Add Quote',
+          defaultItem: { quote: '', name: 'Parent Name', role: 'Parent' },
+          fields: [
+            { type: 'textarea', key: 'quote', label: 'Quote', rows: 3 },
+            { type: 'text',     key: 'name',  label: 'Name' },
+            { type: 'text',     key: 'role',  label: 'Role', placeholder: 'Parent of 6th Grader' },
+          ],
+        },
+      ],
+    },
+  ],
+
+  'faq-accordion': [
+    {
+      title: 'Content',
+      fields: [
+        { type: 'text', key: 'eyebrow',  label: 'Eyebrow',  placeholder: 'FAQ' },
+        { type: 'text', key: 'title',    label: 'Title',    placeholder: 'Questions, answered.' },
+        { type: 'text', key: 'subtitle', label: 'Subtitle' },
+        { type: 'text', key: 'linkText', label: 'Link Text', placeholder: 'View Full FAQ →' },
+        { type: 'url',  key: 'linkUrl',  label: 'Link URL' },
+      ],
+    },
+    {
+      title: 'Flat Questions (used when no groups are set)',
+      defaultOpen: false,
+      fields: [
+        {
+          type: 'array',
+          key: 'items',
+          label: 'Questions',
+          itemLabel: 'Question',
+          addLabel: 'Add Question',
+          defaultItem: { question: '', answer: '' },
+          fields: [
+            { type: 'text',     key: 'question', label: 'Question' },
+            { type: 'textarea', key: 'answer',   label: 'Answer', rows: 3 },
+          ],
+        },
+      ],
+    },
+    {
+      // Nested per-category Q&A pairs aren't editable here — ArrayFieldDef only
+      // supports scalar sub-fields, not nested arrays. Category name/intro can be
+      // adjusted visually; each category's `items` are seeded by the installer.
+      title: 'Grouped Questions (optional, overrides flat list)',
+      defaultOpen: false,
+      fields: [
+        {
+          type: 'array',
+          key: 'groups',
+          label: 'Categories',
+          itemLabel: 'Category',
+          addLabel: 'Add Category',
+          defaultItem: { category: 'Admissions', intro: '', items: [] },
+          fields: [
+            { type: 'text',     key: 'category', label: 'Category Name' },
+            { type: 'textarea', key: 'intro',     label: 'Intro', rows: 2 },
+          ],
+        },
+      ],
+    },
+  ],
+
+  'pricing-tiers': [
+    {
+      title: 'Content',
+      fields: [
+        { type: 'text', key: 'eyebrow',  label: 'Eyebrow',  placeholder: 'Tuition & Scholarships' },
+        { type: 'text', key: 'title',    label: 'Title',    placeholder: 'Transparent pricing, no surprises.' },
+        { type: 'text', key: 'subtitle', label: 'Subtitle' },
+      ],
+    },
+    {
+      title: 'Tiers',
+      fields: [
+        {
+          type: 'array',
+          key: 'tiers',
+          label: 'Tiers',
+          itemLabel: 'Tier',
+          addLabel: 'Add Tier',
+          defaultItem: { name: 'Standard Tuition', price: '$0/yr', note: '', badge: '', features: [], ctaText: 'Apply Now', ctaUrl: '/admissions' },
+          fields: [
+            { type: 'text',        key: 'name',     label: 'Name' },
+            { type: 'text',        key: 'price',    label: 'Price', placeholder: '$14,200/yr' },
+            { type: 'text',        key: 'note',     label: 'Note' },
+            { type: 'text',        key: 'badge',    label: 'Badge (optional)', placeholder: 'Most Common' },
+            { type: 'string-list', key: 'features', label: 'Features', addLabel: 'Add Feature' },
+            { type: 'text',        key: 'ctaText',  label: 'Button Text' },
+            { type: 'url',         key: 'ctaUrl',   label: 'Button URL' },
+          ],
+        },
+      ],
+    },
+    {
+      title: 'Callout',
+      defaultOpen: false,
+      fields: [
+        { type: 'text',     key: 'calloutTitle',   label: 'Callout Title' },
+        { type: 'textarea', key: 'calloutBody',    label: 'Callout Body', rows: 2 },
+        { type: 'text',     key: 'calloutCtaText', label: 'Callout Button Text' },
+        { type: 'url',      key: 'calloutCtaUrl',  label: 'Callout Button URL' },
+      ],
+    },
+  ],
+
+  'cta-cards': [
+    {
+      title: 'Cards',
+      fields: [
+        {
+          type: 'array',
+          key: 'cards',
+          label: 'Cards',
+          itemLabel: 'Card',
+          addLabel: 'Add Card',
+          defaultItem: { title: 'Ready to apply?', description: '', ctaText: 'Apply Now', ctaUrl: '/admissions', tone: 'light' },
+          fields: [
+            { type: 'text',     key: 'title',       label: 'Title' },
+            { type: 'textarea', key: 'description', label: 'Description', rows: 2 },
+            { type: 'text',     key: 'ctaText',     label: 'Button Text' },
+            { type: 'url',      key: 'ctaUrl',      label: 'Button URL' },
+            {
+              type: 'select', key: 'tone', label: 'Tone',
+              options: [{ value: 'light', label: 'Light' }, { value: 'navy', label: 'Navy' }],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+
+  'cta-banner': [
+    {
+      title: 'Content',
+      fields: [
+        { type: 'text', key: 'title',              label: 'Title',    placeholder: 'Your child\'s leadership story starts here.' },
+        { type: 'text', key: 'subtitle',            label: 'Subtitle' },
+        { type: 'text', key: 'primaryCtaText',      label: 'Primary Button',   placeholder: 'Book a Tour' },
+        { type: 'url',  key: 'primaryCtaUrl',       label: 'Primary URL',      placeholder: '/admissions' },
+        { type: 'text', key: 'secondaryCtaText',    label: 'Secondary Button', placeholder: 'Apply Now' },
+        { type: 'url',  key: 'secondaryCtaUrl',     label: 'Secondary URL',    placeholder: '/admissions' },
+      ],
+    },
+  ],
+
 };

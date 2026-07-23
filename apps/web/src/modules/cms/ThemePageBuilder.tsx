@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { nanoid } from "nanoid";
@@ -8,7 +8,7 @@ import {
   ChevronLeft, ExternalLink, GripVertical, Trash2,
   Loader2, Eye, EyeOff,
 } from "lucide-react";
-import { BLOCK_META, BLOCK_DEFAULTS } from "@/lib/themes/shopingo/blockDefaults";
+import { getBlockMeta, getBlockDefaults } from "@/lib/themes/blockDefaultsResolver";
 import { BlockPalette } from "./theme-builder/BlockPalette";
 import { BlockConfigPanel } from "./theme-builder/BlockConfigPanel";
 import type { TypedBlock, BlockType } from "@/lib/themes/types";
@@ -57,6 +57,13 @@ export function ThemePageBuilder() {
 
   const { dragIdx, onDragStart, onDragOver, onDrop } = useDragReorder(blocks, setBlocks);
 
+  const themeIdentifier = useMemo(
+    () => availableThemes.find((t) => t.id === selectedThemeId)?.identifier ?? "shopingo",
+    [availableThemes, selectedThemeId],
+  );
+  const BLOCK_META = useMemo(() => getBlockMeta(themeIdentifier), [themeIdentifier]);
+  const BLOCK_DEFAULTS = useMemo(() => getBlockDefaults(themeIdentifier), [themeIdentifier]);
+
   useEffect(() => {
     cmsThemes.list()
       .then((res) => setAvailableThemes(res.global ?? []))
@@ -90,7 +97,7 @@ export function ThemePageBuilder() {
     };
     setBlocks((prev) => [...prev, newBlock]);
     setSelectedBlock(newBlock);
-  }, []);
+  }, [BLOCK_DEFAULTS]);
 
   const handleSelectBlock = (block: TypedBlock) => setSelectedBlock(block);
 
@@ -197,7 +204,7 @@ export function ThemePageBuilder() {
       {/* ── Main 3-panel layout ─────────────────────────────────────────────── */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left: Block Palette */}
-        <BlockPalette onAdd={handleAddBlock} />
+        <BlockPalette themeIdentifier={themeIdentifier} onAdd={handleAddBlock} />
 
         {/* Center: Canvas */}
         <main className="flex-1 overflow-y-auto bg-muted/20 p-6">
@@ -269,6 +276,7 @@ export function ThemePageBuilder() {
 
         {/* Right: Config Panel */}
         <BlockConfigPanel
+          themeIdentifier={themeIdentifier}
           block={selectedBlock}
           onSave={handleSaveBlock}
           onClose={() => setSelectedBlock(null)}

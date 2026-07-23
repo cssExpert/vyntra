@@ -59,7 +59,7 @@ function DraggableThemeBlock({ blockType }: { blockType: BlockType }) {
         <Grid3x3 className="w-3.5 h-3.5" />
       </div>
       <span className="text-sm font-medium truncate text-muted-foreground">
-        {meta.label}
+        {meta?.label ?? blockType}
       </span>
     </div>
   );
@@ -240,7 +240,7 @@ export default function LeftSidebar() {
 
   const filteredTheme = debouncedSearch.trim()
     ? (Object.keys(BLOCK_META) as BlockType[]).filter((bt) =>
-        BLOCK_META[bt].label.toLowerCase().includes(debouncedSearch.toLowerCase()),
+        BLOCK_META[bt]?.label.toLowerCase().includes(debouncedSearch.toLowerCase()),
       )
     : null;
 

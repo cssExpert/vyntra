@@ -15,7 +15,19 @@ export type BlockType =
   | "text-image"
   | "contact-form"
   | "contact-form-info"
-  | "google-map";
+  | "google-map"
+  | "hero-banner"
+  | "stats-counter"
+  | "admissions-steps"
+  | "timeline-steps"
+  | "academics-programs"
+  | "faculty-grid"
+  | "photo-gallery"
+  | "testimonials"
+  | "faq-accordion"
+  | "pricing-tiers"
+  | "cta-cards"
+  | "cta-banner";
 
 export interface Block<T = Record<string, unknown>> {
   id: string;
@@ -220,6 +232,8 @@ export interface ContactFormInfoData {
   email?: string;
   workingDaysLabel?: string;
   workingDays?: string;
+  /** Optional department/subject select rendered above the message field. */
+  departments?: string[];
 }
 
 export interface GoogleMapData {
@@ -228,6 +242,181 @@ export interface GoogleMapData {
   address?: string;
   zoom?: number;
   height?: number;
+}
+
+// ── Academy blocks (education/institutional themes) ──────────────────────────
+
+export interface HeroBannerData {
+  eyebrow?: string;
+  heading: string;
+  body?: string;
+  backgroundImage?: string;
+  primaryCtaText?: string;
+  primaryCtaUrl?: string;
+  secondaryCtaText?: string;
+  secondaryCtaUrl?: string;
+  tone?: "light" | "navy";
+}
+
+export interface StatItem {
+  value: string;
+  label: string;
+}
+
+export interface StatsCounterData {
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
+  stats: StatItem[];
+  linkText?: string;
+  linkUrl?: string;
+}
+
+export interface AdmissionsStep {
+  number: string;
+  title: string;
+  description: string;
+}
+
+export interface AdmissionsStepsData {
+  eyebrow?: string;
+  title: string;
+  steps: AdmissionsStep[];
+  ctaText?: string;
+  ctaUrl?: string;
+}
+
+export interface TimelineStep {
+  marker: string;
+  title: string;
+  description: string;
+}
+
+export interface TimelineStepsData {
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
+  steps: TimelineStep[];
+}
+
+export interface ProgramCard {
+  name: string;
+  tagline?: string;
+  subjects?: string[];
+  differentiator?: string;
+  description?: string;
+}
+
+export interface AcademicsProgramsData {
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
+  cards: ProgramCard[];
+}
+
+export interface FacultyMember {
+  name: string;
+  role: string;
+  bio: string;
+  image?: string;
+}
+
+export interface FacultyGridData {
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
+  intro?: string;
+  members: FacultyMember[];
+}
+
+export interface GalleryImage {
+  image: string;
+  caption?: string;
+}
+
+export interface PhotoGalleryData {
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
+  images: GalleryImage[];
+  linkText?: string;
+  linkUrl?: string;
+}
+
+export interface TestimonialItem {
+  quote: string;
+  name: string;
+  role?: string;
+}
+
+export interface TestimonialsData {
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
+  items: TestimonialItem[];
+}
+
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+export interface FaqGroup {
+  category: string;
+  intro?: string;
+  items: FaqItem[];
+}
+
+export interface FaqAccordionData {
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
+  items?: FaqItem[];
+  groups?: FaqGroup[];
+  linkText?: string;
+  linkUrl?: string;
+}
+
+export interface PricingTier {
+  name: string;
+  price: string;
+  note?: string;
+  badge?: string;
+  features: string[];
+  ctaText: string;
+  ctaUrl: string;
+}
+
+export interface PricingTiersData {
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
+  tiers: PricingTier[];
+  calloutTitle?: string;
+  calloutBody?: string;
+  calloutCtaText?: string;
+  calloutCtaUrl?: string;
+}
+
+export interface CtaCard {
+  title: string;
+  description: string;
+  ctaText: string;
+  ctaUrl: string;
+  tone?: "light" | "navy";
+}
+
+export interface CtaCardsData {
+  cards: CtaCard[];
+}
+
+export interface CtaBannerData {
+  title: string;
+  subtitle?: string;
+  primaryCtaText: string;
+  primaryCtaUrl: string;
+  secondaryCtaText?: string;
+  secondaryCtaUrl?: string;
 }
 
 // ── Map: BlockType → its data shape ──────────────────────────────────────────
@@ -248,6 +437,18 @@ export interface BlockDataMap {
   "contact-form": ContactFormData;
   "contact-form-info": ContactFormInfoData;
   "google-map": GoogleMapData;
+  "hero-banner": HeroBannerData;
+  "stats-counter": StatsCounterData;
+  "admissions-steps": AdmissionsStepsData;
+  "timeline-steps": TimelineStepsData;
+  "academics-programs": AcademicsProgramsData;
+  "faculty-grid": FacultyGridData;
+  "photo-gallery": PhotoGalleryData;
+  "testimonials": TestimonialsData;
+  "faq-accordion": FaqAccordionData;
+  "pricing-tiers": PricingTiersData;
+  "cta-cards": CtaCardsData;
+  "cta-banner": CtaBannerData;
 }
 
 export type TypedBlock = {

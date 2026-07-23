@@ -18,6 +18,21 @@ import ShopingoContactForm from "./shopingo/blocks/ContactForm";
 import ShopingoContactFormInfo from "./shopingo/blocks/ContactFormInfo";
 import ShopingoGoogleMap from "./shopingo/blocks/GoogleMap";
 
+// ── Academy blocks ─────────────────────────────────────────────────────────────
+import AcademyHeroBanner from "./academy/blocks/HeroBanner";
+import AcademyStatsCounter from "./academy/blocks/StatsCounter";
+import AcademyAdmissionsSteps from "./academy/blocks/AdmissionsSteps";
+import AcademyTimelineSteps from "./academy/blocks/TimelineSteps";
+import AcademyAcademicsPrograms from "./academy/blocks/AcademicsPrograms";
+import AcademyFacultyGrid from "./academy/blocks/FacultyGrid";
+import AcademyPhotoGallery from "./academy/blocks/PhotoGallery";
+import AcademyTestimonials from "./academy/blocks/Testimonials";
+import AcademyFaqAccordion from "./academy/blocks/FaqAccordion";
+import AcademyPricingTiers from "./academy/blocks/PricingTiers";
+import AcademyCtaCards from "./academy/blocks/CtaCards";
+import AcademyCtaBanner from "./academy/blocks/CtaBanner";
+import AcademyContactFormInfo from "./academy/blocks/ContactFormInfo";
+
 // ── Common (fallback) blocks ───────────────────────────────────────────────────
 import CommonHeroCarousel from "./common/blocks/HeroCarousel";
 import CommonProductGrid from "./common/blocks/ProductGrid";
@@ -34,6 +49,18 @@ import CommonTextImage from "./common/blocks/TextImage";
 import CommonContactForm from "./common/blocks/ContactForm";
 import CommonContactFormInfo from "./common/blocks/ContactFormInfo";
 import CommonGoogleMap from "./common/blocks/GoogleMap";
+import CommonHeroBanner from "./common/blocks/HeroBanner";
+import CommonStatsCounter from "./common/blocks/StatsCounter";
+import CommonAdmissionsSteps from "./common/blocks/AdmissionsSteps";
+import CommonTimelineSteps from "./common/blocks/TimelineSteps";
+import CommonAcademicsPrograms from "./common/blocks/AcademicsPrograms";
+import CommonFacultyGrid from "./common/blocks/FacultyGrid";
+import CommonPhotoGallery from "./common/blocks/PhotoGallery";
+import CommonTestimonials from "./common/blocks/Testimonials";
+import CommonFaqAccordion from "./common/blocks/FaqAccordion";
+import CommonPricingTiers from "./common/blocks/PricingTiers";
+import CommonCtaCards from "./common/blocks/CtaCards";
+import CommonCtaBanner from "./common/blocks/CtaBanner";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyBlockComponent = ComponentType<{ data: any; orgId?: string }>;
@@ -54,6 +81,18 @@ const COMMON_BLOCKS: Record<BlockType, AnyBlockComponent> = {
   "contact-form": CommonContactForm,
   "contact-form-info": CommonContactFormInfo,
   "google-map": CommonGoogleMap,
+  "hero-banner": CommonHeroBanner,
+  "stats-counter": CommonStatsCounter,
+  "admissions-steps": CommonAdmissionsSteps,
+  "timeline-steps": CommonTimelineSteps,
+  "academics-programs": CommonAcademicsPrograms,
+  "faculty-grid": CommonFacultyGrid,
+  "photo-gallery": CommonPhotoGallery,
+  "testimonials": CommonTestimonials,
+  "faq-accordion": CommonFaqAccordion,
+  "pricing-tiers": CommonPricingTiers,
+  "cta-cards": CommonCtaCards,
+  "cta-banner": CommonCtaBanner,
 };
 
 const THEME_BLOCKS: Record<string, Partial<Record<BlockType, AnyBlockComponent>>> = {
@@ -73,6 +112,21 @@ const THEME_BLOCKS: Record<string, Partial<Record<BlockType, AnyBlockComponent>>
     "contact-form": ShopingoContactForm,
     "contact-form-info": ShopingoContactFormInfo,
     "google-map": ShopingoGoogleMap,
+  },
+  academy: {
+    "hero-banner": AcademyHeroBanner,
+    "stats-counter": AcademyStatsCounter,
+    "admissions-steps": AcademyAdmissionsSteps,
+    "timeline-steps": AcademyTimelineSteps,
+    "academics-programs": AcademyAcademicsPrograms,
+    "faculty-grid": AcademyFacultyGrid,
+    "photo-gallery": AcademyPhotoGallery,
+    "testimonials": AcademyTestimonials,
+    "faq-accordion": AcademyFaqAccordion,
+    "pricing-tiers": AcademyPricingTiers,
+    "cta-cards": AcademyCtaCards,
+    "cta-banner": AcademyCtaBanner,
+    "contact-form-info": AcademyContactFormInfo,
   },
 };
 

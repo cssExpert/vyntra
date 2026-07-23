@@ -16,6 +16,12 @@ export const ThemeRegistry: Record<string, ThemeDefinition> = {
     description:
       "A modern ecommerce theme with dark utility bar, tabbed product sections, category grid, and brand carousel.",
   },
+  academy: {
+    id: "academy",
+    name: "Academy",
+    description:
+      "A premium, faith-grounded private school theme — hero banners, admissions steps, faculty grids, and tuition tiers.",
+  },
 };
 
 export function getTheme(identifier: string): ThemeDefinition {

@@ -719,6 +719,137 @@ async function FooterShopingo({
   );
 }
 
+const ACADEMY_NAVY = "#0B1E33";
+const ACADEMY_GOLD = "#C9A961";
+const ACADEMY_SERIF = "Georgia, 'Times New Roman', serif";
+
+/** Academy-style: navy header, gold accent wordmark, centered nav, no cart/search (non-ecommerce). */
+async function NavbarAcademy({ org, items }: { org: OrgInfo; items: MenuItem[] }) {
+  return (
+    <header className="sticky top-0 z-50" style={{ background: ACADEMY_NAVY }}>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-20 flex items-center gap-6">
+        <Link href="/" className="shrink-0 flex items-center gap-2.5">
+          {org.logoUrl ? (
+            <OrgLogo org={org} className="h-9" />
+          ) : (
+            <span
+              className="text-xl font-bold tracking-tight text-white"
+              style={{ fontFamily: ACADEMY_SERIF }}
+            >
+              {org.name}
+            </span>
+          )}
+        </Link>
+
+        <nav className="hidden lg:flex items-center gap-7 mx-auto">
+          {items.map((item) => (
+            <a
+              key={item.id}
+              href={item.url}
+              target={item.target}
+              rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
+              className={["text-[13px] font-semibold uppercase tracking-wide text-white/80 hover:text-white transition-colors whitespace-nowrap", visClass(item.visibility)].filter(Boolean).join(" ")}
+            >
+              {item.label}
+            </a>
+          ))}
+        </nav>
+
+        <a
+          href="/contact"
+          className="ml-auto lg:ml-0 shrink-0 px-4 py-2 rounded text-xs font-semibold whitespace-nowrap"
+          style={{ background: ACADEMY_GOLD, color: ACADEMY_NAVY }}
+        >
+          Book a Tour
+        </a>
+      </div>
+
+      {items.length > 0 && (
+        <div className="lg:hidden border-t" style={{ borderColor: "rgba(255,255,255,.1)" }}>
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center gap-5 overflow-x-auto no-scrollbar">
+            {items.map((item) => (
+              <a
+                key={item.id}
+                href={item.url}
+                target={item.target}
+                rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
+                className={["py-3 text-[13px] font-semibold uppercase tracking-wide whitespace-nowrap text-white/80 hover:text-white transition-colors", visClass(item.visibility)].filter(Boolean).join(" ")}
+              >
+                {item.label}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    </header>
+  );
+}
+
+/** Academy-style: navy footer, gold column headings, serif brand blurb. */
+async function FooterAcademy({
+  org,
+  columns,
+  columnMenus,
+}: {
+  org: OrgInfo;
+  columns: { title: string; menuId: string }[];
+  columnMenus: MenuItem[][];
+}) {
+  const colCount = columns.length;
+  return (
+    <footer style={{ background: ACADEMY_NAVY }} className="text-white">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14">
+        <div className={`grid gap-10 ${colCount > 0 ? gridClass(colCount + 1) : "grid-cols-1"}`}>
+          <div>
+            <Link href="/" className="block mb-4">
+              {org.logoUrl ? (
+                <OrgLogo org={org} className="h-9" />
+              ) : (
+                <span className="text-lg font-bold" style={{ fontFamily: ACADEMY_SERIF }}>{org.name}</span>
+              )}
+            </Link>
+            <p className="text-sm leading-relaxed text-white/60">
+              A premium, faith-grounded private school forming confident leaders through small classes and rigorous academics.
+            </p>
+          </div>
+
+          {columns.map((col, i) => {
+            const items = columnMenus[i] ?? [];
+            return (
+              <div key={i}>
+                {col.title && (
+                  <h4 className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: ACADEMY_GOLD }}>
+                    {col.title}
+                  </h4>
+                )}
+                <ul className="space-y-2.5">
+                  {items.map((item) => (
+                    <li key={item.id}>
+                      <a
+                        href={item.url}
+                        target={item.target}
+                        rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
+                        className={["text-sm text-white/70 hover:text-white transition-colors", visClass(item.visibility)].filter(Boolean).join(" ")}
+                      >
+                        {item.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="pt-8 mt-8 border-t text-center text-xs text-white/45" style={{ borderColor: "rgba(255,255,255,.1)" }}>
+          © {new Date().getFullYear()} {org.name}. A registered 501(c)(3) nonprofit institution. ·{" "}
+          <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
 // ── Public entry points ───────────────────────────────────────────────────────
 
 export async function SiteNavbar({
@@ -741,6 +872,8 @@ export async function SiteNavbar({
   switch (themeIdentifier) {
     case "shopingo":
       return <NavbarShopingo org={org} items={items} activeLang={activeLang} />;
+    case "academy":
+      return <NavbarAcademy org={org} items={items} />;
     default:
       return <NavbarMinimal org={org} items={items} activeLang={activeLang} />;
   }
@@ -763,6 +896,8 @@ export async function SiteFooter({
   switch (themeIdentifier) {
     case "shopingo":
       return <FooterShopingo org={org} columns={columns} columnMenus={columnMenus} />;
+    case "academy":
+      return <FooterAcademy org={org} columns={columns} columnMenus={columnMenus} />;
     default:
       return <FooterColumns org={org} columns={columns} columnMenus={columnMenus} />;
   }

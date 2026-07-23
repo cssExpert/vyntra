@@ -531,10 +531,20 @@ export class CmsService {
 
   // ── Theme Installer ──────────────────────────────────────────────────────────
 
+  private async loadThemeInstaller(identifier: string) {
+    if (identifier === 'academy') {
+      const { ACADEMY_PAGES, ACADEMY_MENUS, ACADEMY_LAYOUT } = await import('./academy-installer');
+      return { pages: ACADEMY_PAGES, menus: ACADEMY_MENUS, layout: ACADEMY_LAYOUT as typeof ACADEMY_LAYOUT | null };
+    }
+    if (identifier === 'shopingo') {
+      const { SHOPINGO_PAGES, SHOPINGO_MENUS, SHOPINGO_LAYOUT } = await import('./shopingo-installer');
+      return { pages: SHOPINGO_PAGES, menus: SHOPINGO_MENUS, layout: SHOPINGO_LAYOUT as typeof SHOPINGO_LAYOUT | null };
+    }
+    return { pages: [], menus: [], layout: null };
+  }
+
   async getThemeInstallPreview(orgId: string, identifier: string) {
-    const { SHOPINGO_PAGES, SHOPINGO_MENUS, SHOPINGO_LAYOUT } = await import('./shopingo-installer');
-    const pages = identifier === 'shopingo' ? SHOPINGO_PAGES : [];
-    const menus = identifier === 'shopingo' ? SHOPINGO_MENUS : [];
+    const { pages, menus, layout } = await this.loadThemeInstaller(identifier);
 
     const [existingPageSlugs, existingMenuSlugs, existingLayout] = await Promise.all([
       this.prisma.page.findMany({
@@ -545,10 +555,12 @@ export class CmsService {
         where: { organizationId: orgId, slug: { in: menus.map((m) => m.slug) } },
         select: { slug: true },
       }).then((r) => new Set(r.map((m) => m.slug))),
-      this.prisma.layout.findFirst({
-        where: { organizationId: orgId, name: SHOPINGO_LAYOUT.name },
-        select: { id: true },
-      }),
+      layout
+        ? this.prisma.layout.findFirst({
+            where: { organizationId: orgId, name: layout.name },
+            select: { id: true },
+          })
+        : Promise.resolve(null),
     ]);
 
     return {
@@ -568,7 +580,7 @@ export class CmsService {
         exists: existingMenuSlugs.has(m.slug),
       })),
       layout: {
-        name: identifier === 'shopingo' ? SHOPINGO_LAYOUT.name : '',
+        name: layout?.name ?? '',
         exists: !!existingLayout,
       },
     };
@@ -579,9 +591,7 @@ export class CmsService {
     identifier: string,
     dto: { pageSlugs: string[]; installMenus: boolean; installLayout: boolean; overwrite: boolean },
   ) {
-    const { SHOPINGO_PAGES, SHOPINGO_MENUS, SHOPINGO_LAYOUT } = await import('./shopingo-installer');
-    const allPages = identifier === 'shopingo' ? SHOPINGO_PAGES : [];
-    const allMenus = identifier === 'shopingo' ? SHOPINGO_MENUS : [];
+    const { pages: allPages, menus: allMenus, layout: themeLayout } = await this.loadThemeInstaller(identifier);
 
     const themeRecord = await this.prisma.theme.findFirst({
       where: { identifier },
@@ -667,14 +677,14 @@ export class CmsService {
     }
 
     // ── Install layout ────────────────────────────────────────────────────────
-    if (dto.installLayout) {
+    if (dto.installLayout && themeLayout) {
       const navMenu = await this.prisma.menu.findFirst({
-        where: { organizationId: orgId, slug: SHOPINGO_LAYOUT.navMenuSlug },
+        where: { organizationId: orgId, slug: themeLayout.navMenuSlug },
         select: { id: true },
       });
 
       const footerColumnMenus = await Promise.all(
-        SHOPINGO_LAYOUT.footerColumns.map((col) =>
+        themeLayout.footerColumns.map((col) =>
           this.prisma.menu.findFirst({
             where: { organizationId: orgId, slug: col.menuSlug },
             select: { id: true },
@@ -683,7 +693,7 @@ export class CmsService {
       );
 
       const existingLayout = await this.prisma.layout.findFirst({
-        where: { organizationId: orgId, name: SHOPINGO_LAYOUT.name },
+        where: { organizationId: orgId, name: themeLayout.name },
         select: { id: true },
       });
 
@@ -705,13 +715,13 @@ export class CmsService {
       } else {
         await this.prisma.layout.create({
           data: {
-            name: SHOPINGO_LAYOUT.name, isDefault: true, organizationId: orgId,
+            name: themeLayout.name, isDefault: true, organizationId: orgId,
             navMenuId: navMenu?.id ?? null,
             footerColumns: footerColumnMenus.filter((c) => c.menuId) as object,
           },
         });
       }
-      result.layout = SHOPINGO_LAYOUT.name;
+      result.layout = themeLayout.name;
     }
 
     return result;

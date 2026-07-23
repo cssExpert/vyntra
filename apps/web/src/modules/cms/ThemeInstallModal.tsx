@@ -23,7 +23,7 @@ import {
   type ThemeInstallPreview,
   type ThemeInstallResult,
 } from "@/lib/api";
-import { getThemePageDefaults } from "@/lib/themes/shopingo/pageDefaults";
+import { getThemePageDefaults } from "@/lib/themes/pageDefaultsResolver";
 
 const PAGE_ICONS: Record<string, React.ElementType> = {
   home: Home,

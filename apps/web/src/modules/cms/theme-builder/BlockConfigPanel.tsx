@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { BLOCK_META } from "@/lib/themes/shopingo/blockDefaults";
+import { getBlockMeta } from "@/lib/themes/blockDefaultsResolver";
 import { BlockForm } from "@/components/editor/RightSidebar/BlockForm";
 import type { TypedBlock, BlockType } from "@/lib/themes/types";
 
@@ -9,9 +9,10 @@ interface Props {
   block: TypedBlock | null;
   onSave: (block: TypedBlock) => void;
   onClose: () => void;
+  themeIdentifier?: string;
 }
 
-export function BlockConfigPanel({ block, onSave, onClose }: Props) {
+export function BlockConfigPanel({ block, onSave, onClose, themeIdentifier = "shopingo" }: Props) {
   if (!block) {
     return (
       <aside className="w-80 flex-shrink-0 border-l border-border bg-muted/30 flex items-center justify-center">
@@ -22,7 +23,7 @@ export function BlockConfigPanel({ block, onSave, onClose }: Props) {
     );
   }
 
-  const meta = BLOCK_META[block.type as BlockType];
+  const meta = getBlockMeta(themeIdentifier)[block.type as BlockType];
   const data = (block.data as unknown as Record<string, unknown>) ?? {};
 
   function setField(key: string, value: unknown) {

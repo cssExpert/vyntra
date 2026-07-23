@@ -1,5 +1,14 @@
 import type { BlockDataMap, BlockType } from "@/lib/themes/types";
 
+// Palette categories for the Shopingo theme's block sidebar (BlockPalette.tsx).
+export const BLOCK_GROUPS: { label: string; types: BlockType[] }[] = [
+  { label: "Hero", types: ["hero-carousel"] },
+  { label: "Products", types: ["product-grid", "product-tabs"] },
+  { label: "Content", types: ["page-header", "text-image", "features-banner", "promo-banner", "brand-carousel", "category-grid"] },
+  { label: "Blog", types: ["blog-section"] },
+  { label: "Other", types: ["newsletter", "contact-form", "contact-form-info", "google-map", "custom-html"] },
+];
+
 // Block categories for sidebar grouping
 export const BLOCK_CATEGORIES: { label: string; blocks: BlockType[] }[] = [
   {
@@ -24,10 +33,10 @@ export const BLOCK_CATEGORIES: { label: string; blocks: BlockType[] }[] = [
   },
 ];
 
-export const BLOCK_META: Record<
+export const BLOCK_META: Partial<Record<
   BlockType,
   { label: string; description: string; icon: string }
-> = {
+>> = {
   "hero-carousel": {
     label: "Hero Carousel",
     description: "Full-width image slides with title, CTA button and autoplay",
@@ -105,7 +114,7 @@ export const BLOCK_META: Record<
   },
 };
 
-export const BLOCK_DEFAULTS: BlockDataMap = {
+export const BLOCK_DEFAULTS: Partial<BlockDataMap> = {
   "hero-carousel": {
     slides: [
       {
