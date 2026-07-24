@@ -209,6 +209,16 @@ export class DomainsController {
     return this.domainsService.getPublicProductListingSettings(orgId);
   }
 
+  // Must come before the "products/:slug" wildcard route below — same reason
+  // as page-settings above (used by the storefront Quick Order feature).
+  @Public()
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 60, ttl: 60_000 } })
+  @Get('public/sites/:orgId/products/by-sku')
+  getPublicProductBySku(@Param('orgId') orgId: string, @Query('sku') sku: string) {
+    return this.domainsService.getPublicProductBySku(orgId, sku);
+  }
+
   @Public()
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 60, ttl: 60_000 } })

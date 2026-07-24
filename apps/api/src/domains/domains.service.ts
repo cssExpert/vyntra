@@ -588,6 +588,16 @@ export class DomainsService {
     return product ? { ...product, tags: [] as string[] } : null;
   }
 
+  /** SKU → product lookup for the storefront Quick Order feature. Returns null (not 404) so the UI can show a per-row "not found" without a try/catch per lookup. */
+  async getPublicProductBySku(orgId: string, sku: string) {
+    if (!sku?.trim()) return null;
+    const product = await this.prisma.product.findFirst({
+      where: { organizationId: orgId, sku: sku.trim(), status: 'active' },
+      select: { id: true, name: true, slug: true, sku: true, price: true, stock: true, stockStatus: true, featuredImage: true },
+    });
+    return product ?? null;
+  }
+
   private static readonly PUBLIC_BLOG_SELECT = {
     id: true,
     title: true,

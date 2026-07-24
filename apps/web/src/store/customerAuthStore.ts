@@ -18,6 +18,9 @@ interface CustomerAuthState {
   error: string | null;
   authModalOpen: boolean;
   authModalMode: "login" | "register";
+  /** True once zustand's persist middleware has finished reading localStorage. Gate any "is the customer logged in?" UI decision on this — otherwise there's a flash of the logged-out state on every fresh page load before rehydration completes. */
+  hasHydrated: boolean;
+  setHasHydrated: (v: boolean) => void;
 
   register: (orgId: string, data: { name: string; email: string; password: string; phone?: string }) => Promise<void>;
   login: (orgId: string, data: { email: string; password: string }) => Promise<void>;
@@ -40,6 +43,8 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
       error: null,
       authModalOpen: false,
       authModalMode: "login",
+      hasHydrated: false,
+      setHasHydrated: (v) => set({ hasHydrated: v }),
 
       register: async (orgId, data) => {
         set({ loading: true, error: null });
@@ -99,6 +104,9 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
         refreshToken: state.refreshToken,
         orgId: state.orgId,
       }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     },
   ),
 );

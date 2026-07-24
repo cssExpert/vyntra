@@ -1445,6 +1445,61 @@ async function main() {
   }
   console.log("   ✓ Customer addresses (2 sample saved addresses)");
 
+  // ── Store credit & reward point transaction history ──────
+  // StoreCustomer.storeCredit/rewardPoints are set directly above (upsert),
+  // but the storefront's Store Credit / Reward Points history tabs read from
+  // these ledger tables — without seed rows here those balances would show
+  // with an empty history for every seeded customer.
+  const creditTransactions = [
+    { customerKey: "cust1", amount: 25.0, type: "credit", reason: "Welcome bonus — new VIP member" },
+    { customerKey: "cust2", amount: 15.0, type: "credit", reason: "Referral reward" },
+    { customerKey: "cust2", amount: 35.0, type: "credit", reason: "Store credit refund — order ORD-SEED-0002" },
+  ];
+  for (const t of creditTransactions) {
+    const customerId = custMap[t.customerKey];
+    const existing = await prisma.storeCreditTransaction.findFirst({ where: { customerId, reason: t.reason } });
+    if (!existing) {
+      await prisma.storeCreditTransaction.create({
+        data: { organizationId: org.id, customerId, amount: t.amount, type: t.type, reason: t.reason },
+      });
+    }
+  }
+
+  const rewardTransactions = [
+    { customerKey: "cust1", points: 2000, type: "earn", reason: "Signup bonus" },
+    { customerKey: "cust1", points: 450, type: "earn", reason: "Purchase reward — order ORD-SEED-0005" },
+    { customerKey: "cust2", points: 500, type: "earn", reason: "Signup bonus" },
+    { customerKey: "cust2", points: 180, type: "earn", reason: "Purchase reward — order ORD-SEED-0002" },
+  ];
+  for (const t of rewardTransactions) {
+    const customerId = custMap[t.customerKey];
+    const existing = await prisma.rewardPointTransaction.findFirst({ where: { customerId, reason: t.reason } });
+    if (!existing) {
+      await prisma.rewardPointTransaction.create({
+        data: { organizationId: org.id, customerId, points: t.points, type: t.type, reason: t.reason },
+      });
+    }
+  }
+  console.log("   ✓ Store credit & reward point transaction history");
+
+  // ── Wishlist items (for the storefront /account/wishlist tab) ──
+  const wishlistItems = [
+    { customerKey: "cust1", productSlug: "icon-pack-1200-line-icons" },
+    { customerKey: "cust1", productSlug: "pro-t-shirt-branded" },
+    { customerKey: "cust2", productSlug: "ui-component-bundle" },
+  ];
+  for (const w of wishlistItems) {
+    const customerId = custMap[w.customerKey];
+    const productId = prodMap[w.productSlug];
+    if (!productId) continue;
+    await prisma.wishlistItem.upsert({
+      where: { customerId_productId: { customerId, productId } },
+      update: {},
+      create: { customerId, productId },
+    });
+  }
+  console.log("   ✓ Wishlist items (3 sample saved products)");
+
   // ── Coupons ──────────────────────────────────────────────
   const coupons = [
     { code: "WELCOME10", type: "percent", value: 10, minimumSpend: 25, usageLimit: 500, usageCount: 312, status: "active", freeShipping: false, expiresAt: new Date("2026-12-31") },

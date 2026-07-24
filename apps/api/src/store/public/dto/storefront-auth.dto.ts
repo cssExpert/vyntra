@@ -28,3 +28,12 @@ export class StorefrontRefreshDto {
   @IsString()
   refreshToken: string;
 }
+
+export class ChangeCustomerPasswordDto {
+  @IsString()
+  currentPassword: string;
+
+  @IsString()
+  @MinLength(8)
+  newPassword: string;
+}

@@ -3,7 +3,7 @@ import { Public } from '../../../common/decorators/public.decorator';
 import { StorefrontCustomerAuthGuard } from '../guards/storefront-customer-auth.guard';
 import { CurrentCustomer, RequestCustomer } from '../decorators/current-customer.decorator';
 import { StorefrontAccountService } from '../services/storefront-account.service';
-import { UpdateCustomerProfileDto, CreateCustomerAddressDto, UpdateCustomerAddressDto } from '../dto';
+import { UpdateCustomerProfileDto, CreateCustomerAddressDto, UpdateCustomerAddressDto, ChangeCustomerPasswordDto, AddWishlistItemDto } from '../dto';
 
 /**
  * `@Public()` opts every route here out of the global staff JwtAuthGuard;
@@ -66,5 +66,54 @@ export class StorefrontAccountController {
   @Delete('addresses/:id')
   deleteAddress(@CurrentCustomer() customer: RequestCustomer, @Param('id') id: string) {
     return this.accountService.deleteAddress(customer, id);
+  }
+
+  @Patch('password')
+  changePassword(@CurrentCustomer() customer: RequestCustomer, @Body() dto: ChangeCustomerPasswordDto) {
+    return this.accountService.changePassword(customer, dto);
+  }
+
+  @Get('credit-transactions')
+  creditTransactions(
+    @CurrentCustomer() customer: RequestCustomer,
+    @Query('skip') skip?: string,
+    @Query('take') take?: string,
+  ) {
+    return this.accountService.listCreditTransactions(customer, {
+      skip: skip ? Number(skip) : undefined,
+      take: take ? Number(take) : undefined,
+    });
+  }
+
+  @Get('reward-transactions')
+  rewardTransactions(
+    @CurrentCustomer() customer: RequestCustomer,
+    @Query('skip') skip?: string,
+    @Query('take') take?: string,
+  ) {
+    return this.accountService.listRewardTransactions(customer, {
+      skip: skip ? Number(skip) : undefined,
+      take: take ? Number(take) : undefined,
+    });
+  }
+
+  @Get('downloads')
+  downloads(@CurrentCustomer() customer: RequestCustomer) {
+    return this.accountService.listDownloadableOrders(customer);
+  }
+
+  @Get('wishlist')
+  wishlist(@CurrentCustomer() customer: RequestCustomer) {
+    return this.accountService.listWishlist(customer);
+  }
+
+  @Post('wishlist')
+  addWishlistItem(@CurrentCustomer() customer: RequestCustomer, @Body() dto: AddWishlistItemDto) {
+    return this.accountService.addWishlistItem(customer, dto.productId);
+  }
+
+  @Delete('wishlist/:productId')
+  removeWishlistItem(@CurrentCustomer() customer: RequestCustomer, @Param('productId') productId: string) {
+    return this.accountService.removeWishlistItem(customer, productId);
   }
 }

@@ -1,8 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Heart } from "lucide-react";
 import { useProductDetail } from "@/lib/themes/useProductDetail";
 import { useCartStore } from "@/store/cartStore";
+import { useWishlistStore } from "@/store/wishlistStore";
+import { useCustomerAuthStore } from "@/store/customerAuthStore";
 import { useStorefrontToastStore } from "@/store/storefrontToastStore";
 import { ApiError } from "@/lib/storefrontApi";
 
@@ -38,6 +41,10 @@ export default function ProductDetail({
   const { product, loading, notFound } = useProductDetail(orgId, slug ?? "");
   const addItem = useCartStore((s) => s.addItem);
   const addToast = useStorefrontToastStore((s) => s.addToast);
+  const isSaved = useWishlistStore((s) => (product ? s.isSaved(product.id) : false));
+  const toggleWishlist = useWishlistStore((s) => s.toggle);
+  const isLoggedIn = useCustomerAuthStore((s) => !!s.customer);
+  const openAuthModal = useCustomerAuthStore((s) => s.openAuthModal);
   const [activeImg, setActiveImg] = useState(0);
   const [activeTab, setActiveTab] = useState<"description" | "specification">("description");
   const [selectedAttrs, setSelectedAttrs] = useState<Record<string, string>>({});
@@ -115,6 +122,19 @@ export default function ProductDetail({
       addToast(err instanceof ApiError ? err.message : "Couldn't add to cart", "error");
     } finally {
       setAdding(false);
+    }
+  };
+
+  const handleToggleWishlist = async () => {
+    if (!isLoggedIn) {
+      openAuthModal("login");
+      return;
+    }
+    try {
+      await toggleWishlist(orgId, product.id);
+      addToast(isSaved ? "Removed from wishlist" : "Added to wishlist", "success");
+    } catch (err) {
+      addToast(err instanceof ApiError ? err.message : "Couldn't update wishlist", "error");
     }
   };
 
@@ -305,6 +325,15 @@ export default function ProductDetail({
                     : adding
                       ? "Adding…"
                       : "Add to Cart"}
+              </button>
+              <button
+                onClick={handleToggleWishlist}
+                aria-label={isSaved ? "Remove from wishlist" : "Add to wishlist"}
+                className={`w-11 h-11 flex items-center justify-center border rounded transition-colors ${
+                  isSaved ? "border-red-500 text-red-500" : "border-gray-300 dark:border-gray-700 text-gray-500 hover:text-red-500 hover:border-red-500"
+                }`}
+              >
+                <Heart className="w-4 h-4" fill={isSaved ? "currentColor" : "none"} />
               </button>
             </div>
           </div>

@@ -11,6 +11,33 @@ export interface AccountProfile {
   rewardTier: string;
   totalOrders: number;
   totalSpent: number;
+  lastLoginAt: string | null;
+  wishlistCount: number;
+}
+
+export interface CreditTransaction {
+  id: string;
+  amount: number;
+  type: string;
+  reason: string;
+  orderId: string | null;
+  createdAt: string;
+}
+
+export interface RewardTransaction {
+  id: string;
+  points: number;
+  type: string;
+  reason: string;
+  orderId: string | null;
+  createdAt: string;
+}
+
+export interface DownloadableOrder {
+  id: string;
+  orderNumber: string;
+  createdAt: string;
+  items: AccountOrderItem[];
 }
 
 export interface AccountOrderItem {
@@ -182,4 +209,77 @@ export function useAccountAddresses(orgId: string, enabled: boolean) {
   };
 
   return { addresses, loading, error, refetch, createAddress, updateAddress, deleteAddress };
+}
+
+export function useAccountCreditTransactions(orgId: string, enabled: boolean) {
+  const [transactions, setTransactions] = useState<CreditTransaction[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!enabled) return;
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    storefrontFetch<{ data: CreditTransaction[] }>(orgId, "/account/credit-transactions?take=50")
+      .then((res) => !cancelled && setTransactions(res.data))
+      .catch((err) => !cancelled && setError(err instanceof ApiError ? err.message : "Failed to load transactions"))
+      .finally(() => !cancelled && setLoading(false));
+    return () => {
+      cancelled = true;
+    };
+  }, [orgId, enabled]);
+
+  return { transactions, loading, error };
+}
+
+export function useAccountRewardTransactions(orgId: string, enabled: boolean) {
+  const [transactions, setTransactions] = useState<RewardTransaction[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!enabled) return;
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    storefrontFetch<{ data: RewardTransaction[] }>(orgId, "/account/reward-transactions?take=50")
+      .then((res) => !cancelled && setTransactions(res.data))
+      .catch((err) => !cancelled && setError(err instanceof ApiError ? err.message : "Failed to load transactions"))
+      .finally(() => !cancelled && setLoading(false));
+    return () => {
+      cancelled = true;
+    };
+  }, [orgId, enabled]);
+
+  return { transactions, loading, error };
+}
+
+export function useAccountDownloads(orgId: string, enabled: boolean) {
+  const [orders, setOrders] = useState<DownloadableOrder[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!enabled) return;
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    storefrontFetch<DownloadableOrder[]>(orgId, "/account/downloads")
+      .then((res) => !cancelled && setOrders(res))
+      .catch((err) => !cancelled && setError(err instanceof ApiError ? err.message : "Failed to load downloads"))
+      .finally(() => !cancelled && setLoading(false));
+    return () => {
+      cancelled = true;
+    };
+  }, [orgId, enabled]);
+
+  return { orders, loading, error };
+}
+
+export async function changeAccountPassword(orgId: string, currentPassword: string, newPassword: string) {
+  return storefrontFetch<{ success: boolean }>(orgId, "/account/password", {
+    method: "PATCH",
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
 }

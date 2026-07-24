@@ -980,6 +980,7 @@ model Product {
   inventory       Inventory[]
   orderItems      OrderItem[]
   cartItems       CartItem[]
+  wishlistItems   WishlistItem[]
   reviews         ProductReview[]
   tierPrices        ProductTierPrice[]
   groupRestrictions CustomerGroupProduct[]
@@ -1345,6 +1346,7 @@ model StoreCustomer {
   reviews            ProductReview[]
   addresses          CustomerAddress[]
   carts              Cart[]
+  wishlistItems      WishlistItem[]
 
   registeredAt DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -1383,6 +1385,20 @@ model CustomerAddress {
 
   @@index([customerId])
   @@map("customer_addresses")
+}
+
+model WishlistItem {
+  id         String   @id @default(cuid())
+  customerId String
+  productId  String
+  createdAt  DateTime @default(now())
+
+  customer StoreCustomer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  product  Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([customerId, productId])
+  @@index([customerId])
+  @@map("wishlist_items")
 }
 
 // ════════════════════════════════════════════════════════════════════
