@@ -1331,6 +1331,11 @@ model StoreCustomer {
   emailVerifiedAt DateTime?
   lastLoginAt     DateTime?
 
+  // Forgot-password flow — a single-use, expiring token; cleared on
+  // successful reset or once expired (expiry is checked, never swept).
+  passwordResetToken     String?
+  passwordResetExpiresAt DateTime?
+
   rewardPoints Int    @default(0)
   storeCredit  Float  @default(0)
   rewardTier   String @default("bronze")
@@ -1359,6 +1364,7 @@ model StoreCustomer {
   @@unique([organizationId, email])
   @@index([organizationId])
   @@index([customerGroupId])
+  @@index([passwordResetToken])
   @@map("store_customers")
 }
 

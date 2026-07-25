@@ -18,6 +18,7 @@ import CommonAccount from "./common/pages/Account";
 
 export interface SystemPageProps {
   orgId: string;
+  orgName?: string;
   themeIdentifier: string;
   /** Extra path segment for detail-style system pages, e.g. the blog post slug for "blog-detail". */
   slug?: string;

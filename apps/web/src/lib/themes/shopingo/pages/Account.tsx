@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Wallet,
@@ -9,15 +9,21 @@ import {
   ShoppingBag,
   X,
   Plus,
+  UserPlus,
+  Building2,
+  Award,
+  CheckCircle2,
+  ArrowRight,
 } from "lucide-react";
 import { useCustomerAuthStore } from "@/store/customerAuthStore";
 import { useCartStore } from "@/store/cartStore";
-import { LoginForm, RegisterForm } from "@/lib/themes/shared/AuthForms";
+import { LoginForm, RegisterForm, ForgotPasswordForm, ResetPasswordForm } from "@/lib/themes/shared/AuthForms";
 import { AccountSidebar } from "@/lib/themes/shared/AccountSidebar";
 import { StatCard } from "@/lib/themes/shared/StatCard";
 import { StatusPill } from "@/lib/themes/shared/StatusPill";
 import { rewardTierForPoints, pointsToNextTier, REWARD_TIER_THRESHOLDS } from "@/lib/themes/shared/rewardTier";
 import { useWishlist } from "@/lib/themes/useWishlist";
+import { useCustomerGroups, type PublicCustomerGroup } from "@/lib/themes/useCustomerGroups";
 import { storefrontFetch, ApiError } from "@/lib/storefrontApi";
 import { useStorefrontToastStore } from "@/store/storefrontToastStore";
 import {
@@ -49,21 +55,217 @@ function Card({ children, className = "" }: { children: React.ReactNode; classNa
 
 // ── Auth gate ─────────────────────────────────────────────
 
-function AuthGate({ orgId }: { orgId: string }) {
-  const [mode, setMode] = useState<"login" | "register">("login");
+const GROUP_ICONS = [UserPlus, Building2, Award];
+
+function GroupCard({ group, icon: Icon, onSelect }: { group: PublicCustomerGroup; icon: typeof UserPlus; onSelect: () => void }) {
   return (
-    <section className="py-16 bg-white dark:bg-[#121214] min-h-screen">
-      <div className="max-w-sm mx-auto px-6">
-        <h1 className="text-xl font-bold text-center text-gray-900 dark:text-white mb-6">
-          {mode === "login" ? "Sign In" : "Create Account"}
-        </h1>
-        {mode === "login" ? <LoginForm orgId={orgId} accentColor={ORANGE} /> : <RegisterForm orgId={orgId} accentColor={ORANGE} />}
-        <p className="mt-5 text-xs text-center text-gray-500 dark:text-gray-400">
-          {mode === "login" ? "Don't have an account? " : "Already have an account? "}
-          <button onClick={() => setMode(mode === "login" ? "register" : "login")} className="font-semibold hover:underline" style={{ color: ORANGE }}>
-            {mode === "login" ? "Create one" : "Sign in"}
-          </button>
-        </p>
+    <div className="border border-gray-200 dark:border-gray-800 rounded-lg p-5 flex gap-4">
+      <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: `${ORANGE}1A`, color: ORANGE }}>
+        <Icon className="w-5 h-5" />
+      </div>
+      <div>
+        <h3 className="text-sm font-bold text-gray-900 dark:text-white">{group.name}</h3>
+        {group.description && <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{group.description}</p>}
+        <button onClick={onSelect} className="mt-2 flex items-center gap-1 text-xs font-bold hover:underline" style={{ color: ORANGE }}>
+          Sign Up <ArrowRight className="w-3 h-3" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function AuthGate({ orgId, orgName }: { orgId: string; orgName?: string }) {
+  const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
+  const [selectedGroup, setSelectedGroup] = useState<PublicCustomerGroup | null>(null);
+  const [pendingMessage, setPendingMessage] = useState<string | null>(null);
+  const { groups } = useCustomerGroups(orgId);
+
+  const startRegister = (group: PublicCustomerGroup | null) => {
+    setSelectedGroup(group);
+    setPendingMessage(null);
+    setMode("register");
+  };
+
+  if (pendingMessage) {
+    return (
+      <section className="py-16 bg-white dark:bg-[#121214] min-h-screen flex items-center justify-center px-6">
+        <div className="max-w-md w-full border border-gray-200 dark:border-gray-800 rounded-xl p-8 text-center">
+          <div
+            className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
+            style={{ backgroundColor: `${ORANGE}1A`, color: ORANGE }}
+          >
+            <CheckCircle2 className="w-8 h-8" />
+          </div>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">You&apos;re almost in!</h1>
+          {selectedGroup && (
+            <p className="text-xs font-bold uppercase tracking-wide mt-2" style={{ color: ORANGE }}>{selectedGroup.name}</p>
+          )}
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-3 leading-relaxed">{pendingMessage}</p>
+
+          <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800 text-left space-y-3">
+            <p className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">What happens next</p>
+            <div className="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300">
+              <CheckCircle2 className="w-4 h-4 shrink-0" style={{ color: ORANGE }} /> Your account has been created
+            </div>
+            <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+              <span className="w-4 h-4 rounded-full border-2 shrink-0" style={{ borderColor: ORANGE }} /> Our team reviews your request
+            </div>
+            <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+              <span className="w-4 h-4 rounded-full border-2 shrink-0" style={{ borderColor: "#d1d5db" }} /> Log in and start ordering
+            </div>
+          </div>
+
+          <div className="mt-7 flex flex-col sm:flex-row gap-3">
+            <a
+              href="/shop"
+              className="flex-1 py-2.5 rounded-full text-xs font-bold uppercase tracking-wide text-white text-center transition-opacity hover:opacity-90"
+              style={{ backgroundColor: ORANGE }}
+            >
+              Continue Shopping
+            </a>
+            <button
+              onClick={() => {
+                setPendingMessage(null);
+                setMode("login");
+              }}
+              className="flex-1 py-2.5 rounded-full text-xs font-bold uppercase tracking-wide border transition-colors hover:bg-gray-50 dark:hover:bg-white/5"
+              style={{ borderColor: ORANGE, color: ORANGE }}
+            >
+              Back to Sign In
+            </button>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (mode === "register") {
+    return (
+      <section className="bg-white dark:bg-[#121214] min-h-screen">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+          <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800">
+            {/* Benefits sidebar */}
+            <div className="p-8 flex flex-col justify-between" style={{ backgroundColor: `${ORANGE}0D` }}>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest" style={{ color: ORANGE }}>{orgName ?? "Our Store"}</p>
+                <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white mt-2">Join the store</h2>
+                {selectedGroup && (
+                  <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
+                    Signing up as <strong>{selectedGroup.name}</strong>.{" "}
+                    <button
+                      onClick={() => {
+                        setSelectedGroup(null);
+                        setMode("login");
+                      }}
+                      className="underline"
+                      style={{ color: ORANGE }}
+                    >
+                      Change
+                    </button>
+                  </p>
+                )}
+                <ul className="mt-6 space-y-3">
+                  {["Order products online", "Track orders and reorder in seconds", "Save addresses, wishlist & preferences"].map((b) => (
+                    <li key={b} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
+                      <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" style={{ color: ORANGE }} />
+                      {b}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <ol className="mt-10 space-y-2 text-xs text-gray-500 dark:text-gray-400">
+                <li className="flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full border flex items-center justify-center text-[10px] font-bold shrink-0" style={{ borderColor: ORANGE, color: ORANGE }}>1</span>
+                  Create your account
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full border flex items-center justify-center text-[10px] font-bold shrink-0" style={{ borderColor: ORANGE, color: ORANGE }}>2</span>
+                  {selectedGroup?.requiresApproval ? "Our team reviews and approves it" : "Start shopping right away"}
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full border flex items-center justify-center text-[10px] font-bold shrink-0" style={{ borderColor: ORANGE, color: ORANGE }}>3</span>
+                  Log in and start ordering
+                </li>
+              </ol>
+            </div>
+
+            {/* Form */}
+            <div className="p-8">
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Create Your Account</h1>
+              <RegisterForm
+                orgId={orgId}
+                accentColor={ORANGE}
+                sectioned
+                customerGroupId={selectedGroup?.id || undefined}
+                onPending={(message) => setPendingMessage(message)}
+              />
+              <p className="mt-5 text-xs text-center text-gray-500 dark:text-gray-400">
+                Already have an account?{" "}
+                <button onClick={() => setMode("login")} className="font-semibold hover:underline" style={{ color: ORANGE }}>Log in</button>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="py-10 bg-white dark:bg-[#121214] min-h-screen">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+        {/* Login / forgot-password card */}
+        <div className="border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
+          {mode === "forgot" ? (
+            <div className="p-8">
+              <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-white">Reset Password</h1>
+              <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-1 mb-6">Enter your email and we&apos;ll send you a reset link</p>
+              <ForgotPasswordForm orgId={orgId} accentColor={ORANGE} />
+              <p className="mt-5 text-xs text-center text-gray-500 dark:text-gray-400">
+                <button onClick={() => setMode("login")} className="font-semibold hover:underline" style={{ color: ORANGE }}>← Back to sign in</button>
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="p-8">
+                <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-white">Login</h1>
+                <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-1 mb-6">Log in with your email</p>
+                <LoginForm orgId={orgId} accentColor={ORANGE} />
+                <p className="mt-4 text-xs text-center">
+                  <button onClick={() => setMode("forgot")} className="text-gray-500 dark:text-gray-400 hover:underline">Forgot your password?</button>
+                </p>
+              </div>
+              <div className="bg-gray-50 dark:bg-white/5 px-8 py-4 text-center border-t border-gray-100 dark:border-gray-800">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Don&apos;t have an account?{" "}
+                  <button onClick={() => startRegister(null)} className="font-bold hover:underline" style={{ color: ORANGE }}>Sign Up</button>
+                </p>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Group choice cards */}
+        <div>
+          <h2 className="text-xl font-extrabold text-gray-900 dark:text-white">
+            Welcome to {orgName ?? "our store"}!
+          </h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-5">
+            Sign in on the left, or choose how you&apos;d like to get started below.
+          </p>
+          <div className="space-y-3">
+            {groups.length === 0 ? (
+              <GroupCard
+                group={{ id: "", name: "Create a free account", description: "Sign up to start shopping.", requiresApproval: false }}
+                icon={UserPlus}
+                onSelect={() => startRegister(null)}
+              />
+            ) : (
+              groups.map((group, i) => (
+                <GroupCard key={group.id} group={group} icon={GROUP_ICONS[i % GROUP_ICONS.length]} onSelect={() => startRegister(group)} />
+              ))
+            )}
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -725,22 +927,69 @@ function AddressesTab({ orgId }: { orgId: string }) {
   );
 }
 
+// ── Reset password (reached via an emailed link — works regardless of current login state) ──
+
+function ResetPasswordGate({ orgId }: { orgId: string }) {
+  const [token, setToken] = useState<string | null>(null);
+  const [tokenChecked, setTokenChecked] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    setToken(new URLSearchParams(window.location.search).get("token"));
+    setTokenChecked(true);
+  }, []);
+
+  if (!tokenChecked) return null;
+
+  return (
+    <section className="py-16 bg-white dark:bg-[#121214] min-h-screen flex items-center justify-center px-6">
+      <div className="max-w-sm w-full">
+        {success ? (
+          <div className="border border-gray-200 dark:border-gray-800 rounded-xl p-8 text-center">
+            <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: `${ORANGE}1A`, color: ORANGE }}>
+              <CheckCircle2 className="w-7 h-7" />
+            </div>
+            <h1 className="text-lg font-bold text-gray-900 dark:text-white">Password updated</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">You can now sign in with your new password.</p>
+            <a href="/account" className="mt-5 inline-block text-sm font-bold hover:underline" style={{ color: ORANGE }}>Back to sign in</a>
+          </div>
+        ) : (
+          <div className="border border-gray-200 dark:border-gray-800 rounded-xl p-8">
+            <h1 className="text-xl font-bold text-center text-gray-900 dark:text-white mb-1">Reset Your Password</h1>
+            <p className="text-xs text-center text-gray-500 dark:text-gray-400 mb-6">Choose a new password below</p>
+            {!token && (
+              <p className="mb-4 text-xs text-center text-rose-500">
+                This link is missing its reset token — please use the link from your email.
+              </p>
+            )}
+            <ResetPasswordForm orgId={orgId} accentColor={ORANGE} token={token} onSuccess={() => setSuccess(true)} />
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
 // ── Shell ──────────────────────────────────────────────────
 
 const VALID_TABS = ["dashboard", "quick-order", "orders", "downloads", "wishlist", "store-credit", "reward-points", "profile", "change-password", "login-security", "addresses"];
 
-export default function Account({ orgId, slug }: { orgId: string; slug?: string }) {
+export default function Account({ orgId, orgName, slug }: { orgId: string; orgName?: string; slug?: string }) {
   const customer = useCustomerAuthStore((s) => s.customer);
   const logout = useCustomerAuthStore((s) => s.logout);
   const hasHydrated = useCustomerAuthStore((s) => s.hasHydrated);
+
+  const [rawTab, subId] = (slug ?? "").split("/");
 
   // Wait for zustand's persist rehydration before deciding logged-in vs.
   // guest — otherwise every fresh page load flashes the sign-in gate for an
   // instant even for an already-logged-in customer.
   if (!hasHydrated) return null;
-  if (!customer) return <AuthGate orgId={orgId} />;
+  // Works regardless of current login state — resetting a forgotten
+  // password shouldn't require (or care about) an existing session.
+  if (rawTab === "reset-password") return <ResetPasswordGate orgId={orgId} />;
+  if (!customer) return <AuthGate orgId={orgId} orgName={orgName} />;
 
-  const [rawTab, subId] = (slug ?? "").split("/");
   const activeTab = VALID_TABS.includes(rawTab) ? rawTab : "dashboard";
 
   return (

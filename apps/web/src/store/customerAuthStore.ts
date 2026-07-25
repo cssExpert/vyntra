@@ -9,6 +9,8 @@ interface CustomerAuthResponseShape {
   refreshToken: string;
 }
 
+type RegisterResponseShape = CustomerAuthResponseShape | { pending: true; message: string };
+
 interface CustomerAuthState {
   customer: StorefrontCustomer | null;
   accessToken: string | null;
@@ -22,7 +24,18 @@ interface CustomerAuthState {
   hasHydrated: boolean;
   setHasHydrated: (v: boolean) => void;
 
-  register: (orgId: string, data: { name: string; email: string; password: string; phone?: string }) => Promise<void>;
+  /** Returns { pending: true, message } if the chosen customer group requires staff approval — no session is issued in that case. */
+  register: (
+    orgId: string,
+    data: {
+      name: string;
+      email: string;
+      password: string;
+      phone?: string;
+      customerGroupId?: string;
+      address?: { line1?: string; line2?: string; city?: string; state?: string; country?: string; zip?: string };
+    },
+  ) => Promise<{ pending: boolean; message?: string }>;
   login: (orgId: string, data: { email: string; password: string }) => Promise<void>;
   logout: () => void;
   /** Adopts the session the API auto-issues right after a guest checkout, so the confirmation page is authenticated. */
@@ -49,10 +62,14 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
       register: async (orgId, data) => {
         set({ loading: true, error: null });
         try {
-          const res = await storefrontFetch<CustomerAuthResponseShape>(orgId, "/auth/register", {
+          const res = await storefrontFetch<RegisterResponseShape>(orgId, "/auth/register", {
             method: "POST",
             body: JSON.stringify(data),
           });
+          if ("pending" in res) {
+            set({ loading: false });
+            return { pending: true, message: res.message };
+          }
           set({
             customer: res.customer,
             accessToken: res.accessToken,
@@ -60,6 +77,7 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
             orgId,
             loading: false,
           });
+          return { pending: false };
         } catch (err) {
           set({ loading: false, error: err instanceof ApiError ? err.message : "Registration failed" });
           throw err;

@@ -2,7 +2,7 @@ import { Body, Controller, HttpCode, Param, Post, UseGuards } from '@nestjs/comm
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { Public } from '../../../common/decorators/public.decorator';
 import { StorefrontAuthService } from '../services/storefront-auth.service';
-import { StorefrontRegisterDto, StorefrontLoginDto, StorefrontRefreshDto } from '../dto';
+import { StorefrontRegisterDto, StorefrontLoginDto, StorefrontRefreshDto, ForgotPasswordDto, ResetPasswordDto } from '../dto';
 
 @Controller('public/sites/:orgId/auth')
 export class StorefrontAuthController {
@@ -38,5 +38,23 @@ export class StorefrontAuthController {
   @Post('logout')
   logout() {
     return { success: true };
+  }
+
+  @Public()
+  @HttpCode(200)
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @Post('forgot-password')
+  forgotPassword(@Param('orgId') orgId: string, @Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(orgId, dto);
+  }
+
+  @Public()
+  @HttpCode(200)
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  @Post('reset-password')
+  resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto);
   }
 }

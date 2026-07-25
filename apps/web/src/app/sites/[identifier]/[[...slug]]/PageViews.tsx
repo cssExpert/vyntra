@@ -288,7 +288,7 @@ export async function SystemPageView({
       {pageSettings?.headScript && <script dangerouslySetInnerHTML={{ __html: pageSettings.headScript }} />}
       <GoogleAnalytics gaId={org.googleAnalyticsId} />
       <SiteNavbar org={org} layout={layout} themeIdentifier={themeIdentifier} />
-      <SystemPage orgId={org.id} themeIdentifier={themeIdentifier} slug={slug} />
+      <SystemPage orgId={org.id} orgName={org.name} themeIdentifier={themeIdentifier} slug={slug} />
       <SiteFooter org={org} layout={layout} themeIdentifier={themeIdentifier} />
       {pageSettings?.bodyScript && <script dangerouslySetInnerHTML={{ __html: pageSettings.bodyScript }} />}
       <StorefrontChrome orgId={org.id} />

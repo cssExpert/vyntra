@@ -238,6 +238,16 @@ export class DomainsController {
     return this.domainsService.getPublicCategories(orgId);
   }
 
+  // Used by the storefront signup page to let a shopper pick which customer
+  // group (e.g. "Dealers", "Contractors") they're registering as.
+  @Public()
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 60, ttl: 60_000 } })
+  @Get('public/sites/:orgId/customer-groups')
+  getPublicCustomerGroups(@Param('orgId') orgId: string) {
+    return this.domainsService.getPublicCustomerGroups(orgId);
+  }
+
   @Public()
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 60, ttl: 60_000 } })

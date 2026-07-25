@@ -2,27 +2,18 @@
 
 import { useCustomerAuthStore } from "@/store/customerAuthStore";
 
-/** Account icon — opens the sign-in modal for guests, links to /account for logged-in customers. */
+/** Account icon — always links to /account, which itself shows the login/signup gate for guests and the dashboard for logged-in customers. No modal here (the modal is reserved for quick sign-in prompts triggered elsewhere, e.g. the wishlist heart). */
 export function AccountButton({ className }: { className?: string }) {
   const isLoggedIn = useCustomerAuthStore((s) => !!s.customer);
-  const openAuthModal = useCustomerAuthStore((s) => s.openAuthModal);
-
-  if (isLoggedIn) {
-    return (
-      <a href="/account" className={className ?? "p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"} aria-label="Account">
-        <AccountIcon />
-      </a>
-    );
-  }
 
   return (
-    <button
-      onClick={() => openAuthModal("login")}
+    <a
+      href="/account"
       className={className ?? "p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"}
-      aria-label="Sign in"
+      aria-label={isLoggedIn ? "Account" : "Sign in"}
     >
       <AccountIcon />
-    </button>
+    </a>
   );
 }
 

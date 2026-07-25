@@ -505,6 +505,20 @@ export class DomainsService {
   }
 
   /**
+   * Customer groups for the storefront signup page's "choose your account
+   * type" cards. Only the fields a shopper needs to decide — never the
+   * discount/restriction/order-limit config, which is admin-internal.
+   */
+  async getPublicCustomerGroups(orgId: string) {
+    const groups = await this.prisma.customerGroup.findMany({
+      where: { organizationId: orgId },
+      select: { id: true, name: true, description: true, requiresApproval: true },
+      orderBy: { createdAt: 'asc' },
+    });
+    return { data: groups };
+  }
+
+  /**
    * Everything the storefront /shop page needs from CMS → Page Settings:
    * SEO meta, Open Graph, favicon, injected scripts/CSS, the configured
    * page size, and the top-of-page banner. One read, one row — mirrors

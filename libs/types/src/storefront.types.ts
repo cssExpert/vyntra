@@ -24,3 +24,11 @@ export interface CustomerAuthResponse {
   accessToken: string;
   refreshToken: string;
 }
+
+/** Returned by register() instead of CustomerAuthResponse when the chosen CustomerGroup has requiresApproval — no session is issued until staff approve the account. */
+export interface CustomerPendingApprovalResponse {
+  pending: true;
+  message: string;
+}
+
+export type CustomerRegisterResult = CustomerAuthResponse | CustomerPendingApprovalResponse;

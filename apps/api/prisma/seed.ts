@@ -377,15 +377,24 @@ async function main() {
   );
 
   // ── Default customer groups for every seeded org ─────────
+  // Descriptions + requiresApproval feed the storefront signup page's
+  // "choose your account type" cards — Dealers/Contractors need staff
+  // sign-off before they can log in, Regular Store Customers get instant
+  // access, mirroring a typical B2B-storefront self-service split.
+  const defaultGroupConfig: Record<string, { description: string; requiresApproval: boolean }> = {
+    "Regular Store Customers": { description: "Shop online, track orders, and save your details for next time.", requiresApproval: false },
+    "Dealers": { description: "Reseller pricing and bulk ordering for authorized dealers.", requiresApproval: true },
+    "Contractors": { description: "Trade pricing for contractors and project buyers.", requiresApproval: true },
+  };
   for (const seededOrg of [org, bloom, startup, ekam]) {
-    await prisma.customerGroup.createMany({
-      data: DEFAULT_CUSTOMER_GROUP_NAMES.map((name) => ({
-        organizationId: seededOrg.id,
-        name,
-        isDefault: true,
-      })),
-      skipDuplicates: true,
-    });
+    for (const name of DEFAULT_CUSTOMER_GROUP_NAMES) {
+      const cfg = defaultGroupConfig[name];
+      await prisma.customerGroup.upsert({
+        where: { organizationId_name: { organizationId: seededOrg.id, name } },
+        update: { description: cfg.description, requiresApproval: cfg.requiresApproval },
+        create: { organizationId: seededOrg.id, name, isDefault: true, ...cfg },
+      });
+    }
   }
 
   // ── CMS pages for Acme Corp ─────────────────────────────

@@ -80,6 +80,40 @@ export class EmailService {
     }
   }
 
+  /**
+   * sendViaSMTP is still a TODO stub (no real SMTP/provider wired up), and
+   * its own dev-mode log only prints the subject line — not useful for
+   * actually completing a reset. Logging the full URL here regardless of
+   * NODE_ENV is what makes the forgot-password flow testable at all until
+   * real email delivery exists.
+   */
+  async sendPasswordReset(customerEmail: string, customerName: string, resetUrl: string): Promise<boolean> {
+    try {
+      const html = `
+        <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+          <h2>Reset your password</h2>
+          <p>Hi ${customerName},</p>
+          <p>We received a request to reset your password. Click the link below to choose a new one — it expires in 1 hour.</p>
+          <p><a href="${resetUrl}" style="display:inline-block;padding:10px 20px;background:#e4611e;color:#fff;text-decoration:none;border-radius:6px;">Reset Password</a></p>
+          <p>If you didn't request this, you can safely ignore this email.</p>
+        </div>
+      `;
+
+      await this.sendEmail({
+        to: customerEmail,
+        subject: 'Reset your password',
+        html,
+        text: `Reset your password: ${resetUrl} (expires in 1 hour)`,
+      });
+
+      this.logger.log(`Password reset requested for ${customerEmail} — reset link: ${resetUrl}`);
+      return true;
+    } catch (error) {
+      this.logger.error(`Failed to send password reset email: ${error}`);
+      return false;
+    }
+  }
+
   async sendRefundNotification(
     customerEmail: string,
     customerName: string,

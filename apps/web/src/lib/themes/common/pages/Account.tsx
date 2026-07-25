@@ -1,16 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Wallet, Trophy, Heart, ShoppingBag, X, Plus } from "lucide-react";
+import { Wallet, Trophy, Heart, ShoppingBag, X, Plus, UserPlus, Building2, Award, CheckCircle2, ArrowRight } from "lucide-react";
 import { useCustomerAuthStore } from "@/store/customerAuthStore";
 import { useCartStore } from "@/store/cartStore";
-import { LoginForm, RegisterForm } from "@/lib/themes/shared/AuthForms";
+import { LoginForm, RegisterForm, ForgotPasswordForm, ResetPasswordForm } from "@/lib/themes/shared/AuthForms";
 import { AccountSidebar } from "@/lib/themes/shared/AccountSidebar";
 import { StatCard } from "@/lib/themes/shared/StatCard";
 import { StatusPill } from "@/lib/themes/shared/StatusPill";
 import { rewardTierForPoints, pointsToNextTier } from "@/lib/themes/shared/rewardTier";
 import { useWishlist } from "@/lib/themes/useWishlist";
+import { useCustomerGroups, type PublicCustomerGroup } from "@/lib/themes/useCustomerGroups";
 import { storefrontFetch, ApiError } from "@/lib/storefrontApi";
 import { useStorefrontToastStore } from "@/store/storefrontToastStore";
 import {
@@ -40,20 +41,129 @@ function Card({ children }: { children: React.ReactNode }) {
   );
 }
 
-function AuthGate({ orgId }: { orgId: string }) {
-  const [mode, setMode] = useState<"login" | "register">("login");
+const GROUP_ICONS = [UserPlus, Building2, Award];
+const PRIMARY = "var(--primary, #3b82f6)";
+
+function GroupCard({ group, icon: Icon, onSelect }: { group: PublicCustomerGroup; icon: typeof UserPlus; onSelect: () => void }) {
   return (
-    <div className="max-w-sm mx-auto px-6 py-16">
-      <h1 className="text-xl font-bold text-center mb-6" style={{ color: "var(--foreground, #111827)" }}>
-        {mode === "login" ? "Sign In" : "Create Account"}
-      </h1>
-      {mode === "login" ? <LoginForm orgId={orgId} /> : <RegisterForm orgId={orgId} />}
-      <p className="mt-5 text-xs text-center" style={{ color: "var(--muted-foreground, #6b7280)" }}>
-        {mode === "login" ? "Don't have an account? " : "Already have an account? "}
-        <button onClick={() => setMode(mode === "login" ? "register" : "login")} style={{ color: "var(--primary, #3b82f6)" }}>
-          {mode === "login" ? "Create one" : "Sign in"}
+    <div className="border rounded-lg p-4 flex gap-3" style={{ borderColor: "var(--border, #e5e7eb)" }}>
+      <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: "color-mix(in srgb, var(--primary, #3b82f6) 12%, transparent)", color: PRIMARY }}>
+        <Icon className="w-4 h-4" />
+      </div>
+      <div>
+        <h3 className="text-sm font-semibold" style={{ color: "var(--foreground, #111827)" }}>{group.name}</h3>
+        {group.description && <p className="text-xs mt-0.5" style={{ color: "var(--muted-foreground, #6b7280)" }}>{group.description}</p>}
+        <button onClick={onSelect} className="mt-1.5 flex items-center gap-1 text-xs font-semibold" style={{ color: PRIMARY }}>
+          Sign Up <ArrowRight className="w-3 h-3" />
         </button>
-      </p>
+      </div>
+    </div>
+  );
+}
+
+function AuthGate({ orgId, orgName }: { orgId: string; orgName?: string }) {
+  const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
+  const [selectedGroup, setSelectedGroup] = useState<PublicCustomerGroup | null>(null);
+  const [pendingMessage, setPendingMessage] = useState<string | null>(null);
+  const { groups } = useCustomerGroups(orgId);
+
+  const startRegister = (group: PublicCustomerGroup | null) => {
+    setSelectedGroup(group);
+    setPendingMessage(null);
+    setMode("register");
+  };
+
+  if (pendingMessage) {
+    return (
+      <div className="max-w-md mx-auto px-6 py-16">
+        <div className="border rounded-xl p-8 text-center" style={{ borderColor: "var(--border, #e5e7eb)" }}>
+          <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: "color-mix(in srgb, var(--primary, #3b82f6) 12%, transparent)", color: PRIMARY }}>
+            <CheckCircle2 className="w-7 h-7" />
+          </div>
+          <h1 className="text-lg font-bold" style={{ color: "var(--foreground, #111827)" }}>You&apos;re almost in!</h1>
+          {selectedGroup && <p className="text-xs font-semibold uppercase tracking-wide mt-1" style={{ color: PRIMARY }}>{selectedGroup.name}</p>}
+          <p className="text-sm mt-3" style={{ color: "var(--muted-foreground, #6b7280)" }}>{pendingMessage}</p>
+          <div className="mt-6 flex flex-col sm:flex-row gap-3">
+            <a href="/shop" className="flex-1 py-2 rounded text-sm font-semibold text-white text-center" style={{ backgroundColor: PRIMARY }}>
+              Continue Shopping
+            </a>
+            <button
+              onClick={() => { setPendingMessage(null); setMode("login"); }}
+              className="flex-1 py-2 rounded text-sm font-semibold border"
+              style={{ borderColor: PRIMARY, color: PRIMARY }}
+            >
+              Back to Sign In
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (mode === "register") {
+    return (
+      <div className="max-w-3xl mx-auto px-6 py-12">
+        <h1 className="text-xl font-bold mb-1" style={{ color: "var(--foreground, #111827)" }}>Create Your Account</h1>
+        {selectedGroup && (
+          <p className="text-sm mb-5" style={{ color: "var(--muted-foreground, #6b7280)" }}>
+            Signing up as <strong>{selectedGroup.name}</strong>.{" "}
+            <button
+              onClick={() => {
+                setSelectedGroup(null);
+                setMode("login");
+              }}
+              style={{ color: PRIMARY }}
+            >
+              Change
+            </button>
+          </p>
+        )}
+        <RegisterForm orgId={orgId} sectioned customerGroupId={selectedGroup?.id || undefined} onPending={setPendingMessage} />
+        <p className="mt-5 text-xs text-center" style={{ color: "var(--muted-foreground, #6b7280)" }}>
+          Already have an account?{" "}
+          <button onClick={() => setMode("login")} style={{ color: PRIMARY }}>Log in</button>
+        </p>
+      </div>
+    );
+  }
+
+  if (mode === "forgot") {
+    return (
+      <div className="max-w-sm mx-auto px-6 py-14">
+        <h1 className="text-xl font-bold mb-1" style={{ color: "var(--foreground, #111827)" }}>Reset Password</h1>
+        <p className="text-xs mb-6" style={{ color: "var(--muted-foreground, #6b7280)" }}>Enter your email and we&apos;ll send you a reset link</p>
+        <ForgotPasswordForm orgId={orgId} />
+        <p className="mt-5 text-xs text-center">
+          <button onClick={() => setMode("login")} style={{ color: PRIMARY }}>← Back to sign in</button>
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto px-6 py-14 grid grid-cols-1 sm:grid-cols-2 gap-10 items-start">
+      <div>
+        <h1 className="text-xl font-bold mb-4" style={{ color: "var(--foreground, #111827)" }}>Login</h1>
+        <LoginForm orgId={orgId} />
+        <p className="mt-3 text-xs">
+          <button onClick={() => setMode("forgot")} style={{ color: "var(--muted-foreground, #6b7280)" }}>Forgot your password?</button>
+        </p>
+        <p className="mt-3 text-xs text-center" style={{ color: "var(--muted-foreground, #6b7280)" }}>
+          Don&apos;t have an account?{" "}
+          <button onClick={() => startRegister(null)} style={{ color: PRIMARY }}>Sign Up</button>
+        </p>
+      </div>
+      <div>
+        <h2 className="text-lg font-bold" style={{ color: "var(--foreground, #111827)" }}>Welcome to {orgName ?? "our store"}!</h2>
+        <p className="text-sm mt-1 mb-4" style={{ color: "var(--muted-foreground, #6b7280)" }}>Choose how you&apos;d like to get started.</p>
+        <div className="space-y-3">
+          {groups.length === 0 ? (
+            <GroupCard group={{ id: "", name: "Create a free account", description: "Sign up to start shopping.", requiresApproval: false }} icon={UserPlus} onSelect={() => startRegister(null)} />
+          ) : (
+            groups.map((group, i) => <GroupCard key={group.id} group={group} icon={GROUP_ICONS[i % GROUP_ICONS.length]} onSelect={() => startRegister(group)} />)
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -449,17 +559,54 @@ function AddressesTab({ orgId }: { orgId: string }) {
   );
 }
 
+function ResetPasswordGate({ orgId }: { orgId: string }) {
+  const [token, setToken] = useState<string | null>(null);
+  const [tokenChecked, setTokenChecked] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    setToken(new URLSearchParams(window.location.search).get("token"));
+    setTokenChecked(true);
+  }, []);
+
+  if (!tokenChecked) return null;
+
+  return (
+    <div className="max-w-sm mx-auto px-6 py-16">
+      {success ? (
+        <div className="border rounded-xl p-8 text-center" style={{ borderColor: "var(--border, #e5e7eb)" }}>
+          <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: "color-mix(in srgb, var(--primary, #3b82f6) 12%, transparent)", color: PRIMARY }}>
+            <CheckCircle2 className="w-7 h-7" />
+          </div>
+          <h1 className="text-lg font-bold" style={{ color: "var(--foreground, #111827)" }}>Password updated</h1>
+          <p className="text-sm mt-2" style={{ color: "var(--muted-foreground, #6b7280)" }}>You can now sign in with your new password.</p>
+          <a href="/account" className="mt-4 inline-block text-sm font-semibold" style={{ color: PRIMARY }}>Back to sign in</a>
+        </div>
+      ) : (
+        <div className="border rounded-xl p-8" style={{ borderColor: "var(--border, #e5e7eb)" }}>
+          <h1 className="text-lg font-bold text-center mb-1" style={{ color: "var(--foreground, #111827)" }}>Reset Your Password</h1>
+          <p className="text-xs text-center mb-5" style={{ color: "var(--muted-foreground, #6b7280)" }}>Choose a new password below</p>
+          {!token && <p className="mb-3 text-xs text-center text-rose-500">This link is missing its reset token — please use the link from your email.</p>}
+          <ResetPasswordForm orgId={orgId} token={token} onSuccess={() => setSuccess(true)} />
+        </div>
+      )}
+    </div>
+  );
+}
+
 const VALID_TABS = ["dashboard", "quick-order", "orders", "downloads", "wishlist", "store-credit", "reward-points", "profile", "change-password", "login-security", "addresses"];
 
-export default function Account({ orgId, slug }: { orgId: string; slug?: string }) {
+export default function Account({ orgId, orgName, slug }: { orgId: string; orgName?: string; slug?: string }) {
   const customer = useCustomerAuthStore((s) => s.customer);
   const logout = useCustomerAuthStore((s) => s.logout);
   const hasHydrated = useCustomerAuthStore((s) => s.hasHydrated);
 
-  if (!hasHydrated) return null;
-  if (!customer) return <AuthGate orgId={orgId} />;
-
   const [rawTab, subId] = (slug ?? "").split("/");
+
+  if (!hasHydrated) return null;
+  if (rawTab === "reset-password") return <ResetPasswordGate orgId={orgId} />;
+  if (!customer) return <AuthGate orgId={orgId} orgName={orgName} />;
+
   const activeTab = VALID_TABS.includes(rawTab) ? rawTab : "dashboard";
 
   return (

@@ -1,10 +1,14 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { CustomerAuthResponse, CustomerJwtPayload } from '@vyntra/types';
+import { CustomerAuthResponse, CustomerJwtPayload, CustomerRegisterResult } from '@vyntra/types';
 import * as bcrypt from 'bcryptjs';
+import { randomBytes } from 'crypto';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { StorefrontRegisterDto, StorefrontLoginDto } from '../dto';
+import { EmailService } from '../../services/email.service';
+import { StorefrontRegisterDto, StorefrontLoginDto, ForgotPasswordDto, ResetPasswordDto } from '../dto';
+
+const PASSWORD_RESET_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 @Injectable()
 export class StorefrontAuthService {
@@ -12,6 +16,7 @@ export class StorefrontAuthService {
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
+    private emailService: EmailService,
   ) {}
 
   /**
@@ -23,7 +28,7 @@ export class StorefrontAuthService {
    * mail yet in this app, so gating on verification would silently break
    * signup entirely.
    */
-  async register(orgId: string, dto: StorefrontRegisterDto): Promise<CustomerAuthResponse> {
+  async register(orgId: string, dto: StorefrontRegisterDto): Promise<CustomerRegisterResult> {
     const existing = await this.prisma.storeCustomer.findUnique({
       where: { organizationId_email: { organizationId: orgId, email: dto.email } },
     });
@@ -32,7 +37,22 @@ export class StorefrontAuthService {
       throw new BadRequestException('An account with this email already exists');
     }
 
+    let group: { id: string; requiresApproval: boolean } | null = null;
+    if (dto.customerGroupId) {
+      group = await this.prisma.customerGroup.findFirst({
+        where: { id: dto.customerGroupId, organizationId: orgId },
+        select: { id: true, requiresApproval: true },
+      });
+      if (!group) throw new NotFoundException('Selected account type not found');
+    }
+
     const passwordHash = await this.hash(dto.password);
+    // A group that requiresApproval keeps the new account "unverified" (the
+    // same status the admin Customers screen already uses/edits) until
+    // staff manually flip it to "active" — there's no separate approval
+    // queue/endpoint, this reuses the existing customer status field and
+    // admin edit UI rather than inventing a new mechanism.
+    const status = group?.requiresApproval ? 'unverified' : 'active';
 
     const customer = existing
       ? await this.prisma.storeCustomer.update({
@@ -41,7 +61,9 @@ export class StorefrontAuthService {
             passwordHash,
             name: dto.name,
             phone: dto.phone ?? existing.phone,
-            lastLoginAt: new Date(),
+            customerGroupId: group?.id,
+            status,
+            lastLoginAt: status === 'active' ? new Date() : undefined,
           },
         })
       : await this.prisma.storeCustomer.create({
@@ -51,9 +73,44 @@ export class StorefrontAuthService {
             email: dto.email,
             phone: dto.phone,
             passwordHash,
-            lastLoginAt: new Date(),
+            customerGroupId: group?.id,
+            status,
+            lastLoginAt: status === 'active' ? new Date() : undefined,
           },
         });
+
+    // Address collected on the full signup page becomes this customer's
+    // default shipping + billing address — mirrors the same
+    // clear-existing-defaults-then-create pattern StorefrontAccountService
+    // uses for the /account/addresses "add address" flow.
+    if (dto.address?.line1) {
+      await this.prisma.customerAddress.updateMany({
+        where: { customerId: customer.id },
+        data: { isDefaultShipping: false, isDefaultBilling: false },
+      });
+      await this.prisma.customerAddress.create({
+        data: {
+          customerId: customer.id,
+          name: dto.name,
+          line1: dto.address.line1,
+          line2: dto.address.line2,
+          city: dto.address.city ?? '',
+          state: dto.address.state ?? '',
+          country: dto.address.country ?? '',
+          zip: dto.address.zip ?? '',
+          phone: dto.phone,
+          isDefaultShipping: true,
+          isDefaultBilling: true,
+        },
+      });
+    }
+
+    if (status === 'unverified') {
+      return {
+        pending: true,
+        message: 'Your account has been created and is awaiting approval. We\'ll email you once it\'s active.',
+      };
+    }
 
     return this.buildAuthResponse(customer);
   }
@@ -70,12 +127,69 @@ export class StorefrontAuthService {
     const ok = await bcrypt.compare(dto.password, customer.passwordHash);
     if (!ok) throw new UnauthorizedException('Invalid credentials');
 
+    if (customer.status === 'unverified') {
+      throw new UnauthorizedException('Your account is still awaiting approval');
+    }
+    if (customer.status === 'blocked') {
+      throw new UnauthorizedException('Your account has been blocked. Please contact support.');
+    }
+
     await this.prisma.storeCustomer.update({
       where: { id: customer.id },
       data: { lastLoginAt: new Date() },
     });
 
     return this.buildAuthResponse(customer);
+  }
+
+  /**
+   * Always returns the same generic response whether or not the email
+   * exists/has a password — never confirm which emails are registered.
+   * Email delivery itself is stubbed app-wide (EmailService.sendViaSMTP is
+   * a TODO no-op), so this only actually works end-to-end today because
+   * sendPasswordReset explicitly logs the reset URL regardless of
+   * environment — real delivery needs the same SMTP wiring as everything
+   * else that "sends" email in this app.
+   */
+  async forgotPassword(orgId: string, dto: ForgotPasswordDto): Promise<{ success: true; message: string }> {
+    const customer = await this.prisma.storeCustomer.findUnique({
+      where: { organizationId_email: { organizationId: orgId, email: dto.email } },
+    });
+
+    if (customer?.passwordHash) {
+      const token = randomBytes(32).toString('hex');
+      await this.prisma.storeCustomer.update({
+        where: { id: customer.id },
+        data: { passwordResetToken: token, passwordResetExpiresAt: new Date(Date.now() + PASSWORD_RESET_TTL_MS) },
+      });
+
+      const resetUrl = dto.resetUrlBase ? `${dto.resetUrlBase}?token=${token}` : `(no reset URL base provided) token=${token}`;
+      this.emailService.sendPasswordReset(customer.email, customer.name, resetUrl).catch(() => {
+        // Best-effort — never let a stubbed/failed "send" surface as a request failure.
+      });
+    }
+
+    return { success: true, message: "If that email has an account, we've sent password reset instructions." };
+  }
+
+  async resetPassword(dto: ResetPasswordDto): Promise<{ success: true }> {
+    const customer = await this.prisma.storeCustomer.findFirst({
+      where: { passwordResetToken: dto.token, passwordResetExpiresAt: { gt: new Date() } },
+    });
+    if (!customer) {
+      throw new BadRequestException('This reset link is invalid or has expired');
+    }
+
+    await this.prisma.storeCustomer.update({
+      where: { id: customer.id },
+      data: {
+        passwordHash: await this.hash(dto.newPassword),
+        passwordResetToken: null,
+        passwordResetExpiresAt: null,
+      },
+    });
+
+    return { success: true };
   }
 
   async refresh(refreshToken: string): Promise<CustomerAuthResponse> {
