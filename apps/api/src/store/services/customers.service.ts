@@ -55,6 +55,7 @@ export class CustomersService {
         take,
         include: {
           orders: { take: 1, orderBy: { createdAt: 'desc' } },
+          customerGroup: { select: { id: true, name: true } },
         },
         orderBy: { registeredAt: 'desc' },
       }),
@@ -76,7 +77,13 @@ export class CustomersService {
         orders: { orderBy: { createdAt: 'desc' }, take: 10 },
         creditTransactions: { orderBy: { createdAt: 'desc' }, take: 5 },
         rewardTransactions: { orderBy: { createdAt: 'desc' }, take: 5 },
-        reviews: { orderBy: { createdAt: 'desc' }, take: 5 },
+        reviews: {
+          orderBy: { createdAt: 'desc' },
+          take: 5,
+          include: { product: { select: { name: true, slug: true } } },
+        },
+        addresses: { orderBy: { createdAt: 'desc' } },
+        customerGroup: { select: { id: true, name: true } },
       },
     });
 

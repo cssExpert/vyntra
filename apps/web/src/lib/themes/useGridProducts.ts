@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { storeProducts, type ApiProduct } from "@/lib/api";
+import { useCustomerAuthStore } from "@/store/customerAuthStore";
 import type { ProductGridData, ProductItem } from "./types";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
@@ -65,8 +66,10 @@ export function useGridProducts(data: ProductGridData, orgId?: string) {
           const qs = new URLSearchParams({ take: String(limit), sort });
           if (categoryId) qs.set("categoryId", categoryId);
           if (productType) qs.set("type", productType);
+          const accessToken = useCustomerAuthStore.getState().accessToken;
           const res = await fetch(`${API}/public/sites/${orgId}/products?${qs}`, {
             cache: "no-store",
+            headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
           });
           if (!res.ok) throw new Error("Failed to load products");
           const { data } = (await res.json()) as { data: PublicProduct[] };

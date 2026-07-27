@@ -46,6 +46,7 @@ export class StorefrontCustomerJwtStrategy extends PassportStrategy(
       organizationId: customer.organizationId,
       email: customer.email,
       name: customer.name,
+      customerGroupId: customer.customerGroupId,
     };
   }
 }

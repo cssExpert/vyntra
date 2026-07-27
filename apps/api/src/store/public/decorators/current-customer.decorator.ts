@@ -4,6 +4,7 @@ export interface RequestCustomer {
   id: string;
   organizationId: string;
   email: string;
+  customerGroupId: string | null;
 }
 
 /** Inject the storefront customer resolved by StorefrontCustomerAuthGuard or OptionalCustomerAuthGuard (undefined if the request is an anonymous guest). */

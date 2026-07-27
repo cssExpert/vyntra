@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useCustomerAuthStore } from "@/store/customerAuthStore";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
@@ -65,8 +66,16 @@ export interface ProductListingFilters {
 
 const DEFAULT_PAGE_SIZE = 12;
 
+// A logged-in customer's group can restrict which categories/products they
+// see (Store → Customer Groups → Restrictions) — send their token whenever
+// one exists so the backend can resolve that group, while still working
+// perfectly for anonymous guests (no header at all).
 async function getJson<T>(url: string): Promise<T> {
-  const res = await fetch(url, { cache: "no-store" });
+  const accessToken = useCustomerAuthStore.getState().accessToken;
+  const res = await fetch(url, {
+    cache: "no-store",
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+  });
   if (!res.ok) throw new Error(`Request failed: ${url}`);
   return res.json() as Promise<T>;
 }

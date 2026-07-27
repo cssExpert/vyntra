@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useCustomerAuthStore } from "@/store/customerAuthStore";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
@@ -55,7 +56,11 @@ export function useProductDetail(orgId: string, slug: string) {
     let cancelled = false;
     setLoading(true);
     setNotFound(false);
-    fetch(`${API}/public/sites/${orgId}/products/${encodeURIComponent(slug)}`, { cache: "no-store" })
+    const accessToken = useCustomerAuthStore.getState().accessToken;
+    fetch(`${API}/public/sites/${orgId}/products/${encodeURIComponent(slug)}`, {
+      cache: "no-store",
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+    })
       .then((r) => {
         if (!r.ok || r.status === 404) { if (!cancelled) { setNotFound(true); setLoading(false); } return; }
         return r.json();

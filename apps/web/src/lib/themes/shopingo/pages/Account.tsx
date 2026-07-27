@@ -17,7 +17,8 @@ import {
 } from "lucide-react";
 import { useCustomerAuthStore } from "@/store/customerAuthStore";
 import { useCartStore } from "@/store/cartStore";
-import { LoginForm, RegisterForm, ForgotPasswordForm, ResetPasswordForm } from "@/lib/themes/shared/AuthForms";
+import { LoginForm, RegisterForm, ForgotPasswordForm, ResetPasswordForm, FloatingInput, SectionHeader, ErrorBanner } from "@/lib/themes/shared/AuthForms";
+import { formatPhoneInput } from "@/lib/themes/shared/phoneMask";
 import { AccountSidebar } from "@/lib/themes/shared/AccountSidebar";
 import { StatCard } from "@/lib/themes/shared/StatCard";
 import { StatusPill } from "@/lib/themes/shared/StatusPill";
@@ -731,25 +732,76 @@ function RewardPointsTab({ orgId }: { orgId: string }) {
 // ── Profile ────────────────────────────────────────────────
 
 function ProfileTab({ orgId }: { orgId: string }) {
-  const { profile, loading, updateProfile } = useAccountProfile(orgId, true);
+  const { profile, loading, error, updateProfile, refetch } = useAccountProfile(orgId, true);
+  const { addresses, loading: addressesLoading, createAddress, updateAddress } = useAccountAddresses(orgId, true);
   const addToast = useStorefrontToastStore((s) => s.addToast);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [line1, setLine1] = useState("");
+  const [line2, setLine2] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [country, setCountry] = useState("");
+  const [zip, setZip] = useState("");
   const [saving, setSaving] = useState(false);
-  const [initialized, setInitialized] = useState(false);
 
-  if (profile && !initialized) {
-    setName(profile.name);
-    setPhone(profile.phone ?? "");
-    setInitialized(true);
+  const defaultAddress = addresses.find((a) => a.isDefaultShipping) ?? addresses[0] ?? null;
+
+  useEffect(() => {
+    if (profile) {
+      setName(profile.name);
+      setPhone(profile.phone ?? "");
+    }
+  }, [profile]);
+
+  useEffect(() => {
+    if (defaultAddress) {
+      setLine1(defaultAddress.line1);
+      setLine2(defaultAddress.line2 ?? "");
+      setCity(defaultAddress.city);
+      setState(defaultAddress.state);
+      setCountry(defaultAddress.country);
+      setZip(defaultAddress.zip);
+    }
+  }, [defaultAddress?.id]);
+
+  if (loading) return <p className="text-sm text-gray-400">Loading…</p>;
+  if (error) {
+    return (
+      <div className="space-y-2">
+        <ErrorBanner message={error} />
+        <button onClick={() => refetch()} className="text-xs font-bold uppercase" style={{ color: ORANGE }}>
+          Retry
+        </button>
+      </div>
+    );
   }
-
-  if (loading || !profile) return <p className="text-sm text-gray-400">Loading…</p>;
+  if (!profile) return <p className="text-sm text-gray-400">Loading…</p>;
 
   const handleSave = async () => {
     setSaving(true);
     try {
       await updateProfile({ name, phone });
+      if (line1) {
+        const addressData = {
+          label: defaultAddress?.label ?? null,
+          name,
+          line1,
+          line2: line2 || null,
+          city,
+          state,
+          country,
+          zip,
+          phone: phone || null,
+          isDefaultShipping: true,
+          isDefaultBilling: true,
+        };
+        if (defaultAddress) {
+          await updateAddress(defaultAddress.id, addressData);
+        } else {
+          await createAddress(addressData);
+        }
+      }
       addToast("Profile updated", "success");
     } catch {
       addToast("Couldn't update profile", "error");
@@ -759,22 +811,29 @@ function ProfileTab({ orgId }: { orgId: string }) {
   };
 
   return (
-    <div className="space-y-4 max-w-md">
+    <div className="space-y-4 max-w-xl">
       <h1 className="text-xl font-bold text-gray-900 dark:text-white">Profile Info</h1>
-      <Card className="space-y-3">
-        <div>
-          <label className="block text-xs font-medium text-gray-400 mb-1">Name</label>
-          <input value={name} onChange={(e) => setName(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1c1c1e] rounded outline-none" />
+      <Card className="space-y-4">
+        <SectionHeader label="Account Information" accentColor={ORANGE} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <FloatingInput id="profile-name" label="Full name" value={name} onChange={setName} accentColor={ORANGE} />
+          <FloatingInput id="profile-email" label="Email" value={profile.email} onChange={() => {}} accentColor={ORANGE} disabled />
         </div>
-        <div>
-          <label className="block text-xs font-medium text-gray-400 mb-1">Email</label>
-          <input value={profile.email} disabled className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 rounded outline-none text-gray-500" />
+        <SectionHeader label="Contact Information" accentColor={ORANGE} />
+        <FloatingInput id="profile-phone" label="Phone" value={phone} onChange={(v) => setPhone(formatPhoneInput(v))} accentColor={ORANGE} />
+        <SectionHeader label="Address" accentColor={ORANGE} />
+        <p className="text-xs text-gray-400 dark:text-gray-500 -mt-2">Saved as your default shipping &amp; billing address.</p>
+        <FloatingInput id="profile-line1" label="Address line 1" value={line1} onChange={setLine1} accentColor={ORANGE} />
+        <FloatingInput id="profile-line2" label="Address line 2 (optional)" value={line2} onChange={setLine2} accentColor={ORANGE} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <FloatingInput id="profile-city" label="City" value={city} onChange={setCity} accentColor={ORANGE} />
+          <FloatingInput id="profile-state" label="State / Province" value={state} onChange={setState} accentColor={ORANGE} />
         </div>
-        <div>
-          <label className="block text-xs font-medium text-gray-400 mb-1">Phone</label>
-          <input value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1c1c1e] rounded outline-none" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <FloatingInput id="profile-country" label="Country" value={country} onChange={setCountry} accentColor={ORANGE} />
+          <FloatingInput id="profile-zip" label="ZIP / Postal code" value={zip} onChange={setZip} accentColor={ORANGE} />
         </div>
-        <button onClick={handleSave} disabled={saving} className="px-5 py-2.5 text-xs font-bold uppercase text-white rounded disabled:opacity-50" style={{ backgroundColor: ORANGE }}>
+        <button onClick={handleSave} disabled={saving || addressesLoading} className="px-5 py-2.5 text-xs font-bold uppercase text-white rounded-full disabled:opacity-50" style={{ backgroundColor: ORANGE }}>
           {saving ? "Saving…" : "Save Changes"}
         </button>
       </Card>

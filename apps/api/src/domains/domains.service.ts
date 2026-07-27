@@ -14,6 +14,7 @@ import { SubmitContactFormDto } from './dto/contact-submission.dto';
 import { SubscribeNewsletterDto } from './dto/newsletter-subscription.dto';
 import { COMMENT_RESOURCE_TYPES, SubmitCommentDto } from './dto/comment-submission.dto';
 import { verifyRecaptcha } from '../common/recaptcha';
+import { resolveVisibility, RestrictionMode } from '../store/utils/customer-group-resolution';
 
 // Newsletter signup currently only collects an email address — until a real
 // name field is added to that form, derive a display name from the local
@@ -414,6 +415,81 @@ export class DomainsService {
    * expose to an anonymous visitor — no cost price, stock counts, order/review
    * counts, etc.
    */
+  /**
+   * Loads the customer's group restriction config (categories/products modes
+   * + their selected-id join rows). Returns null for a guest or an ungrouped
+   * customer, who both stay fully unrestricted — same default used at
+   * registration/login elsewhere in the storefront.
+   */
+  private async getCustomerGroupRestrictions(customerGroupId: string | null) {
+    if (!customerGroupId) return null;
+    return this.prisma.customerGroup.findUnique({
+      where: { id: customerGroupId },
+      select: {
+        categoriesMode: true,
+        productsMode: true,
+        productPattern: true,
+        categories: { select: { categoryId: true } },
+        products: { select: { productId: true } },
+      },
+    });
+  }
+
+  /** Single-product visibility check, for detail/SKU lookups where the item is already known. */
+  private async isProductVisible(
+    customerGroupId: string | null,
+    productId: string,
+    name: string,
+    sku: string,
+  ): Promise<boolean> {
+    const group = await this.getCustomerGroupRestrictions(customerGroupId);
+    if (!group || group.productsMode === 'all') return true;
+    const selectedIds = group.products.map((p) => p.productId);
+    return resolveVisibility(group.productsMode as RestrictionMode, selectedIds, productId, {
+      pattern: group.productPattern,
+      patternCandidates: [name, sku],
+    });
+  }
+
+  /**
+   * Resolves the customer's product restriction into a Prisma `where` fragment
+   * so pagination/count stay accurate at the DB level, instead of filtering an
+   * already-paginated page in JS. Mirrors the admin restrictions preview's use
+   * of resolveVisibility() (customer-groups.service.ts's previewPattern).
+   */
+  private async resolveProductWhereRestriction(
+    orgId: string,
+    customerGroupId: string | null,
+  ): Promise<{ id?: { in?: string[]; notIn?: string[] } }> {
+    const group = await this.getCustomerGroupRestrictions(customerGroupId);
+    if (!group || group.productsMode === 'all') return {};
+
+    const selectedIds = group.products.map((p) => p.productId);
+    if (group.productsMode === 'except_selected') {
+      return selectedIds.length ? { id: { notIn: selectedIds } } : {};
+    }
+
+    // only_selected: a pattern additionally OR's in any name/SKU match, so the
+    // full org catalog (id/name/sku only) has to be walked once to resolve it —
+    // same approach previewPattern() already uses for the same reason.
+    if (!group.productPattern) {
+      return { id: { in: selectedIds } };
+    }
+    const candidates = await this.prisma.product.findMany({
+      where: { organizationId: orgId },
+      select: { id: true, name: true, sku: true },
+    });
+    const allowedIds = candidates
+      .filter((p) =>
+        resolveVisibility('only_selected', selectedIds, p.id, {
+          pattern: group.productPattern,
+          patternCandidates: [p.name, p.sku],
+        }),
+      )
+      .map((p) => p.id);
+    return { id: { in: allowedIds } };
+  }
+
   async getPublicProducts(
     orgId: string,
     {
@@ -425,6 +501,7 @@ export class DomainsService {
       skip = 0,
       take = 8,
       sort = 'newest',
+      customerGroupId = null,
     }: {
       categoryId?: string;
       type?: string;
@@ -434,6 +511,7 @@ export class DomainsService {
       skip?: number;
       take?: number;
       sort?: keyof typeof DomainsService.PUBLIC_PRODUCT_SORTS;
+      customerGroupId?: string | null;
     } = {},
   ) {
     const limit = Math.min(Math.max(take, 1), 48);
@@ -446,6 +524,7 @@ export class DomainsService {
             },
           }
         : {};
+    const restriction = await this.resolveProductWhereRestriction(orgId, customerGroupId);
     const where = {
       organizationId: orgId,
       status: 'active',
@@ -453,6 +532,7 @@ export class DomainsService {
       ...(type && { type }),
       ...(brand && { brand }),
       ...priceFilter,
+      ...restriction,
     };
     const orderBy =
       DomainsService.PUBLIC_PRODUCT_SORTS[sort] ??
@@ -495,13 +575,19 @@ export class DomainsService {
   }
 
   /** Public category list for shop-page filter sidebars / category navigation. */
-  async getPublicCategories(orgId: string) {
+  async getPublicCategories(orgId: string, customerGroupId: string | null = null) {
     const categories = await this.prisma.productCategory.findMany({
       where: { organizationId: orgId, status: 'active' },
       select: { id: true, name: true, slug: true, parentId: true, imageUrl: true },
       orderBy: { sortOrder: 'asc' },
     });
-    return { data: categories };
+    const group = await this.getCustomerGroupRestrictions(customerGroupId);
+    if (!group || group.categoriesMode === 'all') return { data: categories };
+    const selectedIds = group.categories.map((c) => c.categoryId);
+    const visible = categories.filter((c) =>
+      resolveVisibility(group.categoriesMode as RestrictionMode, selectedIds, c.id),
+    );
+    return { data: visible };
   }
 
   /**
@@ -593,23 +679,29 @@ export class DomainsService {
   };
 
   /** Full product detail for storefront /shop/:slug — only active products. */
-  async getPublicProductDetail(orgId: string, slug: string) {
+  async getPublicProductDetail(orgId: string, slug: string, customerGroupId: string | null = null) {
     const product = await this.prisma.product.findFirst({
       where: { organizationId: orgId, slug, status: 'active' },
       select: DomainsService.PUBLIC_PRODUCT_DETAIL_SELECT,
     });
+    if (!product) return null;
+    // Restricted-but-existing products are indistinguishable from not-found —
+    // same as everywhere else visibility is enforced, never a 403.
+    if (!(await this.isProductVisible(customerGroupId, product.id, product.name, product.sku))) return null;
     // Product has no `tags` field yet — keep the shape the storefront expects.
-    return product ? { ...product, tags: [] as string[] } : null;
+    return { ...product, tags: [] as string[] };
   }
 
   /** SKU → product lookup for the storefront Quick Order feature. Returns null (not 404) so the UI can show a per-row "not found" without a try/catch per lookup. */
-  async getPublicProductBySku(orgId: string, sku: string) {
+  async getPublicProductBySku(orgId: string, sku: string, customerGroupId: string | null = null) {
     if (!sku?.trim()) return null;
     const product = await this.prisma.product.findFirst({
       where: { organizationId: orgId, sku: sku.trim(), status: 'active' },
       select: { id: true, name: true, slug: true, sku: true, price: true, stock: true, stockStatus: true, featuredImage: true },
     });
-    return product ?? null;
+    if (!product) return null;
+    if (!(await this.isProductVisible(customerGroupId, product.id, product.name, product.sku))) return null;
+    return product;
   }
 
   private static readonly PUBLIC_BLOG_SELECT = {

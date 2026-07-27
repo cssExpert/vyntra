@@ -34,6 +34,8 @@ export function toStoreCustomer(c: ApiStoreCustomer): StoreCustomer {
     registeredAt: c.registeredAt,
     isVip: c.isVip,
     segment: (c.segment ?? undefined) as StoreCustomer["segment"],
+    customerGroupId: c.customerGroupId ?? undefined,
+    customerGroupName: c.customerGroup?.name ?? undefined,
   };
 }
 

@@ -22,6 +22,8 @@ import { SubmitContactFormDto } from './dto/contact-submission.dto';
 import { SubscribeNewsletterDto } from './dto/newsletter-subscription.dto';
 import { SubmitCommentDto } from './dto/comment-submission.dto';
 import { DomainsService } from './domains.service';
+import { OptionalCustomerAuthGuard } from '../store/public/guards/optional-customer-auth.guard';
+import { CurrentCustomer, RequestCustomer } from '../store/public/decorators/current-customer.decorator';
 
 @Controller()
 export class DomainsController {
@@ -165,11 +167,12 @@ export class DomainsController {
   }
 
   @Public()
-  @UseGuards(ThrottlerGuard)
+  @UseGuards(ThrottlerGuard, OptionalCustomerAuthGuard)
   @Throttle({ default: { limit: 60, ttl: 60_000 } })
   @Get('public/sites/:orgId/products')
   getPublicProducts(
     @Param('orgId') orgId: string,
+    @CurrentCustomer() customer: RequestCustomer | undefined,
     @Query('skip') skip?: string,
     @Query('take') take?: string,
     @Query('categoryId') categoryId?: string,
@@ -188,6 +191,7 @@ export class DomainsController {
       minPrice: minPrice ? Number(minPrice) : undefined,
       maxPrice: maxPrice ? Number(maxPrice) : undefined,
       sort,
+      customerGroupId: customer?.customerGroupId ?? null,
     });
   }
 
@@ -212,30 +216,38 @@ export class DomainsController {
   // Must come before the "products/:slug" wildcard route below — same reason
   // as page-settings above (used by the storefront Quick Order feature).
   @Public()
-  @UseGuards(ThrottlerGuard)
+  @UseGuards(ThrottlerGuard, OptionalCustomerAuthGuard)
   @Throttle({ default: { limit: 60, ttl: 60_000 } })
   @Get('public/sites/:orgId/products/by-sku')
-  getPublicProductBySku(@Param('orgId') orgId: string, @Query('sku') sku: string) {
-    return this.domainsService.getPublicProductBySku(orgId, sku);
+  getPublicProductBySku(
+    @Param('orgId') orgId: string,
+    @Query('sku') sku: string,
+    @CurrentCustomer() customer: RequestCustomer | undefined,
+  ) {
+    return this.domainsService.getPublicProductBySku(orgId, sku, customer?.customerGroupId ?? null);
   }
 
   @Public()
-  @UseGuards(ThrottlerGuard)
+  @UseGuards(ThrottlerGuard, OptionalCustomerAuthGuard)
   @Throttle({ default: { limit: 60, ttl: 60_000 } })
   @Get('public/sites/:orgId/products/:slug')
   getPublicProductDetail(
     @Param('orgId') orgId: string,
     @Param('slug') slug: string,
+    @CurrentCustomer() customer: RequestCustomer | undefined,
   ) {
-    return this.domainsService.getPublicProductDetail(orgId, slug);
+    return this.domainsService.getPublicProductDetail(orgId, slug, customer?.customerGroupId ?? null);
   }
 
   @Public()
-  @UseGuards(ThrottlerGuard)
+  @UseGuards(ThrottlerGuard, OptionalCustomerAuthGuard)
   @Throttle({ default: { limit: 60, ttl: 60_000 } })
   @Get('public/sites/:orgId/categories')
-  getPublicCategories(@Param('orgId') orgId: string) {
-    return this.domainsService.getPublicCategories(orgId);
+  getPublicCategories(
+    @Param('orgId') orgId: string,
+    @CurrentCustomer() customer: RequestCustomer | undefined,
+  ) {
+    return this.domainsService.getPublicCategories(orgId, customer?.customerGroupId ?? null);
   }
 
   // Used by the storefront signup page to let a shopper pick which customer

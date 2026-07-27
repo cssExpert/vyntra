@@ -72,6 +72,7 @@ export class PublicCheckoutService {
     const total = Math.max(0, subtotal - discountAmount + shippingCost + taxAmount);
 
     const customer = await this.resolveCustomer(orgId, identity, dto);
+    await this.assertWithinOrderLimits(customer.customerGroupId, total);
 
     const order = await this.ordersService.create(orgId, {
       customerId: customer.id,
@@ -113,6 +114,26 @@ export class PublicCheckoutService {
         });
 
     return { order, session };
+  }
+
+  /** B2B order-value gating configured per CustomerGroup (Store → Customer Groups → Purchasing). */
+  private async assertWithinOrderLimits(customerGroupId: string | null, total: number) {
+    if (!customerGroupId) return;
+    const group = await this.prisma.customerGroup.findUnique({
+      where: { id: customerGroupId },
+      select: { name: true, minOrderValue: true, maxOrderValue: true },
+    });
+    if (!group) return;
+    if (group.minOrderValue != null && total < group.minOrderValue) {
+      throw new BadRequestException(
+        `Minimum order value for ${group.name} accounts is ${group.minOrderValue}`,
+      );
+    }
+    if (group.maxOrderValue != null && total > group.maxOrderValue) {
+      throw new BadRequestException(
+        `Maximum order value for ${group.name} accounts is ${group.maxOrderValue}`,
+      );
+    }
   }
 
   private async resolveCustomer(orgId: string, identity: CartIdentity, dto: CheckoutDto) {

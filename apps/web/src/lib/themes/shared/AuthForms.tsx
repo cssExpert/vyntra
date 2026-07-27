@@ -22,7 +22,7 @@ interface RegisterFormProps extends AuthFormProps {
   sectioned?: boolean;
 }
 
-function SectionHeader({ label, accentColor }: { label: string; accentColor: string }) {
+export function SectionHeader({ label, accentColor }: { label: string; accentColor: string }) {
   return (
     <div className="flex items-center gap-2 pt-1">
       <span className="inline-block w-4 h-0.5 rounded-full" style={{ backgroundColor: accentColor }} />
@@ -31,7 +31,7 @@ function SectionHeader({ label, accentColor }: { label: string; accentColor: str
   );
 }
 
-function FloatingInput({
+export function FloatingInput({
   id,
   label,
   type = "text",
@@ -42,6 +42,7 @@ function FloatingInput({
   accentColor,
   autoComplete,
   rightSlot,
+  disabled,
 }: {
   id: string;
   label: string;
@@ -53,6 +54,7 @@ function FloatingInput({
   accentColor: string;
   autoComplete?: string;
   rightSlot?: React.ReactNode;
+  disabled?: boolean;
 }) {
   const [focused, setFocused] = useState(false);
   return (
@@ -68,10 +70,11 @@ function FloatingInput({
           minLength={minLength}
           autoComplete={autoComplete}
           value={value}
+          disabled={disabled}
           onChange={(e) => onChange(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          className="w-full rounded-lg border px-3.5 py-2.5 text-sm outline-none transition-all bg-white dark:bg-[#1c1c1e] text-gray-900 dark:text-white"
+          className="w-full rounded-lg border px-3.5 py-2.5 text-sm outline-none transition-all bg-white dark:bg-[#1c1c1e] text-gray-900 dark:text-white disabled:opacity-60 disabled:cursor-not-allowed"
           style={{
             borderColor: focused ? accentColor : "var(--border, #e5e7eb)",
             boxShadow: focused ? `0 0 0 3px ${accentColor}26` : "none",
@@ -93,7 +96,7 @@ function Spinner() {
   );
 }
 
-function ErrorBanner({ message }: { message: string }) {
+export function ErrorBanner({ message }: { message: string }) {
   return (
     <p className="rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 px-3 py-2 text-[13px] text-red-600 dark:text-red-400">
       {message}

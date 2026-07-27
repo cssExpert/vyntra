@@ -147,6 +147,18 @@ const getColumns = (t: any, router: any, setDeleteTarget: (c: StoreCustomer) => 
       );
     },
   }),
+  columnHelper.accessor("customerGroupName", {
+    header: () => t("group", { defaultValue: "Group" }),
+    size: 130,
+    cell: ({ getValue }) => {
+      const name = getValue();
+      return name ? (
+        <StatusBadge variant="purple" label={name} size="sm" />
+      ) : (
+        <span className="text-muted-foreground/40 text-xs">—</span>
+      );
+    },
+  }),
   columnHelper.accessor("segment", {
     header: () => t("segment", { defaultValue: "Segment" }),
     size: 100,

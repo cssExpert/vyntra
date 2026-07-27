@@ -234,6 +234,8 @@ export interface StoreCustomer {
   country?: string;
   isVip?: boolean;
   segment?: "new" | "regular" | "vip" | "at_risk" | "inactive";
+  customerGroupId?: string;
+  customerGroupName?: string;
 }
 
 // ─── Coupon ──────────────────────────────────────────────────────────────────

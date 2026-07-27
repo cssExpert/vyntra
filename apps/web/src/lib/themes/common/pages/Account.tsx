@@ -5,7 +5,8 @@ import Link from "next/link";
 import { Wallet, Trophy, Heart, ShoppingBag, X, Plus, UserPlus, Building2, Award, CheckCircle2, ArrowRight } from "lucide-react";
 import { useCustomerAuthStore } from "@/store/customerAuthStore";
 import { useCartStore } from "@/store/cartStore";
-import { LoginForm, RegisterForm, ForgotPasswordForm, ResetPasswordForm } from "@/lib/themes/shared/AuthForms";
+import { LoginForm, RegisterForm, ForgotPasswordForm, ResetPasswordForm, FloatingInput, SectionHeader, ErrorBanner } from "@/lib/themes/shared/AuthForms";
+import { formatPhoneInput } from "@/lib/themes/shared/phoneMask";
 import { AccountSidebar } from "@/lib/themes/shared/AccountSidebar";
 import { StatCard } from "@/lib/themes/shared/StatCard";
 import { StatusPill } from "@/lib/themes/shared/StatusPill";
@@ -454,15 +455,109 @@ function RewardPointsTab({ orgId }: { orgId: string }) {
 }
 
 function ProfileTab({ orgId }: { orgId: string }) {
-  const { profile, loading } = useAccountProfile(orgId, true);
-  if (loading || !profile) return <p className="text-sm" style={{ color: "var(--muted-foreground, #9ca3af)" }}>Loading…</p>;
+  const { profile, loading, error, updateProfile, refetch } = useAccountProfile(orgId, true);
+  const { addresses, loading: addressesLoading, createAddress, updateAddress } = useAccountAddresses(orgId, true);
+  const addToast = useStorefrontToastStore((s) => s.addToast);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [line1, setLine1] = useState("");
+  const [line2, setLine2] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [country, setCountry] = useState("");
+  const [zip, setZip] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const defaultAddress = addresses.find((a) => a.isDefaultShipping) ?? addresses[0] ?? null;
+
+  useEffect(() => {
+    if (profile) {
+      setName(profile.name);
+      setPhone(profile.phone ?? "");
+    }
+  }, [profile]);
+
+  useEffect(() => {
+    if (defaultAddress) {
+      setLine1(defaultAddress.line1);
+      setLine2(defaultAddress.line2 ?? "");
+      setCity(defaultAddress.city);
+      setState(defaultAddress.state);
+      setCountry(defaultAddress.country);
+      setZip(defaultAddress.zip);
+    }
+  }, [defaultAddress?.id]);
+
+  if (loading) return <p className="text-sm" style={{ color: "var(--muted-foreground, #9ca3af)" }}>Loading…</p>;
+  if (error) {
+    return (
+      <div className="space-y-2 text-sm">
+        <ErrorBanner message={error} />
+        <button onClick={() => refetch()} style={{ color: "var(--primary, #3b82f6)" }}>Retry</button>
+      </div>
+    );
+  }
+  if (!profile) return <p className="text-sm" style={{ color: "var(--muted-foreground, #9ca3af)" }}>Loading…</p>;
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await updateProfile({ name, phone });
+      if (line1) {
+        const addressData = {
+          label: defaultAddress?.label ?? null,
+          name,
+          line1,
+          line2: line2 || null,
+          city,
+          state,
+          country,
+          zip,
+          phone: phone || null,
+          isDefaultShipping: true,
+          isDefaultBilling: true,
+        };
+        if (defaultAddress) {
+          await updateAddress(defaultAddress.id, addressData);
+        } else {
+          await createAddress(addressData);
+        }
+      }
+      addToast("Profile updated", "success");
+    } catch {
+      addToast("Couldn't update profile", "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
-    <div className="space-y-3 max-w-md text-sm">
+    <div className="space-y-4 max-w-xl">
       <h1 className="text-xl font-bold" style={{ color: "var(--foreground, #111827)" }}>Profile Info</h1>
-      <p><span style={{ color: "var(--muted-foreground, #6b7280)" }}>Name:</span> <strong>{profile.name}</strong></p>
-      <p><span style={{ color: "var(--muted-foreground, #6b7280)" }}>Email:</span> <strong>{profile.email}</strong></p>
-      <p><span style={{ color: "var(--muted-foreground, #6b7280)" }}>Orders:</span> <strong>{profile.totalOrders}</strong></p>
-      <p><span style={{ color: "var(--muted-foreground, #6b7280)" }}>Reward points:</span> <strong>{profile.rewardPoints}</strong></p>
+      <div className="space-y-4 rounded-xl border p-5" style={{ borderColor: "var(--border, #e5e7eb)" }}>
+        <SectionHeader label="Account Information" accentColor={BLUE} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <FloatingInput id="profile-name" label="Full name" value={name} onChange={setName} accentColor={BLUE} />
+          <FloatingInput id="profile-email" label="Email" value={profile.email} onChange={() => {}} accentColor={BLUE} disabled />
+        </div>
+        <SectionHeader label="Contact Information" accentColor={BLUE} />
+        <FloatingInput id="profile-phone" label="Phone" value={phone} onChange={(v) => setPhone(formatPhoneInput(v))} accentColor={BLUE} />
+        <SectionHeader label="Address" accentColor={BLUE} />
+        <p className="text-xs -mt-2" style={{ color: "var(--muted-foreground, #9ca3af)" }}>Saved as your default shipping &amp; billing address.</p>
+        <FloatingInput id="profile-line1" label="Address line 1" value={line1} onChange={setLine1} accentColor={BLUE} />
+        <FloatingInput id="profile-line2" label="Address line 2 (optional)" value={line2} onChange={setLine2} accentColor={BLUE} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <FloatingInput id="profile-city" label="City" value={city} onChange={setCity} accentColor={BLUE} />
+          <FloatingInput id="profile-state" label="State / Province" value={state} onChange={setState} accentColor={BLUE} />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <FloatingInput id="profile-country" label="Country" value={country} onChange={setCountry} accentColor={BLUE} />
+          <FloatingInput id="profile-zip" label="ZIP / Postal code" value={zip} onChange={setZip} accentColor={BLUE} />
+        </div>
+        <button onClick={handleSave} disabled={saving || addressesLoading} className="px-5 py-2.5 text-xs font-bold uppercase text-white rounded-full disabled:opacity-50" style={{ backgroundColor: BLUE }}>
+          {saving ? "Saving…" : "Save Changes"}
+        </button>
+      </div>
     </div>
   );
 }

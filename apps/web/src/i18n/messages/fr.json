@@ -1653,6 +1653,8 @@
       "points": "Points",
       "credit": "Crédit",
       "segment": "Segment",
+      "group": "Groupe",
+      "recentOrders": "Commandes récentes",
       "edit": "Modifier",
       "delete": "Supprimer",
       "deleteTitle": "Supprimer le client",

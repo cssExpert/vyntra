@@ -1585,6 +1585,7 @@ export interface ApiStoreCustomer {
   segment: string | null;
   isVip: boolean;
   rewardPoints: number;
+  rewardTier: string;
   storeCredit: number;
   totalOrders: number;
   totalSpent: number;
@@ -1592,6 +1593,62 @@ export interface ApiStoreCustomer {
   lastOrderDate: string | null;
   registeredAt: string;
   customerGroupId: string | null;
+  /** Only populated by endpoints that `include` the relation (list/get) — absent on plain update responses. */
+  customerGroup?: { id: string; name: string } | null;
+}
+
+export interface ApiCustomerAddress {
+  id: string;
+  label: string | null;
+  name: string;
+  line1: string;
+  line2: string | null;
+  city: string;
+  state: string;
+  country: string;
+  zip: string;
+  phone: string | null;
+  isDefaultShipping: boolean;
+  isDefaultBilling: boolean;
+  createdAt: string;
+}
+
+export interface ApiCreditTransaction {
+  id: string;
+  amount: number;
+  type: string;
+  reason: string;
+  orderId: string | null;
+  createdAt: string;
+}
+
+export interface ApiRewardTransaction {
+  id: string;
+  points: number;
+  type: string;
+  reason: string;
+  orderId: string | null;
+  createdAt: string;
+}
+
+export interface ApiCustomerReview {
+  id: string;
+  productId: string;
+  rating: number;
+  title: string | null;
+  content: string;
+  status: string;
+  isVerifiedPurchase: boolean;
+  createdAt: string;
+  product: { name: string; slug: string } | null;
+}
+
+export interface ApiStoreCustomerDetail extends ApiStoreCustomer {
+  orders: ApiStoreOrder[];
+  creditTransactions: ApiCreditTransaction[];
+  rewardTransactions: ApiRewardTransaction[];
+  reviews: ApiCustomerReview[];
+  addresses: ApiCustomerAddress[];
 }
 
 export const storeCustomers = {
@@ -1607,7 +1664,7 @@ export const storeCustomers = {
       `/store/customers${q ? `?${q}` : ""}`,
     );
   },
-  get: (id: string) => apiFetch<ApiStoreCustomer>(`/store/customers/${id}`),
+  get: (id: string) => apiFetch<ApiStoreCustomerDetail>(`/store/customers/${id}`),
   update: (id: string, dto: Partial<Pick<ApiStoreCustomer, "name" | "email" | "phone" | "status" | "isVip">>) =>
     apiFetch<ApiStoreCustomer>(`/store/customers/${id}`, {
       method: "PUT",

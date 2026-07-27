@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { storeCategories, type ApiProductCategory } from "@/lib/api";
+import { useCustomerAuthStore } from "@/store/customerAuthStore";
 import type { CategoryGridData, CategoryItem } from "./types";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
@@ -26,9 +27,11 @@ function toCategoryItem(c: ApiProductCategory | PublicCategory): CategoryItem {
  *
  * `orgId` distinguishes the two rendering contexts this component is shared
  * across: when set (public storefront), categories come from the
- * unauthenticated `/public/sites/:orgId/categories` endpoint. When absent
- * (CMS editor canvas, where the viewer is already logged in), it uses the
- * authenticated store API scoped to the editor user's own organization.
+ * `/public/sites/:orgId/categories` endpoint — sending the shopper's token
+ * when logged in, so a restricted customer group's category list is
+ * respected. When absent (CMS editor canvas, where the viewer is already
+ * logged in), it uses the authenticated store API scoped to the editor
+ * user's own organization.
  */
 export function useGridCategories(data: CategoryGridData, orgId?: string) {
   const limit = data.limit ?? 6;
@@ -40,8 +43,12 @@ export function useGridCategories(data: CategoryGridData, orgId?: string) {
     let cancelled = false;
     setLoading(true);
 
+    const accessToken = useCustomerAuthStore.getState().accessToken;
     const fetchCategories = orgId
-      ? fetch(`${API}/public/sites/${orgId}/categories`, { cache: "no-store" })
+      ? fetch(`${API}/public/sites/${orgId}/categories`, {
+          cache: "no-store",
+          headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+        })
           .then((res) => {
             if (!res.ok) throw new Error("Failed to load categories");
             return res.json() as Promise<{ data: PublicCategory[] }>;

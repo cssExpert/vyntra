@@ -6,6 +6,7 @@
 
 import { getCartToken } from "./cartToken";
 import { useCustomerAuthStore } from "@/store/customerAuthStore";
+import { useStorefrontToastStore } from "@/store/storefrontToastStore";
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
@@ -44,6 +45,14 @@ export async function storefrontFetch<T>(
   if (!res.ok) {
     const raw = data?.message;
     const message = Array.isArray(raw) ? raw.join(", ") : (raw ?? res.statusText ?? "Request failed");
+    // An authenticated account request rejected as 401 means the customer
+    // session is no longer valid (expired/invalid JWT) — drop back to the
+    // login gate instead of leaving account tabs stuck on "Loading…" forever
+    // since profile/orders/etc. would never resolve for a dead token.
+    if (res.status === 401 && customerToken) {
+      useCustomerAuthStore.getState().logout();
+      useStorefrontToastStore.getState().addToast("Your session has expired. Please log in again.", "info");
+    }
     throw new ApiError(message, res.status);
   }
   return data as T;

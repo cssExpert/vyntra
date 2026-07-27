@@ -7,12 +7,13 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Mail, MessageSquare, Loader2, Save, Pencil, X } from "lucide-react";
+import { Mail, MessageSquare, Loader2, Save, Pencil, X, MapPin, Wallet, Trophy, Star, Tag as TagIcon } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { CustomerStatus, StoreCustomer } from "../store.types";
-import { CUSTOMER_STATUS_BADGES } from "../store.constants";
+import { CUSTOMER_STATUS_BADGES, ORDER_STATUS_BADGES } from "../store.constants";
 import { formatStorePrice, toStoreCustomer } from "../store.utils";
-import { storeCustomerGroups, storeCustomers, type ApiCustomerGroup } from "@/lib/api";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { storeCustomerGroups, storeCustomers, type ApiCustomerGroup, type ApiStoreCustomerDetail } from "@/lib/api";
 
 const CUSTOMER_STATUSES: CustomerStatus[] = ["active", "blocked", "unverified"];
 
@@ -22,9 +23,11 @@ interface CustomerDetailsViewProps {
 
 export function CustomerDetailsView({ customerId }: CustomerDetailsViewProps) {
   const t = useTranslations("store.customers");
+  const tOrders = useTranslations("store.orders");
   const router = useRouter();
   const searchParams = useSearchParams();
   const [customer, setCustomer] = useState<StoreCustomer | null>(null);
+  const [detail, setDetail] = useState<ApiStoreCustomerDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const [groups, setGroups] = useState<ApiCustomerGroup[]>([]);
@@ -61,6 +64,7 @@ export function CustomerDetailsView({ customerId }: CustomerDetailsViewProps) {
         const found = await storeCustomers.get(customerId);
         const mapped = toStoreCustomer(found);
         setCustomer(mapped);
+        setDetail(found);
         setCustomerGroupId(found.customerGroupId ?? "");
         if (searchParams.get("edit")) startEditing(mapped);
       } catch {
@@ -268,6 +272,35 @@ export function CustomerDetailsView({ customerId }: CustomerDetailsViewProps) {
               <p className="text-xs text-muted-foreground mb-1">{t("lifetimeValue")}</p>
               <p className="text-xl font-bold">{formatStorePrice(customer.totalSpent || 0)}</p>
             </div>
+            <div className="grid grid-cols-2 gap-3 pt-2 border-t border-border">
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Reward Points</p>
+                <p className="text-sm font-semibold">{(detail?.rewardPoints ?? customer.rewardPoints).toLocaleString()}</p>
+                {detail?.rewardTier && (
+                  <StatusBadge variant="warning" label={detail.rewardTier} size="sm" className="mt-1 capitalize" />
+                )}
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Store Credit</p>
+                <p className="text-sm font-semibold">{formatStorePrice(customer.storeCredit || 0)}</p>
+              </div>
+            </div>
+            {customer.segment && (
+              <div className="pt-2 border-t border-border">
+                <p className="text-xs text-muted-foreground mb-1">{t("segment", { defaultValue: "Segment" })}</p>
+                <p className="text-sm capitalize">{customer.segment.replace("_", " ")}</p>
+              </div>
+            )}
+            {detail && detail.tags.length > 0 && (
+              <div className="pt-2 border-t border-border">
+                <p className="text-xs text-muted-foreground mb-1.5 flex items-center gap-1"><TagIcon size={11} /> Tags</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {detail.tags.map((tag) => (
+                    <StatusBadge key={tag} variant="muted" label={tag} size="sm" />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -311,6 +344,137 @@ export function CustomerDetailsView({ customerId }: CustomerDetailsViewProps) {
         </div>
         {groupSaveError && <p className="text-xs text-destructive mt-2">{groupSaveError}</p>}
       </div>
+
+      {/* Addresses */}
+      {detail && detail.addresses.length > 0 && (
+        <div className="glass-card p-6 rounded-xl">
+          <h3 className="font-semibold mb-4 flex items-center gap-2"><MapPin size={16} /> Addresses</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {detail.addresses.map((a) => (
+              <div key={a.id} className="border border-border rounded-lg p-4 text-sm space-y-1">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-semibold">{a.label || a.name}</p>
+                  <div className="flex gap-1">
+                    {a.isDefaultShipping && <StatusBadge variant="info" label="Default Shipping" size="sm" />}
+                    {a.isDefaultBilling && <StatusBadge variant="purple" label="Default Billing" size="sm" />}
+                  </div>
+                </div>
+                <p className="text-muted-foreground">{a.name}</p>
+                <p className="text-muted-foreground">
+                  {a.line1}{a.line2 ? `, ${a.line2}` : ""}, {a.city}, {a.state} {a.zip}, {a.country}
+                </p>
+                {a.phone && <p className="text-muted-foreground">{a.phone}</p>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Recent Orders */}
+      {detail && detail.orders.length > 0 && (
+        <div className="glass-card p-6 rounded-xl">
+          <h3 className="font-semibold mb-4">{t("recentOrders", { defaultValue: "Recent Orders" })}</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs text-muted-foreground border-b border-border">
+                  <th className="pb-2 font-medium">{tOrders("orderHeader", { defaultValue: "Order" })}</th>
+                  <th className="pb-2 font-medium">{t("status")}</th>
+                  <th className="pb-2 font-medium">{t("totalSpent", { defaultValue: "Total" })}</th>
+                  <th className="pb-2 font-medium">Date</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {detail.orders.map((o) => {
+                  const badge = ORDER_STATUS_BADGES[o.status as keyof typeof ORDER_STATUS_BADGES];
+                  return (
+                    <tr
+                      key={o.id}
+                      className="cursor-pointer hover:bg-muted/40 transition-colors"
+                      onClick={() => router.push(`/store/orders/${o.id}`)}
+                    >
+                      <td className="py-2.5 font-medium">{o.orderNumber}</td>
+                      <td className="py-2.5">
+                        {badge ? <StatusBadge variant={badge.variant} label={tOrders(badge.label)} size="sm" /> : o.status}
+                      </td>
+                      <td className="py-2.5 font-semibold">{formatStorePrice(o.total)}</td>
+                      <td className="py-2.5 text-muted-foreground">{new Date(o.createdAt).toLocaleDateString()}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {/* Store Credit History */}
+        {detail && detail.creditTransactions.length > 0 && (
+          <div className="glass-card p-6 rounded-xl">
+            <h3 className="font-semibold mb-4 flex items-center gap-2"><Wallet size={16} /> Store Credit History</h3>
+            <ul className="divide-y divide-border text-sm">
+              {detail.creditTransactions.map((tx) => (
+                <li key={tx.id} className="py-2.5 flex items-center justify-between gap-3">
+                  <div>
+                    <p>{tx.reason}</p>
+                    <p className="text-xs text-muted-foreground">{new Date(tx.createdAt).toLocaleDateString()}</p>
+                  </div>
+                  <span className={`font-semibold tabular-nums ${tx.type === "credit" ? "text-success" : "text-error"}`}>
+                    {tx.type === "credit" ? "+" : "-"}{formatStorePrice(Math.abs(tx.amount))}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Reward Points History */}
+        {detail && detail.rewardTransactions.length > 0 && (
+          <div className="glass-card p-6 rounded-xl">
+            <h3 className="font-semibold mb-4 flex items-center gap-2"><Trophy size={16} /> Reward Points History</h3>
+            <ul className="divide-y divide-border text-sm">
+              {detail.rewardTransactions.map((tx) => (
+                <li key={tx.id} className="py-2.5 flex items-center justify-between gap-3">
+                  <div>
+                    <p>{tx.reason}</p>
+                    <p className="text-xs text-muted-foreground">{new Date(tx.createdAt).toLocaleDateString()}</p>
+                  </div>
+                  <span className={`font-semibold tabular-nums ${tx.type === "earn" ? "text-success" : "text-error"}`}>
+                    {tx.type === "earn" ? "+" : "-"}{Math.abs(tx.points)} pts
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+
+      {/* Reviews */}
+      {detail && detail.reviews.length > 0 && (
+        <div className="glass-card p-6 rounded-xl">
+          <h3 className="font-semibold mb-4">Reviews</h3>
+          <ul className="divide-y divide-border text-sm">
+            {detail.reviews.map((r) => (
+              <li key={r.id} className="py-3 space-y-1">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-medium">{r.product?.name ?? "Unknown product"}</p>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-0.5">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star key={i} size={12} className={i < r.rating ? "text-warning fill-warning" : "text-muted-foreground/30"} />
+                      ))}
+                    </div>
+                    <StatusBadge variant={r.status === "approved" ? "success" : r.status === "rejected" ? "error" : "muted"} label={r.status} size="sm" />
+                  </div>
+                </div>
+                {r.title && <p className="font-medium text-xs">{r.title}</p>}
+                <p className="text-muted-foreground">{r.content}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </motion.div>
   );
 }
