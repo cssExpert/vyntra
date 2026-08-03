@@ -3,11 +3,15 @@ import {
   Post,
   Body,
   Headers,
+  Param,
+  Req,
   BadRequestException,
   Logger,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import type { Request } from 'express';
+import { Public } from '../../common/decorators/public.decorator';
 import { WebhookService } from '../services/webhook.service';
+import { StripeService } from '../services/stripe.service';
 import { OrdersService } from '../services/orders.service';
 import { EmailService } from '../services/email.service';
 
@@ -17,48 +21,47 @@ export class WebhooksController {
 
   constructor(
     private webhookService: WebhookService,
+    private stripeService: StripeService,
     private ordersService: OrdersService,
     private emailService: EmailService,
-    private configService: ConfigService,
   ) {}
 
   /**
-   * Stripe webhook handler
-   * Processes payment events from Stripe
+   * Stripe webhook handler — one endpoint per organization (each store has
+   * its own Stripe account/webhook secret, matched via the :orgId segment).
+   * Requires the raw request body (registered in main.ts, ahead of the
+   * global express.json()) since Stripe's signature is computed over the
+   * exact unparsed bytes.
    */
-  @Post('stripe')
+  @Public()
+  @Post('stripe/:orgId')
   async handleStripeWebhook(
-    @Body() body: any,
+    @Param('orgId') orgId: string,
+    @Req() req: Request,
     @Headers('stripe-signature') signature: string,
   ) {
     if (!signature) {
       throw new BadRequestException('Missing Stripe signature');
     }
-
-    const webhookSecret = this.configService.get('STRIPE_WEBHOOK_SECRET');
-    if (!webhookSecret) {
-      this.logger.error('Stripe webhook secret not configured');
-      throw new BadRequestException('Webhook not configured');
+    const rawBody = req.body as Buffer;
+    if (!Buffer.isBuffer(rawBody)) {
+      // Raw-body middleware didn't apply — misconfiguration, not a client error.
+      this.logger.error('Stripe webhook received a parsed body instead of raw bytes — check main.ts middleware order');
+      throw new BadRequestException('Webhook not configured correctly');
     }
 
-    // Verify webhook signature
-    const bodyString = typeof body === 'string' ? body : JSON.stringify(body);
-    const isValid = this.webhookService.verifyStripeWebhookSignature(
-      bodyString,
-      signature,
-      webhookSecret,
-    );
-
-    if (!isValid) {
+    let event;
+    try {
+      event = await this.stripeService.verifyWebhookSignature(orgId, rawBody, signature);
+    } catch (err) {
+      this.logger.warn(`Stripe webhook signature verification failed for org ${orgId}: ${err}`);
       throw new BadRequestException('Invalid webhook signature');
     }
-
-    const event = typeof body === 'string' ? JSON.parse(body) : body;
 
     try {
       switch (event.type) {
         case 'payment_intent.succeeded':
-          await this.webhookService.handlePaymentSucceeded(event);
+          await this.webhookService.handlePaymentSucceeded(orgId, event);
           break;
 
         case 'payment_intent.payment_failed':

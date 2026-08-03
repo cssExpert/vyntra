@@ -105,6 +105,7 @@ export function toStoreCoupon(c: ApiStoreCoupon): StoreCoupon {
     usageLimitPerUser: c.usageLimitPerUser ?? undefined,
     productIds: c.productIds,
     categoryIds: c.categoryIds,
+    customerGroupIds: c.customerGroupIds,
     startsAt: c.startsAt ?? undefined,
     expiresAt: c.expiresAt ?? undefined,
     status: c.status as StoreCoupon["status"],

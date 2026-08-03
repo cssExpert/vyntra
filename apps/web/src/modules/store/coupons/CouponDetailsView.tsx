@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import type { StoreCoupon } from "../store.types";
 import { COUPON_TYPE_LABELS } from "../store.constants";
 import { formatCouponDiscount, toStoreCoupon } from "../store.utils";
-import { storeCoupons } from "@/lib/api";
+import { storeCoupons, storeCustomerGroups, type ApiCustomerGroup } from "@/lib/api";
 
 interface CouponDetailsViewProps {
   couponId: string;
@@ -21,6 +21,7 @@ export function CouponDetailsView({ couponId }: CouponDetailsViewProps) {
   const router = useRouter();
   const [coupon, setCoupon] = useState<StoreCoupon | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [groups, setGroups] = useState<ApiCustomerGroup[]>([]);
 
   useEffect(() => {
     const fetchCoupon = async () => {
@@ -36,6 +37,10 @@ export function CouponDetailsView({ couponId }: CouponDetailsViewProps) {
     };
     fetchCoupon();
   }, [couponId]);
+
+  useEffect(() => {
+    storeCustomerGroups.list().then((res) => setGroups(res.data)).catch(() => {});
+  }, []);
 
   if (isLoading) {
     return (
@@ -109,6 +114,14 @@ export function CouponDetailsView({ couponId }: CouponDetailsViewProps) {
             <div>
               <p className="text-xs text-muted-foreground mb-1">{t("minPurchase")}</p>
               <p className="text-sm">{coupon.minimumSpend ? `$${coupon.minimumSpend}` : t("noMinimum")}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Customer Groups</p>
+              <p className="text-sm">
+                {coupon.customerGroupIds && coupon.customerGroupIds.length > 0
+                  ? coupon.customerGroupIds.map((id) => groups.find((g) => g.id === id)?.name ?? id).join(", ")
+                  : "Any customer"}
+              </p>
             </div>
             {coupon.freeShipping && (
               <div>

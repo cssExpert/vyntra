@@ -30,4 +30,9 @@ export class CheckoutDto {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  /** Set when the shopper already paid via the embedded Stripe Payment Element — verified server-side before the order is created. */
+  @IsOptional()
+  @IsString()
+  paymentIntentId?: string;
 }

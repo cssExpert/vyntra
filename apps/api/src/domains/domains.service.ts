@@ -604,6 +604,19 @@ export class DomainsService {
     return { data: groups };
   }
 
+  /** Tells the storefront whether to show a "Pay Online" step at checkout — never the org's actual Stripe keys. */
+  async getPublicPaymentMethods(orgId: string) {
+    const org = await this.prisma.organization.findUnique({
+      where: { id: orgId },
+      select: { stripeEnabled: true, stripePublishableKey: true },
+    });
+    const stripeEnabled = !!(org?.stripeEnabled && org.stripePublishableKey);
+    return {
+      stripeEnabled,
+      stripePublishableKey: stripeEnabled ? org!.stripePublishableKey : null,
+    };
+  }
+
   /**
    * Everything the storefront /shop page needs from CMS → Page Settings:
    * SEO meta, Open Graph, favicon, injected scripts/CSS, the configured

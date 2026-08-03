@@ -7,6 +7,13 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const express = require('express');
 
+  // Stripe webhook signature verification needs the exact raw request bytes —
+  // must be registered BEFORE the global express.json() below, and matched
+  // on the full path (this app.use() runs at the Express layer, ahead of
+  // Nest's internal 'api' prefix routing, so the prefix has to be included
+  // here even though controllers themselves don't reference it).
+  app.use('/api/store/webhooks/stripe/:orgId', express.raw({ type: 'application/json' }));
+
   // Increase payload size limit for file uploads (images as data URLs)
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ limit: '50mb', extended: true }));

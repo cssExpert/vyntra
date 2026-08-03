@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Save, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { CouponType } from "../store.types";
-import { storeCoupons } from "@/lib/api";
+import { storeCoupons, storeCustomerGroups, type ApiCustomerGroup } from "@/lib/api";
 import { Input } from "@/components/ui/input";
+import { GroupMultiSelectDropdown } from "./GroupMultiSelectDropdown";
 
 const inp = "w-full rounded-sm border border-border bg-background px-3 py-2.5 text-[14px] text-foreground placeholder:text-muted-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15";
 const sel = "w-full rounded-sm border border-border bg-background px-3 py-2.5 text-[14px] text-foreground outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15 cursor-pointer";
@@ -20,8 +21,8 @@ const item = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transiti
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <motion.div variants={item} className="bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden">
-      <div className="px-5 py-3.5 border-b border-border bg-muted/30">
+    <motion.div variants={item} className="bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+      <div className="px-5 py-3.5 border-b border-border bg-muted/30 rounded-t-xl">
         <h3 className="text-sm font-semibold text-foreground">{title}</h3>
       </div>
       <div className="p-5 space-y-4">{children}</div>
@@ -55,6 +56,16 @@ export function AddCouponView() {
   const [expiresAt, setExpiresAt] = useState("");
   const [freeShipping, setFreeShipping] = useState(false);
   const [status, setStatus] = useState<"active" | "expired" | "disabled">("active");
+  const [groups, setGroups] = useState<ApiCustomerGroup[]>([]);
+  const [customerGroupIds, setCustomerGroupIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    storeCustomerGroups.list().then((res) => setGroups(res.data)).catch(() => {});
+  }, []);
+
+  const toggleGroup = (id: string) => {
+    setCustomerGroupIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
+  };
 
   const handleSave = async () => {
     setError(null);
@@ -72,6 +83,7 @@ export function AddCouponView() {
         maximumDiscount: parseFloat(maximumDiscount) || undefined,
         usageLimit: parseInt(usageLimit) || undefined,
         usageLimitPerUser: parseInt(usageLimitPerUser) || undefined,
+        customerGroupIds,
         startsAt: startsAt ? new Date(startsAt).toISOString() : undefined,
         expiresAt: expiresAt ? new Date(expiresAt).toISOString() : undefined,
         freeShipping,
@@ -148,6 +160,9 @@ export function AddCouponView() {
               </F>
               <F label="Usage Limit Per Customer">
                 <Input value={usageLimitPerUser} onChange={(e) => setUsageLimitPerUser(e.target.value)} type="number" min="0" placeholder="Unlimited" className={inp} />
+              </F>
+              <F label="Customer Groups">
+                <GroupMultiSelectDropdown groups={groups} selectedIds={customerGroupIds} onToggle={toggleGroup} />
               </F>
             </Card>
 

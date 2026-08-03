@@ -28,6 +28,8 @@ import { AnalyticsController } from './controllers/analytics.controller';
 import { JobsController } from './controllers/jobs.controller';
 import { StoreAIController } from './controllers/ai.controller';
 import { StoreAIService } from './services/ai.service';
+import { StripeService } from './services/stripe.service';
+import { StripeConfigController } from './controllers/stripe-config.controller';
 
 @Module({
   imports: [ConfigModule, TagsModule],
@@ -44,6 +46,7 @@ import { StoreAIService } from './services/ai.service';
     AnalyticsController,
     JobsController,
     StoreAIController,
+    StripeConfigController,
   ],
   providers: [
     AttributesService,
@@ -61,6 +64,7 @@ import { StoreAIService } from './services/ai.service';
     WebhookService,
     AnalyticsService,
     StoreAIService,
+    StripeService,
   ],
   exports: [
     AttributesService,
@@ -77,6 +81,7 @@ import { StoreAIService } from './services/ai.service';
     EmailService,
     WebhookService,
     AnalyticsService,
+    StripeService,
   ],
 })
 export class StoreModule {}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -16,12 +16,15 @@ import {
   Cpu,
   CheckCircle2,
   Settings2,
+  Copy,
+  Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MotionTabs, type MotionTabItem } from "@/components/ui/MotionTabs";
 import { Input } from "@/components/ui/input";
 import { PageSettingsPanel } from "@/components/common/PageSettingsPanel";
 import { useAuth } from "@/providers/AuthProvider";
+import { API_BASE, storePaymentSettings, type StripeSettings } from "@/lib/api";
 
 const PAGE_SETTINGS_ROLES = ["ORG_ADMIN", "EDITOR"];
 
@@ -107,10 +110,12 @@ function Toggle({
   label,
   description,
   defaultChecked,
+  onChange,
 }: {
   label: string;
   description?: string;
   defaultChecked?: boolean;
+  onChange?: (checked: boolean) => void;
 }) {
   const [on, setOn] = useState(defaultChecked ?? false);
   return (
@@ -122,7 +127,7 @@ function Toggle({
         )}
       </div>
       <button
-        onClick={() => setOn((v) => !v)}
+        onClick={() => setOn((v) => { onChange?.(!v); return !v; })}
         className={cn(
           "relative h-5 w-9 rounded-full transition-colors duration-200 cursor-pointer",
           on ? "bg-primary" : "bg-muted-foreground/30",
@@ -136,6 +141,187 @@ function Toggle({
         />
       </button>
     </div>
+  );
+}
+
+function PaymentSettingsTab({ organizationId }: { organizationId: string }) {
+  const [settings, setSettings] = useState<StripeSettings | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [enabled, setEnabled] = useState(false);
+  const [testMode, setTestMode] = useState(true);
+  const [publishableKey, setPublishableKey] = useState("");
+  const [secretKey, setSecretKey] = useState("");
+  const [webhookSecret, setWebhookSecret] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+  const [testing, setTesting] = useState(false);
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const load = () => {
+    setLoading(true);
+    storePaymentSettings
+      .get()
+      .then((s) => {
+        setSettings(s);
+        setEnabled(s.stripeEnabled);
+        setTestMode(s.stripeTestMode);
+        setPublishableKey(s.stripePublishableKey ?? "");
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(load, []);
+
+  const webhookUrl = `${API_BASE}/store/webhooks/stripe/${organizationId}`;
+
+  const handleSave = async () => {
+    setSaving(true);
+    setSaveError(null);
+    setSaved(false);
+    try {
+      const updated = await storePaymentSettings.update({
+        stripeEnabled: enabled,
+        stripeTestMode: testMode,
+        stripePublishableKey: publishableKey,
+        ...(secretKey && { stripeSecretKey: secretKey }),
+        ...(webhookSecret && { stripeWebhookSecret: webhookSecret }),
+      });
+      setSettings(updated);
+      setSecretKey("");
+      setWebhookSecret("");
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "Couldn't save Stripe settings");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleTest = async () => {
+    setTesting(true);
+    setTestResult(null);
+    try {
+      setTestResult(await storePaymentSettings.test());
+    } catch (err) {
+      setTestResult({ success: false, message: err instanceof Error ? err.message : "Test failed" });
+    } finally {
+      setTesting(false);
+    }
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(webhookUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  if (loading) {
+    return (
+      <Section title="Payment Gateways" description="Connect and configure your payment providers.">
+        <p className="text-sm text-muted-foreground">Loading…</p>
+      </Section>
+    );
+  }
+
+  return (
+    <Section
+      title="Payment Gateways"
+      description="Each store connects its own Stripe account — customer payments go straight to you, not through a shared platform account."
+    >
+      <div className="flex items-center justify-between py-2 border-b border-border">
+        <div>
+          <p className="text-sm font-medium text-foreground">Stripe</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Credit / Debit cards, Apple Pay, Google Pay</p>
+        </div>
+        <button
+          onClick={() => setEnabled((v) => !v)}
+          className={cn(
+            "relative h-5 w-9 rounded-full transition-colors duration-200 cursor-pointer",
+            enabled ? "bg-primary" : "bg-muted-foreground/30",
+          )}
+        >
+          <span
+            className={cn(
+              "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all duration-200",
+              enabled ? "left-4" : "left-0.5",
+            )}
+          />
+        </button>
+      </div>
+
+      <Toggle label="Test mode" description="Use Stripe test-mode keys before going live." defaultChecked={testMode} onChange={setTestMode} />
+
+      <FieldGroup label="Publishable Key">
+        <Input
+          className={inputCls}
+          value={publishableKey}
+          onChange={(e) => setPublishableKey(e.target.value)}
+          placeholder={testMode ? "pk_test_…" : "pk_live_…"}
+        />
+      </FieldGroup>
+      <FieldGroup label="Secret Key">
+        <Input
+          className={inputCls}
+          type="password"
+          value={secretKey}
+          onChange={(e) => setSecretKey(e.target.value)}
+          placeholder={settings?.secretKeyConfigured ? "•••••••••••••••• (configured — leave blank to keep)" : (testMode ? "sk_test_…" : "sk_live_…")}
+        />
+      </FieldGroup>
+      <FieldGroup label="Webhook Signing Secret">
+        <Input
+          className={inputCls}
+          type="password"
+          value={webhookSecret}
+          onChange={(e) => setWebhookSecret(e.target.value)}
+          placeholder={settings?.webhookSecretConfigured ? "•••••••••••••••• (configured — leave blank to keep)" : "whsec_…"}
+        />
+      </FieldGroup>
+
+      <div className="space-y-1">
+        <label className={labelCls}>Webhook URL</label>
+        <p className="text-xs text-muted-foreground">Add this endpoint in your Stripe Dashboard → Developers → Webhooks.</p>
+        <div className="flex items-center gap-2">
+          <code className="flex-1 rounded-sm border border-border bg-muted px-3 py-2 text-xs text-foreground overflow-x-auto whitespace-nowrap">
+            {webhookUrl}
+          </code>
+          <button
+            onClick={handleCopy}
+            className="shrink-0 flex items-center gap-1 rounded-sm border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer"
+          >
+            {copied ? <Check size={13} /> : <Copy size={13} />}
+            {copied ? "Copied" : "Copy"}
+          </button>
+        </div>
+      </div>
+
+      {saveError && <p className="text-xs text-destructive">{saveError}</p>}
+      {testResult && (
+        <p className={cn("text-xs", testResult.success ? "text-success" : "text-destructive")}>{testResult.message}</p>
+      )}
+
+      <div className="flex items-center gap-2 pt-2">
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="flex items-center gap-2 rounded-sm bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-600 transition-all cursor-pointer disabled:opacity-50"
+        >
+          {saved ? <CheckCircle2 size={14} /> : <Save size={14} />}
+          {saving ? "Saving…" : saved ? "Saved!" : "Save Stripe Settings"}
+        </button>
+        <button
+          onClick={handleTest}
+          disabled={testing || !settings?.secretKeyConfigured}
+          className="rounded-sm border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted transition-all cursor-pointer disabled:opacity-50"
+        >
+          {testing ? "Testing…" : "Test Connection"}
+        </button>
+      </div>
+    </Section>
   );
 }
 
@@ -297,53 +483,8 @@ export function StoreSettingsView() {
                 </>
               )}
 
-              {activeTab === "payment" && (
-                <Section
-                  title="Payment Gateways"
-                  description="Connect and configure your payment providers."
-                >
-                  {[
-                    {
-                      name: "Stripe",
-                      connected: true,
-                      desc: "Credit / Debit cards, Apple Pay, Google Pay",
-                    },
-                    {
-                      name: "PayPal",
-                      connected: false,
-                      desc: "PayPal balance, card, and Pay Later",
-                    },
-                    {
-                      name: "Razorpay",
-                      connected: false,
-                      desc: "UPI, net banking, cards (India)",
-                    },
-                  ].map((gw) => (
-                    <div
-                      key={gw.name}
-                      className="flex items-center justify-between rounded-sm border border-border p-4"
-                    >
-                      <div>
-                        <p className="font-semibold text-foreground text-sm">
-                          {gw.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {gw.desc}
-                        </p>
-                      </div>
-                      <button
-                        className={cn(
-                          "px-4 py-1.5 rounded-sm text-xs font-semibold transition-all cursor-pointer",
-                          gw.connected
-                            ? "bg-error/10 text-error border border-error/20 hover:bg-error/20"
-                            : "bg-primary text-primary-foreground hover:bg-primary-600",
-                        )}
-                      >
-                        {gw.connected ? "Disconnect" : "Connect"}
-                      </button>
-                    </div>
-                  ))}
-                </Section>
+              {activeTab === "payment" && user?.organizationId && (
+                <PaymentSettingsTab organizationId={user.organizationId} />
               )}
 
               {activeTab === "shipping" && (

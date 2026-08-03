@@ -153,15 +153,30 @@ export class CouponsService {
       }
     }
 
+    // Check customer-group restriction — empty list means usable by anyone,
+    // including guests (who have no group at all).
+    if (coupon.customerGroupIds.length > 0) {
+      const customer = customerId
+        ? await this.prisma.storeCustomer.findUnique({ where: { id: customerId }, select: { customerGroupId: true } })
+        : null;
+      if (!customer?.customerGroupId || !coupon.customerGroupIds.includes(customer.customerGroupId)) {
+        throw new BadRequestException('This coupon is not available for your account');
+      }
+    }
+
     return coupon;
   }
 
   async calculateDiscount(coupon: any, cartTotal: number): Promise<number> {
     let discount = 0;
 
-    if (coupon.type === 'percentage') {
+    // Real values are "percent" | "fixed_cart" | "fixed_product" (see
+    // CouponType in store.types.ts / the admin coupon form's type select) —
+    // "percentage"/"fixed" never matched anything, so every coupon's
+    // discount silently computed to 0 regardless of type or value.
+    if (coupon.type === 'percent') {
       discount = (cartTotal * coupon.value) / 100;
-    } else if (coupon.type === 'fixed') {
+    } else if (coupon.type === 'fixed_cart' || coupon.type === 'fixed_product') {
       discount = coupon.value;
     }
 
@@ -215,11 +230,23 @@ export class CouponsService {
     id: string,
     updateCouponDto: UpdateCouponCodeDto
   ) {
-    const coupon = await this.findById(organizationId, id);
+    await this.findById(organizationId, id);
+
+    const { code, ...rest } = updateCouponDto;
+    let upperCode: string | undefined;
+    if (code) {
+      upperCode = code.toUpperCase();
+      const existing = await this.prisma.couponCode.findFirst({
+        where: { organizationId, code: upperCode, id: { not: id } },
+      });
+      if (existing) {
+        throw new BadRequestException('Coupon code already exists');
+      }
+    }
 
     return this.prisma.couponCode.update({
       where: { id },
-      data: updateCouponDto,
+      data: { ...rest, ...(upperCode && { code: upperCode }) },
       include: {
         _count: {
           select: { usages: true },

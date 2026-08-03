@@ -12,4 +12,5 @@ export * from './update-inventory.dto';
 export * from './create-customer-group.dto';
 export * from './update-customer-group.dto';
 export * from './update-customer-group-restrictions.dto';
+export * from './update-stripe-config.dto';
 export * from './create-product-tier-price.dto';

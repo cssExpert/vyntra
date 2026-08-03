@@ -260,6 +260,15 @@ export class DomainsController {
     return this.domainsService.getPublicCustomerGroups(orgId);
   }
 
+  // Lets the storefront know whether to show a "Pay Online" step at checkout.
+  @Public()
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 60, ttl: 60_000 } })
+  @Get('public/sites/:orgId/payment-methods')
+  getPublicPaymentMethods(@Param('orgId') orgId: string) {
+    return this.domainsService.getPublicPaymentMethods(orgId);
+  }
+
   @Public()
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 60, ttl: 60_000 } })

@@ -20,7 +20,7 @@ export class PublicCartController {
       if (customer.organizationId !== orgId) {
         throw new ForbiddenException('Customer does not belong to this store');
       }
-      return { customerId: customer.id };
+      return { customerId: customer.id, customerGroupId: customer.customerGroupId };
     }
     return { guestToken };
   }

@@ -254,6 +254,37 @@ export function apiGetAdminSettings() {
   return apiFetch<AdminSettings>("/admin/settings");
 }
 
+// ─── Store Payment Settings (per-organization Stripe) ──────────────────────
+
+export interface StripeSettings {
+  stripeEnabled: boolean;
+  stripeTestMode: boolean;
+  stripePublishableKey: string | null;
+  secretKeyConfigured: boolean;
+  webhookSecretConfigured: boolean;
+}
+
+export interface UpdateStripeSettingsPayload {
+  stripeEnabled?: boolean;
+  stripeTestMode?: boolean;
+  stripePublishableKey?: string;
+  stripeSecretKey?: string;
+  stripeWebhookSecret?: string;
+}
+
+export const storePaymentSettings = {
+  get: () => apiFetch<StripeSettings>("/organizations/me/stripe"),
+  update: (dto: UpdateStripeSettingsPayload) =>
+    apiFetch<StripeSettings>("/organizations/me/stripe", {
+      method: "PUT",
+      body: JSON.stringify(dto),
+    }),
+  test: () =>
+    apiFetch<{ success: boolean; message: string }>("/organizations/me/stripe/test", {
+      method: "POST",
+    }),
+};
+
 export function apiUpdateAdminSettings(body: Partial<AdminSettings>) {
   return apiFetch<AdminSettings>("/admin/settings", {
     method: "PUT",
@@ -1786,6 +1817,7 @@ export interface ApiStoreCoupon {
   usageLimitPerUser: number | null;
   productIds: string[];
   categoryIds: string[];
+  customerGroupIds: string[];
   startsAt: string | null;
   expiresAt: string | null;
   status: string;
@@ -1803,6 +1835,7 @@ export type CreateCouponPayload = {
   usageLimitPerUser?: number | null;
   productIds?: string[];
   categoryIds?: string[];
+  customerGroupIds?: string[];
   startsAt?: string | null;
   expiresAt?: string | null;
   status?: string;

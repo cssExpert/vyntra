@@ -3,6 +3,10 @@ import { IsString, IsNumber, IsOptional, IsArray, IsBoolean, IsISO8601 } from 'c
 export class UpdateCouponCodeDto {
   @IsOptional()
   @IsString()
+  code?: string;
+
+  @IsOptional()
+  @IsString()
   type?: string;
 
   @IsOptional()
@@ -34,6 +38,12 @@ export class UpdateCouponCodeDto {
   @IsArray()
   @IsString({ each: true })
   categoryIds?: string[];
+
+  /** Restricts redemption to specific customer groups (e.g. "Dealers" only). Empty/omitted = usable by anyone. */
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  customerGroupIds?: string[];
 
   @IsOptional()
   @IsISO8601()

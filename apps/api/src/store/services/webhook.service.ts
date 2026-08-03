@@ -1,25 +1,8 @@
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import type Stripe from 'stripe';
 import { PrismaService } from '../../prisma/prisma.service';
 import { EmailService } from './email.service';
 import { StoreJobsService } from './store-jobs.service';
-import * as crypto from 'crypto';
-
-export interface StripeWebhookEvent {
-  id: string;
-  type: string;
-  data: {
-    object: {
-      id: string;
-      object: string;
-      amount: number;
-      currency: string;
-      status: string;
-      customer?: string;
-      metadata?: Record<string, string>;
-      [key: string]: any;
-    };
-  };
-}
 
 @Injectable()
 export class WebhookService {
@@ -32,63 +15,41 @@ export class WebhookService {
   ) {}
 
   /**
-   * Verify Stripe webhook signature
-   * Prevents replay attacks and ensures webhook authenticity
-   */
-  verifyStripeWebhookSignature(
-    body: string,
-    signature: string,
-    webhookSecret: string,
-  ): boolean {
-    try {
-      const hash = crypto
-        .createHmac('sha256', webhookSecret)
-        .update(body)
-        .digest('hex');
-      const computedSignature = `t=0,v1=${hash}`;
-      return crypto.timingSafeEqual(
-        Buffer.from(signature),
-        Buffer.from(computedSignature),
-      );
-    } catch (error) {
-      this.logger.error('Webhook signature verification failed:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Handle Stripe payment success webhook
-   * Updates order status and sends confirmation emails
+   * Handle Stripe payment success webhook. This is a defensive backup path —
+   * the primary confirmation is synchronous, in PublicCheckoutService.placeOrder,
+   * which already verifies the PaymentIntent and creates the order + Payment
+   * row before this webhook could plausibly arrive. A PaymentIntent created
+   * for the embedded checkout flow has no orderId yet (the order doesn't
+   * exist until after payment succeeds client-side), so this mainly matters
+   * for reconciling an order that was already placed — hence the
+   * already-recorded guard below rather than assuming this is the only writer.
    */
   async handlePaymentSucceeded(
-    event: StripeWebhookEvent,
+    organizationId: string,
+    event: Stripe.Event,
   ): Promise<{ success: boolean; orderId?: string }> {
     try {
-      const intent = event.data.object;
+      const intent = event.data.object as Stripe.PaymentIntent;
       const orderId = intent.metadata?.orderId;
 
       if (!orderId) {
-        this.logger.warn(
-          `Payment succeeded event without orderId: ${intent.id}`,
-        );
+        this.logger.debug(`Payment succeeded with no orderId yet (expected pre-checkout): ${intent.id}`);
         return { success: false };
       }
 
-      // Update order payment status
-      const order = await this.prisma.order.findUnique({
-        where: { id: orderId },
-        include: {
-          customer: true,
-          items: true,
-        },
+      const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+      if (!order || order.organizationId !== organizationId) {
+        this.logger.error(`Order not found for org ${organizationId}: ${orderId}`);
+        return { success: false };
+      }
+
+      const alreadyRecorded = await this.prisma.payment.findFirst({
+        where: { orderId, transactionId: intent.id },
       });
-
-      if (!order) {
-        this.logger.error(`Order not found: ${orderId}`);
-        return { success: false };
+      if (alreadyRecorded) {
+        return { success: true, orderId };
       }
 
-      // Record payment
       await this.prisma.payment.create({
         data: {
           organizationId: order.organizationId,
@@ -101,19 +62,13 @@ export class WebhookService {
         },
       });
 
-      // Update order payment status if fully paid
-      if (intent.amount >= order.total * 100) {
+      if (order.paymentStatus !== 'paid') {
         await this.prisma.order.update({
           where: { id: orderId },
-          data: {
-            paymentStatus: 'paid',
-            status: 'processing',
-            paidAt: new Date(),
-          },
+          data: { paymentStatus: 'paid', status: 'processing', paidAt: new Date() },
         });
       }
 
-      // Queue order confirmation email asynchronously (non-blocking)
       this.storeJobs.queueOrderConfirmation(orderId).catch((error) => {
         this.logger.error(`Failed to queue order confirmation for ${orderId}:`, error);
       });
@@ -130,12 +85,12 @@ export class WebhookService {
    * Handle Stripe payment failure webhook
    * Updates order status and notifies customer
    */
-  async handlePaymentFailed(event: StripeWebhookEvent): Promise<{
+  async handlePaymentFailed(event: Stripe.Event): Promise<{
     success: boolean;
     orderId?: string;
   }> {
     try {
-      const intent = event.data.object;
+      const intent = event.data.object as Stripe.PaymentIntent;
       const orderId = intent.metadata?.orderId;
 
       if (!orderId) {
@@ -162,12 +117,12 @@ export class WebhookService {
    * Handle Stripe charge refunded webhook
    * Updates refund status and notifies customer
    */
-  async handleChargeRefunded(event: StripeWebhookEvent): Promise<{
+  async handleChargeRefunded(event: Stripe.Event): Promise<{
     success: boolean;
   }> {
     try {
-      const charge = event.data.object;
-      const refundAmount = charge.amount_refunded / 100;
+      const charge = event.data.object as Stripe.Charge;
+      const refundAmount = (charge.amount_refunded ?? 0) / 100;
 
       // Find refund by Stripe charge ID
       const refund = await this.prisma.refund.findFirst({

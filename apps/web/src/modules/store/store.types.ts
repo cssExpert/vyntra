@@ -252,6 +252,7 @@ export interface StoreCoupon {
   usageLimitPerUser?: number;
   productIds?: string[];
   categoryIds?: string[];
+  customerGroupIds?: string[];
   startsAt?: string;
   expiresAt?: string;
   status: "active" | "expired" | "disabled";

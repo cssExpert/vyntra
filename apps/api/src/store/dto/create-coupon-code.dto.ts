@@ -36,6 +36,12 @@ export class CreateCouponCodeDto {
   @IsString({ each: true })
   categoryIds?: string[];
 
+  /** Restricts redemption to specific customer groups (e.g. "Dealers" only). Empty/omitted = usable by anyone. */
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  customerGroupIds?: string[];
+
   @IsOptional()
   @IsISO8601()
   startsAt?: string;

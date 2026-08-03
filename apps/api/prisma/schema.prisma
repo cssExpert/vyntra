@@ -123,6 +123,17 @@ model Organization {
   customDomainVerified    Boolean @default(false)
   domainVerificationToken String? @unique
 
+  // Payments: Stripe (per-organization — each store connects its own account,
+  // so customer payments go to the right merchant rather than pooling into
+  // one platform-wide account). Secret/webhook values are AES-256-GCM
+  // encrypted at rest — see common/crypto.util.ts — never stored/returned in
+  // plaintext.
+  stripeEnabled        Boolean @default(false)
+  stripeTestMode       Boolean @default(true)
+  stripePublishableKey String?
+  stripeSecretKey      String?
+  stripeWebhookSecret  String?
+
   // Relations
   users        User[]        @relation("OrganizationUsers")
   userRoles    UserRole[]
@@ -1674,6 +1685,9 @@ model CouponCode {
 
   productIds  String[] @default([])
   categoryIds String[] @default([])
+  // Restricts redemption to specific customer groups (e.g. "Dealers" only).
+  // Empty = usable by any customer (and by guests, who have no group at all).
+  customerGroupIds String[] @default([])
 
   startsAt  DateTime?
   expiresAt DateTime?

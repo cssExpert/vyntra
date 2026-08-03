@@ -24,4 +24,18 @@ export class PublicCheckoutController {
     const identity = customer ? { customerId: customer.id } : { guestToken };
     return this.checkoutService.placeOrder(orgId, identity, dto);
   }
+
+  @UseGuards(OptionalCustomerAuthGuard)
+  @Post('payment-intent')
+  createPaymentIntent(
+    @Param('orgId') orgId: string,
+    @CurrentCustomer() customer: RequestCustomer | undefined,
+    @Headers('x-cart-token') guestToken: string | undefined,
+  ) {
+    if (customer && customer.organizationId !== orgId) {
+      throw new ForbiddenException('Customer does not belong to this store');
+    }
+    const identity = customer ? { customerId: customer.id } : { guestToken };
+    return this.checkoutService.createPaymentIntentForCart(orgId, identity);
+  }
 }

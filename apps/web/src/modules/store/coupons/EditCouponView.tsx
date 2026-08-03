@@ -9,8 +9,9 @@ import { Save, X, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { StoreCoupon, CouponType } from "../store.types";
 import { toStoreCoupon } from "../store.utils";
-import { storeCoupons } from "@/lib/api";
+import { storeCoupons, storeCustomerGroups, type ApiCustomerGroup } from "@/lib/api";
 import { Input } from "@/components/ui/input";
+import { GroupMultiSelectDropdown } from "./GroupMultiSelectDropdown";
 
 interface EditCouponViewProps {
   couponId: string;
@@ -31,8 +32,8 @@ const item = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transiti
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <motion.div variants={item} className="bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden">
-      <div className="px-5 py-3.5 border-b border-border bg-muted/30">
+    <motion.div variants={item} className="bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+      <div className="px-5 py-3.5 border-b border-border bg-muted/30 rounded-t-xl">
         <h3 className="text-sm font-semibold text-foreground">{title}</h3>
       </div>
       <div className="p-5 space-y-4">{children}</div>
@@ -67,6 +68,16 @@ export function EditCouponView({ couponId }: EditCouponViewProps) {
   const [expiresAt, setExpiresAt] = useState("");
   const [freeShipping, setFreeShipping] = useState(false);
   const [status, setStatus] = useState<"active" | "expired" | "disabled">("active");
+  const [groups, setGroups] = useState<ApiCustomerGroup[]>([]);
+  const [customerGroupIds, setCustomerGroupIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    storeCustomerGroups.list().then((res) => setGroups(res.data)).catch(() => {});
+  }, []);
+
+  const toggleGroup = (id: string) => {
+    setCustomerGroupIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
+  };
 
   useEffect(() => {
     const fetchCoupon = async () => {
@@ -85,6 +96,7 @@ export function EditCouponView({ couponId }: EditCouponViewProps) {
         setExpiresAt(toDatetimeLocal(found.expiresAt));
         setFreeShipping(found.freeShipping === true);
         setStatus(found.status || "active");
+        setCustomerGroupIds(found.customerGroupIds ?? []);
       } catch {
         setCoupon(null);
       } finally {
@@ -105,6 +117,7 @@ export function EditCouponView({ couponId }: EditCouponViewProps) {
         maximumDiscount: parseFloat(maximumDiscount) || 0,
         usageLimit: parseInt(usageLimit) || undefined,
         usageLimitPerUser: parseInt(usageLimitPerUser) || undefined,
+        customerGroupIds,
         startsAt: startsAt ? new Date(startsAt).toISOString() : undefined,
         expiresAt: expiresAt ? new Date(expiresAt).toISOString() : undefined,
         freeShipping,
@@ -194,6 +207,9 @@ export function EditCouponView({ couponId }: EditCouponViewProps) {
               </F>
               <F label="Usage Limit Per Customer">
                 <Input value={usageLimitPerUser} onChange={(e) => setUsageLimitPerUser(e.target.value)} type="number" min="0" placeholder="Unlimited" className={inp} />
+              </F>
+              <F label="Customer Groups">
+                <GroupMultiSelectDropdown groups={groups} selectedIds={customerGroupIds} onToggle={toggleGroup} />
               </F>
             </Card>
 

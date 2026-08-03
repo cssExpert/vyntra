@@ -3,9 +3,11 @@ import { randomUUID } from 'crypto';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CouponsService } from '../../services/coupons.service';
 import { AddCartItemDto } from '../dto';
+import { resolveVisibility, RestrictionMode } from '../../utils/customer-group-resolution';
 
 export interface CartIdentity {
   customerId?: string;
+  customerGroupId?: string | null;
   guestToken?: string;
 }
 
@@ -41,12 +43,42 @@ export class PublicCartService {
     return this.toCartView(cart);
   }
 
+  /** Mirrors DomainsService's product-listing visibility check (customer-groups.service.ts's resolveVisibility) — a customer can't add to cart what their group hides from browsing. */
+  private async isProductVisible(
+    customerGroupId: string | null | undefined,
+    productId: string,
+    name: string,
+    sku: string,
+  ): Promise<boolean> {
+    if (!customerGroupId) return true;
+    const group = await this.prisma.customerGroup.findUnique({
+      where: { id: customerGroupId },
+      select: {
+        productsMode: true,
+        productPattern: true,
+        products: { select: { productId: true } },
+      },
+    });
+    if (!group || group.productsMode === 'all') return true;
+    const selectedIds = group.products.map((p) => p.productId);
+    return resolveVisibility(group.productsMode as RestrictionMode, selectedIds, productId, {
+      pattern: group.productPattern,
+      patternCandidates: [name, sku],
+    });
+  }
+
   async addItem(orgId: string, identity: CartIdentity, dto: AddCartItemDto) {
     const product = await this.prisma.product.findFirst({
       where: { id: dto.productId, organizationId: orgId, status: 'active' },
       include: { variants: true },
     });
     if (!product) throw new NotFoundException('Product not found');
+
+    // Restricted-but-existing is indistinguishable from not-found — same
+    // convention used for the browsing endpoints this mirrors.
+    if (!(await this.isProductVisible(identity.customerGroupId, product.id, product.name, product.sku))) {
+      throw new NotFoundException('Product not found');
+    }
 
     const variant = dto.variantId ? product.variants.find((v) => v.id === dto.variantId) : undefined;
     if (dto.variantId && !variant) throw new NotFoundException('Variant not found');
