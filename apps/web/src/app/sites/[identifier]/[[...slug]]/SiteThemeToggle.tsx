@@ -21,7 +21,7 @@ function MoonIcon() {
   );
 }
 
-export function SiteThemeToggle() {
+export function SiteThemeToggle({ className }: { className?: string }) {
   const { resolvedTheme, setTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
 
@@ -31,7 +31,7 @@ export function SiteThemeToggle() {
       suppressHydrationWarning
       onClick={() => setTheme(isDark ? "light" : "dark")}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      className="site-theme-toggle flex items-center justify-center w-8 h-8 rounded-full transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 shrink-0 text-[#212529] dark:text-gray-100"
+      className={`site-theme-toggle flex items-center justify-center w-8 h-8 rounded-full transition-colors shrink-0 ${className ?? "hover:bg-gray-100 dark:hover:bg-gray-800 text-[#212529] dark:text-gray-100"}`}
     >
       {/* Moon visible in light mode, Sun visible in dark mode — CSS drives this */}
       <span className="block dark:hidden"><MoonIcon /></span>

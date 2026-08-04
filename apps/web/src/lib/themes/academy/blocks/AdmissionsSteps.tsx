@@ -3,10 +3,10 @@ import { NAVY, GOLD, SERIF } from "../theme";
 
 export default function AdmissionsSteps({ data }: { data: AdmissionsStepsData }) {
   return (
-    <section className="py-20 bg-white text-center">
+    <section className="py-20 bg-white dark:bg-[#0d1626] text-center">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         {data.eyebrow && <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-4" style={{ color: GOLD }}>{data.eyebrow}</p>}
-        <h2 className="text-2xl sm:text-3xl font-bold mb-14" style={{ fontFamily: SERIF, color: NAVY }}>{data.title}</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold mb-14 text-[#0B1E33] dark:text-white" style={{ fontFamily: SERIF }}>{data.title}</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 text-left">
           {data.steps.map((s, i) => (
             <div key={i}>
@@ -16,8 +16,8 @@ export default function AdmissionsSteps({ data }: { data: AdmissionsStepsData })
               >
                 {s.number}
               </div>
-              <h3 className="font-bold mb-2" style={{ color: NAVY }}>{s.title}</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">{s.description}</p>
+              <h3 className="font-bold mb-2 text-[#0B1E33] dark:text-white">{s.title}</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{s.description}</p>
             </div>
           ))}
         </div>

@@ -3,16 +3,16 @@ import { NAVY, GOLD, SERIF } from "../theme";
 
 export default function PricingTiers({ data }: { data: PricingTiersData }) {
   return (
-    <section className="py-20" style={{ background: "#faf8f4" }}>
+    <section className="py-20 bg-[#faf8f4] dark:bg-[#0f1a29]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-14">
           {data.eyebrow && <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-4" style={{ color: GOLD }}>{data.eyebrow}</p>}
-          <h2 className="text-2xl sm:text-3xl font-bold" style={{ fontFamily: SERIF, color: NAVY }}>{data.title}</h2>
-          {data.subtitle && <p className="text-gray-600 mt-3 max-w-2xl mx-auto">{data.subtitle}</p>}
+          <h2 className="text-2xl sm:text-3xl font-bold text-[#0B1E33] dark:text-white" style={{ fontFamily: SERIF }}>{data.title}</h2>
+          {data.subtitle && <p className="text-gray-600 dark:text-gray-400 mt-3 max-w-2xl mx-auto">{data.subtitle}</p>}
         </div>
         <div className="grid sm:grid-cols-3 gap-6">
           {data.tiers.map((t, i) => (
-            <div key={i} className="relative rounded-lg bg-white p-7" style={{ border: `1px solid ${GOLD}44` }}>
+            <div key={i} className="relative rounded-lg bg-white dark:bg-[#132038] p-7" style={{ border: `1px solid ${GOLD}44` }}>
               {t.badge && (
                 <span
                   className="absolute -top-3 left-7 text-xs font-bold px-2.5 py-1 rounded"
@@ -21,10 +21,10 @@ export default function PricingTiers({ data }: { data: PricingTiersData }) {
                   {t.badge}
                 </span>
               )}
-              <h3 className="font-bold mb-1" style={{ fontFamily: SERIF, color: NAVY }}>{t.name}</h3>
-              <p className="text-2xl font-bold mb-1" style={{ fontFamily: SERIF, color: NAVY }}>{t.price}</p>
-              {t.note && <p className="text-xs text-gray-500 mb-5">{t.note}</p>}
-              <ul className="text-sm text-gray-600 space-y-2 mb-6">
+              <h3 className="font-bold mb-1 text-[#0B1E33] dark:text-white" style={{ fontFamily: SERIF }}>{t.name}</h3>
+              <p className="text-2xl font-bold mb-1 text-[#0B1E33] dark:text-white" style={{ fontFamily: SERIF }}>{t.price}</p>
+              {t.note && <p className="text-xs text-gray-500 dark:text-gray-400 mb-5">{t.note}</p>}
+              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-2 mb-6">
                 {t.features.map((f, j) => (
                   <li key={j} className="flex items-start gap-2">
                     <span style={{ color: GOLD }}>•</span> {f}

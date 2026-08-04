@@ -752,13 +752,18 @@ async function NavbarAcademy({ org, items }: { org: OrgInfo; items: MenuItem[] }
           ))}
         </nav>
 
-        <a
-          href="/contact"
-          className="ml-auto lg:ml-0 shrink-0 px-4 py-2 rounded text-xs font-semibold whitespace-nowrap"
-          style={{ background: ACADEMY_GOLD, color: ACADEMY_NAVY }}
-        >
-          Book a Tour
-        </a>
+        <div className="ml-auto lg:ml-0 flex items-center gap-3 shrink-0">
+          {org.themeSwitcherEnabled && (
+            <SiteThemeToggle className="hover:bg-white/10 text-white" />
+          )}
+          <a
+            href="/contact"
+            className="px-4 py-2 rounded text-xs font-semibold whitespace-nowrap"
+            style={{ background: ACADEMY_GOLD, color: ACADEMY_NAVY }}
+          >
+            Book a Tour
+          </a>
+        </div>
       </div>
 
       {items.length > 0 && (

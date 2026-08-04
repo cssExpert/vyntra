@@ -21,25 +21,25 @@ export default function ContactFormInfo({ data, orgId }: { data: ContactFormInfo
   } = useContactFormSubmit(orgId);
 
   return (
-    <section className="py-20 bg-white">
+    <section className="py-20 bg-white dark:bg-[#0d1626]">
       <ContactRecaptchaScript active={captchaActive} siteKey={recaptchaSiteKey} onReady={markRecaptchaReady} />
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
           <div className="lg:col-span-2 rounded-lg p-8" style={{ border: `1px solid ${GOLD}44` }}>
             {submitted ? (
               <div className="text-center py-10">
-                <p className="text-xl font-bold mb-1" style={{ fontFamily: SERIF, color: NAVY }}>Thank you!</p>
-                <p className="text-sm text-gray-500 mb-4">We&apos;ve received your message and will get back to you soon.</p>
+                <p className="text-xl font-bold mb-1 text-[#0B1E33] dark:text-white" style={{ fontFamily: SERIF }}>Thank you!</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">We&apos;ve received your message and will get back to you soon.</p>
                 <button type="button" onClick={reset} className="text-sm font-semibold hover:opacity-80" style={{ color: GOLD }}>
                   Send another message
                 </button>
               </div>
             ) : (
               <>
-                <h2 className="text-2xl font-bold mb-1" style={{ fontFamily: SERIF, color: NAVY }}>
+                <h2 className="text-2xl font-bold mb-1 text-[#0B1E33] dark:text-white" style={{ fontFamily: SERIF }}>
                   {data.formTitle ?? "Send a Message"}
                 </h2>
-                {data.formSubtitle && <p className="text-sm text-gray-500 mb-6">{data.formSubtitle}</p>}
+                {data.formSubtitle && <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{data.formSubtitle}</p>}
 
                 <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
                   <input
@@ -85,7 +85,7 @@ export default function ContactFormInfo({ data, orgId }: { data: ContactFormInfo
                     disabled={submitting}
                     className="academy-cfi-input resize-y"
                   />
-                  {error && <p className="text-xs text-rose-500">{error}</p>}
+                  {error && <p className="text-xs text-rose-500 dark:text-rose-400">{error}</p>}
                   <button
                     type="submit"
                     disabled={submitting}
@@ -99,7 +99,7 @@ export default function ContactFormInfo({ data, orgId }: { data: ContactFormInfo
             )}
           </div>
 
-          <div className="rounded-lg p-8" style={{ background: "#faf8f4" }}>
+          <div className="rounded-lg p-8 bg-[#faf8f4] dark:bg-[#132038]">
             {data.address && (
               <InfoRow label={data.addressLabel ?? "Address"}>
                 <span className="whitespace-pre-line">{data.address}</span>
@@ -137,6 +137,12 @@ export default function ContactFormInfo({ data, orgId }: { data: ContactFormInfo
           box-sizing: border-box;
         }
         .academy-cfi-input:focus { border-color: ${GOLD}; }
+        .dark .academy-cfi-input {
+          border-color: rgba(255,255,255,.15);
+          color: #fff;
+          background: #0d1626;
+        }
+        .dark .academy-cfi-input:focus { border-color: ${GOLD}; }
       `}</style>
     </section>
   );
@@ -144,9 +150,9 @@ export default function ContactFormInfo({ data, orgId }: { data: ContactFormInfo
 
 function InfoRow({ label, children, last }: { label: string; children: React.ReactNode; last?: boolean }) {
   return (
-    <div className="py-4" style={last ? {} : { borderBottom: "1px solid #e8e2d5" }}>
-      <p className="font-semibold text-base mb-1" style={{ fontFamily: SERIF, color: NAVY }}>{label}</p>
-      <p className="text-sm text-gray-600 leading-relaxed">{children}</p>
+    <div className={`py-4 ${last ? "" : "border-b border-[#e8e2d5] dark:border-white/10"}`}>
+      <p className="font-semibold text-base mb-1 text-[#0B1E33] dark:text-white" style={{ fontFamily: SERIF }}>{label}</p>
+      <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{children}</p>
     </div>
   );
 }
