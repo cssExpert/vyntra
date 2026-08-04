@@ -15,6 +15,8 @@ import ShopingoCheckout from "./shopingo/pages/Checkout";
 import CommonCheckout from "./common/pages/Checkout";
 import ShopingoAccount from "./shopingo/pages/Account";
 import CommonAccount from "./common/pages/Account";
+import AcademyBlogListing from "./academy/pages/BlogListing";
+import AcademyBlogDetail from "./academy/pages/BlogDetail";
 
 export interface SystemPageProps {
   orgId: string;
@@ -45,6 +47,10 @@ const THEME_SYSTEM_PAGES: Record<string, Partial<Record<SystemPageType, AnySyste
     cart:              ShopingoCart,
     checkout:          ShopingoCheckout,
     account:           ShopingoAccount,
+  },
+  academy: {
+    "blog-listing": AcademyBlogListing,
+    "blog-detail":  AcademyBlogDetail,
   },
 };
 
