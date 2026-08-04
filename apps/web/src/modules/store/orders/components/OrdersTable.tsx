@@ -61,8 +61,13 @@ const buildColumns = (
   columnHelper.accessor("orderNumber", {
     header: tx("orderHeader"),
     size: 120,
-    cell: ({ getValue }) => (
-      <span className="font-mono text-xs font-semibold text-foreground">{getValue()}</span>
+    cell: ({ getValue, row }) => (
+      <button
+        onClick={() => router.push(`/store/orders/${row.original.id}`)}
+        className="font-mono text-xs font-semibold text-primary hover:underline cursor-pointer"
+      >
+        {getValue()}
+      </button>
     ),
   }),
   columnHelper.accessor("customerName", {

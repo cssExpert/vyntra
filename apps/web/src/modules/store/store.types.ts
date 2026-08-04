@@ -185,12 +185,39 @@ export interface OrderAddress {
   phone?: string;
 }
 
+export interface OrderPayment {
+  id: string;
+  amount: number;
+  currency: string;
+  method: string;
+  status: string;
+  transactionId?: string;
+  receiptUrl?: string;
+  createdAt: string;
+}
+
+export interface OrderRefund {
+  id: string;
+  amount: number;
+  reason: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface OrderTimelineEntry {
+  id: string;
+  status: string;
+  message?: string;
+  createdAt: string;
+}
+
 export interface StoreOrder {
   id: string;
   orderNumber: string;
   customerId: string;
   customerName: string;
   customerEmail: string;
+  customerPhone?: string;
   customerAvatar?: string;
   status: OrderStatus;
   paymentStatus: PaymentStatus;
@@ -207,6 +234,9 @@ export interface StoreOrder {
   billingAddress?: OrderAddress;
   shippingMethod?: string;
   trackingNumber?: string;
+  payments?: OrderPayment[];
+  refunds?: OrderRefund[];
+  timeline?: OrderTimelineEntry[];
   createdAt: string;
   updatedAt: string;
   paidAt?: string;

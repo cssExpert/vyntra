@@ -59,6 +59,7 @@ export function toStoreOrder(o: ApiStoreOrder): StoreOrder {
     customerId: o.customerId,
     customerName: o.customerName,
     customerEmail: o.customerEmail,
+    customerPhone: o.customerPhone ?? undefined,
     status: o.status as StoreOrder["status"],
     paymentStatus: o.paymentStatus as StoreOrder["paymentStatus"],
     items: o.items.map((i) => ({
@@ -84,6 +85,32 @@ export function toStoreOrder(o: ApiStoreOrder): StoreOrder {
     billingAddress: o.billingAddress ? toStoreOrderAddress(o.billingAddress) : undefined,
     shippingMethod: o.shippingMethod ?? undefined,
     trackingNumber: o.trackingNumber ?? undefined,
+    // list endpoints only include payments/timeline (and never refunds) —
+    // findById is the only one with the full set, so all three have to be
+    // treated as possibly absent here rather than always-present arrays.
+    payments: (o.payments ?? []).map((p) => ({
+      id: p.id,
+      amount: p.amount,
+      currency: p.currency,
+      method: p.method,
+      status: p.status,
+      transactionId: p.transactionId ?? undefined,
+      receiptUrl: p.receiptUrl ?? undefined,
+      createdAt: p.createdAt,
+    })),
+    refunds: (o.refunds ?? []).map((r) => ({
+      id: r.id,
+      amount: r.amount,
+      reason: r.reason,
+      status: r.status,
+      createdAt: r.createdAt,
+    })),
+    timeline: (o.timeline ?? []).map((t) => ({
+      id: t.id,
+      status: t.status,
+      message: t.message ?? undefined,
+      createdAt: t.createdAt,
+    })),
     createdAt: o.createdAt,
     updatedAt: o.updatedAt,
     paidAt: o.paidAt ?? undefined,

@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { CheckCircle2 } from "lucide-react";
 import { useCart } from "@/lib/themes/useCart";
 import { useCustomerAuthStore } from "@/store/customerAuthStore";
 import { useAccountAddresses, type AccountAddress } from "@/lib/themes/useAccount";
 import { CouponInput } from "@/lib/themes/shared/CouponInput";
 import { storefrontFetch, ApiError } from "@/lib/storefrontApi";
-import { useStorefrontToastStore } from "@/store/storefrontToastStore";
 import { usePaymentMethods } from "@/lib/themes/usePaymentMethods";
 import { StripePaymentStep } from "@/lib/themes/shared/StripePaymentStep";
 
@@ -102,14 +102,30 @@ function SavedAddressPicker({
   );
 }
 
+function AddressSummary({ address, label }: { address: AddressForm; label: string }) {
+  return (
+    <div>
+      <p className="text-xs mb-0.5" style={{ color: "var(--muted-foreground, #6b7280)" }}>{label}</p>
+      <p className="text-sm" style={{ color: "var(--foreground, #111827)" }}>
+        {address.line1}{address.line2 && `, ${address.line2}`}<br />
+        {address.city}, {address.state} {address.zip}, {address.country}
+      </p>
+    </div>
+  );
+}
+
+type Step = "details" | "review";
+
 export default function Checkout({ orgId }: { orgId: string }) {
   const router = useRouter();
   const { cart, applyCoupon, removeCoupon } = useCart(orgId);
   const customer = useCustomerAuthStore((s) => s.customer);
   const adoptSession = useCustomerAuthStore((s) => s.adoptSession);
-  const addToast = useStorefrontToastStore((s) => s.addToast);
   const { stripeEnabled, publishableKey } = usePaymentMethods(orgId);
   const { addresses } = useAccountAddresses(orgId, !!customer);
+
+  const [step, setStep] = useState<Step>("details");
+  const [placedOrder, setPlacedOrder] = useState<{ id: string; orderNumber: string; paid: boolean } | null>(null);
 
   const [name, setName] = useState(customer?.name ?? "");
   const [email, setEmail] = useState(customer?.email ?? "");
@@ -123,6 +139,16 @@ export default function Checkout({ orgId }: { orgId: string }) {
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  // customer is null at mount until the persisted auth store finishes
+  // rehydrating from localStorage — seeding name/email/phone via useState's
+  // initial value misses that, so sync them once the real customer arrives.
+  useEffect(() => {
+    if (!customer) return;
+    setName((v) => v || customer.name);
+    setEmail((v) => v || customer.email);
+    setPhone((v) => v || (customer.phone ?? ""));
+  }, [customer]);
 
   // Prefill from the customer's default shipping address once their saved
   // addresses load — only on that first load, so it doesn't clobber manual edits.
@@ -167,6 +193,11 @@ export default function Checkout({ orgId }: { orgId: string }) {
     return Object.keys(errs).length === 0;
   };
 
+  const goToReview = () => {
+    if (!validate()) return;
+    setStep("review");
+  };
+
   const handlePlaceOrder = async (paymentIntentId?: string) => {
     if (!validate()) return;
     setError(null);
@@ -184,14 +215,45 @@ export default function Checkout({ orgId }: { orgId: string }) {
         }),
       });
       if (res.session) adoptSession(orgId, res.session);
-      addToast("Order placed successfully!", "success");
-      router.push(`/account/orders/${res.order.id}`);
+      setPlacedOrder({ id: res.order.id, orderNumber: res.order.orderNumber, paid: !!paymentIntentId });
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Couldn't place your order — please try again");
     } finally {
       setPlacing(false);
     }
   };
+
+  if (placedOrder) {
+    return (
+      <div className="max-w-4xl mx-auto px-6 py-24 text-center flex flex-col items-center gap-4">
+        <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: "color-mix(in srgb, var(--primary, #3b82f6) 12%, transparent)" }}>
+          <CheckCircle2 className="w-9 h-9" style={{ color: "var(--primary, #3b82f6)" }} />
+        </div>
+        <h1 className="text-2xl font-bold" style={{ color: "var(--foreground, #111827)" }}>Order placed!</h1>
+        <p className="text-sm max-w-md" style={{ color: "var(--muted-foreground, #6b7280)" }}>
+          {placedOrder.paid
+            ? `Thanks — your payment went through and order ${placedOrder.orderNumber} is confirmed.`
+            : `Order ${placedOrder.orderNumber} is confirmed. Payment will be collected on delivery/invoice.`}
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3 mt-2">
+          <button
+            onClick={() => router.push(`/account/orders/${placedOrder.id}`)}
+            className="px-6 py-3 rounded text-sm font-semibold text-white"
+            style={{ backgroundColor: "var(--primary, #3b82f6)" }}
+          >
+            View Order
+          </button>
+          <a
+            href="/shop"
+            className="px-6 py-3 rounded border text-sm font-semibold text-center"
+            style={{ borderColor: "var(--border, #e5e7eb)", color: "var(--foreground, #111827)" }}
+          >
+            Continue Shopping
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   if (cart.items.length === 0) {
     return (
@@ -204,59 +266,88 @@ export default function Checkout({ orgId }: { orgId: string }) {
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-12">
-      <h1 className="text-2xl font-bold mb-8" style={{ color: "var(--foreground, #111827)" }}>Checkout</h1>
+      <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--foreground, #111827)" }}>Checkout</h1>
+      <div className="flex items-center gap-2 mb-8 text-xs font-semibold uppercase tracking-wide">
+        <span style={{ color: step === "details" ? "var(--primary, #3b82f6)" : "var(--muted-foreground, #9ca3af)" }}>1. Details</span>
+        <span style={{ color: "var(--muted-foreground, #9ca3af)" }}>—</span>
+        <span style={{ color: step === "review" ? "var(--primary, #3b82f6)" : "var(--muted-foreground, #9ca3af)" }}>2. Review &amp; Pay</span>
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
         <div className="space-y-6">
-          {!customer && (
-            <p className="text-sm" style={{ color: "var(--muted-foreground, #6b7280)" }}>
-              Checking out as a guest. <a href="/account" style={{ color: "var(--primary, #3b82f6)" }}>Sign in</a> if you have an account.
-            </p>
-          )}
-          <div className="space-y-3">
-            <h2 className="text-sm font-semibold" style={{ color: "var(--foreground, #111827)" }}>Contact</h2>
-            <div>
-              <input placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} className={inputCls} style={fieldErrors.name ? errorInputStyle : inputStyle} />
-              {fieldErrors.name && <p className="text-xs mt-1" style={{ color: "var(--destructive, #e11d48)" }}>{fieldErrors.name}</p>}
-            </div>
-            <div>
-              <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} style={fieldErrors.email ? errorInputStyle : inputStyle} />
-              {fieldErrors.email && <p className="text-xs mt-1" style={{ color: "var(--destructive, #e11d48)" }}>{fieldErrors.email}</p>}
-            </div>
-            <input placeholder="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} className={inputCls} style={inputStyle} />
-          </div>
-          <div className="space-y-3">
-            <h2 className="text-sm font-semibold" style={{ color: "var(--foreground, #111827)" }}>Shipping Address</h2>
-            <SavedAddressPicker
-              addresses={addresses}
-              selectedId={selectedShippingId}
-              onSelect={(a) => {
-                setSelectedShippingId(a?.id ?? "");
-                setAddress(a ? addressFromSaved(a) : EMPTY_ADDRESS);
-              }}
-            />
-            <AddressFields value={address} onChange={setAddress} errors={fieldErrors} prefix="" />
-          </div>
-          <div className="space-y-3">
-            <h2 className="text-sm font-semibold" style={{ color: "var(--foreground, #111827)" }}>Billing Address</h2>
-            <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: "var(--muted-foreground, #6b7280)" }}>
-              <input type="checkbox" checked={billingSameAsShipping} onChange={(e) => setBillingSameAsShipping(e.target.checked)} />
-              Same as shipping address
-            </label>
-            {!billingSameAsShipping && (
-              <>
+          {step === "details" ? (
+            <>
+              {!customer && (
+                <p className="text-sm" style={{ color: "var(--muted-foreground, #6b7280)" }}>
+                  Checking out as a guest. <a href="/account" style={{ color: "var(--primary, #3b82f6)" }}>Sign in</a> if you have an account.
+                </p>
+              )}
+              <div className="space-y-3">
+                <h2 className="text-sm font-semibold" style={{ color: "var(--foreground, #111827)" }}>Contact</h2>
+                <div>
+                  <input placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} className={inputCls} style={fieldErrors.name ? errorInputStyle : inputStyle} />
+                  {fieldErrors.name && <p className="text-xs mt-1" style={{ color: "var(--destructive, #e11d48)" }}>{fieldErrors.name}</p>}
+                </div>
+                <div>
+                  <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} style={fieldErrors.email ? errorInputStyle : inputStyle} />
+                  {fieldErrors.email && <p className="text-xs mt-1" style={{ color: "var(--destructive, #e11d48)" }}>{fieldErrors.email}</p>}
+                </div>
+                <input placeholder="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} className={inputCls} style={inputStyle} />
+              </div>
+              <div className="space-y-3">
+                <h2 className="text-sm font-semibold" style={{ color: "var(--foreground, #111827)" }}>Shipping Address</h2>
                 <SavedAddressPicker
                   addresses={addresses}
-                  selectedId={selectedBillingId}
+                  selectedId={selectedShippingId}
                   onSelect={(a) => {
-                    setSelectedBillingId(a?.id ?? "");
-                    setBillingAddress(a ? addressFromSaved(a) : EMPTY_ADDRESS);
+                    setSelectedShippingId(a?.id ?? "");
+                    setAddress(a ? addressFromSaved(a) : EMPTY_ADDRESS);
                   }}
                 />
-                <AddressFields value={billingAddress} onChange={setBillingAddress} errors={fieldErrors} prefix="billing" />
-              </>
-            )}
-          </div>
+                <AddressFields value={address} onChange={setAddress} errors={fieldErrors} prefix="" />
+              </div>
+              <div className="space-y-3">
+                <h2 className="text-sm font-semibold" style={{ color: "var(--foreground, #111827)" }}>Billing Address</h2>
+                <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: "var(--muted-foreground, #6b7280)" }}>
+                  <input type="checkbox" checked={billingSameAsShipping} onChange={(e) => setBillingSameAsShipping(e.target.checked)} />
+                  Same as shipping address
+                </label>
+                {!billingSameAsShipping && (
+                  <>
+                    <SavedAddressPicker
+                      addresses={addresses}
+                      selectedId={selectedBillingId}
+                      onSelect={(a) => {
+                        setSelectedBillingId(a?.id ?? "");
+                        setBillingAddress(a ? addressFromSaved(a) : EMPTY_ADDRESS);
+                      }}
+                    />
+                    <AddressFields value={billingAddress} onChange={setBillingAddress} errors={fieldErrors} prefix="billing" />
+                  </>
+                )}
+              </div>
+              <button
+                onClick={goToReview}
+                className="w-full sm:w-auto px-8 py-3 rounded text-sm font-semibold text-white"
+                style={{ backgroundColor: "var(--primary, #3b82f6)" }}
+              >
+                Continue to Review
+              </button>
+            </>
+          ) : (
+            <div className="border rounded-lg p-5 space-y-4" style={{ borderColor: "var(--border, #e5e7eb)" }}>
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-semibold" style={{ color: "var(--foreground, #111827)" }}>Contact &amp; Address</h2>
+                <button onClick={() => setStep("details")} className="text-xs font-semibold" style={{ color: "var(--primary, #3b82f6)" }}>Edit</button>
+              </div>
+              <div>
+                <p className="text-xs mb-0.5" style={{ color: "var(--muted-foreground, #6b7280)" }}>Contact</p>
+                <p className="text-sm" style={{ color: "var(--foreground, #111827)" }}>{name} · {email}{phone && ` · ${phone}`}</p>
+              </div>
+              <AddressSummary address={address} label="Shipping Address" />
+              <AddressSummary address={billingSameAsShipping ? address : billingAddress} label="Billing Address" />
+            </div>
+          )}
         </div>
 
         <div className="border rounded-lg p-5 space-y-4 h-fit" style={{ borderColor: "var(--border, #e5e7eb)" }}>
@@ -290,41 +381,45 @@ export default function Checkout({ orgId }: { orgId: string }) {
 
           <CouponInput couponCode={cart.couponCode} discount={cart.discount} currencyCode={cart.currencyCode} onApply={applyCoupon} onRemove={removeCoupon} />
 
-          {stripeEnabled && (
-            <div className="space-y-2 pt-2 border-t" style={{ borderColor: "var(--border, #e5e7eb)" }}>
-              <h2 className="text-sm font-semibold" style={{ color: "var(--foreground, #111827)" }}>Payment</h2>
-              <div className="flex flex-col gap-2">
-                <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: "var(--foreground, #111827)" }}>
-                  <input type="radio" checked={paymentMethod === "card"} onChange={() => setPaymentMethod("card")} />
-                  Pay Online (Card)
-                </label>
-                <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: "var(--foreground, #111827)" }}>
-                  <input type="radio" checked={paymentMethod === "cod"} onChange={() => setPaymentMethod("cod")} />
-                  Cash on Delivery / Invoice
-                </label>
-              </div>
-            </div>
-          )}
+          {step === "review" && (
+            <>
+              {stripeEnabled && (
+                <div className="space-y-2 pt-2 border-t" style={{ borderColor: "var(--border, #e5e7eb)" }}>
+                  <h2 className="text-sm font-semibold" style={{ color: "var(--foreground, #111827)" }}>Payment</h2>
+                  <div className="flex flex-col gap-2">
+                    <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: "var(--foreground, #111827)" }}>
+                      <input type="radio" checked={paymentMethod === "card"} onChange={() => setPaymentMethod("card")} />
+                      Pay Online (Card)
+                    </label>
+                    <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: "var(--foreground, #111827)" }}>
+                      <input type="radio" checked={paymentMethod === "cod"} onChange={() => setPaymentMethod("cod")} />
+                      Cash on Delivery / Invoice
+                    </label>
+                  </div>
+                </div>
+              )}
 
-          {error && <p className="text-xs text-rose-500">{error}</p>}
+              {error && <p className="text-xs text-rose-500">{error}</p>}
 
-          {stripeEnabled && paymentMethod === "card" && publishableKey ? (
-            <StripePaymentStep
-              orgId={orgId}
-              publishableKey={publishableKey}
-              accentColor="#3b82f6"
-              disabled={!contactAndAddressValid || placing}
-              onSuccess={(paymentIntentId) => handlePlaceOrder(paymentIntentId)}
-            />
-          ) : (
-            <button
-              onClick={() => handlePlaceOrder()}
-              disabled={placing}
-              className="w-full py-3 rounded text-sm font-semibold text-white disabled:opacity-50"
-              style={{ backgroundColor: "var(--primary, #3b82f6)" }}
-            >
-              {placing ? "Placing Order…" : "Place Order"}
-            </button>
+              {stripeEnabled && paymentMethod === "card" && publishableKey ? (
+                <StripePaymentStep
+                  orgId={orgId}
+                  publishableKey={publishableKey}
+                  accentColor="#3b82f6"
+                  disabled={!contactAndAddressValid || placing}
+                  onSuccess={(paymentIntentId) => handlePlaceOrder(paymentIntentId)}
+                />
+              ) : (
+                <button
+                  onClick={() => handlePlaceOrder()}
+                  disabled={placing}
+                  className="w-full py-3 rounded text-sm font-semibold text-white disabled:opacity-50"
+                  style={{ backgroundColor: "var(--primary, #3b82f6)" }}
+                >
+                  {placing ? "Placing Order…" : "Place Order"}
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>

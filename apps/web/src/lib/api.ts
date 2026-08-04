@@ -1750,12 +1750,39 @@ export interface ApiOrderAddress {
   phone: string | null;
 }
 
+export interface ApiPayment {
+  id: string;
+  amount: number;
+  currency: string;
+  method: string;
+  status: string;
+  transactionId: string | null;
+  receiptUrl: string | null;
+  createdAt: string;
+}
+
+export interface ApiRefund {
+  id: string;
+  amount: number;
+  reason: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface ApiOrderTimelineEntry {
+  id: string;
+  status: string;
+  message: string | null;
+  createdAt: string;
+}
+
 export interface ApiStoreOrder {
   id: string;
   orderNumber: string;
   customerId: string;
   customerName: string;
   customerEmail: string;
+  customerPhone: string | null;
   status: string;
   paymentStatus: string;
   items: ApiOrderItem[];
@@ -1771,6 +1798,9 @@ export interface ApiStoreOrder {
   billingAddress?: ApiOrderAddress | null;
   shippingMethod: string | null;
   trackingNumber: string | null;
+  payments: ApiPayment[];
+  refunds: ApiRefund[];
+  timeline: ApiOrderTimelineEntry[];
   createdAt: string;
   updatedAt: string;
   paidAt: string | null;
