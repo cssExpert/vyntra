@@ -1,6 +1,7 @@
 import { PrismaClient, Role } from "@prisma/client";
 import * as bcrypt from "bcryptjs";
 import { DEFAULT_CUSTOMER_GROUP_NAMES } from "../src/store/utils/default-customer-groups";
+import { encryptSecret } from "../src/common/crypto.util";
 
 const prisma = new PrismaClient();
 
@@ -255,6 +256,34 @@ async function main() {
       },
     },
   });
+
+  // Stripe test-mode credentials for Acme, sourced from each developer's own
+  // .env — never hardcoded here. Set SEED_STRIPE_PUBLISHABLE_KEY/
+  // SEED_STRIPE_SECRET_KEY (and optionally SEED_STRIPE_WEBHOOK_SECRET)
+  // locally, then re-run the seed; encrypted at rest exactly like the real
+  // Store Settings → Payment form does. Only fills this in the first time —
+  // never overwrites a key someone already configured for real through the
+  // UI, since re-seeding must not be able to clobber live credentials.
+  if (process.env.SEED_STRIPE_SECRET_KEY) {
+    const existing = await prisma.organization.findUnique({
+      where: { id: org.id },
+      select: { stripeSecretKey: true },
+    });
+    if (!existing?.stripeSecretKey) {
+      await prisma.organization.update({
+        where: { id: org.id },
+        data: {
+          stripeEnabled: true,
+          stripeTestMode: true,
+          stripePublishableKey: process.env.SEED_STRIPE_PUBLISHABLE_KEY ?? null,
+          stripeSecretKey: encryptSecret(process.env.SEED_STRIPE_SECRET_KEY),
+          ...(process.env.SEED_STRIPE_WEBHOOK_SECRET && {
+            stripeWebhookSecret: encryptSecret(process.env.SEED_STRIPE_WEBHOOK_SECRET),
+          }),
+        },
+      });
+    }
+  }
 
   const orgAdmin = await prisma.user.upsert({
     where: { email: "admin@acme.com" },

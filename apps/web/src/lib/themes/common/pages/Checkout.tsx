@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Check, User, MapPin, CreditCard, Pencil } from "lucide-react";
 import { useCart } from "@/lib/themes/useCart";
 import { useCustomerAuthStore } from "@/store/customerAuthStore";
 import { useAccountAddresses, type AccountAddress } from "@/lib/themes/useAccount";
@@ -10,14 +10,20 @@ import { CouponInput } from "@/lib/themes/shared/CouponInput";
 import { storefrontFetch, ApiError } from "@/lib/storefrontApi";
 import { usePaymentMethods } from "@/lib/themes/usePaymentMethods";
 import { StripePaymentStep } from "@/lib/themes/shared/StripePaymentStep";
+import { FloatingInput } from "@/lib/themes/shared/AuthForms";
+
+// FloatingInput builds its focus-ring color via string concatenation
+// (`${accentColor}26`), which only works with a plain hex value — a
+// `var(--primary, #3b82f6)` CSS expression can't have a hex alpha suffix
+// appended to it. Use the theme's own fallback hex directly here instead.
+const BLUE = "#3b82f6";
 
 function formatPrice(value: number, currency: string) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(value);
 }
 
-const inputCls = "w-full px-3.5 py-2.5 text-sm border rounded outline-none";
-const inputStyle = { borderColor: "var(--border, #e5e7eb)" };
-const errorInputStyle = { borderColor: "var(--destructive, #e11d48)" };
+const selectCls = "w-full rounded-lg border px-3.5 py-2.5 text-sm outline-none transition-all";
+const selectStyle = { borderColor: "var(--border, #e5e7eb)", backgroundColor: "var(--background, #fff)", color: "var(--foreground, #111827)" };
 
 type AddressForm = { line1: string; line2: string; city: string; state: string; country: string; zip: string };
 const EMPTY_ADDRESS: AddressForm = { line1: "", line2: "", city: "", state: "", country: "", zip: "" };
@@ -31,6 +37,96 @@ interface CheckoutOrderResponse {
   session?: { customer: { id: string; name: string; email: string; phone: string | null }; accessToken: string; refreshToken: string };
 }
 
+function Card({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl border shadow-sm p-6" style={{ borderColor: "var(--border, #e5e7eb)", backgroundColor: "var(--card, #fff)" }}>
+      {children}
+    </div>
+  );
+}
+
+function CardHeading({ icon: Icon, title, action }: { icon: typeof User; title: string; action?: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center gap-2.5">
+        <div
+          className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+          style={{ backgroundColor: "color-mix(in srgb, var(--primary, #3b82f6) 12%, transparent)", color: "var(--primary, #3b82f6)" }}
+        >
+          <Icon className="w-3.5 h-3.5" />
+        </div>
+        <h2 className="text-sm font-semibold" style={{ color: "var(--foreground, #111827)" }}>{title}</h2>
+      </div>
+      {action}
+    </div>
+  );
+}
+
+function Stepper({ step }: { step: Step }) {
+  const steps: { key: Step; label: string }[] = [
+    { key: "details", label: "Details" },
+    { key: "review", label: "Review & Pay" },
+  ];
+  return (
+    <div className="flex items-center mb-8">
+      {steps.map((s, i) => {
+        const isActive = step === s.key;
+        const isDone = step === "review" && s.key === "details";
+        return (
+          <div key={s.key} className="flex items-center">
+            <div className="flex items-center gap-2">
+              <div
+                className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 transition-colors"
+                style={{
+                  backgroundColor: isActive || isDone ? "var(--primary, #3b82f6)" : "transparent",
+                  border: isActive || isDone ? "none" : "1.5px solid var(--border, #d1d5db)",
+                  color: isActive || isDone ? "#fff" : "var(--muted-foreground, #9ca3af)",
+                }}
+              >
+                {isDone ? <Check className="w-3 h-3" /> : i + 1}
+              </div>
+              <span
+                className="text-xs font-semibold uppercase tracking-wide"
+                style={{ color: isActive ? "var(--foreground, #111827)" : "var(--muted-foreground, #9ca3af)" }}
+              >
+                {s.label}
+              </span>
+            </div>
+            {i < steps.length - 1 && (
+              <div className="w-10 h-px mx-3" style={{ backgroundColor: isDone ? "var(--primary, #3b82f6)" : "var(--border, #e5e7eb)" }} />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function PaymentOption({ selected, onClick, title, description }: { selected: boolean; onClick: () => void; title: string; description: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="w-full flex items-center gap-3 rounded-xl border p-3.5 text-left transition-all cursor-pointer"
+      style={{
+        borderColor: selected ? "var(--primary, #3b82f6)" : "var(--border, #e5e7eb)",
+        backgroundColor: selected ? "color-mix(in srgb, var(--primary, #3b82f6) 6%, transparent)" : "transparent",
+      }}
+    >
+      <div
+        className="w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0"
+        style={{ borderColor: selected ? "var(--primary, #3b82f6)" : "var(--border, #d1d5db)" }}
+      >
+        {selected && <div className="w-2 h-2 rounded-full" style={{ backgroundColor: "var(--primary, #3b82f6)" }} />}
+      </div>
+      <div>
+        <p className="text-sm font-semibold" style={{ color: "var(--foreground, #111827)" }}>{title}</p>
+        <p className="text-xs" style={{ color: "var(--muted-foreground, #9ca3af)" }}>{description}</p>
+      </div>
+    </button>
+  );
+}
+
 function AddressFields({
   value,
   onChange,
@@ -42,33 +138,33 @@ function AddressFields({
   errors: Record<string, string>;
   prefix: string;
 }) {
-  const set = (field: keyof AddressForm) => (e: React.ChangeEvent<HTMLInputElement>) => onChange({ ...value, [field]: e.target.value });
+  const set = (field: keyof AddressForm) => (v: string) => onChange({ ...value, [field]: v });
   return (
-    <>
-      <div>
-        <input placeholder="Address line 1" value={value.line1} onChange={set("line1")} className={inputCls} style={errors[`${prefix}line1`] ? errorInputStyle : inputStyle} />
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="sm:col-span-2">
+        <FloatingInput id={`${prefix}line1`} label="Address line 1" value={value.line1} onChange={set("line1")} accentColor={BLUE} />
         {errors[`${prefix}line1`] && <p className="text-xs mt-1" style={{ color: "var(--destructive, #e11d48)" }}>{errors[`${prefix}line1`]}</p>}
       </div>
-      <input placeholder="Address line 2 (optional)" value={value.line2} onChange={set("line2")} className={inputCls} style={inputStyle} />
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <input placeholder="City" value={value.city} onChange={set("city")} className={inputCls} style={errors[`${prefix}city`] ? errorInputStyle : inputStyle} />
-          {errors[`${prefix}city`] && <p className="text-xs mt-1" style={{ color: "var(--destructive, #e11d48)" }}>{errors[`${prefix}city`]}</p>}
-        </div>
-        <div>
-          <input placeholder="State" value={value.state} onChange={set("state")} className={inputCls} style={errors[`${prefix}state`] ? errorInputStyle : inputStyle} />
-          {errors[`${prefix}state`] && <p className="text-xs mt-1" style={{ color: "var(--destructive, #e11d48)" }}>{errors[`${prefix}state`]}</p>}
-        </div>
-        <div>
-          <input placeholder="Country" value={value.country} onChange={set("country")} className={inputCls} style={errors[`${prefix}country`] ? errorInputStyle : inputStyle} />
-          {errors[`${prefix}country`] && <p className="text-xs mt-1" style={{ color: "var(--destructive, #e11d48)" }}>{errors[`${prefix}country`]}</p>}
-        </div>
-        <div>
-          <input placeholder="ZIP" value={value.zip} onChange={set("zip")} className={inputCls} style={errors[`${prefix}zip`] ? errorInputStyle : inputStyle} />
-          {errors[`${prefix}zip`] && <p className="text-xs mt-1" style={{ color: "var(--destructive, #e11d48)" }}>{errors[`${prefix}zip`]}</p>}
-        </div>
+      <div className="sm:col-span-2">
+        <FloatingInput id={`${prefix}line2`} label="Address line 2 (optional)" value={value.line2} onChange={set("line2")} accentColor={BLUE} />
       </div>
-    </>
+      <div>
+        <FloatingInput id={`${prefix}city`} label="City" value={value.city} onChange={set("city")} accentColor={BLUE} />
+        {errors[`${prefix}city`] && <p className="text-xs mt-1" style={{ color: "var(--destructive, #e11d48)" }}>{errors[`${prefix}city`]}</p>}
+      </div>
+      <div>
+        <FloatingInput id={`${prefix}state`} label="State" value={value.state} onChange={set("state")} accentColor={BLUE} />
+        {errors[`${prefix}state`] && <p className="text-xs mt-1" style={{ color: "var(--destructive, #e11d48)" }}>{errors[`${prefix}state`]}</p>}
+      </div>
+      <div>
+        <FloatingInput id={`${prefix}country`} label="Country" value={value.country} onChange={set("country")} accentColor={BLUE} />
+        {errors[`${prefix}country`] && <p className="text-xs mt-1" style={{ color: "var(--destructive, #e11d48)" }}>{errors[`${prefix}country`]}</p>}
+      </div>
+      <div>
+        <FloatingInput id={`${prefix}zip`} label="ZIP" value={value.zip} onChange={set("zip")} accentColor={BLUE} />
+        {errors[`${prefix}zip`] && <p className="text-xs mt-1" style={{ color: "var(--destructive, #e11d48)" }}>{errors[`${prefix}zip`]}</p>}
+      </div>
+    </div>
   );
 }
 
@@ -83,13 +179,13 @@ function SavedAddressPicker({
 }) {
   if (addresses.length === 0) return null;
   return (
-    <div>
+    <div className="mb-4">
       <label className="block text-xs mb-1" style={{ color: "var(--muted-foreground, #6b7280)" }}>Use a saved address</label>
       <select
         value={selectedId}
         onChange={(e) => onSelect(addresses.find((a) => a.id === e.target.value) ?? null)}
-        className={inputCls}
-        style={inputStyle}
+        className={selectCls}
+        style={selectStyle}
       >
         <option value="">+ Enter a new address</option>
         {addresses.map((a) => (
@@ -105,8 +201,8 @@ function SavedAddressPicker({
 function AddressSummary({ address, label }: { address: AddressForm; label: string }) {
   return (
     <div>
-      <p className="text-xs mb-0.5" style={{ color: "var(--muted-foreground, #6b7280)" }}>{label}</p>
-      <p className="text-sm" style={{ color: "var(--foreground, #111827)" }}>
+      <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: "var(--muted-foreground, #9ca3af)" }}>{label}</p>
+      <p className="text-sm" style={{ color: "var(--foreground, #374151)" }}>
         {address.line1}{address.line2 && `, ${address.line2}`}<br />
         {address.city}, {address.state} {address.zip}, {address.country}
       </p>
@@ -225,7 +321,7 @@ export default function Checkout({ orgId }: { orgId: string }) {
 
   if (placedOrder) {
     return (
-      <div className="max-w-4xl mx-auto px-6 py-24 text-center flex flex-col items-center gap-4">
+      <div className="max-w-xl mx-auto px-6 py-24 text-center flex flex-col items-center gap-4">
         <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: "color-mix(in srgb, var(--primary, #3b82f6) 12%, transparent)" }}>
           <CheckCircle2 className="w-9 h-9" style={{ color: "var(--primary, #3b82f6)" }} />
         </div>
@@ -238,14 +334,14 @@ export default function Checkout({ orgId }: { orgId: string }) {
         <div className="flex flex-col sm:flex-row gap-3 mt-2">
           <button
             onClick={() => router.push(`/account/orders/${placedOrder.id}`)}
-            className="px-6 py-3 rounded text-sm font-semibold text-white"
+            className="px-6 py-3 rounded-full text-sm font-semibold text-white"
             style={{ backgroundColor: "var(--primary, #3b82f6)" }}
           >
             View Order
           </button>
           <a
             href="/shop"
-            className="px-6 py-3 rounded border text-sm font-semibold text-center"
+            className="px-6 py-3 rounded-full border text-sm font-semibold text-center"
             style={{ borderColor: "var(--border, #e5e7eb)", color: "var(--foreground, #111827)" }}
           >
             Continue Shopping
@@ -257,7 +353,7 @@ export default function Checkout({ orgId }: { orgId: string }) {
 
   if (cart.items.length === 0) {
     return (
-      <div className="max-w-4xl mx-auto px-6 py-24 text-center">
+      <div className="max-w-xl mx-auto px-6 py-24 text-center">
         <p className="text-lg font-semibold mb-4" style={{ color: "var(--foreground, #111827)" }}>Your cart is empty</p>
         <a href="/shop" style={{ color: "var(--primary, #3b82f6)" }}>Continue shopping</a>
       </div>
@@ -265,94 +361,106 @@ export default function Checkout({ orgId }: { orgId: string }) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12">
-      <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--foreground, #111827)" }}>Checkout</h1>
-      <div className="flex items-center gap-2 mb-8 text-xs font-semibold uppercase tracking-wide">
-        <span style={{ color: step === "details" ? "var(--primary, #3b82f6)" : "var(--muted-foreground, #9ca3af)" }}>1. Details</span>
-        <span style={{ color: "var(--muted-foreground, #9ca3af)" }}>—</span>
-        <span style={{ color: step === "review" ? "var(--primary, #3b82f6)" : "var(--muted-foreground, #9ca3af)" }}>2. Review &amp; Pay</span>
-      </div>
+    <div className="max-w-xl mx-auto px-6 py-12">
+      <h1 className="text-2xl font-bold mb-1" style={{ color: "var(--foreground, #111827)" }}>Checkout</h1>
+      <p className="text-sm mb-6" style={{ color: "var(--muted-foreground, #9ca3af)" }}>
+        {cart.items.length} item{cart.items.length !== 1 ? "s" : ""} in your order
+      </p>
+      <Stepper step={step} />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
-        <div className="space-y-6">
-          {step === "details" ? (
-            <>
-              {!customer && (
-                <p className="text-sm" style={{ color: "var(--muted-foreground, #6b7280)" }}>
-                  Checking out as a guest. <a href="/account" style={{ color: "var(--primary, #3b82f6)" }}>Sign in</a> if you have an account.
-                </p>
-              )}
-              <div className="space-y-3">
-                <h2 className="text-sm font-semibold" style={{ color: "var(--foreground, #111827)" }}>Contact</h2>
+      <div className="space-y-6">
+        {step === "details" ? (
+          <>
+            {!customer && (
+              <p className="text-sm -mt-2" style={{ color: "var(--muted-foreground, #6b7280)" }}>
+                Checking out as a guest. <a href="/account" style={{ color: "var(--primary, #3b82f6)" }}>Sign in</a> if you have an account.
+              </p>
+            )}
+
+            <Card>
+              <CardHeading icon={User} title="Contact" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <input placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} className={inputCls} style={fieldErrors.name ? errorInputStyle : inputStyle} />
+                  <FloatingInput id="checkout-name" label="Full name" value={name} onChange={setName} accentColor={BLUE} />
                   {fieldErrors.name && <p className="text-xs mt-1" style={{ color: "var(--destructive, #e11d48)" }}>{fieldErrors.name}</p>}
                 </div>
                 <div>
-                  <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} style={fieldErrors.email ? errorInputStyle : inputStyle} />
+                  <FloatingInput id="checkout-email" label="Email" type="email" value={email} onChange={setEmail} accentColor={BLUE} />
                   {fieldErrors.email && <p className="text-xs mt-1" style={{ color: "var(--destructive, #e11d48)" }}>{fieldErrors.email}</p>}
                 </div>
-                <input placeholder="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} className={inputCls} style={inputStyle} />
+                <div className="sm:col-span-2">
+                  <FloatingInput id="checkout-phone" label="Phone" value={phone} onChange={setPhone} accentColor={BLUE} />
+                </div>
               </div>
-              <div className="space-y-3">
-                <h2 className="text-sm font-semibold" style={{ color: "var(--foreground, #111827)" }}>Shipping Address</h2>
-                <SavedAddressPicker
-                  addresses={addresses}
-                  selectedId={selectedShippingId}
-                  onSelect={(a) => {
-                    setSelectedShippingId(a?.id ?? "");
-                    setAddress(a ? addressFromSaved(a) : EMPTY_ADDRESS);
-                  }}
-                />
-                <AddressFields value={address} onChange={setAddress} errors={fieldErrors} prefix="" />
-              </div>
-              <div className="space-y-3">
-                <h2 className="text-sm font-semibold" style={{ color: "var(--foreground, #111827)" }}>Billing Address</h2>
-                <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: "var(--muted-foreground, #6b7280)" }}>
-                  <input type="checkbox" checked={billingSameAsShipping} onChange={(e) => setBillingSameAsShipping(e.target.checked)} />
-                  Same as shipping address
-                </label>
-                {!billingSameAsShipping && (
-                  <>
-                    <SavedAddressPicker
-                      addresses={addresses}
-                      selectedId={selectedBillingId}
-                      onSelect={(a) => {
-                        setSelectedBillingId(a?.id ?? "");
-                        setBillingAddress(a ? addressFromSaved(a) : EMPTY_ADDRESS);
-                      }}
-                    />
-                    <AddressFields value={billingAddress} onChange={setBillingAddress} errors={fieldErrors} prefix="billing" />
-                  </>
-                )}
-              </div>
-              <button
-                onClick={goToReview}
-                className="w-full sm:w-auto px-8 py-3 rounded text-sm font-semibold text-white"
-                style={{ backgroundColor: "var(--primary, #3b82f6)" }}
-              >
-                Continue to Review
-              </button>
-            </>
-          ) : (
-            <div className="border rounded-lg p-5 space-y-4" style={{ borderColor: "var(--border, #e5e7eb)" }}>
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold" style={{ color: "var(--foreground, #111827)" }}>Contact &amp; Address</h2>
-                <button onClick={() => setStep("details")} className="text-xs font-semibold" style={{ color: "var(--primary, #3b82f6)" }}>Edit</button>
-              </div>
+            </Card>
+
+            <Card>
+              <CardHeading icon={MapPin} title="Shipping Address" />
+              <SavedAddressPicker
+                addresses={addresses}
+                selectedId={selectedShippingId}
+                onSelect={(a) => {
+                  setSelectedShippingId(a?.id ?? "");
+                  setAddress(a ? addressFromSaved(a) : EMPTY_ADDRESS);
+                }}
+              />
+              <AddressFields value={address} onChange={setAddress} errors={fieldErrors} prefix="" />
+            </Card>
+
+            <Card>
+              <CardHeading icon={CreditCard} title="Billing Address" />
+              <label className="flex items-center gap-2.5 text-sm mb-4 cursor-pointer" style={{ color: "var(--muted-foreground, #6b7280)" }}>
+                <input type="checkbox" checked={billingSameAsShipping} onChange={(e) => setBillingSameAsShipping(e.target.checked)} className="w-4 h-4 rounded cursor-pointer" style={{ accentColor: "var(--primary, #3b82f6)" }} />
+                Same as shipping address
+              </label>
+              {!billingSameAsShipping && (
+                <>
+                  <SavedAddressPicker
+                    addresses={addresses}
+                    selectedId={selectedBillingId}
+                    onSelect={(a) => {
+                      setSelectedBillingId(a?.id ?? "");
+                      setBillingAddress(a ? addressFromSaved(a) : EMPTY_ADDRESS);
+                    }}
+                  />
+                  <AddressFields value={billingAddress} onChange={setBillingAddress} errors={fieldErrors} prefix="billing" />
+                </>
+              )}
+            </Card>
+
+            <button
+              onClick={goToReview}
+              className="w-full py-3.5 rounded-full text-sm font-semibold text-white"
+              style={{ backgroundColor: "var(--primary, #3b82f6)" }}
+            >
+              Continue to Review
+            </button>
+          </>
+        ) : (
+          <Card>
+            <CardHeading
+              icon={MapPin}
+              title="Contact & Address"
+              action={
+                <button onClick={() => setStep("details")} className="flex items-center gap-1 text-xs font-semibold" style={{ color: "var(--primary, #3b82f6)" }}>
+                  <Pencil className="w-3 h-3" /> Edit
+                </button>
+              }
+            />
+            <div className="space-y-4">
               <div>
-                <p className="text-xs mb-0.5" style={{ color: "var(--muted-foreground, #6b7280)" }}>Contact</p>
-                <p className="text-sm" style={{ color: "var(--foreground, #111827)" }}>{name} · {email}{phone && ` · ${phone}`}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: "var(--muted-foreground, #9ca3af)" }}>Contact</p>
+                <p className="text-sm" style={{ color: "var(--foreground, #374151)" }}>{name} · {email}{phone && ` · ${phone}`}</p>
               </div>
               <AddressSummary address={address} label="Shipping Address" />
               <AddressSummary address={billingSameAsShipping ? address : billingAddress} label="Billing Address" />
             </div>
-          )}
-        </div>
+          </Card>
+        )}
 
-        <div className="border rounded-lg p-5 space-y-4 h-fit" style={{ borderColor: "var(--border, #e5e7eb)" }}>
-          <h2 className="text-sm font-semibold" style={{ color: "var(--foreground, #111827)" }}>Order Summary</h2>
-          <ul className="space-y-2 max-h-56 overflow-y-auto">
+        <Card>
+          <CardHeading icon={CreditCard} title="Order Summary" />
+          <ul className="space-y-3 max-h-64 overflow-y-auto">
             {cart.items.map((item) => (
               <li key={item.id} className="flex justify-between text-sm gap-2">
                 <span className="line-clamp-1" style={{ color: "var(--muted-foreground, #6b7280)" }}>
@@ -362,7 +470,7 @@ export default function Checkout({ orgId }: { orgId: string }) {
               </li>
             ))}
           </ul>
-          <div className="space-y-2 text-sm pt-2 border-t" style={{ borderColor: "var(--border, #e5e7eb)" }}>
+          <div className="space-y-2 text-sm pt-4 mt-4 border-t" style={{ borderColor: "var(--border, #e5e7eb)" }}>
             <div className="flex justify-between">
               <span style={{ color: "var(--muted-foreground, #6b7280)" }}>Subtotal</span>
               <span className="font-semibold" style={{ color: "var(--foreground, #111827)" }}>{formatPrice(cart.subtotal, cart.currencyCode)}</span>
@@ -373,29 +481,33 @@ export default function Checkout({ orgId }: { orgId: string }) {
                 <span className="font-semibold text-emerald-600">-{formatPrice(cart.discount, cart.currencyCode)}</span>
               </div>
             )}
-            <div className="flex justify-between text-base">
+            <div className="flex justify-between text-base pt-2 mt-1 border-t" style={{ borderColor: "var(--border, #e5e7eb)" }}>
               <span className="font-bold" style={{ color: "var(--foreground, #111827)" }}>Total</span>
               <span className="font-bold" style={{ color: "var(--foreground, #111827)" }}>{formatPrice(cart.total, cart.currencyCode)}</span>
             </div>
           </div>
 
-          <CouponInput couponCode={cart.couponCode} discount={cart.discount} currencyCode={cart.currencyCode} onApply={applyCoupon} onRemove={removeCoupon} />
+          <div className="mt-4">
+            <CouponInput couponCode={cart.couponCode} discount={cart.discount} currencyCode={cart.currencyCode} onApply={applyCoupon} onRemove={removeCoupon} />
+          </div>
 
           {step === "review" && (
-            <>
+            <div className="mt-6 pt-6 border-t space-y-4" style={{ borderColor: "var(--border, #e5e7eb)" }}>
               {stripeEnabled && (
-                <div className="space-y-2 pt-2 border-t" style={{ borderColor: "var(--border, #e5e7eb)" }}>
-                  <h2 className="text-sm font-semibold" style={{ color: "var(--foreground, #111827)" }}>Payment</h2>
-                  <div className="flex flex-col gap-2">
-                    <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: "var(--foreground, #111827)" }}>
-                      <input type="radio" checked={paymentMethod === "card"} onChange={() => setPaymentMethod("card")} />
-                      Pay Online (Card)
-                    </label>
-                    <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: "var(--foreground, #111827)" }}>
-                      <input type="radio" checked={paymentMethod === "cod"} onChange={() => setPaymentMethod("cod")} />
-                      Cash on Delivery / Invoice
-                    </label>
-                  </div>
+                <div className="space-y-2.5">
+                  <h3 className="text-xs font-bold uppercase tracking-wide" style={{ color: "var(--muted-foreground, #9ca3af)" }}>Payment Method</h3>
+                  <PaymentOption
+                    selected={paymentMethod === "card"}
+                    onClick={() => setPaymentMethod("card")}
+                    title="Pay Online"
+                    description="Credit or debit card, via Stripe"
+                  />
+                  <PaymentOption
+                    selected={paymentMethod === "cod"}
+                    onClick={() => setPaymentMethod("cod")}
+                    title="Cash on Delivery"
+                    description="Pay by invoice when your order arrives"
+                  />
                 </div>
               )}
 
@@ -405,7 +517,7 @@ export default function Checkout({ orgId }: { orgId: string }) {
                 <StripePaymentStep
                   orgId={orgId}
                   publishableKey={publishableKey}
-                  accentColor="#3b82f6"
+                  accentColor={BLUE}
                   disabled={!contactAndAddressValid || placing}
                   onSuccess={(paymentIntentId) => handlePlaceOrder(paymentIntentId)}
                 />
@@ -413,15 +525,15 @@ export default function Checkout({ orgId }: { orgId: string }) {
                 <button
                   onClick={() => handlePlaceOrder()}
                   disabled={placing}
-                  className="w-full py-3 rounded text-sm font-semibold text-white disabled:opacity-50"
+                  className="w-full py-3.5 rounded-full text-sm font-semibold text-white disabled:opacity-50"
                   style={{ backgroundColor: "var(--primary, #3b82f6)" }}
                 >
                   {placing ? "Placing Order…" : "Place Order"}
                 </button>
               )}
-            </>
+            </div>
           )}
-        </div>
+        </Card>
       </div>
     </div>
   );

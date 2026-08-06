@@ -84,7 +84,13 @@ export class StripeService {
       amount: Math.round(amount * 100),
       currency: currency.toLowerCase(),
       metadata,
-      automatic_payment_methods: { enabled: true },
+      // automatic_payment_methods pulls in whatever the connected Stripe
+      // account has enabled in its dashboard — Link (with its own
+      // name/email/phone signup prompt), Amazon Pay, Cash App Pay, Klarna,
+      // etc. The storefront only ever offers a "Pay Online (Card)" choice,
+      // so the Payment Element should just be a card form, not a mini
+      // payment-method marketplace.
+      payment_method_types: ['card'],
     });
   }
 
