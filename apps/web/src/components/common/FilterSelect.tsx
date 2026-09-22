@@ -1,21 +1,53 @@
 "use client";
 
 import React from "react";
-import Select, { type StylesConfig, type GroupBase } from "react-select";
+import Select, {
+  components,
+  type StylesConfig,
+  type GroupBase,
+  type DropdownIndicatorProps,
+} from "react-select";
+import { ChevronDown } from "lucide-react";
 
 export interface FilterSelectOption {
   value: string;
   label: string;
 }
 
+export interface FilterSelectGroup {
+  label: string;
+  options: FilterSelectOption[];
+}
+
 export interface FilterSelectProps {
   label?: string;
   value: string;
-  options: FilterSelectOption[];
+  /** Flat options, or grouped options with category headers. */
+  options: FilterSelectOption[] | FilterSelectGroup[];
   onChange: (value: string) => void;
   placeholder?: string;
   isClearable?: boolean;
   isSearchable?: boolean;
+  /** Wrapper className (e.g. to constrain width). */
+  className?: string;
+}
+
+/** Slimmer, thinner chevron than react-select's default filled caret. */
+function DropdownIndicator(
+  props: DropdownIndicatorProps<FilterSelectOption, false>,
+) {
+  return (
+    <components.DropdownIndicator {...props}>
+      <ChevronDown size={15} strokeWidth={2} />
+    </components.DropdownIndicator>
+  );
+}
+
+/** Flattens flat/grouped options to look up the selected option by value. */
+function flattenOptions(
+  options: FilterSelectOption[] | FilterSelectGroup[],
+): FilterSelectOption[] {
+  return options.flatMap((o) => ("options" in o ? o.options : [o]));
 }
 
 // Themed to the app's CSS variables (HSL tokens from globals.css).
@@ -47,12 +79,22 @@ const selectStyles: StylesConfig<
   placeholder: (base) => ({
     ...base,
     color: "hsl(var(--muted-foreground))",
+    fontWeight: 500,
     fontSize: "0.75rem",
   }),
-  input: (base) => ({ ...base, color: "hsl(var(--foreground))" }),
+  // Match the typed search text to the selected value (same size/weight/colour).
+  input: (base) => ({
+    ...base,
+    color: "hsl(var(--foreground))",
+    fontWeight: 500,
+    fontSize: "0.75rem",
+    margin: 0,
+    padding: 0,
+  }),
   indicatorSeparator: () => ({ display: "none" }),
   dropdownIndicator: (base) => ({
     ...base,
+    padding: "0 8px",
     color: "hsl(var(--muted-foreground))",
     "&:hover": { color: "hsl(var(--foreground))" },
   }),
@@ -105,11 +147,12 @@ export function FilterSelect({
   placeholder = "Select...",
   isClearable = false,
   isSearchable = false,
+  className,
 }: FilterSelectProps) {
-  const selected = options.find((o) => o.value === value) ?? null;
+  const selected = flattenOptions(options).find((o) => o.value === value) ?? null;
 
   return (
-    <div>
+    <div className={className}>
       {label && (
         <p className="text-sm font-medium text-foreground mb-2">{label}</p>
       )}
@@ -121,6 +164,7 @@ export function FilterSelect({
         isClearable={isClearable}
         isSearchable={isSearchable}
         styles={selectStyles}
+        components={{ DropdownIndicator }}
         menuPortalTarget={
           typeof document !== "undefined" ? document.body : undefined
         }

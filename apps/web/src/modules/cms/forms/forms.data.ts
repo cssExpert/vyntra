@@ -8,6 +8,7 @@ export const INITIAL_FORMS: CmsForm[] = [
     slug: "contact-us",
     status: "Published",
     responses: 132,
+    captchaEnabled: false,
     createdAt: "2026-04-02T10:00:00.000Z",
     updatedAt: "2026-05-28T09:30:00.000Z",
     fields: [
@@ -51,6 +52,7 @@ export const INITIAL_FORMS: CmsForm[] = [
     slug: "customer-feedback",
     status: "Published",
     responses: 87,
+    captchaEnabled: false,
     createdAt: "2026-04-18T14:00:00.000Z",
     updatedAt: "2026-06-01T11:15:00.000Z",
     fields: [
@@ -84,6 +86,7 @@ export const INITIAL_FORMS: CmsForm[] = [
     slug: "job-application",
     status: "Draft",
     responses: 0,
+    captchaEnabled: false,
     createdAt: "2026-05-20T08:00:00.000Z",
     updatedAt: "2026-05-22T16:45:00.000Z",
     fields: [
@@ -125,6 +128,7 @@ export const INITIAL_FORMS: CmsForm[] = [
     slug: "event-rsvp-spring",
     status: "Closed",
     responses: 245,
+    captchaEnabled: false,
     createdAt: "2026-03-01T09:00:00.000Z",
     updatedAt: "2026-04-10T18:00:00.000Z",
     fields: [

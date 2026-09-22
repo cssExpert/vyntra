@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, type ReactNode } from "react";
 import Script from "next/script";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, Upload, Check, AlertCircle } from "lucide-react";
@@ -8,15 +8,25 @@ import { Button } from "@/components/ui/button";
 import {
   htmlHasContent,
   isLayoutField,
+  flattenFields,
   resolveFormAppearance,
+  fieldColSpan,
   type FormField,
   type FormSettings,
   type SubmitButtonConfig,
 } from "./forms.types";
+import { AccordionView } from "./AccordionView";
+import { TabsView } from "./TabsView";
 import { FormSeparator } from "./FormSeparator";
 import { SubmitButtonView } from "./SubmitButtonView";
 import { PasswordInput } from "./PasswordInput";
 import { FormImage } from "./FormImage";
+import { CardVisual } from "./CardVisual";
+import { ChoiceInput } from "./ChoiceInput";
+import { MultiSelectInput, AutocompleteInput } from "./SelectInputs";
+import { FormSlider } from "./FormSlider";
+import { WithLeadingIcon, fieldIconPad, supportsFieldIcon } from "./field-icons";
+import { applyMask, effectiveMask, maskInputMode } from "./mask";
 import { loadGoogleFont } from "@/lib/googleFont";
 import { cn } from "@/lib/utils";
 
@@ -93,13 +103,19 @@ function FieldInput({
   disabled: boolean;
 }) {
   const borderCls = error ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/15" : "";
+  const iconName = supportsFieldIcon(field.type) ? field.icon : undefined;
+  const iconPad = fieldIconPad(iconName);
+  const mask = effectiveMask(field.type, field.mask);
+  const onText = (raw: string) => onChange(mask ? applyMask(mask, raw) : raw);
+  const maskMode = maskInputMode(mask);
 
   switch (field.type) {
     case "long_text":
+    case "textarea":
       return (
         <textarea
           rows={4}
-          placeholder={field.placeholder || "Your answer"}
+          placeholder={field.placeholder}
           value={value as string}
           onChange={(e) => onChange(e.target.value)}
           disabled={disabled}
@@ -107,76 +123,115 @@ function FieldInput({
         />
       );
 
-    case "multiple_choice":
+    case "toggle": {
+      const on = value === "true";
       return (
-        <div
-          className={
-            field.optionsLayout === "inline"
-              ? "flex flex-wrap gap-2"
-              : "space-y-2"
-          }
+        <button
+          type="button"
+          role="switch"
+          aria-checked={on}
+          disabled={disabled}
+          onClick={() => onChange(on ? "" : "true")}
+          className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors ${
+            on ? "bg-primary" : "bg-muted-foreground/30"
+          } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
         >
-          {field.options.map((opt) => (
-            <label
-              key={opt}
-              className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg border transition-colors cursor-pointer ${
-                value === opt
-                  ? "border-primary bg-primary/5"
-                  : "border-border hover:border-primary/40 hover:bg-primary/5"
-              } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
-            >
-              <input
-                type="radio"
-                name={field.id}
-                checked={value === opt}
-                onChange={() => onChange(opt)}
-                disabled={disabled}
-                className="w-4 h-4 accent-primary"
-              />
-              <span className="text-sm text-foreground">{opt}</span>
-            </label>
-          ))}
-        </div>
-      );
-
-    case "checkboxes": {
-      const checked = Array.isArray(value) ? value : [];
-      const toggle = (opt: string) => {
-        const next = checked.includes(opt)
-          ? checked.filter((v) => v !== opt)
-          : [...checked, opt];
-        onChange(next);
-      };
-      return (
-        <div
-          className={
-            field.optionsLayout === "inline"
-              ? "flex flex-wrap gap-2"
-              : "space-y-2"
-          }
-        >
-          {field.options.map((opt) => (
-            <label
-              key={opt}
-              className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg border transition-colors cursor-pointer ${
-                checked.includes(opt)
-                  ? "border-primary bg-primary/5"
-                  : "border-border hover:border-primary/40 hover:bg-primary/5"
-              } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
-            >
-              <input
-                type="checkbox"
-                checked={checked.includes(opt)}
-                onChange={() => toggle(opt)}
-                disabled={disabled}
-                className="w-4 h-4 accent-primary rounded"
-              />
-              <span className="text-sm text-foreground">{opt}</span>
-            </label>
-          ))}
-        </div>
+          <span
+            className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+              on ? "translate-x-6" : "translate-x-1"
+            }`}
+          />
+        </button>
       );
     }
+
+    case "slider":
+      return (
+        <FormSlider
+          value={value as string}
+          onChange={(v) => onChange(v)}
+          min={field.min ?? 0}
+          max={field.max ?? 100}
+          step={field.step ?? 1}
+          disabled={disabled}
+        />
+      );
+
+    case "phone":
+      return (
+        <WithLeadingIcon name={iconName}>
+          <input
+            type="tel"
+            inputMode={maskMode}
+            placeholder={field.placeholder}
+            value={value as string}
+            onChange={(e) => onText(e.target.value)}
+            disabled={disabled}
+            className={`${inputCls} ${borderCls} ${iconPad}`}
+          />
+        </WithLeadingIcon>
+      );
+
+    case "time":
+      return (
+        <input
+          type="time"
+          value={value as string}
+          onChange={(e) => onChange(e.target.value)}
+          disabled={disabled}
+          className={`${inputCls} ${borderCls}`}
+        />
+      );
+
+    case "datetime":
+      return (
+        <input
+          type="datetime-local"
+          value={value as string}
+          onChange={(e) => onChange(e.target.value)}
+          disabled={disabled}
+          className={`${inputCls} ${borderCls}`}
+        />
+      );
+
+    case "month":
+      return (
+        <input
+          type="month"
+          value={value as string}
+          onChange={(e) => onChange(e.target.value)}
+          disabled={disabled}
+          className={`${inputCls} ${borderCls}`}
+        />
+      );
+
+    case "year":
+      return (
+        <input
+          type="number"
+          min={1900}
+          max={2200}
+          placeholder={field.placeholder}
+          value={value as string}
+          onChange={(e) => onChange(e.target.value)}
+          disabled={disabled}
+          className={`${inputCls} ${borderCls}`}
+        />
+      );
+
+    case "multiple_choice":
+    case "checkboxes":
+    case "nps":
+    case "emoji":
+      return (
+        <ChoiceInput
+          field={field}
+          value={value}
+          onChange={onChange}
+          disabled={disabled}
+          error={error}
+        />
+      );
 
     case "dropdown":
       return (
@@ -193,6 +248,30 @@ function FieldInput({
             </option>
           ))}
         </select>
+      );
+
+    case "multiselect":
+      return (
+        <MultiSelectInput
+          options={field.options}
+          value={Array.isArray(value) ? value : []}
+          onChange={onChange}
+          placeholder={field.placeholder}
+          disabled={disabled}
+          error={error}
+        />
+      );
+
+    case "autocomplete":
+      return (
+        <AutocompleteInput
+          options={field.options}
+          value={value as string}
+          onChange={onChange}
+          placeholder={field.placeholder}
+          disabled={disabled}
+          error={error}
+        />
       );
 
     case "rating":
@@ -214,22 +293,24 @@ function FieldInput({
 
     case "email":
       return (
-        <input
-          type="email"
-          placeholder={field.placeholder || "name@example.com"}
-          value={value as string}
-          onChange={(e) => onChange(e.target.value)}
-          disabled={disabled}
-          className={`${inputCls} ${borderCls}`}
-        />
+        <WithLeadingIcon name={iconName}>
+          <input
+            type="email"
+            placeholder={field.placeholder}
+            value={value as string}
+            onChange={(e) => onChange(e.target.value)}
+            disabled={disabled}
+            className={`${inputCls} ${borderCls} ${iconPad}`}
+          />
+        </WithLeadingIcon>
       );
 
     case "password":
       return (
         <PasswordInput
           value={value as string}
-          onChange={(v) => onChange(v)}
-          placeholder={field.placeholder || "Enter your password"}
+          onChange={onText}
+          placeholder={field.placeholder}
           disabled={disabled}
           showToggle={field.passwordToggle !== false}
           className={`${inputCls} ${borderCls}`}
@@ -238,37 +319,45 @@ function FieldInput({
 
     case "number":
       return (
-        <input
-          type="number"
-          placeholder={field.placeholder || "0"}
-          value={value as string}
-          onChange={(e) => onChange(e.target.value)}
-          disabled={disabled}
-          className={`${inputCls} ${borderCls}`}
-        />
+        <WithLeadingIcon name={iconName}>
+          <input
+            type={mask ? "text" : "number"}
+            inputMode={maskMode}
+            placeholder={field.placeholder}
+            value={value as string}
+            onChange={(e) => onText(e.target.value)}
+            disabled={disabled}
+            className={`${inputCls} ${borderCls} ${iconPad}`}
+          />
+        </WithLeadingIcon>
       );
 
     case "date":
       return (
-        <input
-          type="date"
-          value={value as string}
-          onChange={(e) => onChange(e.target.value)}
-          disabled={disabled}
-          className={`${inputCls} ${borderCls}`}
-        />
+        <WithLeadingIcon name={iconName}>
+          <input
+            type="date"
+            value={value as string}
+            onChange={(e) => onChange(e.target.value)}
+            disabled={disabled}
+            className={`${inputCls} ${borderCls} ${iconPad}`}
+          />
+        </WithLeadingIcon>
       );
 
     default:
       return (
-        <input
-          type="text"
-          placeholder={field.placeholder || "Your answer"}
-          value={value as string}
-          onChange={(e) => onChange(e.target.value)}
-          disabled={disabled}
-          className={`${inputCls} ${borderCls}`}
-        />
+        <WithLeadingIcon name={iconName}>
+          <input
+            type="text"
+            inputMode={maskMode}
+            placeholder={field.placeholder}
+            value={value as string}
+            onChange={(e) => onText(e.target.value)}
+            disabled={disabled}
+            className={`${inputCls} ${borderCls} ${iconPad}`}
+          />
+        </WithLeadingIcon>
       );
   }
 }
@@ -291,20 +380,22 @@ interface PublicFormViewProps {
 
 type FieldValues = Record<string, string | string[]>;
 
+const MULTI_VALUE_TYPES = new Set(["checkboxes", "multiselect"]);
+
 function emptyValues(fields: FormField[]): FieldValues {
   return Object.fromEntries(
-    fields
+    flattenFields(fields)
       .filter((f) => !isLayoutField(f.type))
-      .map((f) => [f.id, f.type === "checkboxes" ? [] : ""]),
+      .map((f) => [f.id, MULTI_VALUE_TYPES.has(f.type) ? [] : ""]),
   );
 }
 
 function validate(fields: FormField[], values: FieldValues): Set<string> {
   const errors = new Set<string>();
-  for (const f of fields) {
+  for (const f of flattenFields(fields)) {
     if (isLayoutField(f.type) || !f.required) continue;
     const v = values[f.id];
-    if (f.type === "checkboxes") {
+    if (MULTI_VALUE_TYPES.has(f.type)) {
       if (!Array.isArray(v) || v.length === 0) errors.add(f.id);
     } else if (!v || (typeof v === "string" && v.trim() === "")) {
       errors.add(f.id);
@@ -430,6 +521,94 @@ export function PublicFormView({ form, orgId }: PublicFormViewProps) {
     );
   }
 
+  // Renders a single field's content (no col-span wrapper). Recurses through
+  // accordion sections via AccordionView.
+  const renderFieldContent = (field: FormField, i: number): ReactNode => {
+    if (field.type === "separator")
+      return (
+        <div className="py-1">
+          <FormSeparator
+            label={field.label}
+            lineColor={field.lineColor}
+            textColor={field.textColor}
+          />
+        </div>
+      );
+    if (field.type === "spacer")
+      return <div style={{ height: field.spacerHeight ?? 24 }} aria-hidden />;
+    if (field.type === "card_preview")
+      return <CardVisual cardholder={field.label || undefined} />;
+    if (field.type === "image") return <FormImage field={field} />;
+    if (field.type === "button")
+      return <SubmitButtonView config={field.button} block />;
+    if (field.type === "long_text")
+      return (
+        <div className="space-y-1.5">
+          {field.label && (
+            <p className="text-sm font-semibold text-foreground">{field.label}</p>
+          )}
+          {htmlHasContent(field.content) && (
+            <div
+              className="tiptap text-sm text-foreground"
+              dangerouslySetInnerHTML={{ __html: field.content! }}
+            />
+          )}
+          {htmlHasContent(field.placeholder) && (
+            <div
+              className="tiptap text-xs text-muted-foreground"
+              dangerouslySetInnerHTML={{ __html: field.placeholder! }}
+            />
+          )}
+        </div>
+      );
+    if (field.type === "accordion")
+      return (
+        <AccordionView
+          sections={field.sections ?? []}
+          renderField={renderFieldContent}
+          style={field.accordionStyle}
+          triggerWeight={field.triggerWeight}
+          labelWeight={field.labelWeight}
+        />
+      );
+    if (field.type === "tabs")
+      return (
+        <TabsView
+          sections={field.sections ?? []}
+          renderField={renderFieldContent}
+          triggerWeight={field.triggerWeight}
+          labelWeight={field.labelWeight}
+        />
+      );
+    const hideLabel = field.choiceStyle === "terms";
+    return (
+      <>
+        {!hideLabel && (
+          <label className="block text-sm font-semibold text-foreground">
+            {field.label || `Question ${i + 1}`}
+            {field.required && <span className="text-rose-500 ml-0.5">*</span>}
+          </label>
+        )}
+        {field.helpText && (
+          <p className="text-xs text-muted-foreground">{field.helpText}</p>
+        )}
+        <FieldInput
+          field={field}
+          value={values[field.id] ?? (MULTI_VALUE_TYPES.has(field.type) ? [] : "")}
+          onChange={(v) => setField(field.id, v)}
+          error={errors.has(field.id)}
+          disabled={submitting}
+        />
+        {errors.has(field.id) && (
+          <p className="flex items-center gap-1 text-xs text-rose-500 mt-1">
+            <AlertCircle size={12} />
+            This field is required
+          </p>
+        )}
+      </>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-background py-12 px-4">
       {recaptchaScript}
@@ -455,6 +634,7 @@ export function PublicFormView({ form, orgId }: PublicFormViewProps) {
           </p>
         ) : (
           <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-x-5 gap-y-6">
             <AnimatePresence>
               {form.fields.map((field, i) => (
                 <motion.div
@@ -462,69 +642,13 @@ export function PublicFormView({ form, orgId }: PublicFormViewProps) {
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.04 + i * 0.04, duration: 0.25 }}
-                  className="space-y-1.5"
+                  className={cn("space-y-1.5", fieldColSpan(field.width))}
                 >
-                  {field.type === "separator" ? (
-                    <div className="py-1">
-                      <FormSeparator
-                        label={field.label}
-                        lineColor={field.lineColor}
-                        textColor={field.textColor}
-                      />
-                    </div>
-                  ) : field.type === "image" ? (
-                    <FormImage field={field} />
-                  ) : field.type === "button" ? (
-                    <SubmitButtonView config={field.button} block />
-                  ) : field.type === "long_text" ? (
-                    <div className="space-y-1.5">
-                      {field.label && (
-                        <p className="text-sm font-semibold text-foreground">
-                          {field.label}
-                        </p>
-                      )}
-                      {htmlHasContent(field.content) && (
-                        <div
-                          className="tiptap text-sm text-foreground"
-                          dangerouslySetInnerHTML={{ __html: field.content! }}
-                        />
-                      )}
-                      {htmlHasContent(field.placeholder) && (
-                        <div
-                          className="tiptap text-xs text-muted-foreground"
-                          dangerouslySetInnerHTML={{ __html: field.placeholder! }}
-                        />
-                      )}
-                    </div>
-                  ) : (
-                    <>
-                      <label className="block text-sm font-semibold text-foreground">
-                        {field.label || `Question ${i + 1}`}
-                        {field.required && (
-                          <span className="text-rose-500 ml-0.5">*</span>
-                        )}
-                      </label>
-                      {field.helpText && (
-                        <p className="text-xs text-muted-foreground">{field.helpText}</p>
-                      )}
-                      <FieldInput
-                        field={field}
-                        value={values[field.id] ?? (field.type === "checkboxes" ? [] : "")}
-                        onChange={(v) => setField(field.id, v)}
-                        error={errors.has(field.id)}
-                        disabled={submitting}
-                      />
-                      {errors.has(field.id) && (
-                        <p className="flex items-center gap-1 text-xs text-rose-500 mt-1">
-                          <AlertCircle size={12} />
-                          This field is required
-                        </p>
-                      )}
-                    </>
-                  )}
+                  {renderFieldContent(field, i)}
                 </motion.div>
               ))}
             </AnimatePresence>
+            </div>
 
             {/* Submit error */}
             {submitError && (

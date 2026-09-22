@@ -110,7 +110,16 @@ export function SubmitButtonView({
   const radius = config?.shape ?? "rounded";
   const radiusCls =
     radius === "pill" ? "rounded-full" : radius === "sharp" ? "rounded-none" : "rounded-lg";
-  const shape = isLink ? "" : `${radiusCls} px-6 py-2.5`;
+  const size = config?.size ?? "md";
+  const sizeCls =
+    size === "sm"
+      ? "px-4 py-1.5 text-xs"
+      : size === "lg"
+        ? "px-7 py-3.5 text-base"
+        : size === "xl"
+          ? "px-8 py-4 text-lg"
+          : "px-6 py-2.5 text-sm";
+  const shape = isLink ? "" : `${radiusCls} ${sizeCls}`;
   const width = fullWidth ? "w-full justify-center" : "";
 
   const inner = (
