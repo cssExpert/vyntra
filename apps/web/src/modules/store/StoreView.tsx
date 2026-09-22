@@ -61,7 +61,9 @@ function SectionCard({
         <div>
           <h3 className="font-semibold text-sm text-foreground">{title}</h3>
           {description && (
-            <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {description}
+            </p>
           )}
         </div>
         {action && (
@@ -80,7 +82,11 @@ function SectionCard({
 
 // ─── Mini revenue bars ────────────────────────────────────────────────────────
 
-function RevenueMiniChart({ data }: { data: { month: string; revenue: number }[] }) {
+function RevenueMiniChart({
+  data,
+}: {
+  data: { month: string; revenue: number }[];
+}) {
   const max = Math.max(...data.map((d) => d.revenue), 1);
   return (
     <div className="flex items-end gap-1.5 h-20 mt-2">
@@ -88,7 +94,10 @@ function RevenueMiniChart({ data }: { data: { month: string; revenue: number }[]
         const pct = (d.revenue / max) * 100;
         const isLast = i === data.length - 1;
         return (
-          <div key={`${d.month}-${i}`} className="flex flex-col items-center gap-1 flex-1">
+          <div
+            key={`${d.month}-${i}`}
+            className="flex flex-col items-center gap-1 flex-1"
+          >
             <motion.div
               initial={{ height: 0 }}
               animate={{ height: `${pct}%` }}
@@ -110,15 +119,18 @@ function RevenueMiniChart({ data }: { data: { month: string; revenue: number }[]
 
 const ORDER_BADGE: Record<
   string,
-  { variant: "success" | "warning" | "info" | "error" | "muted" | "default"; label: string }
+  {
+    variant: "success" | "warning" | "info" | "error" | "muted" | "default";
+    label: string;
+  }
 > = {
-  pending:    { variant: "warning", label: "Pending" },
-  processing: { variant: "info",    label: "Processing" },
-  shipped:    { variant: "default", label: "Shipped" },
-  delivered:  { variant: "success", label: "Delivered" },
-  cancelled:  { variant: "error",   label: "Cancelled" },
-  refunded:   { variant: "muted",   label: "Refunded" },
-  on_hold:    { variant: "warning", label: "On Hold" },
+  pending: { variant: "warning", label: "Pending" },
+  processing: { variant: "info", label: "Processing" },
+  shipped: { variant: "default", label: "Shipped" },
+  delivered: { variant: "success", label: "Delivered" },
+  cancelled: { variant: "error", label: "Cancelled" },
+  refunded: { variant: "muted", label: "Refunded" },
+  on_hold: { variant: "warning", label: "On Hold" },
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -170,14 +182,14 @@ function buildStatsFromDashboard(data: ApiDashboardMetrics): StatCardData[] {
       color: "warning",
       prefix: "$",
     },
-    {
+    /* {
       id: "vip",
       title: "VIP Customers",
       value: c.vipCount,
       change: 0,
       icon: "Star",
       color: "success",
-    },
+    }, */
   ];
 }
 
@@ -229,18 +241,25 @@ export function StoreView() {
     }
   }, []);
 
-  useEffect(() => { fetchAll(); }, [fetchAll, refreshKey]);
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll, refreshKey]);
 
-  const stats      = dashboard ? buildStatsFromDashboard(dashboard) : [];
-  const chartData  = dashboard ? groupTrendsByPeriod(dashboard.revenueTrends) : [];
-  const thisMonth  = dashboard?.revenueTrends.reduce((s, t) => {
-    const d = new Date(t.date);
-    const now = new Date();
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
-      ? s + t.revenue
-      : s;
-  }, 0) ?? 0;
-  const ytdTotal = dashboard?.revenueTrends.reduce((s, t) => s + t.revenue, 0) ?? 0;
+  const stats = dashboard ? buildStatsFromDashboard(dashboard) : [];
+  const chartData = dashboard
+    ? groupTrendsByPeriod(dashboard.revenueTrends)
+    : [];
+  const thisMonth =
+    dashboard?.revenueTrends.reduce((s, t) => {
+      const d = new Date(t.date);
+      const now = new Date();
+      return d.getMonth() === now.getMonth() &&
+        d.getFullYear() === now.getFullYear()
+        ? s + t.revenue
+        : s;
+    }, 0) ?? 0;
+  const ytdTotal =
+    dashboard?.revenueTrends.reduce((s, t) => s + t.revenue, 0) ?? 0;
 
   return (
     <AnimatePresence mode="wait" initial={false}>
@@ -252,8 +271,8 @@ export function StoreView() {
           className="space-y-6"
         >
           <div className="h-10 w-48 rounded-sm bg-muted animate-pulse" />
-          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
-            {[...Array(6)].map((_, i) => (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            {[...Array(5)].map((_, i) => (
               <div key={i} className="h-28 rounded-xl bg-muted animate-pulse" />
             ))}
           </div>
@@ -306,13 +325,19 @@ export function StoreView() {
                 variants={itemVariants}
                 className="rounded-xl border border-error/20 bg-error/5 px-4 py-3 text-sm text-error"
               >
-                Failed to load store data. <button className="underline" onClick={() => setRefreshKey((k) => k + 1)}>Retry</button>
+                Failed to load store data.{" "}
+                <button
+                  className="underline"
+                  onClick={() => setRefreshKey((k) => k + 1)}
+                >
+                  Retry
+                </button>
               </motion.div>
             )}
 
             {/* Stats grid */}
             {stats.length > 0 ? (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 {stats.map((stat, i) => (
                   <div key={stat.id} className="xl:col-span-1 sm:col-span-1">
                     <StatCard data={stat} index={i} />
@@ -320,9 +345,12 @@ export function StoreView() {
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="h-28 rounded-xl bg-muted animate-pulse" />
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                {[...Array(5)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-28 rounded-xl bg-muted animate-pulse"
+                  />
                 ))}
               </div>
             )}
@@ -331,16 +359,25 @@ export function StoreView() {
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
               {/* Revenue mini chart */}
               <SectionCard
-                title={t("revenueoverview", { defaultValue: "Revenue Overview" })}
-                description={t("monthlyrevenuelast6", { defaultValue: "Revenue (last 30 days)" })}
+                title={t("revenueoverview", {
+                  defaultValue: "Revenue Overview",
+                })}
+                description={t("monthlyrevenuelast6", {
+                  defaultValue: "Revenue (last 30 days)",
+                })}
                 action={{ label: "Full Report", href: "/store/reports" }}
               >
                 <div className="flex items-end justify-between">
                   <div>
                     <p className="text-2xl font-extrabold text-foreground">
-                      ${thisMonth.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      $
+                      {thisMonth.toLocaleString(undefined, {
+                        maximumFractionDigits: 0,
+                      })}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">This month</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      This month
+                    </p>
                   </div>
                   {thisMonth > 0 && (
                     <div className="flex items-center gap-1 text-success">
@@ -353,15 +390,22 @@ export function StoreView() {
                 ) : (
                   <div className="h-20 mt-2 bg-muted/30 rounded-sm animate-pulse" />
                 )}
-                <div className="mt-3 pt-3 border-t border-border flex items-center gap-4">
+                <div className="mt-auto pt-3 border-t border-border flex items-center gap-4">
                   <div className="flex items-center gap-1.5">
                     <span className="h-2 w-3 rounded-sm bg-primary" />
-                    <span className="text-xs text-muted-foreground">Revenue</span>
+                    <span className="text-xs text-muted-foreground">
+                      Revenue
+                    </span>
                   </div>
                   <div className="ml-auto text-right">
-                    <p className="text-xs text-muted-foreground">30-day Total</p>
+                    <p className="text-xs text-muted-foreground">
+                      30-day Total
+                    </p>
                     <p className="text-sm font-bold text-foreground">
-                      ${ytdTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      $
+                      {ytdTotal.toLocaleString(undefined, {
+                        maximumFractionDigits: 0,
+                      })}
                     </p>
                   </div>
                 </div>
@@ -380,7 +424,10 @@ export function StoreView() {
                 ) : (
                   <div className="space-y-1.5">
                     {recentOrders.map((order) => {
-                      const badge = ORDER_BADGE[order.status] ?? { variant: "muted" as const, label: order.status };
+                      const badge = ORDER_BADGE[order.status] ?? {
+                        variant: "muted" as const,
+                        label: order.status,
+                      };
                       return (
                         <div
                           key={order.id}
@@ -405,7 +452,11 @@ export function StoreView() {
                             <span className="text-xs font-bold text-foreground tabular-nums">
                               ${order.total.toFixed(2)}
                             </span>
-                            <StatusBadge variant={badge.variant} label={badge.label} size="sm" />
+                            <StatusBadge
+                              variant={badge.variant}
+                              label={badge.label}
+                              size="sm"
+                            />
                           </div>
                         </div>
                       );
@@ -416,13 +467,15 @@ export function StoreView() {
 
               {/* Low Stock */}
               <SectionCard
-                title={t("lowstockalerts", { defaultValue: "Low Stock Alerts" })}
+                title={t("lowstockalerts", {
+                  defaultValue: "Low Stock Alerts",
+                })}
                 description={`${lowStockItems.length} item${lowStockItems.length !== 1 ? "s" : ""} need attention`}
                 action={{ label: "Manage", href: "/store/inventory" }}
               >
                 {lowStockItems.length === 0 ? (
-                  <div className="py-6 text-center text-muted-foreground">
-                    <Package className="mx-auto mb-2 opacity-30" size={28} />
+                  <div className="flex-1 flex flex-col items-center justify-center text-center text-muted-foreground">
+                    <Package className="mb-2 opacity-30" size={28} />
                     <p className="text-xs">All products are well-stocked.</p>
                   </div>
                 ) : (
@@ -471,21 +524,32 @@ export function StoreView() {
               {/* Top Products */}
               <SectionCard
                 title={t("topproducts", { defaultValue: "Top Products" })}
-                description={t("bestsellingproductsthismonth", { defaultValue: "Best-selling products" })}
+                description={t("bestsellingproductsthismonth", {
+                  defaultValue: "Best-selling products",
+                })}
                 action={{ label: "All Products", href: "/store/products" }}
               >
                 {dashboard?.topProducts?.length ? (
                   <div className="space-y-3">
                     {dashboard.topProducts.slice(0, 5).map((product, i) => {
-                      const maxSales = Math.max(...(dashboard.topProducts.map((p) => p.totalSold)), 1);
+                      const maxSales = Math.max(
+                        ...dashboard.topProducts.map((p) => p.totalSold),
+                        1,
+                      );
                       const pct = (product.totalSold / maxSales) * 100;
                       return (
-                        <div key={product.productId} className="flex items-center gap-3">
+                        <div
+                          key={product.productId}
+                          className="flex items-center gap-3"
+                        >
                           <span className="text-xs text-muted-foreground w-4 shrink-0 font-mono">
                             {i + 1}
                           </span>
                           <div className="h-7 w-7 shrink-0 rounded-sm overflow-hidden bg-muted flex items-center justify-center">
-                            <Package size={12} className="text-muted-foreground" />
+                            <Package
+                              size={12}
+                              className="text-muted-foreground"
+                            />
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-xs font-medium text-foreground truncate">
@@ -495,7 +559,11 @@ export function StoreView() {
                               <motion.div
                                 initial={{ width: 0 }}
                                 animate={{ width: `${pct}%` }}
-                                transition={{ duration: 0.6, ease: "easeOut", delay: i * 0.07 }}
+                                transition={{
+                                  duration: 0.6,
+                                  ease: "easeOut",
+                                  delay: i * 0.07,
+                                }}
                                 className="h-full bg-primary rounded-full"
                               />
                             </div>
@@ -517,17 +585,37 @@ export function StoreView() {
 
               {/* Active Automations — placeholder until automations backend is live */}
               <SectionCard
-                title={t("activeautomations", { defaultValue: "Active Automations" })}
-                description={t("runningworkflowsinyour", { defaultValue: "Running workflows in your store" })}
+                title={t("activeautomations", {
+                  defaultValue: "Active Automations",
+                })}
+                description={t("runningworkflowsinyour", {
+                  defaultValue: "Running workflows in your store",
+                })}
                 action={{ label: "Manage", href: "/store/automations" }}
               >
                 <div className="space-y-1.5">
                   {[
-                    { name: "Welcome Email",            runs: "—", color: "text-success" },
-                    { name: "Abandoned Cart Recovery",  runs: "—", color: "text-primary" },
-                    { name: "Low Stock Alert",          runs: "—", color: "text-warning" },
-                    { name: "First Purchase Reward",    runs: "—", color: "text-info" },
-                    { name: "VIP Store Credit",         runs: "—", color: "text-purple-400" },
+                    { name: "Welcome Email", runs: "—", color: "text-success" },
+                    {
+                      name: "Abandoned Cart Recovery",
+                      runs: "—",
+                      color: "text-primary",
+                    },
+                    {
+                      name: "Low Stock Alert",
+                      runs: "—",
+                      color: "text-warning",
+                    },
+                    {
+                      name: "First Purchase Reward",
+                      runs: "—",
+                      color: "text-info",
+                    },
+                    {
+                      name: "VIP Store Credit",
+                      runs: "—",
+                      color: "text-purple-400",
+                    },
                   ].map((a, i) => (
                     <div
                       key={i}
@@ -536,9 +624,13 @@ export function StoreView() {
                       <div className="h-7 w-7 shrink-0 rounded-sm bg-primary/10 flex items-center justify-center">
                         <Zap size={12} className="text-primary" />
                       </div>
-                      <p className="flex-1 text-xs font-medium text-foreground truncate">{a.name}</p>
+                      <p className="flex-1 text-xs font-medium text-foreground truncate">
+                        {a.name}
+                      </p>
                       <div className="flex items-center gap-1 shrink-0">
-                        <span className="text-[11px] text-muted-foreground tabular-nums">{a.runs}</span>
+                        <span className="text-[11px] text-muted-foreground tabular-nums">
+                          {a.runs}
+                        </span>
                         <BarChart2 size={10} className={a.color} />
                       </div>
                     </div>

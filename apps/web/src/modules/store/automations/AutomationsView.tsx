@@ -27,6 +27,7 @@ import type { AutomationTrigger, AutomationRule } from "../store.types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { AUTOMATION_TRIGGER_LABELS } from "../store.constants";
+import { IconStatCard } from "@/components/ui/IconStatCard";
 
 // ─── New Automation Modal ─────────────────────────────────────────────────────
 
@@ -166,6 +167,11 @@ export function AutomationsView() {
       {!isLoaded ? (
         <motion.div key="sk" exit={{ opacity: 0 }} className="space-y-4">
           <div className="h-9 w-48 rounded-sm bg-muted animate-pulse" />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-[90px] rounded-2xl bg-muted animate-pulse" />
+            ))}
+          </div>
           <div className="space-y-2">
             {[...Array(4)].map((_, i) => (
               <div key={i} className="h-16 rounded-xl bg-muted animate-pulse" />
@@ -198,34 +204,41 @@ export function AutomationsView() {
           </PageHeader>
 
           {/* Quick stat */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 items-stretch">
             {[
-              { label: "Active", value: activeCount, color: "text-success" },
               {
+                id: "active",
+                label: "Active",
+                value: activeCount,
+                icon: Zap,
+                iconClass: "bg-emerald-500/10 text-emerald-600",
+                sub: `${rules.length} total rules`,
+              },
+              {
+                id: "paused",
                 label: "Paused",
                 value: rules.filter((r) => r.status === "paused").length,
-                color: "text-warning",
+                icon: Pause,
+                iconClass: "bg-amber-500/10 text-amber-600",
+                sub: `${rules.length > 0 ? Math.round((rules.filter((r) => r.status === "paused").length / rules.length) * 100) : 0}% of total`,
               },
               {
+                id: "totalRuns",
                 label: "Total Runs",
-                value: rules
-                  .reduce((s, r) => s + r.runCount, 0)
-                  .toLocaleString(),
-                color: "text-info",
+                value: rules.reduce((s, r) => s + r.runCount, 0).toLocaleString(),
+                icon: RefreshCw,
+                iconClass: "bg-cyan-500/10 text-cyan-600",
+                sub: `${rules.length > 0 ? Math.round(rules.reduce((s, r) => s + r.runCount, 0) / rules.length) : 0} avg/rule`,
               },
             ].map((s) => (
-              <div
-                key={s.label}
-                className="glass-card p-3 flex items-center gap-3"
-              >
-                <Zap size={15} className={s.color} />
-                <div>
-                  <p className={`text-lg font-extrabold ${s.color}`}>
-                    {s.value}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground">{s.label}</p>
-                </div>
-              </div>
+              <IconStatCard
+                key={s.id}
+                label={s.label}
+                value={s.value}
+                icon={s.icon}
+                iconClass={s.iconClass}
+                sub={s.sub}
+              />
             ))}
           </div>
 

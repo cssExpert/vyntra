@@ -28,6 +28,7 @@ import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { EmptyState } from "@/components/ui/EmptyState";
 import {
   TableSkeleton,
   type TableSkeletonColumn,
@@ -364,23 +365,20 @@ export function SystemLogsView() {
                         colSpan={columns.length}
                         className="py-16 text-center"
                       >
-                        <div className="flex flex-col items-center gap-3">
-                          <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center">
-                            <ScrollText className="w-6 h-6 text-muted-foreground/30" />
-                          </div>
-                          <div>
-                            <p className="font-semibold text-foreground">
-                              {searchTerm
-                                ? t("noMatchingLogs")
-                                : t("noActivityYet")}
-                            </p>
-                            <p className="text-xs text-muted-foreground mt-0.5">
-                              {searchTerm
-                                ? t("tryAdjustingSearch")
-                                : t("activityWillAppear")}
-                            </p>
-                          </div>
-                        </div>
+                        <EmptyState
+                          icon={ScrollText}
+                          title={
+                            searchTerm
+                              ? t("noMatchingLogs")
+                              : t("noActivityYet")
+                          }
+                          description={
+                            searchTerm
+                              ? t("tryAdjustingSearch")
+                              : t("activityWillAppear")
+                          }
+                          size="sm"
+                        />
                       </td>
                     </tr>
                   )}

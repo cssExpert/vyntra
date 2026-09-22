@@ -5,6 +5,7 @@ import { ChevronUp, ChevronDown, ChevronsUpDown, Inbox } from "lucide-react";
 import { flexRender, type Table } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { pageWindow } from "./contact-requests-table-config";
 import type { ContactSubmission } from "./contact-requests.types";
 
@@ -128,21 +129,16 @@ export function ContactRequestsTable({
               ) : (
                 <tr>
                   <td colSpan={columnsLength} className="py-16 text-center">
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center">
-                        <Inbox className="w-6 h-6 text-muted-foreground/30" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-foreground">
-                          No contact requests found
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {hasFiltersApplied
-                            ? "Try adjusting your search or filters."
-                            : "Submissions from your site's Contact Form will show up here."}
-                        </p>
-                      </div>
-                    </div>
+                    <EmptyState
+                      icon={Inbox}
+                      title="No contact requests found"
+                      description={
+                        hasFiltersApplied
+                          ? "Try adjusting your search or filters."
+                          : "Submissions from your site's Contact Form will show up here."
+                      }
+                      size="sm"
+                    />
                   </td>
                 </tr>
               )}

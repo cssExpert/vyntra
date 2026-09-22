@@ -6,11 +6,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
-import { Plus, Wallet, Pencil, Eye, X, Loader2, TrendingUp, TrendingDown } from "lucide-react";
+import { Plus, Wallet, Pencil, Eye, X, Loader2, TrendingUp, TrendingDown, Users } from "lucide-react";
 import type { CustomerCredit } from "../store.types";
 import { Button } from "@/components/ui/button";
 import { pageWindow, toCustomerCredit } from "../store.utils";
 import { storeCustomers } from "@/lib/api";
+import { IconStatCard } from "@/components/ui/IconStatCard";
 
 // ─── Add Credit Modal ─────────────────────────────────────────────────────────
 
@@ -262,6 +263,11 @@ export function StoreCreditsView() {
         {!isLoaded || isLoading ? (
           <motion.div key="sk" exit={{ opacity: 0 }} className="space-y-4">
             <div className="h-9 w-48 rounded-sm bg-muted animate-pulse" />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {[1, 2].map((i) => (
+                <div key={i} className="h-[90px] rounded-2xl bg-muted animate-pulse" />
+              ))}
+            </div>
             <div className="h-64 w-full rounded-xl bg-muted animate-pulse" />
           </motion.div>
         ) : (
@@ -286,21 +292,34 @@ export function StoreCreditsView() {
               </Button>
             </PageHeader>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              <div className="glass-card p-4 flex items-center gap-3">
-                <Wallet size={18} className="text-info" />
-                <div>
-                  <p className="text-xl font-extrabold text-foreground">${totalLiability.toFixed(2)}</p>
-                  <p className="text-xs text-muted-foreground">Total Liability</p>
-                </div>
-              </div>
-              <div className="glass-card p-4 flex items-center gap-3">
-                <Wallet size={18} className="text-success" />
-                <div>
-                  <p className="text-xl font-extrabold text-foreground">{credits.length}</p>
-                  <p className="text-xs text-muted-foreground">Customers with Credit</p>
-                </div>
-              </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 items-stretch">
+              {[
+                {
+                  id: "liability",
+                  label: "Total Liability",
+                  value: `$${totalLiability.toFixed(2)}`,
+                  icon: Wallet,
+                  iconClass: "bg-blue-500/10 text-blue-600",
+                  sub: `${credits.length} customers`,
+                },
+                {
+                  id: "customers",
+                  label: "Customers with Credit",
+                  value: credits.length,
+                  icon: Users,
+                  iconClass: "bg-emerald-500/10 text-emerald-600",
+                  sub: `$${(credits.length > 0 ? totalLiability / credits.length : 0).toFixed(2)} avg`,
+                },
+              ].map((s) => (
+                <IconStatCard
+                  key={s.id}
+                  label={s.label}
+                  value={s.value}
+                  icon={s.icon}
+                  iconClass={s.iconClass}
+                  sub={s.sub}
+                />
+              ))}
             </div>
 
             <div className="bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-clip">

@@ -18,6 +18,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { cmsDashboard, type CmsDashboardStats } from "@/lib/api";
+import { IconStatCard } from "@/components/ui/IconStatCard";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -51,44 +52,6 @@ function blogStatus(b: CmsDashboardStats["recentBlogs"][number]) {
 }
 
 // ─── sub-components ──────────────────────────────────────────────────────────
-
-function StatCard({
-  label,
-  value,
-  icon: Icon,
-  iconClass,
-  href,
-  sub,
-}: {
-  label: string;
-  value: number | string;
-  icon: React.ElementType;
-  iconClass: string;
-  href?: string;
-  sub?: string;
-}) {
-  const inner = (
-    <div className="bg-card border border-border rounded-2xl p-5 flex items-center gap-4 hover:shadow-md transition-shadow group">
-      <div
-        className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${iconClass}`}
-      >
-        <Icon className="w-5 h-5" />
-      </div>
-      <div className="min-w-0">
-        <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
-          {label}
-        </p>
-        <p className="text-2xl font-extrabold text-foreground leading-tight">
-          {value}
-        </p>
-        {sub && (
-          <p className="text-[10px] text-muted-foreground mt-0.5">{sub}</p>
-        )}
-      </div>
-    </div>
-  );
-  return href ? <Link href={href}>{inner}</Link> : <div>{inner}</div>;
-}
 
 function SectionHeader({
   title,
@@ -164,6 +127,14 @@ export function CmsDashboard() {
     stats.totalBlogs > 0
       ? Math.round((stats.published / stats.totalBlogs) * 100)
       : 0;
+  const draftRate =
+    stats.totalBlogs > 0
+      ? Math.round((stats.drafts / stats.totalBlogs) * 100)
+      : 0;
+  const postsPerCategory =
+    stats.totalCategories > 0
+      ? Math.round(stats.totalBlogs / stats.totalCategories)
+      : 0;
 
   return (
     <div className="space-y-8 pb-10">
@@ -196,15 +167,16 @@ export function CmsDashboard() {
       </div>
 
       {/* ── Stat cards ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <StatCard
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 items-stretch">
+        <IconStatCard
           label="Total Blogs"
           value={stats.totalBlogs}
           icon={BookOpen}
           iconClass="bg-violet-500/10 text-violet-600"
           href="/cms/blogs"
+          sub={`${stats.featured} featured`}
         />
-        <StatCard
+        <IconStatCard
           label="Published"
           value={stats.published}
           icon={CheckCircle2}
@@ -212,37 +184,41 @@ export function CmsDashboard() {
           href="/cms/blogs"
           sub={`${publishRate}% publish rate`}
         />
-        <StatCard
+        <IconStatCard
           label="Drafts"
           value={stats.drafts}
           icon={FileText}
           iconClass="bg-amber-500/10 text-amber-600"
           href="/cms/blogs"
+          sub={`${draftRate}% of total`}
         />
-        <StatCard
+        <IconStatCard
           label="Scheduled"
           value={stats.scheduled}
           icon={Clock}
           iconClass="bg-blue-500/10 text-blue-600"
           href="/cms/blogs"
+          sub="Upcoming posts"
         />
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <StatCard
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 items-stretch">
+        <IconStatCard
           label="Categories"
           value={stats.totalCategories}
           icon={FolderOpen}
           iconClass="bg-orange-500/10 text-orange-600"
           href="/cms/blog-categories"
+          sub={`${postsPerCategory} posts avg`}
         />
-        <StatCard
+        <IconStatCard
           label="Tags"
           value={stats.totalTags}
           icon={Tag}
           iconClass="bg-pink-500/10 text-pink-600"
+          sub="Across all content"
         />
-        <StatCard
+        <IconStatCard
           label="Pages"
           value={stats.totalPages}
           icon={LayoutTemplate}
@@ -250,12 +226,13 @@ export function CmsDashboard() {
           href="/cms/pages"
           sub={`${stats.publishedPages} published`}
         />
-        <StatCard
+        <IconStatCard
           label="Media Assets"
           value={stats.totalMedia}
           icon={ImageIcon}
           iconClass="bg-rose-500/10 text-rose-600"
           href="/cms/gallery"
+          sub="Images & files"
         />
       </div>
 

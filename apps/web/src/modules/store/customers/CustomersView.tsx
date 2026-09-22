@@ -27,6 +27,7 @@ import {
   X,
   Download,
   Users,
+  UserX,
   Eye,
   Pencil,
   Trash2,
@@ -37,6 +38,7 @@ import {
   ChevronDown,
   ChevronsUpDown,
 } from "lucide-react";
+import { IconStatCard } from "@/components/ui/IconStatCard";
 import type { StoreCustomer } from "../store.types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -59,11 +61,16 @@ const SEGMENT_BADGE: Record<
     label: string;
   }
 > = {
+  // Two backend writers use different vocabularies for the same freeform
+  // field: seed data (new/regular/vip/at_risk/inactive) and the nightly
+  // segment-recompute job (low-value/mid-value/vip/inactive).
   new: { variant: "info", label: "New" },
   regular: { variant: "muted", label: "Regular" },
   vip: { variant: "warning", label: "VIP" },
   at_risk: { variant: "error", label: "At Risk" },
   inactive: { variant: "muted", label: "Inactive" },
+  "mid-value": { variant: "info", label: "Mid Value" },
+  "low-value": { variant: "muted", label: "Low Value" },
 };
 
 const getColumns = (t: any, router: any, setDeleteTarget: (c: StoreCustomer) => void) => [
@@ -166,7 +173,7 @@ const getColumns = (t: any, router: any, setDeleteTarget: (c: StoreCustomer) => 
       const seg = getValue();
       if (!seg)
         return <span className="text-muted-foreground/40 text-xs">—</span>;
-      const badge = SEGMENT_BADGE[seg];
+      const badge = SEGMENT_BADGE[seg] ?? { variant: "muted" as const, label: seg };
       return (
         <StatusBadge variant={badge.variant} label={badge.label} size="sm" />
       );
@@ -353,39 +360,59 @@ function Inner() {
           </PageHeader>
 
           {/* Quick stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {[
-              {
-                label: t("totalCustomers", { defaultValue: "Total" }),
-                value: customers.length,
-                color: "text-foreground",
-              },
-              { label: t("vip"), value: vipCount, color: "text-warning" },
-              {
-                label: t("new", { defaultValue: "New" }),
-                value: customers.filter((c) => c.segment === "new").length,
-                color: "text-info",
-              },
-              {
-                label: t("atRisk", { defaultValue: "At Risk" }),
-                value: customers.filter((c) => c.segment === "at_risk").length,
-                color: "text-error",
-              },
-            ].map((s) => (
-              <div
-                key={s.label}
-                className="glass-card p-3 flex items-center gap-3"
-              >
-                <Users size={16} className={s.color} />
-                <div>
-                  <p className={`text-lg font-extrabold ${s.color}`}>
-                    {s.value}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground">{s.label}</p>
-                </div>
+          {(() => {
+            const total = customers.length;
+            const pct = (n: number) => (total > 0 ? Math.round((n / total) * 100) : 0);
+            const midValueCount = customers.filter((c) => c.segment === "mid-value").length;
+            const inactiveCount = customers.filter((c) => c.segment === "inactive").length;
+            return (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 items-stretch">
+                {[
+                  {
+                    id: "total",
+                    label: t("totalCustomers", { defaultValue: "Total" }),
+                    value: total,
+                    icon: Users,
+                    iconClass: "bg-violet-500/10 text-violet-600",
+                    sub: `${vipCount} VIP`,
+                  },
+                  {
+                    id: "vip",
+                    label: t("vip"),
+                    value: vipCount,
+                    icon: Star,
+                    iconClass: "bg-amber-500/10 text-amber-600",
+                    sub: `${pct(vipCount)}% of total`,
+                  },
+                  {
+                    id: "mid_value",
+                    label: t("midValue", { defaultValue: "Mid Value" }),
+                    value: midValueCount,
+                    icon: TrendingUp,
+                    iconClass: "bg-cyan-500/10 text-cyan-600",
+                    sub: `${pct(midValueCount)}% of total`,
+                  },
+                  {
+                    id: "inactive",
+                    label: t("inactive", { defaultValue: "Inactive" }),
+                    value: inactiveCount,
+                    icon: UserX,
+                    iconClass: "bg-muted text-muted-foreground",
+                    sub: `${pct(inactiveCount)}% of total`,
+                  },
+                ].map((s) => (
+                  <IconStatCard
+                    key={s.id}
+                    label={s.label}
+                    value={s.value}
+                    icon={s.icon}
+                    iconClass={s.iconClass}
+                    sub={s.sub}
+                  />
+                ))}
               </div>
-            ))}
-          </div>
+            );
+          })()}
 
           {/* Toolbar */}
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">

@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { useTheme } from "next-themes";
 import { apiGetOrgSettings, type OrganizationSettings, ApiError } from "@/lib/api";
 import { useAuth } from "./AuthProvider";
 
@@ -15,6 +16,7 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { resolvedTheme } = useTheme();
   const [settings, setSettings] = useState<OrganizationSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +27,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       setError(null);
       const data = await apiGetOrgSettings();
       setSettings(data);
-      applyTheme(data);
     } catch (err) {
       // Handle "No organization context" errors
       if (err instanceof ApiError && err.status === 400) {
@@ -54,6 +55,13 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     }
   }, [isAuthenticated, authLoading]);
+
+  useEffect(() => {
+    // Re-applies whenever the org's brand colors load AND whenever the user
+    // toggles light/dark, since dark mode needs a lightness-adjusted variant
+    // of the same brand color to stay legible against the dark background.
+    if (settings) applyTheme(settings, resolvedTheme === "dark");
+  }, [settings, resolvedTheme]);
 
   return (
     <SettingsContext.Provider value={{ settings, loading, error, refreshSettings }}>
@@ -99,16 +107,25 @@ function hexToHslParts(hex: string): [number, number, number] {
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(Math.max(v, lo), hi);
 
-function applyTheme(settings: OrganizationSettings) {
+function applyTheme(settings: OrganizationSettings, isDark: boolean) {
   const root = document.documentElement;
 
   const primary   = settings.primaryColor   || BRAND_DEFAULTS.primary;
   const secondary = settings.secondaryColor || BRAND_DEFAULTS.secondary;
   const accent    = settings.accentColor    || BRAND_DEFAULTS.accent;
 
-  const [ph, ps, pl] = hexToHslParts(primary);
-  const [sh, ss, sl] = hexToHslParts(secondary);
-  const [ah, as_, al] = hexToHslParts(accent);
+  const [ph, ps, plRaw] = hexToHslParts(primary);
+  const [sh, ss, slRaw] = hexToHslParts(secondary);
+  const [ah, as_, alRaw] = hexToHslParts(accent);
+
+  // Brand colors are usually picked against a white background. At the same
+  // lightness they read as dull/low-contrast on dark mode's near-black
+  // surfaces, so enforce a lightness floor there instead of reusing the
+  // light-mode value verbatim.
+  const forDark = (l: number) => (isDark ? Math.max(l, 55) : l);
+  const pl = forDark(plRaw);
+  const sl = forDark(slRaw);
+  const al = forDark(alRaw);
 
   // Core semantic variables (consumed as hsl(var(--primary)))
   root.style.setProperty("--primary",       `${ph} ${ps}% ${pl}%`);

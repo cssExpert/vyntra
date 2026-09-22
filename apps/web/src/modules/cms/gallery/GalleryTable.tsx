@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { MoreVertical, Globe, Lock, Trash2, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/ui/EmptyState";
 import type { Gallery, GalleryStatus } from "./gallery.types";
 
 interface GalleryTableProps {
@@ -52,11 +53,12 @@ export function GalleryTable({
               {galleries.length === 0 ? (
                 <tr key="empty">
                   <td colSpan={7} className="py-12 text-center text-muted-foreground bg-muted/10">
-                    <div className="flex flex-col items-center justify-center gap-2">
-                      <ImageIcon className="text-muted-foreground/40 w-8 h-8" />
-                      <p className="font-semibold text-foreground">No galleries found</p>
-                      <p className="text-xs text-muted-foreground">Try adjusting your search or category filter.</p>
-                    </div>
+                    <EmptyState
+                      icon={ImageIcon}
+                      title="No galleries found"
+                      description="Try adjusting your search or category filter."
+                      size="md"
+                    />
                   </td>
                 </tr>
               ) : (

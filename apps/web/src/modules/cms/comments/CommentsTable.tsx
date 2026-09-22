@@ -5,6 +5,7 @@ import { ChevronUp, ChevronDown, ChevronsUpDown, MessageCircle } from "lucide-re
 import { flexRender, type Table } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { pageWindow } from "./comments-table-config";
 import type { Comment } from "./comments.types";
 
@@ -84,19 +85,16 @@ export function CommentsTable({ table, hasFiltersApplied }: CommentsTableProps) 
               ) : (
                 <tr>
                   <td colSpan={columnsLength} className="py-16 text-center">
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center">
-                        <MessageCircle className="w-6 h-6 text-muted-foreground/30" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-foreground">No comments found</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {hasFiltersApplied
-                            ? "Try adjusting your search or filters."
-                            : "Comments submitted on your blog posts will show up here."}
-                        </p>
-                      </div>
-                    </div>
+                    <EmptyState
+                      icon={MessageCircle}
+                      title="No comments found"
+                      description={
+                        hasFiltersApplied
+                          ? "Try adjusting your search or filters."
+                          : "Comments submitted on your blog posts will show up here."
+                      }
+                      size="sm"
+                    />
                   </td>
                 </tr>
               )}

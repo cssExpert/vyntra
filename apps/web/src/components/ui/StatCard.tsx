@@ -151,7 +151,7 @@ export function StatCard({ data, index = 0 }: StatCardProps) {
       )}
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-4">
+      <div className="flex items-center justify-between mb-4">
         <div
           className={cn(
             "flex h-10 w-10 items-center justify-center rounded-xl",
@@ -160,15 +160,8 @@ export function StatCard({ data, index = 0 }: StatCardProps) {
         >
           <Icon className="h-5 w-5" />
         </div>
-        {data.sparklineData && (
-          <Sparkline data={data.sparklineData} positive={isPositive} />
-        )}
-      </div>
-
-      {/* Value */}
-      <div className="mb-1">
         <motion.p
-          className="text-2xl font-bold font-display text-foreground tabular-nums"
+          className="text-2xl font-bold font-display text-foreground tabular-nums text-right"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: index * 0.07 + 0.2 }}
@@ -178,7 +171,12 @@ export function StatCard({ data, index = 0 }: StatCardProps) {
       </div>
 
       {/* Title */}
-      <p className="text-sm text-muted-foreground mb-3">{data.title}</p>
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-sm text-muted-foreground">{data.title}</p>
+        {data.sparklineData && (
+          <Sparkline data={data.sparklineData} positive={isPositive} />
+        )}
+      </div>
 
       {/* Change */}
       <div className="flex items-center gap-1.5">

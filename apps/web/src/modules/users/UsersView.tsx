@@ -41,6 +41,7 @@ import { Modal } from "@/components/common/Modal";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 // Type definitions for robust Next.js TypeScript support
 export type UserRole = "USER" | "MANAGER" | "ADMIN" | "SUPPORT";
@@ -730,18 +731,12 @@ export function UsersView() {
                                 colSpan={columns.length}
                                 className="py-12 text-center text-muted-foreground bg-muted/10"
                               >
-                                <div className="flex flex-col items-center justify-center gap-2">
-                                  <AlertTriangle
-                                    className="text-muted-foreground/40"
-                                    size={32}
-                                  />
-                                  <p className="font-semibold text-foreground">
-                                    {t("noUsersFound")}
-                                  </p>
-                                  <p className="text-xs text-muted-foreground">
-                                    {t("noUsersFoundHint")}
-                                  </p>
-                                </div>
+                                <EmptyState
+                                  icon={AlertTriangle}
+                                  title={t("noUsersFound")}
+                                  description={t("noUsersFoundHint")}
+                                  size="md"
+                                />
                               </td>
                             </tr>
                           )}

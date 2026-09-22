@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { useRouter } from "next/navigation";
 import { Plus, Search, Pencil, Trash2, Layers, AlertTriangle, X } from "lucide-react";
 import { storeAttributes, type ApiAttribute } from "@/lib/api";
@@ -212,12 +213,22 @@ export function AttributesView() {
                   {rows.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="py-16 text-center text-muted-foreground">
-                        {search ? "No attributes match your search." : (
-                          <>No attributes yet.{" "}
-                            <button onClick={() => router.push("/store/attributes/add")} className="text-primary underline cursor-pointer">
-                              Add one
-                            </button>
-                          </>
+                        {search ? (
+                          <EmptyState
+                            icon={Layers}
+                            title="No attributes match your search."
+                            size="md"
+                          />
+                        ) : (
+                          <EmptyState
+                            icon={Layers}
+                            title="No attributes yet."
+                            action={{
+                              label: "Add one",
+                              onClick: () => router.push("/store/attributes/add"),
+                            }}
+                            size="md"
+                          />
                         )}
                       </td>
                     </tr>

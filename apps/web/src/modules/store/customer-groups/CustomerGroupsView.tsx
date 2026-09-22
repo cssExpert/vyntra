@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
+import { EmptyState } from "@/components/ui/EmptyState";
 import {
   useReactTable,
   getCoreRowModel,
@@ -19,8 +20,9 @@ import {
   createColumnHelper,
   type SortingState,
 } from "@tanstack/react-table";
-import { Plus, Search, Pencil, Trash2, Settings2, Users2, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Settings2, Users2, ShieldCheck, UserCheck, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
 import { storeCustomerGroups, type ApiCustomerGroup } from "@/lib/api";
+import { IconStatCard } from "@/components/ui/IconStatCard";
 
 const columnHelper = createColumnHelper<ApiCustomerGroup>();
 
@@ -192,9 +194,9 @@ export function CustomerGroupsView() {
       {!isLoaded || isLoading ? (
         <motion.div key="sk" exit={{ opacity: 0 }} className="space-y-4">
           <div className="h-9 w-48 rounded-sm bg-muted animate-pulse" />
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-16 rounded-xl bg-muted animate-pulse" />
+              <div key={i} className="h-[90px] rounded-2xl bg-muted animate-pulse" />
             ))}
           </div>
           <div className="h-64 w-full rounded-xl bg-muted animate-pulse" />
@@ -222,19 +224,20 @@ export function CustomerGroupsView() {
             </Button>
           </PageHeader>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 items-stretch">
             {[
-              { label: t("totalGroups", { defaultValue: "Total Groups" }), value: groups.length, icon: Users2, color: "text-foreground" },
-              { label: t("defaultGroups", { defaultValue: "Default Groups" }), value: groups.filter((g) => g.isDefault).length, icon: Users2, color: "text-primary" },
-              { label: t("assignedCustomers", { defaultValue: "Assigned Customers" }), value: totalCustomers, icon: Users2, color: "text-muted-foreground" },
+              { id: "total", label: t("totalGroups", { defaultValue: "Total Groups" }), value: groups.length, icon: Users2, iconClass: "bg-violet-500/10 text-violet-600", sub: `${groups.filter((g) => g.isDefault).length} default` },
+              { id: "default", label: t("defaultGroups", { defaultValue: "Default Groups" }), value: groups.filter((g) => g.isDefault).length, icon: ShieldCheck, iconClass: "bg-emerald-500/10 text-emerald-600", sub: `${groups.filter((g) => !g.isDefault).length} custom` },
+              { id: "assigned", label: t("assignedCustomers", { defaultValue: "Assigned Customers" }), value: totalCustomers, icon: UserCheck, iconClass: "bg-cyan-500/10 text-cyan-600", sub: `${groups.length > 0 ? Math.round(totalCustomers / groups.length) : 0} avg/group` },
             ].map((s) => (
-              <div key={s.label} className="glass-card p-3 flex items-center gap-3">
-                <s.icon size={15} className={s.color} />
-                <div>
-                  <p className={`text-lg font-extrabold ${s.color}`}>{s.value}</p>
-                  <p className="text-[11px] text-muted-foreground">{s.label}</p>
-                </div>
-              </div>
+              <IconStatCard
+                key={s.id}
+                label={s.label}
+                value={s.value}
+                icon={s.icon}
+                iconClass={s.iconClass}
+                sub={s.sub}
+              />
             ))}
           </div>
 
@@ -277,13 +280,22 @@ export function CustomerGroupsView() {
                   {table.getRowModel().rows.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="py-16 text-center text-muted-foreground">
-                        {search ? t("noSearchResults", { defaultValue: "No customer groups match your search." }) : (
-                          <>
-                            {t("noGroups", { defaultValue: "No customer groups yet." })}{" "}
-                            <button onClick={() => router.push("/store/customer-groups/add")} className="text-primary underline cursor-pointer">
-                              {t("addOne", { defaultValue: "Add one" })}
-                            </button>
-                          </>
+                        {search ? (
+                          <EmptyState
+                            icon={Users2}
+                            title={t("noSearchResults", { defaultValue: "No customer groups match your search." })}
+                            size="md"
+                          />
+                        ) : (
+                          <EmptyState
+                            icon={Users2}
+                            title={t("noGroups", { defaultValue: "No customer groups yet." })}
+                            action={{
+                              label: t("addOne", { defaultValue: "Add one" }),
+                              onClick: () => router.push("/store/customer-groups/add"),
+                            }}
+                            size="md"
+                          />
                         )}
                       </td>
                     </tr>

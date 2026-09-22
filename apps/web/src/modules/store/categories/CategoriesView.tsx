@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { usePageLoad } from "@/hooks/usePageLoad";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { IconStatCard } from "@/components/ui/IconStatCard";
 import {
   Plus,
   GripVertical,
@@ -401,6 +402,35 @@ export function CategoriesView() {
   const totalCats = allCats.length;
   const activeCats = allCats.filter((c) => c.status === "active").length;
   const inactiveCats = totalCats - activeCats;
+  const activePct = totalCats > 0 ? Math.round((activeCats / totalCats) * 100) : 0;
+  const inactivePct = totalCats > 0 ? Math.round((inactiveCats / totalCats) * 100) : 0;
+
+  const categoryStats = [
+    {
+      id: "total",
+      label: "Total",
+      value: totalCats,
+      icon: Layers,
+      iconClass: "bg-violet-500/10 text-violet-600",
+      sub: `${activeCats} active`,
+    },
+    {
+      id: "active",
+      label: t("statusActive"),
+      value: activeCats,
+      icon: Tag,
+      iconClass: "bg-emerald-500/10 text-emerald-600",
+      sub: `${activePct}% of total`,
+    },
+    {
+      id: "inactive",
+      label: t("statusInactive"),
+      value: inactiveCats,
+      icon: Tag,
+      iconClass: "bg-muted text-muted-foreground",
+      sub: `${inactivePct}% of total`,
+    },
+  ];
 
   return (
     <>
@@ -440,42 +470,17 @@ export function CategoriesView() {
               </Button>
             </PageHeader>
 
-            {/* Stats chips */}
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                {
-                  label: "Total",
-                  value: totalCats,
-                  Icon: Layers,
-                  color: "text-primary",
-                },
-                {
-                  label: t("statusActive"),
-                  value: activeCats,
-                  Icon: Tag,
-                  color: "text-success",
-                },
-                {
-                  label: t("statusInactive"),
-                  value: inactiveCats,
-                  Icon: Tag,
-                  color: "text-muted-foreground",
-                },
-              ].map((s) => (
-                <div
-                  key={s.label}
-                  className="glass-card p-3 flex items-center gap-3"
-                >
-                  <s.Icon size={15} className={s.color} />
-                  <div>
-                    <p className={`text-lg font-extrabold ${s.color}`}>
-                      {s.value}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground">
-                      {s.label}
-                    </p>
-                  </div>
-                </div>
+            {/* Stat cards */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 items-stretch">
+              {categoryStats.map((stat) => (
+                <IconStatCard
+                  key={stat.id}
+                  label={stat.label}
+                  value={stat.value}
+                  icon={stat.icon}
+                  iconClass={stat.iconClass}
+                  sub={stat.sub}
+                />
               ))}
             </div>
 

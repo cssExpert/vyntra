@@ -7,8 +7,6 @@ import { usePageLoad } from "@/hooks/usePageLoad";
 import { PageHeader } from "@/components/ui/PageHeader";
 import {
   Download,
-  TrendingUp,
-  TrendingDown,
   DollarSign,
   ShoppingCart,
   Users,
@@ -17,63 +15,27 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatStorePrice } from "../store.utils";
-import { storeAnalytics, storeOrders, type ApiDashboardMetrics, type ApiRevenueTrendPoint } from "@/lib/api";
+import {
+  storeAnalytics,
+  storeOrders,
+  type ApiDashboardMetrics,
+  type ApiRevenueTrendPoint,
+} from "@/lib/api";
+import { IconStatCard } from "@/components/ui/IconStatCard";
 
 const PERIODS = ["7D", "30D", "90D", "12M"] as const;
 type Period = (typeof PERIODS)[number];
 
-const PERIOD_DAYS: Record<Period, number> = { "7D": 7, "30D": 30, "90D": 90, "12M": 365 };
+const PERIOD_DAYS: Record<Period, number> = {
+  "7D": 7,
+  "30D": 30,
+  "90D": 90,
+  "12M": 365,
+};
 
-function MetricCard({
-  label,
-  value,
-  change,
-  icon,
-  color,
-}: {
-  label: string;
-  value: string;
-  change?: number;
-  icon: React.ReactNode;
-  color: string;
-}) {
-  const up = (change ?? 0) >= 0;
-  return (
-    <div className="glass-card p-4 flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-          {label}
-        </span>
-        <span className={cn("opacity-70", color)}>{icon}</span>
-      </div>
-      <div>
-        <p className="text-2xl font-extrabold tracking-tight text-foreground">
-          {value}
-        </p>
-        {change !== undefined && (
-          <div className="flex items-center gap-1 mt-1">
-            {up ? (
-              <TrendingUp size={11} className="text-success" />
-            ) : (
-              <TrendingDown size={11} className="text-error" />
-            )}
-            <span
-              className={cn(
-                "text-[11px] font-semibold",
-                up ? "text-success" : "text-error",
-              )}
-            >
-              {up ? "+" : ""}
-              {change.toFixed(1)}%
-            </span>
-            <span className="text-[11px] text-muted-foreground">
-              vs prior period
-            </span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+function formatChangeSub(change?: number): string | undefined {
+  if (change === undefined) return undefined;
+  return `${change >= 0 ? "+" : ""}${change.toFixed(1)}% vs prior period`;
 }
 
 interface RevenueBucket {
@@ -87,10 +49,18 @@ function dateKeyFromUtcOffset(todayUtcMs: number, daysAgo: number): string {
   return new Date(todayUtcMs - daysAgo * 86400000).toISOString().split("T")[0];
 }
 
-function bucketRevenueTrends(points: ApiRevenueTrendPoint[], days: number, targetBuckets: number): RevenueBucket[] {
+function bucketRevenueTrends(
+  points: ApiRevenueTrendPoint[],
+  days: number,
+  targetBuckets: number,
+): RevenueBucket[] {
   const byDate = new Map(points.map((p) => [p.date, p.revenue]));
   const now = new Date();
-  const todayUtcMs = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  const todayUtcMs = Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate(),
+  );
 
   const bucketSize = Math.max(1, Math.ceil(days / targetBuckets));
   const numBuckets = Math.ceil(days / bucketSize);
@@ -107,7 +77,14 @@ function bucketRevenueTrends(points: ApiRevenueTrendPoint[], days: number, targe
     }
 
     const labelDate = new Date(todayUtcMs - endOffset * 86400000);
-    buckets.push({ label: labelDate.toLocaleDateString(undefined, { month: "short", day: "numeric", timeZone: "UTC" }), revenue });
+    buckets.push({
+      label: labelDate.toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+        timeZone: "UTC",
+      }),
+      revenue,
+    });
   }
 
   // Reverse so the chart reads oldest -> newest, left to right.
@@ -161,8 +138,12 @@ export function StoreReportsView() {
   const [isLoading, setIsLoading] = useState(true);
   const [dashboard, setDashboard] = useState<ApiDashboardMetrics | null>(null);
   const [trendPoints, setTrendPoints] = useState<ApiRevenueTrendPoint[]>([]);
-  const [priorTrendPoints, setPriorTrendPoints] = useState<ApiRevenueTrendPoint[]>([]);
-  const [orderStatusCounts, setOrderStatusCounts] = useState<Record<string, number>>({});
+  const [priorTrendPoints, setPriorTrendPoints] = useState<
+    ApiRevenueTrendPoint[]
+  >([]);
+  const [orderStatusCounts, setOrderStatusCounts] = useState<
+    Record<string, number>
+  >({});
   const [totalOrders, setTotalOrders] = useState(0);
 
   const load = useCallback(async (p: Period) => {
@@ -173,18 +154,25 @@ export function StoreReportsView() {
       // "prior period" comparison) only fits when the period itself is <= 182 days.
       const canComparePrior = days * 2 <= 365;
 
-      const [dashboardData, currentTrends, priorTrends, ordersRes] = await Promise.all([
-        storeAnalytics.dashboard(),
-        storeAnalytics.revenueTrends(days),
-        canComparePrior ? storeAnalytics.revenueTrends(days * 2) : Promise.resolve([]),
-        storeOrders.list({ take: 500 }),
-      ]);
+      const [dashboardData, currentTrends, priorTrends, ordersRes] =
+        await Promise.all([
+          storeAnalytics.dashboard(),
+          storeAnalytics.revenueTrends(days),
+          canComparePrior
+            ? storeAnalytics.revenueTrends(days * 2)
+            : Promise.resolve([]),
+          storeOrders.list({ take: 500 }),
+        ]);
       setDashboard(dashboardData);
       setTrendPoints(currentTrends);
       // The older half of the doubled range is the "prior period"
       if (canComparePrior) {
         const now = new Date();
-        const todayUtcMs = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+        const todayUtcMs = Date.UTC(
+          now.getUTCFullYear(),
+          now.getUTCMonth(),
+          now.getUTCDate(),
+        );
         const cutoffKey = dateKeyFromUtcOffset(todayUtcMs, days);
         setPriorTrendPoints(priorTrends.filter((pt) => pt.date < cutoffKey));
       } else {
@@ -192,7 +180,8 @@ export function StoreReportsView() {
       }
 
       const counts: Record<string, number> = {};
-      for (const o of ordersRes.data) counts[o.status] = (counts[o.status] ?? 0) + 1;
+      for (const o of ordersRes.data)
+        counts[o.status] = (counts[o.status] ?? 0) + 1;
       setOrderStatusCounts(counts);
       setTotalOrders(ordersRes.total);
     } catch {
@@ -202,19 +191,37 @@ export function StoreReportsView() {
     }
   }, []);
 
-  useEffect(() => { load(period); }, [load, period]);
+  useEffect(() => {
+    load(period);
+  }, [load, period]);
 
   const currentRevenue = trendPoints.reduce((s, p) => s + p.revenue, 0);
   const priorRevenue = priorTrendPoints.reduce((s, p) => s + p.revenue, 0);
-  const revenueChange = priorRevenue > 0 ? ((currentRevenue - priorRevenue) / priorRevenue) * 100 : undefined;
+  const revenueChange =
+    priorRevenue > 0
+      ? ((currentRevenue - priorRevenue) / priorRevenue) * 100
+      : undefined;
 
   const currentOrderCount = trendPoints.reduce((s, p) => s + p.orderCount, 0);
-  const priorOrderCount = priorTrendPoints.reduce((s, p) => s + p.orderCount, 0);
-  const orderCountChange = priorOrderCount > 0 ? ((currentOrderCount - priorOrderCount) / priorOrderCount) * 100 : undefined;
+  const priorOrderCount = priorTrendPoints.reduce(
+    (s, p) => s + p.orderCount,
+    0,
+  );
+  const orderCountChange =
+    priorOrderCount > 0
+      ? ((currentOrderCount - priorOrderCount) / priorOrderCount) * 100
+      : undefined;
 
-  const revenueBuckets = bucketRevenueTrends(trendPoints, PERIOD_DAYS[period], 8);
+  const revenueBuckets = bucketRevenueTrends(
+    trendPoints,
+    PERIOD_DAYS[period],
+    8,
+  );
   const topProducts = dashboard?.topProducts ?? [];
-  const orderStatusRows = ORDER_STATUS_ROWS.map((row) => ({ ...row, count: orderStatusCounts[row.status] ?? 0 }));
+  const orderStatusRows = ORDER_STATUS_ROWS.map((row) => ({
+    ...row,
+    count: orderStatusCounts[row.status] ?? 0,
+  }));
   const statusRowsTotal = orderStatusRows.reduce((s, o) => s + o.count, 0);
 
   return (
@@ -222,9 +229,12 @@ export function StoreReportsView() {
       {!isLoaded || isLoading ? (
         <motion.div key="sk" exit={{ opacity: 0 }} className="space-y-6">
           <div className="h-9 w-48 rounded-sm bg-muted animate-pulse" />
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-24 rounded-xl bg-muted animate-pulse" />
+              <div
+                key={i}
+                className="h-[90px] rounded-2xl bg-muted animate-pulse"
+              />
             ))}
           </div>
         </motion.div>
@@ -279,33 +289,54 @@ export function StoreReportsView() {
           </PageHeader>
 
           {/* KPI cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <MetricCard
-              label="Revenue"
-              value={formatStorePrice(currentRevenue)}
-              change={revenueChange}
-              icon={<DollarSign size={16} />}
-              color="text-success"
-            />
-            <MetricCard
-              label="Orders"
-              value={currentOrderCount.toLocaleString()}
-              change={orderCountChange}
-              icon={<ShoppingCart size={16} />}
-              color="text-info"
-            />
-            <MetricCard
-              label="New Customers"
-              value={(dashboard?.customerMetrics.newCustomersThisMonth ?? 0).toLocaleString()}
-              icon={<Users size={16} />}
-              color="text-purple-400"
-            />
-            <MetricCard
-              label="Avg Order Value"
-              value={formatStorePrice(dashboard?.salesMetrics.averageOrderValue ?? 0)}
-              icon={<BarChart2 size={16} />}
-              color="text-warning"
-            />
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 items-stretch">
+            {[
+              {
+                id: "revenue",
+                label: "Revenue",
+                value: formatStorePrice(currentRevenue),
+                icon: DollarSign,
+                iconClass: "bg-emerald-500/10 text-emerald-600",
+                sub: formatChangeSub(revenueChange) ?? "No prior period data",
+              },
+              {
+                id: "orders",
+                label: "Orders",
+                value: currentOrderCount.toLocaleString(),
+                icon: ShoppingCart,
+                iconClass: "bg-blue-500/10 text-blue-600",
+                sub: formatChangeSub(orderCountChange) ?? "No prior period data",
+              },
+              {
+                id: "newCustomers",
+                label: "New Customers",
+                value: (
+                  dashboard?.customerMetrics.newCustomersThisMonth ?? 0
+                ).toLocaleString(),
+                icon: Users,
+                iconClass: "bg-purple-500/10 text-purple-600",
+                sub: `${(dashboard?.customerMetrics.totalCustomers ?? 0).toLocaleString()} total customers`,
+              },
+              {
+                id: "aov",
+                label: "Avg Order Value",
+                value: formatStorePrice(
+                  dashboard?.salesMetrics.averageOrderValue ?? 0,
+                ),
+                icon: BarChart2,
+                iconClass: "bg-amber-500/10 text-amber-600",
+                sub: `${currentOrderCount.toLocaleString()} orders`,
+              },
+            ].map((s) => (
+              <IconStatCard
+                key={s.id}
+                label={s.label}
+                value={s.value}
+                icon={s.icon}
+                iconClass={s.iconClass}
+                sub={s.sub}
+              />
+            ))}
           </div>
 
           {/* Charts row */}
@@ -377,42 +408,46 @@ export function StoreReportsView() {
             </div>
             <div className="space-y-3">
               {topProducts.length === 0 ? (
-                <p className="text-xs text-muted-foreground py-4 text-center">No sales data yet.</p>
-              ) : topProducts.map((p, i) => {
-                const maxSales = topProducts[0].totalSold || 1;
-                const pct = (p.totalSold / maxSales) * 100;
-                return (
-                  <div key={p.productId} className="flex items-center gap-3">
-                    <span className="text-xs text-muted-foreground w-4 font-mono shrink-0">
-                      {i + 1}
-                    </span>
-                    <div className="h-7 w-7 shrink-0 rounded-sm overflow-hidden bg-muted flex items-center justify-center">
-                      <Package size={12} className="text-muted-foreground" />
+                <p className="text-xs text-muted-foreground py-4 text-center">
+                  No sales data yet.
+                </p>
+              ) : (
+                topProducts.map((p, i) => {
+                  const maxSales = topProducts[0].totalSold || 1;
+                  const pct = (p.totalSold / maxSales) * 100;
+                  return (
+                    <div key={p.productId} className="flex items-center gap-3">
+                      <span className="text-xs text-muted-foreground w-4 font-mono shrink-0">
+                        {i + 1}
+                      </span>
+                      <div className="h-7 w-7 shrink-0 rounded-sm overflow-hidden bg-muted flex items-center justify-center">
+                        <Package size={12} className="text-muted-foreground" />
+                      </div>
+                      <p className="text-xs font-medium text-foreground truncate w-44 shrink-0">
+                        {p.productName}
+                      </p>
+                      <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${pct}%` }}
+                          transition={{
+                            duration: 0.5,
+                            ease: "easeOut",
+                            delay: i * 0.07,
+                          }}
+                          className="h-full bg-primary rounded-full"
+                        />
+                      </div>
+                      <span className="text-xs font-semibold text-muted-foreground tabular-nums shrink-0">
+                        {p.totalSold} sold
+                      </span>
+                      <span className="text-xs font-bold text-success tabular-nums shrink-0">
+                        {formatStorePrice(p.totalRevenue)}
+                      </span>
                     </div>
-                    <p className="text-xs font-medium text-foreground truncate w-44 shrink-0">
-                      {p.productName}
-                    </p>
-                    <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${pct}%` }}
-                        transition={{
-                          duration: 0.5,
-                          ease: "easeOut",
-                          delay: i * 0.07,
-                        }}
-                        className="h-full bg-primary rounded-full"
-                      />
-                    </div>
-                    <span className="text-xs font-semibold text-muted-foreground tabular-nums shrink-0">
-                      {p.totalSold} sold
-                    </span>
-                    <span className="text-xs font-bold text-success tabular-nums shrink-0">
-                      {formatStorePrice(p.totalRevenue)}
-                    </span>
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
           </div>
         </motion.div>

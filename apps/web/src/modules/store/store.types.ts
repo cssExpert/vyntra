@@ -263,7 +263,10 @@ export interface StoreCustomer {
   registeredAt: string;
   country?: string;
   isVip?: boolean;
-  segment?: "new" | "regular" | "vip" | "at_risk" | "inactive";
+  // Freeform on the backend (Prisma `segment String?`) — seed data and the
+  // nightly segment-recompute job (store-scheduler.service.ts) each write a
+  // different vocabulary, so this must not be a narrow literal union.
+  segment?: string;
   customerGroupId?: string;
   customerGroupName?: string;
 }

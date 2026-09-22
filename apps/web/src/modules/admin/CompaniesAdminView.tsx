@@ -15,6 +15,7 @@ import {
 import Image from "next/image";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Toaster, useToaster } from "@/components/common/Toaster";
 import { admin, type AdminCompany, type AdminPackage } from "@/lib/api";
 import { AdminGuard } from "./AdminGuard";
@@ -177,10 +178,15 @@ function Inner() {
                   colSpan={6}
                   className="px-4 py-12 text-center text-muted-foreground"
                 >
-                  <Building2 className="mx-auto mb-3 h-8 w-8 opacity-40" />
-                  {companies.length === 0
-                    ? t("noCompanies")
-                    : t("searchNoMatch")}
+                  <EmptyState
+                    icon={Building2}
+                    title={
+                      companies.length === 0
+                        ? t("noCompanies")
+                        : t("searchNoMatch")
+                    }
+                    size="md"
+                  />
                 </td>
               </tr>
             ) : (

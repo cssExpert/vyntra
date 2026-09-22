@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect, useCallback } from "react";
+import React, { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
@@ -50,11 +50,13 @@ import {
   type TableSkeletonColumn,
 } from "@/components/common/TableSkeleton";
 import { usePageLoad } from "@/hooks/usePageLoad";
+import { useSitePreviewUrl } from "@/hooks/useSitePreviewUrl";
 import { MotionTabs, type MotionTabItem } from "@/components/ui/MotionTabs";
 import { cmsBlogs } from "@/lib/api";
 import { type BlogStatus, type CmsBlog } from "@/modules/cms/blog-data";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { PageSettingsPanel } from "@/components/common/PageSettingsPanel";
 import { useAuth } from "@/providers/AuthProvider";
 
@@ -237,6 +239,11 @@ export function BlogView() {
   const [activeFilters, setActiveFilters] =
     useState<BlogFilters>(DEFAULT_FILTERS);
   const isLoaded = usePageLoad(700);
+  const { previewUrl } = useSitePreviewUrl();
+  // Ref so the memoized columns closure always reads the latest previewUrl
+  // without needing to be recreated on every render.
+  const previewUrlRef = useRef(previewUrl);
+  previewUrlRef.current = previewUrl;
 
   const fetchBlogs = useCallback(() => {
     setIsFetching(true);
@@ -516,7 +523,10 @@ export function BlogView() {
                   {
                     label: "Preview",
                     icon: <Eye size={13} />,
-                    onClick: () => window.open(`/blog/${blog.slug}`, "_blank"),
+                    onClick: () => {
+                      const url = previewUrlRef.current(`blog/${blog.slug}`);
+                      if (url) window.open(url, "_blank");
+                    },
                   },
                   {
                     label: "Duplicate",
@@ -881,35 +891,29 @@ export function BlogView() {
                           colSpan={columns.length}
                           className="py-16 text-center"
                         >
-                          <div className="flex flex-col items-center gap-3">
-                            <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center">
-                              <BookOpen className="w-6 h-6 text-muted-foreground/30" />
-                            </div>
-                            <div>
-                              <p className="text-sm font-semibold text-foreground">
-                                No posts found
-                              </p>
-                              <p className="text-xs text-muted-foreground mt-0.5">
-                                {searchTerm ||
-                                hasActiveFilters ||
-                                activeTab !== "all"
-                                  ? "Try adjusting your search or filters."
-                                  : "Get started by writing your first blog post."}
-                              </p>
-                            </div>
-                            {!searchTerm &&
+                          <EmptyState
+                            icon={BookOpen}
+                            title="No posts found"
+                            description={
+                              searchTerm ||
+                              hasActiveFilters ||
+                              activeTab !== "all"
+                                ? "Try adjusting your search or filters."
+                                : "Get started by writing your first blog post."
+                            }
+                            action={
+                              !searchTerm &&
                               !hasActiveFilters &&
-                              activeTab === "all" && (
-                                <Button
-                                  size="lg"
-                                  radius="sm"
-                                  onClick={() => router.push("/cms/blogs/new")}
-                                  className="px-4 font-semibold active:scale-[0.98]"
-                                >
-                                  Write first post
-                                </Button>
-                              )}
-                          </div>
+                              activeTab === "all"
+                                ? {
+                                    label: "Write first post",
+                                    onClick: () =>
+                                      router.push("/cms/blogs/new"),
+                                  }
+                                : undefined
+                            }
+                            size="sm"
+                          />
                         </td>
                       </tr>
                     )}

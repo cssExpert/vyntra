@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { EmptyState } from "@/components/ui/EmptyState";
 import type { StoreOrder } from "../../store.types";
 import { Button } from "@/components/ui/button";
 
@@ -236,7 +237,13 @@ export function OrdersTable({ orders }: Props) {
   const pageCount = table.getPageCount();
 
   return (
-    <div className="lg:min-h-0 lg:flex-1 lg:flex lg:flex-col bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-clip">
+    <div
+      className={`lg:min-h-0 lg:flex-1 lg:flex lg:flex-col bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-clip ${
+        orders.length === 0
+          ? "flex flex-col items-center justify-center min-h-[420px]"
+          : ""
+      }`}
+    >
       {orders.length > 0 ? (
         <>
         <div ref={setScrollEl} className="overflow-x-auto overflow-y-auto max-h-[calc(100dvh-300px)] lg:max-h-none lg:min-h-0 lg:flex-1">
@@ -318,13 +325,12 @@ export function OrdersTable({ orders }: Props) {
           </div>
         </>
       ) : (
-        <div className="py-20 text-center text-muted-foreground">
-          <div className="flex flex-col items-center gap-3">
-            <ShoppingCart size={36} className="text-muted-foreground/30" />
-            <p className="font-semibold text-foreground">{tx("noOrders")}</p>
-            <p className="text-sm">{tx("adjustFilters")}</p>
-          </div>
-        </div>
+        <EmptyState
+          icon={ShoppingCart}
+          title={tx("noOrders")}
+          description={tx("adjustFilters")}
+          size="md"
+        />
       )}
     </div>
   );

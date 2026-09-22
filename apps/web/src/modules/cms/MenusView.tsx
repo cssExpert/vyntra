@@ -33,6 +33,7 @@ import {
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Modal } from "@/components/common/Modal";
 import { Input } from "@/components/ui/input";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 // ─── Visibility ────────────────────────────────────────────────────────────────
 
@@ -890,11 +891,12 @@ function MenuModal({
             </button>
           </div>
           {form.items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center gap-2 py-8 rounded-lg border-2 border-dashed border-border text-center">
-              <Menu className="w-6 h-6 text-muted-foreground/40" />
-              <p className="text-xs text-muted-foreground">
-                No items yet. Click &rdquo;Add Item&rdquo; to start.
-              </p>
+            <div className="rounded-lg border-2 border-dashed border-border">
+              <EmptyState
+                icon={Menu}
+                title={'No items yet. Click ”Add Item” to start.'}
+                size="sm"
+              />
             </div>
           ) : (
             <div className="space-y-2">
@@ -1111,26 +1113,13 @@ export function MenusView() {
             ))}
           </div>
         ) : menus.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-3 py-16 text-center px-6">
-            <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center">
-              <Menu className="w-6 h-6 text-muted-foreground/50" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-foreground">
-                No menus yet
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Create a menu and attach it to a nav block in the editor.
-              </p>
-            </div>
-            <button
-              onClick={openCreate}
-              className="group mt-2 inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary-600 transition-colors"
-            >
-              <Plus className="stroke-[3] transition-transform group-hover:rotate-90 duration-300 h-4 w-4 shrink-0" />{" "}
-              Create your first menu
-            </button>
-          </div>
+          <EmptyState
+            icon={Menu}
+            title="No menus yet"
+            description="Create a menu and attach it to a nav block in the editor."
+            action={{ label: "Create your first menu", onClick: openCreate }}
+            size="sm"
+          />
         ) : (
           <div className="p-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {menus.map((menu) => (

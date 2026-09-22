@@ -23,8 +23,10 @@ import {
   AlertTriangle,
   Mail,
   ExternalLink,
+  Users,
 } from "lucide-react";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { PIPELINE_STAGES } from "../data/contacts";
 import type { CRMContact } from "../types";
 
@@ -275,7 +277,13 @@ export function ContactsTable({ contacts }: Props) {
   });
 
   return (
-    <div className="bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden">
+    <div
+      className={`bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden ${
+        contacts.length === 0
+          ? "flex flex-col items-center justify-center min-h-[420px]"
+          : ""
+      }`}
+    >
       {contacts.length > 0 ? (
         <div
           ref={setScrollEl}
@@ -398,16 +406,12 @@ export function ContactsTable({ contacts }: Props) {
                       colSpan={COLUMNS.length}
                       className="py-12 text-center text-muted-foreground bg-muted/10"
                     >
-                      <div className="flex flex-col items-center gap-2">
-                        <AlertTriangle
-                          className="text-muted-foreground/40"
-                          size={32}
-                        />
-                        <p className="font-semibold text-foreground">
-                          {t("table.noContactsFound")}
-                        </p>
-                        <p className="text-xs">{t("table.adjustFilters")}</p>
-                      </div>
+                      <EmptyState
+                        icon={AlertTriangle}
+                        title={t("table.noContactsFound")}
+                        description={t("table.adjustFilters")}
+                        size="md"
+                      />
                     </td>
                   </tr>
                 )}
@@ -416,12 +420,12 @@ export function ContactsTable({ contacts }: Props) {
           </table>
         </div>
       ) : (
-        <div className="py-20 text-center text-muted-foreground">
-          <p className="font-semibold text-foreground mb-1">
-            {t("table.noContactsYet")}
-          </p>
-          <p className="text-sm">{t("table.addFirstContact")}</p>
-        </div>
+        <EmptyState
+          icon={Users}
+          title={t("table.noContactsYet")}
+          description={t("table.addFirstContact")}
+          size="md"
+        />
       )}
     </div>
   );

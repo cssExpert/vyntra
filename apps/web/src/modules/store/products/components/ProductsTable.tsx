@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { EmptyState } from "@/components/ui/EmptyState";
 import type { StoreProduct } from "../../store.types";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -331,7 +332,13 @@ export function ProductsTable({
   const pageCount = table.getPageCount();
 
   return (
-    <div className="mb-6 lg:mb-0 lg:min-h-0 lg:flex-1 lg:flex lg:flex-col bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-clip">
+    <div
+      className={`mb-6 lg:mb-0 lg:min-h-0 lg:flex-1 lg:flex lg:flex-col bg-card rounded-xl border border-border shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-clip ${
+        products.length === 0
+          ? "flex flex-col items-center justify-center min-h-[420px]"
+          : ""
+      }`}
+    >
       {products.length > 0 ? (
         <>
           <div className="overflow-x-auto overflow-y-auto max-h-[calc(100dvh-340px)] lg:max-h-none lg:min-h-0 lg:flex-1">
@@ -523,13 +530,12 @@ export function ProductsTable({
           </div>
         </>
       ) : (
-        <div className="py-20 text-center text-muted-foreground">
-          <div className="flex flex-col items-center gap-3">
-            <Package size={36} className="text-muted-foreground/30" />
-            <p className="font-semibold text-foreground">{tx("noProducts")}</p>
-            <p className="text-sm">{tx("adjustSearch")}</p>
-          </div>
-        </div>
+        <EmptyState
+          icon={Package}
+          title={tx("noProducts")}
+          description={tx("adjustSearch")}
+          size="md"
+        />
       )}
     </div>
   );

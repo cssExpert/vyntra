@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Toaster, useToaster } from "@/components/common/Toaster";
 import { admin, type AdminCompanyDetail, type AdminPackage } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -330,10 +331,13 @@ function OverviewTab({ company }: { company: AdminCompanyDetail }) {
 function UsersTab({ company }: { company: AdminCompanyDetail }) {
   if (company.users.length === 0) {
     return (
-      <EmptyCard
-        icon={<Users className="h-8 w-8" />}
-        text="This company has no users yet."
-      />
+      <div className="rounded-xl border border-border bg-card">
+        <EmptyState
+          icon={Users}
+          title="This company has no users yet."
+          size="md"
+        />
+      </div>
     );
   }
   return (
@@ -412,10 +416,13 @@ function BillingTab({ company }: { company: AdminCompanyDetail }) {
 
   if (!sub) {
     return (
-      <EmptyCard
-        icon={<CreditCard className="h-8 w-8" />}
-        text="No active subscription for this company."
-      />
+      <div className="rounded-xl border border-border bg-card">
+        <EmptyState
+          icon={CreditCard}
+          title="No active subscription for this company."
+          size="md"
+        />
+      </div>
     );
   }
 
@@ -514,10 +521,13 @@ function BillingTab({ company }: { company: AdminCompanyDetail }) {
 function ModulesTab({ company }: { company: AdminCompanyDetail }) {
   if (company.modules.length === 0) {
     return (
-      <EmptyCard
-        icon={<Blocks className="h-8 w-8" />}
-        text="No platform modules are configured."
-      />
+      <div className="rounded-xl border border-border bg-card">
+        <EmptyState
+          icon={Blocks}
+          title="No platform modules are configured."
+          size="md"
+        />
+      </div>
     );
   }
   return (
@@ -674,15 +684,6 @@ function MiniStat({
         <span className="text-xs">{label}</span>
       </div>
       <p className="mt-1 text-lg font-bold text-foreground">{value}</p>
-    </div>
-  );
-}
-
-function EmptyCard({ icon, text }: { icon: React.ReactNode; text: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card py-16 text-center text-muted-foreground">
-      <div className="mb-3 opacity-40">{icon}</div>
-      <p className="text-sm">{text}</p>
     </div>
   );
 }

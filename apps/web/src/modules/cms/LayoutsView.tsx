@@ -16,6 +16,7 @@ import { Modal } from "@/components/common/Modal";
 import { cmsLayouts, cmsMenus, type CmsLayout, type CmsMenu } from "@/lib/api";
 import { MENU_TYPES } from "./MenusView";
 import { Input } from "@/components/ui/input";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 // ── Layout editor form ────────────────────────────────────────────────────────
 
@@ -463,12 +464,12 @@ export function LayoutsView() {
       </div>
 
       {layouts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <p className="font-semibold text-foreground mb-1">No layouts yet</p>
-          <p className="text-sm text-muted-foreground">
-            Create a layout to assign headers and footers to your pages.
-          </p>
-        </div>
+        <EmptyState
+          icon={Monitor}
+          title="No layouts yet"
+          description="Create a layout to assign headers and footers to your pages."
+          size="md"
+        />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {layouts.map((layout) => (

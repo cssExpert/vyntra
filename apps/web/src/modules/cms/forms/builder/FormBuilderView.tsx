@@ -7,6 +7,7 @@ import { motion, AnimatePresence, Reorder } from "framer-motion";
 import { MoveLeft, Eye, Save, Plus, Sparkles, Check, Loader2, ShieldCheck, Settings } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { FieldPalette } from "./FieldPalette";
 import { FieldCard } from "./FieldCard";
 import { FormPreviewModal } from "./FormPreviewModal";
@@ -402,15 +403,14 @@ export function FormBuilderView({ formId }: FormBuilderViewProps) {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="border-2 border-dashed border-border rounded-xl py-12 text-center"
+              className="border-2 border-dashed border-border rounded-xl"
             >
-              <Sparkles className="w-6 h-6 text-muted-foreground/30 mx-auto mb-2" />
-              <p className="text-sm font-semibold text-foreground">
-                Your form is empty
-              </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Add fields from the panel on the left.
-              </p>
+              <EmptyState
+                icon={Sparkles}
+                title="Your form is empty"
+                description="Add fields from the panel on the left."
+                size="sm"
+              />
             </motion.div>
           )}
 

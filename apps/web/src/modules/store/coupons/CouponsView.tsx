@@ -9,12 +9,13 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { TableActionMenu } from "@/components/common/TableActionMenu";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
-import { Plus, Search, Tag, Pencil, Trash2, Copy } from "lucide-react";
+import { Plus, Search, Tag, Pencil, Trash2, Copy, CheckCircle2, XCircle, TrendingUp } from "lucide-react";
 import type { StoreCoupon } from "../store.types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatCouponDiscount, pageWindow, toStoreCoupon } from "../store.utils";
 import { storeCoupons } from "@/lib/api";
+import { IconStatCard } from "@/components/ui/IconStatCard";
 
 export function CouponsView() {
   const t = useTranslations("store.coupons");
@@ -106,6 +107,11 @@ export function CouponsView() {
       {!isLoaded || isLoading ? (
         <motion.div key="sk" exit={{ opacity: 0 }} className="space-y-4">
           <div className="h-9 w-48 rounded-sm bg-muted animate-pulse" />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-[90px] rounded-2xl bg-muted animate-pulse" />
+            ))}
+          </div>
           <div className="h-64 w-full rounded-xl bg-muted animate-pulse" />
         </motion.div>
       ) : (
@@ -134,32 +140,41 @@ export function CouponsView() {
           </PageHeader>
 
           {/* Quick stats */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 items-stretch">
             {[
               {
-                key: "statusActive",
+                id: "statusActive",
+                label: t("statusActive"),
                 value: coupons.filter((c) => c.status === "active").length,
-                color: "text-success",
+                icon: CheckCircle2,
+                iconClass: "bg-emerald-500/10 text-emerald-600",
+                sub: `${coupons.length} total`,
               },
               {
-                key: "statusExpired",
+                id: "statusExpired",
+                label: t("statusExpired"),
                 value: coupons.filter((c) => c.status === "expired").length,
-                color: "text-error",
+                icon: XCircle,
+                iconClass: "bg-rose-500/10 text-rose-600",
+                sub: `${coupons.length > 0 ? Math.round((coupons.filter((c) => c.status === "expired").length / coupons.length) * 100) : 0}% of total`,
               },
-              { key: "totalUses", value: totalUsed, color: "text-info" },
+              {
+                id: "totalUses",
+                label: t("totalUses"),
+                value: totalUsed,
+                icon: TrendingUp,
+                iconClass: "bg-cyan-500/10 text-cyan-600",
+                sub: `${coupons.length > 0 ? Math.round(totalUsed / coupons.length) : 0} avg/coupon`,
+              },
             ].map((s) => (
-              <div
-                key={s.key}
-                className="glass-card p-3 flex items-center gap-3"
-              >
-                <Tag size={15} className={s.color} />
-                <div>
-                  <p className={`text-lg font-extrabold ${s.color}`}>
-                    {s.value}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground">{t(s.key)}</p>
-                </div>
-              </div>
+              <IconStatCard
+                key={s.id}
+                label={s.label}
+                value={s.value}
+                icon={s.icon}
+                iconClass={s.iconClass}
+                sub={s.sub}
+              />
             ))}
           </div>
 

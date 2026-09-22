@@ -10,7 +10,22 @@ import { TableActionMenu } from "@/components/common/TableActionMenu";
 import { Trophy, Eye, Pencil, X, Loader2 } from "lucide-react";
 import type { CustomerReward } from "../store.types";
 import { Button } from "@/components/ui/button";
+import { IconStatCard } from "@/components/ui/IconStatCard";
 import { REWARD_TIER_BADGES, REWARD_TIER_THRESHOLDS } from "../store.constants";
+
+const TIER_ICON_CLASS: Record<"bronze" | "silver" | "gold" | "platinum", string> = {
+  bronze: "bg-amber-800/10 text-amber-700",
+  silver: "bg-slate-400/10 text-slate-500",
+  gold: "bg-yellow-500/10 text-yellow-600",
+  platinum: "bg-sky-500/10 text-sky-600",
+};
+
+const TIER_TEXT_CLASS: Record<"bronze" | "silver" | "gold" | "platinum", string> = {
+  bronze: "text-amber-700",
+  silver: "text-slate-500",
+  gold: "text-yellow-600",
+  platinum: "text-sky-600",
+};
 import { pageWindow, toCustomerReward } from "../store.utils";
 import { storeCustomers } from "@/lib/api";
 
@@ -161,16 +176,20 @@ export function RewardPointsView() {
             />
 
             {/* Tier stats */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {(["bronze","silver","gold","platinum"] as const).map((tier) => {
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 items-stretch">
+              {(["bronze", "silver", "gold", "platinum"] as const).map((tier) => {
                 const count = rewards.filter((r) => r.tier === tier).length;
                 const badge = REWARD_TIER_BADGES[tier];
+                const pts = REWARD_TIER_THRESHOLDS[tier];
                 return (
-                  <div key={tier} className="glass-card p-4">
-                    <Trophy size={16} className={`mb-2 ${tier === "platinum" ? "text-purple-400" : tier === "gold" ? "text-warning" : tier === "silver" ? "text-info" : "text-muted-foreground"}`} />
-                    <p className="text-xl font-extrabold text-foreground">{count}</p>
-                    <StatusBadge variant={badge.variant} label={t(badge.label)} size="sm" className="mt-1" />
-                  </div>
+                  <IconStatCard
+                    key={tier}
+                    label={t(badge.label)}
+                    value={count}
+                    icon={Trophy}
+                    iconClass={TIER_ICON_CLASS[tier]}
+                    sub={`${pts}+ ${t("points")}`}
+                  />
                 );
               })}
             </div>
@@ -181,8 +200,15 @@ export function RewardPointsView() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                 {Object.entries(REWARD_TIER_THRESHOLDS).map(([tier, pts]) => (
                   <div key={tier} className="flex items-center gap-2">
-                    <Trophy size={12} className="text-muted-foreground shrink-0" />
-                    <span className="font-semibold capitalize text-foreground">{tier}</span>
+                    <Trophy
+                      size={12}
+                      className={`shrink-0 ${TIER_TEXT_CLASS[tier as keyof typeof TIER_TEXT_CLASS]}`}
+                    />
+                    <span
+                      className={`font-semibold capitalize ${TIER_TEXT_CLASS[tier as keyof typeof TIER_TEXT_CLASS]}`}
+                    >
+                      {tier}
+                    </span>
                     <span className="text-muted-foreground">{pts}+ {t("points")}</span>
                   </div>
                 ))}
